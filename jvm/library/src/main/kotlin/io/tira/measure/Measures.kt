@@ -7,12 +7,7 @@ import com.sun.jna.Structure.FieldOrder
 
 
 enum class LogLevel(val id: Int) {
-    TRACE(0),
-    DEBUG(1),
-    INFO(2),
-    WARN(3),
-    ERROR(4),
-    ASSERT(5);
+    TRACE(0), DEBUG(1), INFO(2), WARN(3), ERROR(4), ASSERT(5);
 
     companion object {
         fun fromInt(id: Int): LogLevel {
@@ -53,6 +48,17 @@ enum class Measure(val id: String, val providerId: String) {
     abstract fun decode(pointer: Pointer): Any
 
     companion object {
+        val ALL = setOf(
+            TIME_ELAPSED_WALL_CLOCK,
+            TIME_ELAPSED_USER,
+            TIME_ELAPSED_SYSTEM,
+            CPU_MAX_USED_SYSTEM_PERCENT,
+            CPU_AVAILABLE_SYSTEM_CORES,
+            RAM_MAX_USED_PROCESS_KB,
+            RAM_MAX_USED_SYSTEM_KB,
+            RAM_AVAILABLE_SYSTEM_MB,
+        )
+
         fun fromId(id: String): Measure {
             if (entries.none { measure -> measure.id == id }) {
                 throw IllegalArgumentException("${Measure::class.simpleName} with id '$id' does not exist.")
@@ -116,9 +122,7 @@ private interface MeasureLibrary : Library {
     fun mapiStopMeasure(measure: MeasurementRef): MeasurementResultRef
     fun mapiResultGetValue(measurementResultRef: MeasurementResultRef, value: Pointer?): Boolean
     fun mapiResultGetEntries(
-        measurementResultRef: MeasurementResultRef,
-        buffer: Array<ResultEntry>?,
-        bufferSize: Int
+        measurementResultRef: MeasurementResultRef, buffer: Array<ResultEntry>?, bufferSize: Int
     ): Int
 
     fun mapiResultFree(measurementResultRef: MeasurementResultRef)
@@ -206,7 +210,7 @@ fun stopMeasurement(measurement: MeasurementRef): Map<Measure, Any> {
 }
 
 inline fun measure(
-    measures: Iterable<Measure>,
+    measures: Iterable<Measure> = Measure.ALL,
     pollIntervalMillis: Long? = null,
     noinline logCallback: ((level: LogLevel, component: String, message: String) -> Unit)? = null,
     crossinline block: () -> Unit,
@@ -234,14 +238,14 @@ interface JvmBlockCallback {
 }
 
 fun measure(
-    measures: Iterable<Measure>,
+    measures: Iterable<Measure> = Measure.ALL,
     pollIntervalMillis: Long? = null,
     logCallback: JvmLogCallback? = null,
     block: JvmBlockCallback,
 ): Map<Measure, Any> {
     return measure(
-        measures,
-        pollIntervalMillis,
+        measures = measures,
+        pollIntervalMillis = pollIntervalMillis,
         logCallback = if (logCallback != null) {
             { level: LogLevel, component: String, message: String ->
                 logCallback.invoke(level, component, message)
@@ -249,5 +253,39 @@ fun measure(
         } else null,
         block = {
             block.invoke()
-        })
+        },
+    )
+}
+
+fun measure(
+    measures: Iterable<Measure> = Measure.ALL,
+    pollIntervalMillis: Long? = null,
+    block: JvmBlockCallback,
+): Map<Measure, Any> {
+    return measure(
+        measures = measures,
+        pollIntervalMillis = pollIntervalMillis,
+        logCallback = null,
+        block = block,
+    )
+}
+
+fun measure(
+    measures: Iterable<Measure> = Measure.ALL,
+    block: JvmBlockCallback,
+): Map<Measure, Any> {
+    return measure(
+        measures = measures,
+        pollIntervalMillis = null,
+        block = block,
+    )
+}
+
+fun measure(
+    block: JvmBlockCallback,
+): Map<Measure, Any> {
+    return measure(
+        measures = Measure.ALL,
+        block = block,
+    )
 }
