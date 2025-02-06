@@ -53,10 +53,6 @@ jobs:
           -D MEASURECMD_BUILD_EXAMPLES=YES
       - name: 🏗️ Build Linux binary
         run: cmake --build c/build/ --config Release --target measure
-      - name: Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: c/build/examples/03_measure_command/measure
       - name: 📤 Upload Linux CLI
         uses: actions/upload-artifact@v4
         with:
