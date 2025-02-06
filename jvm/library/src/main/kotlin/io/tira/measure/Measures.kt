@@ -20,32 +20,14 @@ enum class LogLevel(val id: Int) {
 }
 
 enum class Measure(val id: String, val providerId: String) {
-    TIME_ELAPSED_WALL_CLOCK("elapsed time.wallclock (ms)", "system") {
-        override fun decode(pointer: Pointer): Any = pointer.getFloat(0)
-    },
-    TIME_ELAPSED_USER("elapsed time.user (ms)", "system") {
-        override fun decode(pointer: Pointer): Any = pointer.getFloat(0)
-    },
-    TIME_ELAPSED_SYSTEM("elapsed time.system (ms)", "system") {
-        override fun decode(pointer: Pointer): Any = pointer.getFloat(0)
-    },
-    CPU_MAX_USED_SYSTEM_PERCENT("system.CPU Utilization Max (%)", "system") {
-        override fun decode(pointer: Pointer): Any = pointer.getByte(0)
-    },
-    CPU_AVAILABLE_SYSTEM_CORES("system.num cores", "system") {
-        override fun decode(pointer: Pointer): Any = pointer.getInt(0)
-    },
-    RAM_MAX_USED_PROCESS_KB("resources.Max RAM used (KB)", "system") {
-        override fun decode(pointer: Pointer): Any = pointer.getInt(0)
-    },
-    RAM_MAX_USED_SYSTEM_KB("system.Max RAM used (MB)", "system") {
-        override fun decode(pointer: Pointer): Any = pointer.getInt(0)
-    },
-    RAM_AVAILABLE_SYSTEM_MB("system.RAM (MB)", "system") {
-        override fun decode(pointer: Pointer): Any = pointer.getInt(0)
-    };
-
-    abstract fun decode(pointer: Pointer): Any
+    TIME_ELAPSED_WALL_CLOCK("elapsed time.wallclock (ms)", "system"),
+    TIME_ELAPSED_USER("elapsed time.user (ms)", "system"),
+    TIME_ELAPSED_SYSTEM("elapsed time.system (ms)", "system"),
+    CPU_MAX_USED_SYSTEM_PERCENT("system.CPU Utilization Max (%)", "system"),
+    CPU_AVAILABLE_SYSTEM_CORES("system.num cores", "system"),
+    RAM_MAX_USED_PROCESS_KB("resources.Max RAM used (KB)", "system"),
+    RAM_MAX_USED_SYSTEM_KB("system.Max RAM used (MB)", "system"),
+    RAM_AVAILABLE_SYSTEM_MB("system.RAM (MB)", "system");
 
     companion object {
         val ALL = setOf(
@@ -180,7 +162,6 @@ private fun MeasurementResultRef.parse(name: String = ""): Map<Measure, Any> {
         NativeMeasureLibrary.mapiResultGetValue(this, pointerPointer)
         val valuePointer = pointerPointer.getPointer(0)
 
-        // TODO: Decode the value here, depending on the expected measure value type.
         val value = valuePointer.getString(0)
         pointerPointer.close()
 
