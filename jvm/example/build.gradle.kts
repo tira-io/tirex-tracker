@@ -14,3 +14,7 @@ dependencies {
 application {
     mainClass.set("io.tira.measure.app.AppKt")
 }
+
+kotlin {
+    jvmToolchain(17)
+}
