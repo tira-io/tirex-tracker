@@ -46,19 +46,26 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 exclude = ["build", "venv"]
 
+[tool.setuptools.package-data]
+"*" = [
+    "*.so",
+    "*.dll",
+    "*.dylib",
+]
+
 [tool.setuptools_scm]
 root = ".."
 
 [tool.ruff]
-exclude = ["build", "venv"]
+exclude = ["build", "venv", "resources"]
 
 [tool.mypy]
-exclude = ["build", "venv"]
+exclude = ["build", "venv", "resources"]
 ignore_missing_imports = true
 follow_imports = "silent"
 
 [tool.bandit]
-exclude_dirs = ["build", "venv"]
+exclude_dirs = ["build", "venv", "resources"]
 
 [tool.bandit.assert_used]
 skips = ["**/test_*.py"]
