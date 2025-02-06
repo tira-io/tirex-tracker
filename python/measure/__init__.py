@@ -1,12 +1,10 @@
 import ctypes
-import time
-import json
 
 import os
 import urllib.request
 from pathlib import Path
 
-LIB_URL = "https://github.com/tira-io/measure/releases/download/v0.0.5/libmeasureapi.so"
+LIB_URL = "https://github.com/tira-io/measure/releases/download/v0.0.5/libmeasureapi.so"  # TODO: Instead, bundle the library with the package.
 
 def path_to_libmeasureapi() -> Path:
     target_file = Path(__file__).parent / 'libmeasureapi.so'
