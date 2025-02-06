@@ -95,7 +95,9 @@ jobs:
           java-version: 8
           distribution: temurin
           cache: gradle
-          cache-dependency-path: jvm/build.gradle
+          cache-dependency-path: |
+            jvm/example/build.gradle.kts
+            jvm/library/build.gradle.kts
       - name: 🏗️ Build with Gradle
         run: jvm/gradlew --project-dir jvm/ build
       - name: 📤 Upload Debian package
@@ -115,7 +117,9 @@ jobs:
           java-version: 8
           distribution: temurin
           cache: gradle
-          cache-dependency-path: jvm/build.gradle
+          cache-dependency-path: |
+            jvm/example/build.gradle.kts
+            jvm/library/build.gradle.kts
       - name: 🧪 Test with Gradle
         run: jvm/gradlew --project-dir jvm/ test
   python-build:
