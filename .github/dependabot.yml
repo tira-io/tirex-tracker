@@ -4,11 +4,15 @@ updates:
     directory: python
     schedule:
       interval: weekly
+  - package-ecosystem: gradle
+    directory: jvm
+    schedule:
+      interval: weekly
   - package-ecosystem: docker
-    directory: /
+    directory: .devcontainer
     schedule:
       interval: weekly
   - package-ecosystem: github-actions
-    directory: /
+    directory: .
     schedule:
       interval: monthly
