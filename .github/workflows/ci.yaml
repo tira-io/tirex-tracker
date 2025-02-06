@@ -9,7 +9,7 @@ concurrency:
 
 jobs:
   c-build-linux-library:
-    name: Build Linux library
+    name: 🏗️ Build Linux library
     runs-on: ubuntu-24.04
     steps:
       - name: 📥 Check-out
@@ -34,7 +34,7 @@ jobs:
           name: c-linux-library
           path: c/build/src/libmeasureapi.so
   c-build-linux-cli:
-    name: Build Linux CLI
+    name: 🏗️ Build Linux CLI
     runs-on: ubuntu-24.04
     steps:
       - name: 📥 Check-out
