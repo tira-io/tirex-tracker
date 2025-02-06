@@ -83,6 +83,41 @@ jobs:
         with:
           name: c-debian-package
           path: c/build/measure-*-Linux.deb
+  jvm-build:
+    name: 🏗️ Gradle build
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+      - name: 🧰 Install JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 8
+          distribution: temurin
+          cache: gradle
+          cache-dependency-path: jvm/build.gradle
+      - name: 🏗️ Build with Gradle
+        run: jvm/gradlew --project-dir jvm/ build
+      - name: 📤 Upload Debian package
+        uses: actions/upload-artifact@v4
+        with:
+          name: jvm-jar
+          path: jvm/library/build/libs/library.jar
+  jvm-test:
+    name: 🧪 Gradle test
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+      - name: 🧰 Install JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 8
+          distribution: temurin
+          cache: gradle
+          cache-dependency-path: jvm/build.gradle
+      - name: 🧪 Test with Gradle
+        run: jvm/gradlew --project-dir jvm/ test
   python-build:
     name: 🏗️ Build Python wheels
     runs-on: ubuntu-latest
@@ -180,6 +215,8 @@ jobs:
       - c-build-linux-library
       - c-build-linux-cli
       - c-build-debian-package
+      - jvm-build
+      - jvm-test
       - python-build
       - python-check
       - python-typing
