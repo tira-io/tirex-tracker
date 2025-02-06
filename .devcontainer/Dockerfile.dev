@@ -1,5 +1,6 @@
-# docker build -t ghcr.io/tira-io/measure:dev-0.0.1 -f .devcontainer/Dockerfile.dev .
-FROM ubuntu:focal
+# docker build -t ghcr.io/tira-io/measure:dev-0.0.2 -f .devcontainer/Dockerfile.dev .
+FROM ghcr.io/tira-io/measure:dev-0.0.1
+# FROM ubuntu:focal
 
 
 ########################################################################################################################
@@ -8,11 +9,12 @@ FROM ubuntu:focal
 USER root
 ARG DEBIAN_FRONTEND=noninteractive
 RUN <<EOF
+set -e
 apt-get update
-apt-get -y install clang-18 cmake git
+apt-get -y install clang-18 cmake git sudo
 
 # Needed for the dev environment
-apt-get -y install build-essential cppcheck flawfinder doxygen graphviz gdb clang-tidy clang-format
+apt-get -y install build-essential cppcheck flawfinder doxygen graphviz gdb clang-tidy clang-format python3-pip python3
 
 # Dependencies (libssl-dev needed for libgit)
 apt-get -y install libssl-dev
@@ -22,7 +24,7 @@ EOF
 # Create User                                                                                                          #
 ########################################################################################################################
 # Change root Password to 1234
-RUN echo 'root:1234' | chpasswd
+#RUN echo 'root:1234' | chpasswd
 # Create new user: "dev"
-RUN useradd -ms /bin/bash dev
+#RUN useradd -ms /bin/bash dev
 USER dev
