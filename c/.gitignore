@@ -563,14 +563,3 @@ FodyWeavers.xsd
 # Additional files built by Visual Studio
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudio,visualstudiocode,codeblocks,macos,linux,windows,vim,c++,cmake
-# Ignore Gradle project-specific cache directory
-.gradle
-
-# Ignore Gradle build output directory
-build
-
-.idea
-.vscode
-__pycache__
-py_measure.egg-info
-build

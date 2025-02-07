@@ -76,6 +76,10 @@ void SystemStats::start() {
 	starttime = steady_clock::now();
 	Utilization tmp;
 	parseStat(tmp); // Call parseStat once to init lastIdle and lastTotal
+	parseStat(getpid(), tmp);
+	startUTime = tmp.userTimeMs;
+	startSysTime = tmp.sysTimeMs;
+	msr::log::debug("linuxstats", "Start systime {} ms, utime {} ms", startSysTime, startUTime);
 }
 void SystemStats::stop() { stoptime = steady_clock::now(); }
 void SystemStats::step() {
@@ -98,8 +102,8 @@ Stats SystemStats::getStats() {
 	return {{MSR_OS_NAME, info.osname},
 			{MSR_OS_KERNEL, info.kerneldesc},
 			{MSR_TIME_ELAPSED_WALL_CLOCK_MS, wallclocktime},
-			{MSR_TIME_ELAPSED_USER_MS, std::to_string(utilization.userTimeMs)},
-			{MSR_TIME_ELAPSED_SYSTEM_MS, std::to_string(utilization.sysTimeMs)},
+			{MSR_TIME_ELAPSED_USER_MS, std::to_string(utilization.userTimeMs - utilization.userTimeMs)},
+			{MSR_TIME_ELAPSED_SYSTEM_MS, std::to_string(utilization.sysTimeMs - utilization.sysTimeMs)},
 			{MSR_CPU_USED_PROCESS_PERCENT, "TODO"s},
 			{MSR_CPU_USED_SYSTEM_PERCENT, std::to_string(sysCpuUtil.maxValue())},
 			{MSR_CPU_AVAILABLE_SYSTEM_CORES, "TODO"s},
@@ -225,8 +229,8 @@ void SystemStats::parseStat(pid_t pid, Utilization& utilization) {
 		;
 	is >> cignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >>
 			utime >> stime;
-	auto ticksPerSec = sysconf(_SC_CLK_TCK);
-	utilization.userTimeMs = (utime * 1000) / ticksPerSec;
-	utilization.sysTimeMs = (stime * 1000) / ticksPerSec;
+	auto ticksPerSec = (unsigned)sysconf(_SC_CLK_TCK);
+	utilization.userTimeMs = (utime * 1000u) / ticksPerSec;
+	utilization.sysTimeMs = (stime * 1000u) / ticksPerSec;
 }
 #endif

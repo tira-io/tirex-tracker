@@ -18,6 +18,9 @@ namespace msr {
 		msr::TimeSeries<unsigned> sysRam;
 
 #if __linux__
+		size_t startUTime;
+		size_t startSysTime;
+
 		struct Utilization;
 
 		size_t lastIdle;

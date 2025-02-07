@@ -36,7 +36,7 @@ target_link_libraries(<yourtarget> measure::measureapi)
 
 
 # Usage
-Generally, `measure` offers two ways of measuring programs: a [commandline interface](#command) and a [C-API](#api) that can be called from and integrated into other languages easily. Please also have a look at the [examples](./examples) to see how it can be used.
+Generally, `measure` offers two ways of measuring programs: a [commandline interface](#command) and a [C API](#api) that can be called from and integrated into other languages easily. Please also have a look at the [examples](./examples) to see how it can be used.
 
 ## Command
 Type `measurecmd --help` to get a full description of the supported commandline arguments. Generally, you only need to call
@@ -46,6 +46,9 @@ measurecmd "<command>"
 to measure everything, you may want to know about the shell command `<command>`.
 
 ## API
+- [C Bindings](c/)
+- [Python Bindings](python/)
+- [JVM Bindings (e.g., Java and Kotlin)](jvm/)
 ```c
 #include <measure.h>
 
