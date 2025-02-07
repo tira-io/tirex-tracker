@@ -6,7 +6,7 @@
 
 using nvmlDevice_t = struct nvmlDevice_st*;
 
-namespace am {
+namespace msr {
 	class GPUStats final : public StatsProvider {
 	private:
 		struct {
@@ -26,7 +26,8 @@ namespace am {
 
 		static constexpr const char* description = "Collects gpu related metrics.";
 		static const char* version;
+		static const std::set<msrMeasure> measures;
 	};
-} // namespace am
+} // namespace msr
 
 #endif

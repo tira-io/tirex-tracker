@@ -1,64 +1,24 @@
 #ifndef STATS_PROVIDER_HPP
 #define STATS_PROVIDER_HPP
 
-#include <measureapi.h>
+#include <measure.h>
 
-#include <cassert>
 #include <functional>
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
-#include <variant>
 
-struct mapiResult_st {
-private:
-	std::variant<std::string, std::map<std::string, mapiResult_st>> value;
+struct msrResult_st {
+public:
+	std::vector<std::pair<msrMeasure, std::string>> value;
 
 public:
-	mapiResult_st(const std::string& value) noexcept : value(value) {}
-	mapiResult_st(const std::initializer_list<std::pair<const std::string, mapiResult_st>>& value) noexcept
-			: value(value) {}
-	mapiResult_st(std::string&& value) noexcept : value(value) {}
-	mapiResult_st(std::initializer_list<std::pair<const std::string, mapiResult_st>>&& value) noexcept : value(value) {}
-
-	bool isLeaf() const noexcept { return !std::holds_alternative<std::map<std::string, mapiResult_st>>(value); }
-	const std::map<std::string, mapiResult_st>& children() const noexcept {
-		assert(!isLeaf());
-		return std::get<std::map<std::string, mapiResult_st>>(value);
-	}
-	const std::string& item() const noexcept {
-		assert(isLeaf());
-		return std::get<std::string>(value);
-	}
-
-	void insertChild(const std::string& name, mapiResult_st&& stats) {
-		assert(!isLeaf());
-		auto& map = std::get<std::map<std::string, mapiResult_st>>(value);
-		map.insert_or_assign(name, stats);
-	}
-
-	static mapiResult_st merge(const mapiResult_st& left, const mapiResult_st& right) {
-		assert(!left.isLeaf() && !right.isLeaf());
-		mapiResult_st merged{};
-		const auto& rc = right.children();
-		const auto& lc = left.children();
-		std::map<std::string, mapiResult_st>::const_iterator it;
-		for (const auto& [key, value] : lc) {
-			if ((it = rc.find(key)) != rc.end()) // Present in left and right
-				merged.insertChild(key, merge(value, it->second));
-			else // Present only in left
-				merged.insertChild(key, mapiResult_st{value});
-		}
-		for (const auto& [key, value] : rc) {
-			if (lc.find(key) == lc.end()) // Present only in right
-				merged.insertChild(key, mapiResult_st{value});
-		}
-		return merged;
-	}
+	msrResult_st(std::initializer_list<std::pair<msrMeasure, std::string>> il) : value(std::move(il)) {}
 };
 
-namespace am {
-	using Stats = mapiResult_st;
+namespace msr {
+	using Stats = msrResult_st;
 
 	class StatsProvider {
 	public:
@@ -66,34 +26,43 @@ namespace am {
 		 * @brief Start is called once at the very beginning of collecting statistics and shortly before the command is
 		 * run.
 		 */
-		virtual void start() = 0;
+		virtual void start() {}
 		/**
 		 * @brief Stop is called once at the end of collecting statistics and shortly after the command is run.
 		 */
-		virtual void stop() = 0;
+		virtual void stop() {}
 		/**
 		 * @brief Step may be called multiple times during the execution of the command at some configured intervall (or
 		 * even not at all).
 		 */
 		virtual void step() {}
 		/**
-		 * @brief Append the statistics from this provider to the given stats. This is called once after
+		 * @brief Returns the statistics collected during the last measurement. This should be called once after
 		 * StatsProvider::stop().
 		 * 
 		 * @returns the statistics that were measured
 		 */
-		virtual Stats getStats() = 0;
+		virtual Stats getStats() { return {}; }
 
-		static std::unique_ptr<StatsProvider> constructFromName(const std::string& name);
+		/**
+		 * @brief Returns the information collected by this provider.
+		 * 
+		 * @return the system information that is collected by this provider. 
+		 */
+		virtual Stats getInfo() { return {}; }
 	};
 
 	using ProviderConstructor = std::function<std::unique_ptr<StatsProvider>(void)>;
 	struct ProviderEntry final {
 		ProviderConstructor constructor;
+		const std::set<msrMeasure>& measures; /**< The set of measures that the provider is responsible for */
 		const char* version;
 		const char* description;
 	};
 	extern const std::map<std::string, ProviderEntry> providers;
-} // namespace am
+
+	std::set<msrMeasure>
+	initProviders(std::set<msrMeasure> measures, std::vector<std::unique_ptr<StatsProvider>>& providers);
+} // namespace msr
 
 #endif

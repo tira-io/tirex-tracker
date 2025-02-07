@@ -5,7 +5,7 @@
 #include <utility>
 #include <vector>
 
-namespace am {
+namespace msr {
 	template <typename T>
 	struct TimeSeries final {
 	private:
@@ -23,6 +23,6 @@ namespace am {
 
 		const T& maxValue() const noexcept { return max; }
 	};
-}; // namespace am
+}; // namespace msr
 
 #endif

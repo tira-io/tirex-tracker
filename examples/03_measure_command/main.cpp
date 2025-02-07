@@ -2,7 +2,7 @@
 #include "formatters.hpp"
 #include "utils.hpp"
 
-#include <measureapi.h>
+#include <measure.h>
 
 #include <CLI/CLI.hpp>
 
@@ -12,21 +12,21 @@
 #include <ranges>
 #include <thread>
 
-static void logCallback(mapiLogLevel level, const char* component, const char* message) {
+static void logCallback(msrLogLevel level, const char* component, const char* message) {
 	static constexpr spdlog::level::level_enum levels[] = {
-			[mapiLogLevel::TRACE] = spdlog::level::level_enum::trace,
-			[mapiLogLevel::DEBUG] = spdlog::level::level_enum::debug,
-			[mapiLogLevel::INFO] = spdlog::level::level_enum::info,
-			[mapiLogLevel::WARN] = spdlog::level::level_enum::warn,
-			[mapiLogLevel::ERROR] = spdlog::level::level_enum::err,
-			[mapiLogLevel::CRITICAL] = spdlog::level::level_enum::critical
+			[msrLogLevel::TRACE] = spdlog::level::level_enum::trace,
+			[msrLogLevel::DEBUG] = spdlog::level::level_enum::debug,
+			[msrLogLevel::INFO] = spdlog::level::level_enum::info,
+			[msrLogLevel::WARN] = spdlog::level::level_enum::warn,
+			[msrLogLevel::ERROR] = spdlog::level::level_enum::err,
+			[msrLogLevel::CRITICAL] = spdlog::level::level_enum::critical
 	};
-	am::getLogger(component)->log(levels[level], message);
+	msr::getLogger(component)->log(levels[level], message);
 }
 
-using am::MeasureCmdArgs;
+using msr::MeasureCmdArgs;
 
-static void setupLoggerArgs(CLI::App& app, am::LoggerConf& conf) {
+static void setupLoggerArgs(CLI::App& app, msr::LoggerConf& conf) {
 	app.add_flag(
 			"-v,--verbose", conf.verbosity,
 			"Sets the logger's verbosity. Passing it multiple times increases verbosity."
@@ -36,34 +36,36 @@ static void setupLoggerArgs(CLI::App& app, am::LoggerConf& conf) {
 
 static void runMeasureCmd(const MeasureCmdArgs& args) {
 	// Initialization and setup
-	am::setVerbosity(args.logConf.getVerbosity());
-	auto logger = am::getLogger("measure");
+	msr::setVerbosity(args.logConf.getVerbosity());
+	auto logger = msr::getLogger("measure");
 	logger->info("Measuring command: {}", args.command);
 
 	// Start measuring
-	std::vector<const char*> providers;
-	for (const auto& provider : args.statproviders)
-		providers.emplace_back(provider.c_str());
-	providers.emplace_back(nullptr);
-	auto conf = args.measureConf;
-	conf.provider = providers.data();
+	std::vector<msrMeasureConf> measures;
+	for (const auto& provider : args.statproviders) {
+		/** \todo implement **/
+		throw std::runtime_error("Not yet implemented");
+	}
+	measures.emplace_back(msrNullConf);
 
-	auto handle = mapiStartMeasure(conf);
+	msrMeasureHandle* handle;
+	assert(msrStartMeasure(measures.data(), pollIntervalMs, &handle) == MSR_SUCCESS);
 
 	// Run the command
 	auto exitcode = std::system(args.command.c_str());
 
 	// Stop measuring
-	auto result = mapiStopMeasure(handle);
+	msrResult* result;
+	assert(msrStopMeasure(handle, &result) == MSR_SUCCESS);
 
 	/** \todo Maybe add the exit code as a stat. **/
 	std::cout << "\n== RESULTS ==" << std::endl;
 	args.getFormatter()(std::cout, result);
-	mapiResultFree(result);
+	msrResultFree(result);
 }
 
 int main(int argc, char* argv[]) {
-	mapiSetLogCallback(logCallback);
+	msrSetLogCallback(logCallback);
 	CLI::App app("Measures runtime, energy, and many other metrics of a specifed command.");
 	app.set_version_flag("-V,--version", buildVersionString());
 	app.set_help_flag("-h,--help", "Prints this help message");
@@ -75,14 +77,9 @@ int main(int argc, char* argv[]) {
 			->default_val("simple");
 	app.add_option("--source,-s", measureArgs.statproviders, "The datasources to poll information from")
 			->default_val(std::vector<std::string>{"git", "system", "energy", "gpu"});
-	app.add_flag("--monitor,!--no-monitor", measureArgs.measureConf.monitor)
+	app.add_option("--poll-interval", measureArgs.pollIntervalMs)
 			->description(
-					"If set, monitors resource consumption continuously at the intervall specified in --poll-intervall."
-			)
-			->default_val(true);
-	app.add_option("--poll-intervall", measureArgs.measureConf.pollIntervallMs)
-			->description(
-					"The intervall in milliseconds in which to poll for updated stats like energy consumption and RAM "
+					"The interval in milliseconds in which to poll for updated stats like energy consumption and RAM "
 					"usage. Smaller intervalls allow for higher accuracy."
 			)
 			->default_val(100);

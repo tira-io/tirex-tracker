@@ -10,15 +10,20 @@
 
 using namespace std::string_literals;
 
-using am::GitStats;
-using am::Stats;
+using msr::GitStats;
+using msr::Stats;
 
 const char* GitStats::version = "libgit v." LIBGIT2_VERSION;
+const std::set<msrMeasure> GitStats::measures{
+		MSR_GIT_IS_REPO,		MSR_GIT_HASH,		   MSR_GIT_LAST_COMMIT_HASH,	MSR_GIT_BRANCH,
+		MSR_GIT_TAGS,			MSR_GIT_REMOTE_ORIGIN, MSR_GIT_UNCOMMITTED_CHANGES, MSR_GIT_UNPUSHED_CHANGES,
+		MSR_GIT_UNCHECKED_FILES
+};
 
 static std::string getLastCommitHash(git_repository* repo) {
 	git_oid id;
 	if (int err; err = git_reference_name_to_id(&id, repo, "HEAD")) {
-		measureapi::log::error("gitstats", "Failed to lookup HEAD: {}", git_error_last()->message);
+		msr::log::error("gitstats", "Failed to lookup HEAD: {}", git_error_last()->message);
 		return "";
 	}
 	char buf[GIT_OID_SHA1_HEXSIZE + 1];
@@ -29,7 +34,7 @@ static std::string getLastCommitHash(git_repository* repo) {
 static std::string getShortname(git_repository* repo) {
 	git_reference* head;
 	if (int err; err = git_repository_head(&head, repo)) {
-		measureapi::log::error("gitstats", "Failed to fetch repository head: {}", git_error_last()->message);
+		msr::log::error("gitstats", "Failed to fetch repository head: {}", git_error_last()->message);
 		return "";
 	}
 	std::string hash = git_reference_shorthand(head);
@@ -41,7 +46,7 @@ static std::string getRemoteOrigin(git_repository* repo) {
 	git_remote* remote;
 	if (int err; err = git_remote_lookup(&remote, repo, "origin")) {
 		/** No remote called origin is set **/
-		measureapi::log::warn("gitstats", "Failed to lookup remote/origin: {}", git_error_last()->message);
+		msr::log::warn("gitstats", "Failed to lookup remote/origin: {}", git_error_last()->message);
 		return "";
 	}
 	std::string url = git_remote_url(remote);
@@ -75,33 +80,32 @@ static GitStatusStats getStatusStats(git_repository* repo) {
 GitStats::GitStats() : repo(nullptr) {
 	git_libgit2_init();
 	if (int err; git_repository_open_ext(&repo, "./", 0, nullptr) < 0)
-		measureapi::log::error("gitstats", "Failed to open git repository: {}", git_error_last()->message);
+		msr::log::error("gitstats", "Failed to open git repository: {}", git_error_last()->message);
 }
 GitStats::~GitStats() { git_libgit2_shutdown(); }
 
 bool GitStats::isRepository() const noexcept { return repo != nullptr; }
 
-void GitStats::start() {
-	measureapi::log::info("gitstats", "Is a Git Repository: {}", (isRepository() ? "Yes" : "No"));
-}
+void GitStats::start() { msr::log::info("gitstats", "Is a Git Repository: {}", (isRepository() ? "Yes" : "No")); }
 void GitStats::stop() { /* nothing to do */ }
 Stats GitStats::getStats() {
+	/** \todo: filter by requested metrics */
 	if (isRepository()) {
 		auto status = getStatusStats(repo);
-		measureapi::log::info(
+		msr::log::info(
 				"gitstats", "I counted {} tracked files that were changed and {} untracked files", status.numModified,
 				status.numNew
 		);
-		return {
-				{"git",
-				 {{"isrepo", "1"s},
-				  {"tag", getShortname(repo)},
-				  {"last commit", getLastCommitHash(repo)},
-				  {"remote", {{{"origin", getRemoteOrigin(repo)}}}},
-				  {"up to date", (status.numModified == 0) ? "1"s : "0"s},
-				  {"untracked files", (status.numNew != 0) ? "1"s : "0"s}}}
-		};
+		return {{MSR_GIT_IS_REPO, "1"s},
+				{MSR_GIT_HASH, "TODO"s},
+				{MSR_GIT_LAST_COMMIT_HASH, getLastCommitHash(repo)},
+				{MSR_GIT_BRANCH, "TODO"s},
+				{MSR_GIT_TAGS, "TODO"s},
+				{MSR_GIT_REMOTE_ORIGIN, getRemoteOrigin(repo)},
+				{MSR_GIT_UNCOMMITTED_CHANGES, (status.numModified != 0) ? "1"s : "0"s},
+				{MSR_GIT_UNPUSHED_CHANGES, "TODO"s},
+				{MSR_GIT_UNCHECKED_FILES, (status.numNew != 0) ? "1"s : "0"s}};
 	} else {
-		return {{"git", {{"isrepo", "0"s}}}};
+		return {{MSR_GIT_IS_REPO, "0"s}};
 	}
 }

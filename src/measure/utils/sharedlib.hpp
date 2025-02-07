@@ -11,7 +11,7 @@
 #error "Unsupported OS"
 #endif
 
-namespace am::utils {
+namespace msr::utils {
 
 	namespace details {
 #if defined(__linux__) || defined(__APPLE__)
@@ -70,6 +70,6 @@ namespace am::utils {
 		operator bool() const noexcept { return good(); }
 	};
 
-} // namespace am::utils
+} // namespace msr::utils
 
 #endif

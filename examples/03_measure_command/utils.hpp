@@ -3,7 +3,7 @@
 
 #include "logging.hpp"
 
-#include <measureapi.h>
+#include <measure.h>
 
 #include <format>
 #include <string>
@@ -21,11 +21,11 @@ static constexpr const char* compiler = "unknown compiler";
 #endif
 
 static std::string buildVersionString() {
-	auto versionString = std::format("{}\nBuilt with {} for C++ {}", am::getVersionStr(), compiler, __cplusplus);
-	auto numProviders = mapiGetDataProviders(nullptr, 0);
+	auto versionString = std::format("{}\nBuilt with {} for C++ {}", msr::getVersionStr(), compiler, __cplusplus);
+	auto numProviders = msrDataProviderGetAll(nullptr, 0);
 	/** I don't know how compatible this is accross compilers; otherwise use a vector. **/
-	mapiDataProvider buf[numProviders];
-	mapiGetDataProviders(buf, sizeof(buf) / sizeof(buf[0]));
+	msrDataProvider buf[numProviders];
+	msrDataProviderGetAll(buf, sizeof(buf) / sizeof(buf[0]));
 	for (const auto& provider : buf)
 		if (provider.version)
 			versionString += std::string("\n") + provider.version;
