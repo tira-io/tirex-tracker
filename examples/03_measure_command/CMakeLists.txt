@@ -12,6 +12,7 @@ target_link_libraries(measure measureapi_static)
 ##########################################################################################
 # Libraries
 ##########################################################################################
+include(FetchContent)
 # spdlog for logging
 FetchContent_Declare(spdlog GIT_REPOSITORY https://github.com/gabime/spdlog.git GIT_TAG v1.14.1)
 FetchContent_MakeAvailable(spdlog)

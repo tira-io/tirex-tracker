@@ -1,13 +1,15 @@
-FROM ubuntu:24.04
+# docker build -t ghcr.io/tira-io/measure:dev-0.0.1 -f .devcontainer/Dockerfile.dev .
+FROM ubuntu:focal
 
 
 ########################################################################################################################
 # Install Dependencies                                                                                                 #
 ########################################################################################################################
 USER root
+ARG DEBIAN_FRONTEND=noninteractive
 RUN <<EOF
 apt-get update
-apt-get -y install g++-13 cmake git
+apt-get -y install clang-18 cmake git
 
 # Needed for the dev environment
 apt-get -y install build-essential cppcheck flawfinder doxygen graphviz gdb clang-tidy clang-format

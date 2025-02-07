@@ -34,6 +34,12 @@ add_library(measureapi_static STATIC
 target_compile_features(measureapi_static PUBLIC cxx_std_20)
 target_include_directories(measureapi_static PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../include)
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	target_link_options(measureapi PRIVATE -static-libgcc -static-libstdc++)
+endif()
+
+target_link_libraries(measureapi PUBLIC dl)  # dlopen, dlclose, ...
+
 
 set(BUILD_SHARED_LIBS OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -64,3 +70,10 @@ FetchContent_Declare(nvml GIT_REPOSITORY https://github.com/NVIDIA/go-nvml.git G
 FetchContent_MakeAvailable(nvml)
 target_include_directories(measureapi PRIVATE ${nvml_SOURCE_DIR}/gen/)
 target_include_directories(measureapi_static PRIVATE ${nvml_SOURCE_DIR}/gen/)
+
+# FMT (remove in the future when std::format can be assumed)
+FetchContent_Declare(fmt GIT_REPOSITORY https://github.com/fmtlib/fmt.git GIT_TAG 11.1.3)
+FetchContent_MakeAvailable(fmt)
+set_property(TARGET fmt PROPERTY POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(measureapi PRIVATE fmt::fmt)
+target_link_libraries(measureapi_static PRIVATE fmt::fmt)

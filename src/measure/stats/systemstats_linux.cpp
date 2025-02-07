@@ -131,7 +131,7 @@ SysInfo getSysInfo() {
 	uname(&uts);
 	sysinfo(&info);
 	return {.osname = readDistroFromLSB(),
-			.kerneldesc = {std::format("{} {} {}", uts.sysname, uts.release, uts.machine)},
+			.kerneldesc = {_fmt::format("{} {} {}", uts.sysname, uts.release, uts.machine)},
 			.numCores = static_cast<unsigned>(sysconf(_SC_NPROCESSORS_ONLN)),
 			.totalRamMB = ((std::uint64_t)info.totalram * info.mem_unit) / 1000 / 1000};
 }
@@ -193,10 +193,15 @@ void SystemStats::parseStat(Utilization& utilization) {
 	is >> cpu >> user >> nice >> system >> idle >> iowait >> irq >> softirq >> steal >> guest >> guestnice;
 
 	auto total = user + nice + system + idle + iowait + irq + softirq + steal + guest + guestnice;
-	utilization.system.cpuUtilization = 100 - (((idle - lastIdle) * 100) / (total - lastTotal));
+	if (total - lastTotal == 0) {
+		// Not enough time has passed
+		utilization.system.cpuUtilization = 100;
+	} else {
+		utilization.system.cpuUtilization = 100 - (((idle - lastIdle) * 100) / (total - lastTotal));
 
-	lastIdle = idle;
-	lastTotal = total;
+		lastIdle = idle;
+		lastTotal = total;
+	}
 }
 
 void SystemStats::parseStatm(pid_t pid, Utilization& utilization) {

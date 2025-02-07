@@ -4,7 +4,6 @@
 
 #include <git2.h>
 
-#include <format>
 #include <iostream>
 #include <string>
 

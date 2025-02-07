@@ -19,7 +19,7 @@ def log_callback(level: ctypes.c_int, component: ctypes.c_char_p, message: ctype
     level_to_name = ["TRACE", "DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"]
     print(f"[{component.decode('ascii')}] [{level_to_name[level]}] {message.decode('ascii')}")
 
-def result_to_dict(lib, result: ctypes.POINTER(None)) -> str | dict:
+def result_to_dict(lib, result: ctypes.POINTER(None)) -> "str | dict":
     """
     Takes a reference to the library and a pointer to a results object and recursively translates it into a python object.
     """

@@ -1,5 +1,5 @@
 #ifndef STATS_GITSTATS_HPP
-#define STATS_GITSTATE_HPP
+#define STATS_GITSTATS_HPP
 
 #include "provider.hpp"
 
