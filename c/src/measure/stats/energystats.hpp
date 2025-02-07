@@ -5,7 +5,7 @@
 
 #include <cppJoules.hpp>
 
-namespace am {
+namespace msr {
 	class EnergyStats final : public StatsProvider {
 	private:
 		EnergyTracker tracker;
@@ -19,7 +19,8 @@ namespace am {
 
 		static constexpr const char* description = "Collects the energy consumption of various components.";
 		static const char* version;
+		static const std::set<msrMeasure> measures;
 	};
-} // namespace am
+} // namespace msr
 
 #endif

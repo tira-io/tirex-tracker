@@ -7,15 +7,15 @@
 #include <chrono>
 #include <vector>
 
-namespace am {
+namespace msr {
 	class SystemStats final : public StatsProvider {
 	private:
 		std::chrono::steady_clock::time_point starttime;
 		std::chrono::steady_clock::time_point stoptime;
 
-		am::TimeSeries<unsigned> ram;
-		am::TimeSeries<unsigned> sysCpuUtil;
-		am::TimeSeries<unsigned> sysRam;
+		msr::TimeSeries<unsigned> ram;
+		msr::TimeSeries<unsigned> sysCpuUtil;
+		msr::TimeSeries<unsigned> sysRam;
 
 #if __linux__
 		size_t startUTime;
@@ -34,6 +34,8 @@ namespace am {
 #endif
 
 	public:
+		SystemStats() = default;
+
 		void start() override;
 		void stop() override;
 		void step() override;
@@ -41,7 +43,8 @@ namespace am {
 
 		static constexpr const char* description = "Collects system components and utilization metrics.";
 		static const char* version;
+		static const std::set<msrMeasure> measures;
 	};
-} // namespace am
+} // namespace msr
 
 #endif

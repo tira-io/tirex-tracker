@@ -1,16 +1,16 @@
 #ifndef STATFORMATTER_HPP
 #define STATFORMATTER_HPP
 
-#include <measureapi.h>
+#include <measure.h>
 
 #include <functional>
 #include <ostream>
 
-namespace am {
-	using ResultFormatter = std::function<void(std::ostream& stream, const mapiResult* result)>;
+namespace msr {
+	using ResultFormatter = std::function<void(std::ostream& stream, const msrResult* result)>;
 
-	extern void simpleFormatter(std::ostream& stream, const mapiResult* result) noexcept;
-	extern void jsonFormatter(std::ostream& stream, const mapiResult* result) noexcept;
-} // namespace am
+	extern void simpleFormatter(std::ostream& stream, const msrResult* result) noexcept;
+	extern void jsonFormatter(std::ostream& stream, const msrResult* result) noexcept;
+} // namespace msr
 
 #endif

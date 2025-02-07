@@ -4,14 +4,14 @@
 #include "formatters.hpp"
 #include "logging.hpp"
 
-#include <measureapi.h>
+#include <measure.h>
 
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
-namespace am {
+namespace msr {
 	struct LoggerConf final {
 		bool quiet = false;
 		/**
@@ -23,12 +23,12 @@ namespace am {
          */
 		int verbosity = 0;
 
-		am::Verbosity getVerbosity() const noexcept {
+		msr::Verbosity getVerbosity() const noexcept {
 			if (quiet)
-				return am::Verbosity::Off;
-			auto verb = static_cast<int>(am::Verbosity::Warning) + verbosity;
-			verb = std::min(verb, static_cast<int>(am::Verbosity::Trace));
-			return static_cast<am::Verbosity>(verb);
+				return msr::Verbosity::Off;
+			auto verb = static_cast<int>(msr::Verbosity::Warning) + verbosity;
+			verb = std::min(verb, static_cast<int>(msr::Verbosity::Trace));
+			return static_cast<msr::Verbosity>(verb);
 		}
 	};
 
@@ -37,7 +37,7 @@ namespace am {
 		std::string command;   /**< The command that should be measured **/
 		std::string formatter; /**< The identifier specifying the formatter to use for the output **/
 		std::vector<std::string> statproviders;
-		mapiConfig measureConf;
+		size_t pollIntervalMs;
 		bool pedantic;
 
 		const ResultFormatter& getFormatter() const {
@@ -48,6 +48,6 @@ namespace am {
 			return formatters.at(formatter);
 		}
 	};
-} // namespace am
+} // namespace msr
 
 #endif

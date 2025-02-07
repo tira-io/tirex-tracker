@@ -5,22 +5,57 @@
 
 #include <sys/resource.h>
 #include <sys/sysinfo.h>
+#include <sys/utsname.h>
 #include <unistd.h>
 
 #include <cinttypes>
 #include <filesystem>
 #include <fstream>
 
+using namespace std::string_literals;
 using std::chrono::steady_clock;
 
-using am::Stats;
-using am::SystemStats;
+using msr::Stats;
+using msr::SystemStats;
 
 const char* SystemStats::version = nullptr;
+const std::set<msrMeasure> SystemStats::measures{
+		MSR_OS_NAME,
+		MSR_OS_KERNEL,
+
+		MSR_TIME_ELAPSED_WALL_CLOCK_MS,
+		MSR_TIME_ELAPSED_USER_MS,
+		MSR_TIME_ELAPSED_SYSTEM_MS,
+
+		MSR_CPU_USED_PROCESS_PERCENT,
+		MSR_CPU_USED_SYSTEM_PERCENT,
+		MSR_CPU_AVAILABLE_SYSTEM_CORES,
+		MSR_CPU_FEATURES,
+		MSR_CPU_FREQUENCY_MHZ,
+		MSR_CPU_FREQUENCY_MIN_MHZ,
+		MSR_CPU_FREQUENCY_MAX_MHZ,
+		MSR_CPU_VENDOR_ID,
+		MSR_CPU_BYTE_ORDER,
+		MSR_CPU_ARCHITECTURE,
+		MSR_CPU_MODEL_NAME,
+		MSR_CPU_CORES_PER_SOCKET,
+		MSR_CPU_THREADS_PER_CORE,
+		MSR_CPU_CACHES_L1_KB,
+		MSR_CPU_CACHES_L2_KB,
+		MSR_CPU_CACHES_L3_KB,
+		MSR_CPU_VIRTUALIZATION,
+		MSR_CPU_BOGO_MIPS,
+
+		MSR_RAM_USED_PROCESS_KB,
+		MSR_RAM_USED_SYSTEM_MB,
+		MSR_RAM_AVAILABLE_SYSTEM_MB
+};
 
 struct SysInfo {
-	unsigned numCores;	 /**< The number of CPU cores of the system **/
-	uint64_t totalRamMB; /**< The total amount of RAM (in Megabytes) installed in the system **/
+	std::string osname;		/**< The name of the operating system that is currently running **/
+	std::string kerneldesc; /**< The os kernel that is currently running **/
+	unsigned numCores;		/**< The number of CPU cores of the system **/
+	uint64_t totalRamMB;	/**< The total amount of RAM (in Megabytes) installed in the system **/
 };
 
 struct SystemStats::Utilization {
@@ -34,15 +69,17 @@ struct SystemStats::Utilization {
 };
 
 SysInfo getSysInfo();
+std::string readDistroFromLSB();
 
 void SystemStats::start() {
-	measureapi::log::info("linuxstats", "Collecting resources for Process {}", getpid());
+	msr::log::info("linuxstats", "Collecting resources for Process {}", getpid());
 	starttime = steady_clock::now();
 	Utilization tmp;
 	parseStat(tmp); // Call parseStat once to init lastIdle and lastTotal
+	parseStat(getpid(), tmp);
 	startUTime = tmp.userTimeMs;
 	startSysTime = tmp.sysTimeMs;
-	measureapi::log::debug("linuxstats", "Start systime {} ms, utime {} ms", startSysTime, startUTime);
+	msr::log::debug("linuxstats", "Start systime {} ms, utime {} ms", startSysTime, startUTime);
 }
 void SystemStats::stop() { stoptime = steady_clock::now(); }
 void SystemStats::step() {
@@ -53,31 +90,68 @@ void SystemStats::step() {
 }
 
 Stats SystemStats::getStats() {
+	/** \todo: filter by requested metrics */
 	auto info = getSysInfo();
 	auto utilization = getUtilization();
 	/** \todo For more accurate reading: measure utime and stime in start() and report only the difference to the start
 	 *   value **/
 
-	return {
-			{{"system",
-			  {{"num cores", std::to_string(info.numCores)},
-			   {"RAM (MB)", std::to_string(info.totalRamMB)},
-			   {"CPU Utilization Max (%)", std::to_string(sysCpuUtil.maxValue())},
-			   {"Max RAM used (MB)", std::to_string(sysRam.maxValue())}}},
-			 {"elapsed time",
-			  {{"wallclock (ms)",
-				{std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(stoptime - starttime).count())}},
-			   {"system (ms)", std::to_string(utilization.sysTimeMs - startSysTime)},
-			   {"user (ms)", std::to_string(utilization.userTimeMs - startUTime)}}},
-			 {"resources", {{"Max RAM used (KB)", {std::to_string(ram.maxValue())}}}}}
-	};
+	auto wallclocktime =
+			std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(stoptime - starttime).count());
+
+	return {{MSR_OS_NAME, info.osname},
+			{MSR_OS_KERNEL, info.kerneldesc},
+			{MSR_TIME_ELAPSED_WALL_CLOCK_MS, wallclocktime},
+			{MSR_TIME_ELAPSED_USER_MS, std::to_string(utilization.userTimeMs - startUTime)},
+			{MSR_TIME_ELAPSED_SYSTEM_MS, std::to_string(utilization.sysTimeMs - startSysTime)},
+			{MSR_CPU_USED_PROCESS_PERCENT, "TODO"s},
+			{MSR_CPU_USED_SYSTEM_PERCENT, std::to_string(sysCpuUtil.maxValue())},
+			{MSR_CPU_AVAILABLE_SYSTEM_CORES, "TODO"s},
+			{MSR_CPU_FEATURES, "TODO"s},
+			{MSR_CPU_FREQUENCY_MHZ, "TODO"s},
+			{MSR_CPU_FREQUENCY_MIN_MHZ, "TODO"s},
+			{MSR_CPU_FREQUENCY_MAX_MHZ, "TODO"s},
+			{MSR_CPU_VENDOR_ID, "TODO"s},
+			{MSR_CPU_BYTE_ORDER, "TODO"s},
+			{MSR_CPU_ARCHITECTURE, "TODO"s},
+			{MSR_CPU_MODEL_NAME, "TODO"s},
+			{MSR_CPU_CORES_PER_SOCKET, std::to_string(info.numCores)},
+			{MSR_CPU_THREADS_PER_CORE, "TODO"s},
+			{MSR_CPU_CACHES_L1_KB, "TODO"s},
+			{MSR_CPU_CACHES_L2_KB, "TODO"s},
+			{MSR_CPU_CACHES_L3_KB, "TODO"s},
+			{MSR_CPU_VIRTUALIZATION, "TODO"s},
+			{MSR_CPU_BOGO_MIPS, "TODO"s},
+			{MSR_RAM_USED_PROCESS_KB, std::to_string(ram.maxValue())},
+			{MSR_RAM_USED_SYSTEM_MB, std::to_string(sysRam.maxValue())},
+			{MSR_RAM_AVAILABLE_SYSTEM_MB, std::to_string(info.totalRamMB)}};
 }
 
 SysInfo getSysInfo() {
+	struct utsname uts;
 	struct sysinfo info;
+	uname(&uts);
 	sysinfo(&info);
-	return {.numCores = static_cast<unsigned>(sysconf(_SC_NPROCESSORS_ONLN)),
+	return {.osname = readDistroFromLSB(),
+			.kerneldesc = {_fmt::format("{} {} {}", uts.sysname, uts.release, uts.machine)},
+			.numCores = static_cast<unsigned>(sysconf(_SC_NPROCESSORS_ONLN)),
 			.totalRamMB = ((std::uint64_t)info.totalram * info.mem_unit) / 1000 / 1000};
+}
+
+std::string readDistroFromLSB() {
+	std::ifstream stream("/etc/lsb-release");
+	if (!stream) {
+		msr::log::error("linux", "Could not open /etc/lsb-release");
+		return "(not found)";
+	}
+	for (std::string line; std::getline(stream, line);) {
+		/** \fixme could fail if there are spaces or has no quotes **/
+		if (line.starts_with("DISTRIB_DESCRIPTION=\"")) {
+			return line.substr(21, line.length() - 21 - 1);
+		}
+	}
+	msr::log::error("linux", "/etc/lsb-release did not contain DISTRIB_DESCRIPTION");
+	return "(not found)";
 }
 
 SystemStats::Utilization SystemStats::getUtilization() {
@@ -153,8 +227,8 @@ void SystemStats::parseStat(pid_t pid, Utilization& utilization) {
 		;
 	is >> cignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >>
 			utime >> stime;
-	auto ticksPerSec = sysconf(_SC_CLK_TCK);
-	utilization.userTimeMs = (utime * 1000) / ticksPerSec;
-	utilization.sysTimeMs = (stime * 1000) / ticksPerSec;
+	auto ticksPerSec = (unsigned)sysconf(_SC_CLK_TCK);
+	utilization.userTimeMs = (utime * 1000u) / ticksPerSec;
+	utilization.sysTimeMs = (stime * 1000u) / ticksPerSec;
 }
 #endif

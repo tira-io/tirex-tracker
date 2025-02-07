@@ -3,6 +3,8 @@ include(FetchContent)
 # Must be shared since it should interface with other languages as well (TODO: add measureapi and measureapi_shared)
 add_library(measureapi SHARED
 	measureapi.cpp
+	measureinfo.cpp
+	measureresult.cpp
 	logging.cpp
 	measure/stats/provider.cpp
 
@@ -19,6 +21,8 @@ set_property(TARGET measureapi PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 add_library(measureapi_static STATIC
 	measureapi.cpp
+	measureinfo.cpp
+	measureresult.cpp
 	logging.cpp
 	measure/stats/provider.cpp
 

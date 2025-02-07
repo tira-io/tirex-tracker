@@ -9,12 +9,12 @@ project(measurecmd VERSION 0.0.1 LANGUAGES C CXX)
 
 if (NOT MEASURECMD_ONLY_DOCS)
     add_subdirectory(src)
+    add_subdirectory(extensions)
 
 	if (MEASURECMD_BUILD_EXAMPLES)
 		add_subdirectory(examples)
 	endif()
 endif()
-
 
 ##########################################################################################
 # Debian Package

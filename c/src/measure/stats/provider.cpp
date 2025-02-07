@@ -7,20 +7,33 @@
 #include "gpustats.hpp"
 #include "systemstats.hpp"
 
-using am::StatsProvider;
+using msr::EnergyStats;
+using msr::GitStats;
+using msr::GPUStats;
+using msr::StatsProvider;
+using msr::SystemStats;
 
-const std::map<std::string, am::ProviderEntry> am::providers{
-		{"system", {std::make_unique<am::SystemStats>, am::SystemStats::version, am::SystemStats::description}},
-		{"energy", {std::make_unique<am::EnergyStats>, am::EnergyStats::version, am::EnergyStats::description}},
-		{"git", {std::make_unique<am::GitStats>, am::GitStats::version, am::GitStats::description}},
-		{"gpu", {std::make_unique<am::GPUStats>, am::GPUStats::version, am::GPUStats::description}}
+const std::map<std::string, msr::ProviderEntry> msr::providers{
+		{"system",
+		 {std::make_unique<SystemStats>, SystemStats::measures, SystemStats::version, SystemStats::description}},
+		{"energy",
+		 {std::make_unique<EnergyStats>, EnergyStats::measures, EnergyStats::version, EnergyStats::description}},
+		{"git", {std::make_unique<GitStats>, GitStats::measures, GitStats::version, GitStats::description}},
+		{"gpu", {std::make_unique<GPUStats>, GPUStats::measures, GPUStats::version, GPUStats::description}}
 };
 
-std::unique_ptr<StatsProvider> StatsProvider::constructFromName(const std::string& name) {
-	auto it = providers.find(name);
-	if (it == providers.end()) {
-		measureapi::log::error("measure", "The stat provider '{}' could not be found and will be ignored", name);
-		return nullptr;
+std::set<msrMeasure>
+msr::initProviders(std::set<msrMeasure> measures, std::vector<std::unique_ptr<StatsProvider>>& providers) {
+	for (auto& [_, info] : msr::providers) {
+		std::set<msrMeasure> diff;
+		std::set_difference(
+				measures.begin(), measures.end(), info.measures.begin(), info.measures.end(),
+				std::inserter(diff, diff.begin())
+		);
+		if (diff.size() != measures.size()) { // The provider is responsible for some of the requested measures
+			providers.emplace_back(info.constructor());
+		}
+		measures = std::move(diff);
 	}
-	return it->second.constructor();
+	return measures;
 }
