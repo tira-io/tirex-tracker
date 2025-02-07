@@ -102,12 +102,11 @@ Stats SystemStats::getStats() {
 	return {{MSR_OS_NAME, info.osname},
 			{MSR_OS_KERNEL, info.kerneldesc},
 			{MSR_TIME_ELAPSED_WALL_CLOCK_MS, wallclocktime},
-			{MSR_TIME_ELAPSED_USER_MS, std::to_string(utilization.userTimeMs - utilization.userTimeMs)},
-			{MSR_TIME_ELAPSED_SYSTEM_MS, std::to_string(utilization.sysTimeMs - utilization.sysTimeMs)},
+			{MSR_TIME_ELAPSED_USER_MS, std::to_string(utilization.userTimeMs - startUTime)},
+			{MSR_TIME_ELAPSED_SYSTEM_MS, std::to_string(utilization.sysTimeMs - startSysTime)},
 			{MSR_CPU_USED_PROCESS_PERCENT, "TODO"s},
 			{MSR_CPU_USED_SYSTEM_PERCENT, std::to_string(sysCpuUtil.maxValue())},
 			{MSR_CPU_AVAILABLE_SYSTEM_CORES, "TODO"s},
-			{MSR_CPU_ENERGY_SYSTEM_JOULES, "TODO"s},
 			{MSR_CPU_FEATURES, "TODO"s},
 			{MSR_CPU_FREQUENCY_MHZ, "TODO"s},
 			{MSR_CPU_FREQUENCY_MIN_MHZ, "TODO"s},
@@ -125,8 +124,7 @@ Stats SystemStats::getStats() {
 			{MSR_CPU_BOGO_MIPS, "TODO"s},
 			{MSR_RAM_USED_PROCESS_KB, std::to_string(ram.maxValue())},
 			{MSR_RAM_USED_SYSTEM_MB, std::to_string(sysRam.maxValue())},
-			{MSR_RAM_AVAILABLE_SYSTEM_MB, std::to_string(info.totalRamMB)},
-			{MSR_RAM_ENERGY_SYSTEM_JOULES, "TODO"s}};
+			{MSR_RAM_AVAILABLE_SYSTEM_MB, std::to_string(info.totalRamMB)}};
 }
 
 SysInfo getSysInfo() {

@@ -1,3 +1,4 @@
+#include <irmeasure.h>
 #include <measure.h>
 
 #include <assert.h>
@@ -62,24 +63,6 @@ static const char* measureToName[] = {
 		[MSR_GIT_UNCHECKED_FILES] = "git unchecked files"
 };
 
-static void printResult(const msrResult* result, const char* prefix) {
-	size_t num;
-	msrResultEntry entry;
-	assert(msrResultEntryNum(result, &num) == MSR_SUCCESS);
-	for (size_t i = 0; i < num; ++i) {
-		if (msrResultEntryGetByIndex(result, i, &entry) != MSR_SUCCESS)
-			abort();
-		assert(entry.source >= 0 && entry.source < MSR_MEASURE_COUNT);
-		printf("[%s] %s\n", measureToName[entry.source], (const char*)entry.value);
-	}
-}
-
-int fib(int n) {
-	if (n <= 1)
-		return n;
-	return fib(n - 1) + fib(n - 2);
-}
-
 int main(int argc, char* argv[]) {
 	msrMeasureHandle* measure;
 	msrResult* result;
@@ -135,10 +118,9 @@ int main(int argc, char* argv[]) {
 	msrSetLogCallback(logcallback);
 
 	// Print information about the system (e.g., OS Information, HW Specs, ...)
-	if (msrFetchInfo(providers, &result) != MSR_SUCCESS)
+	/*if (msrFetchInfo(providers, &result) != MSR_SUCCESS)
 		abort();
-	printResult(result, NULL);
-	msrResultFree(result);
+	msrResultFree(result);*/
 
 	// Track metadata
 	if (msrStartMeasure(providers, 100, &measure) != MSR_SUCCESS)
@@ -153,7 +135,9 @@ int main(int argc, char* argv[]) {
 	}
 	if (msrStopMeasure(measure, &result) != MSR_SUCCESS)
 		abort();
-	printResult(result, NULL);
+	printf("Writing results to ./test.ir_metadata\n");
+	if (msrResultExportIrMetadata(result, "./test.ir_metadata") != MSR_SUCCESS)
+		abort();
 	msrResultFree(result);
 	return 0;
 }

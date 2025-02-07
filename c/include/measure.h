@@ -65,6 +65,8 @@ typedef enum msrMeasure_enum {
 	MSR_RAM_ENERGY_SYSTEM_JOULES,
 
 	MSR_GPU_SUPPORTED,
+	MSR_GPU_MODEL_NAME,
+	MSR_GPU_NUM_CORES,
 	MSR_GPU_USED_PROCESS_PERCENT,
 	MSR_GPU_USED_SYSTEM_PERCENT,
 	MSR_GPU_AVAILABLE_SYTEM_CORES,
@@ -236,7 +238,6 @@ MSR_EXPORT size_t msrDataProviderGetAll(msrDataProvider* providers, size_t bufsi
  */
 typedef struct msrMeasureInfo_st {
 	const char* description;
-	unsigned versions;
 	msrResultType datatype;
 	const char* example;
 } msrMeasureInfo;
