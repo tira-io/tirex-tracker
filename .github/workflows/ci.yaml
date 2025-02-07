@@ -84,7 +84,7 @@ jobs:
           name: c-debian-package
           path: c/build/measure-*-Linux.deb
   jvm-build:
-    name: 🏗️ Gradle build
+    name: 🏗️ Build JVM library
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Check-out
@@ -106,7 +106,7 @@ jobs:
           name: jvm-jar
           path: jvm/library/build/libs/library.jar
   jvm-test:
-    name: 🧪 Gradle test
+    name: 🧪 Test JVM library
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Check-out

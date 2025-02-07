@@ -5,7 +5,6 @@ package io.tira.measure
 import com.sun.jna.*
 import com.sun.jna.Structure.FieldOrder
 
-
 enum class LogLevel(val id: Int) {
     TRACE(0), DEBUG(1), INFO(2), WARN(3), ERROR(4), ASSERT(5);
 
@@ -30,16 +29,6 @@ enum class Measure(val id: String, val providerId: String) {
     RAM_AVAILABLE_SYSTEM_MB("system.RAM (MB)", "system");
 
     companion object {
-        val ALL = setOf(
-            TIME_ELAPSED_WALL_CLOCK,
-            TIME_ELAPSED_USER,
-            TIME_ELAPSED_SYSTEM,
-            CPU_MAX_USED_SYSTEM_PERCENT,
-            CPU_AVAILABLE_SYSTEM_CORES,
-            RAM_MAX_USED_PROCESS_KB,
-            RAM_MAX_USED_SYSTEM_KB,
-            RAM_AVAILABLE_SYSTEM_MB,
-        )
 
         fun fromId(id: String): Measure {
             if (entries.none { measure -> measure.id == id }) {
@@ -50,12 +39,20 @@ enum class Measure(val id: String, val providerId: String) {
     }
 }
 
-private interface LoggingCallback : Callback {
+val ALL_MEASURES = Measure.entries.toSet()
+
+private interface NativeLogCallback : Callback {
     fun invoke(level: Int, component: String, message: String)
 }
 
+data class Provider(
+    val name: String,
+    val description: String,
+    val version: String?,
+)
+
 @FieldOrder("name", "description", "version")
-internal class DataProvider : Structure() {
+internal class NativeProvider : Structure() {
     @JvmField
     var name: String = ""
 
@@ -69,13 +66,6 @@ internal class DataProvider : Structure() {
         return Provider(name, description, version)
     }
 }
-
-
-data class Provider(
-    val name: String,
-    val description: String,
-    val version: String?,
-)
 
 @FieldOrder("providers", "monitor", "pollIntervalMillis")
 internal class Config(
@@ -98,8 +88,8 @@ internal class ResultEntry : Structure() {
 }
 
 private interface MeasureLibrary : Library {
-    fun mapiGetDataProviders(buffer: Array<DataProvider>?, bufferSize: Int): Int
-    fun mapiSetLogCallback(callback: LoggingCallback?)
+    fun mapiGetDataProviders(buffer: Array<NativeProvider>?, bufferSize: Int): Int
+    fun mapiSetLogCallback(callback: NativeLogCallback?)
     fun mapiStartMeasure(config: Config): MeasurementRef
     fun mapiStopMeasure(measure: MeasurementRef): MeasurementResultRef
     fun mapiResultGetValue(measurementResultRef: MeasurementResultRef, value: Pointer?): Boolean
@@ -110,32 +100,36 @@ private interface MeasureLibrary : Library {
     fun mapiResultFree(measurementResultRef: MeasurementResultRef)
 }
 
-private object NativeMeasureLibrary : MeasureLibrary by Native.load("measureapi", MeasureLibrary::class.java)
+private val LIBRARY = Native.load(
+    "measureapi",
+    MeasureLibrary::class.java,
+    mapOf(Library.OPTION_STRING_ENCODING to "ascii"),
+)
 
 val providers: List<Provider>
     get() {
-        val numProviders = NativeMeasureLibrary.mapiGetDataProviders(null, 0)
+        val numProviders = LIBRARY.mapiGetDataProviders(null, 0)
         if (numProviders == 0) {
             return emptyList()
         }
-        @Suppress("UNCHECKED_CAST") val buffer = DataProvider().toArray(numProviders) as Array<DataProvider>
-        NativeMeasureLibrary.mapiGetDataProviders(buffer, numProviders)
+        @Suppress("UNCHECKED_CAST") val buffer = NativeProvider().toArray(numProviders) as Array<NativeProvider>
+        LIBRARY.mapiGetDataProviders(buffer, numProviders)
         return buffer.map { provider -> provider.toProvider() }
     }
 
 private fun Iterable<String>.toStringArray() = StringArray(this.toList().toTypedArray())
 
 fun startMeasurement(
-    measures: Iterable<Measure>,
+    measures: Iterable<Measure> = ALL_MEASURES,
     pollIntervalMillis: Long? = null,
     logCallback: ((level: LogLevel, component: String, message: String) -> Unit)? = null,
 ): MeasurementRef {
-    val internalLogCallback = if (logCallback != null) object : LoggingCallback {
+    val internalLogCallback = if (logCallback != null) object : NativeLogCallback {
         override fun invoke(level: Int, component: String, message: String) {
             logCallback(LogLevel.fromInt(level), component, message)
         }
     } else null
-    NativeMeasureLibrary.mapiSetLogCallback(internalLogCallback)
+    LIBRARY.mapiSetLogCallback(internalLogCallback)
 
     val providers = measures.map { measure -> measure.providerId }.toSet().toStringArray()
 
@@ -149,17 +143,17 @@ fun startMeasurement(
         pollIntervalMillis = 0L,
     )
 
-    val measurement = NativeMeasureLibrary.mapiStartMeasure(config)
+    val measurement = LIBRARY.mapiStartMeasure(config)
     return measurement
 }
 
-private fun MeasurementResultRef.parse(name: String = ""): Map<Measure, Any> {
-    val isLeaf = NativeMeasureLibrary.mapiResultGetValue(this, null)
+private fun MeasurementResultRef.parse(name: String = ""): Map<Measure, String> {
+    val isLeaf = LIBRARY.mapiResultGetValue(this, null)
     if (isLeaf) {
         val measure = Measure.fromId(name)
 
         val pointerPointer = Memory(Native.POINTER_SIZE.toLong())
-        NativeMeasureLibrary.mapiResultGetValue(this, pointerPointer)
+        LIBRARY.mapiResultGetValue(this, pointerPointer)
         val valuePointer = pointerPointer.getPointer(0)
 
         val value = valuePointer.getString(0)
@@ -168,13 +162,13 @@ private fun MeasurementResultRef.parse(name: String = ""): Map<Measure, Any> {
         return mapOf(measure to value)
     } else {
         val namePrefix = if (name != "") "$name." else ""
-        val size = NativeMeasureLibrary.mapiResultGetEntries(this, null, 0)
-        if (size == 0) {
+        val numEntries = LIBRARY.mapiResultGetEntries(this, null, 0)
+        if (numEntries == 0) {
             return emptyMap()
         }
 
-        @Suppress("UNCHECKED_CAST") val entries = ResultEntry().toArray(size) as Array<ResultEntry>
-        NativeMeasureLibrary.mapiResultGetEntries(this, entries, size)
+        @Suppress("UNCHECKED_CAST") val entries = ResultEntry().toArray(numEntries) as Array<ResultEntry>
+        LIBRARY.mapiResultGetEntries(this, entries, numEntries)
 
         return entries.flatMap { entry ->
             requireNotNull(entry.value).parse("$namePrefix${entry.name}").toList()
@@ -182,20 +176,20 @@ private fun MeasurementResultRef.parse(name: String = ""): Map<Measure, Any> {
     }
 }
 
-fun stopMeasurement(measurement: MeasurementRef): Map<Measure, Any> {
-    val result = NativeMeasureLibrary.mapiStopMeasure(measurement)
-    NativeMeasureLibrary.mapiSetLogCallback(null)
+fun stopMeasurement(measurement: MeasurementRef): Map<Measure, String> {
+    val result = LIBRARY.mapiStopMeasure(measurement)
+    LIBRARY.mapiSetLogCallback(null)
     val parsedResults = result.parse()
-    NativeMeasureLibrary.mapiResultFree(result)
+    LIBRARY.mapiResultFree(result)
     return parsedResults
 }
 
 inline fun measure(
-    measures: Iterable<Measure> = Measure.ALL,
+    measures: Iterable<Measure> = ALL_MEASURES,
     pollIntervalMillis: Long? = null,
     noinline logCallback: ((level: LogLevel, component: String, message: String) -> Unit)? = null,
     crossinline block: () -> Unit,
-): Map<Measure, Any> {
+): Map<Measure, String> {
     val measurement = startMeasurement(
         measures = measures,
         pollIntervalMillis = pollIntervalMillis,
@@ -219,11 +213,11 @@ interface JvmBlockCallback {
 }
 
 fun measure(
-    measures: Iterable<Measure> = Measure.ALL,
+    measures: Iterable<Measure> = ALL_MEASURES,
     pollIntervalMillis: Long? = null,
     logCallback: JvmLogCallback? = null,
     block: JvmBlockCallback,
-): Map<Measure, Any> {
+): Map<Measure, String> {
     return measure(
         measures = measures,
         pollIntervalMillis = pollIntervalMillis,
@@ -239,10 +233,10 @@ fun measure(
 }
 
 fun measure(
-    measures: Iterable<Measure> = Measure.ALL,
+    measures: Iterable<Measure> = ALL_MEASURES,
     pollIntervalMillis: Long? = null,
     block: JvmBlockCallback,
-): Map<Measure, Any> {
+): Map<Measure, String> {
     return measure(
         measures = measures,
         pollIntervalMillis = pollIntervalMillis,
@@ -252,9 +246,9 @@ fun measure(
 }
 
 fun measure(
-    measures: Iterable<Measure> = Measure.ALL,
+    measures: Iterable<Measure> = ALL_MEASURES,
     block: JvmBlockCallback,
-): Map<Measure, Any> {
+): Map<Measure, String> {
     return measure(
         measures = measures,
         pollIntervalMillis = null,
@@ -264,9 +258,9 @@ fun measure(
 
 fun measure(
     block: JvmBlockCallback,
-): Map<Measure, Any> {
+): Map<Measure, String> {
     return measure(
-        measures = Measure.ALL,
+        measures = ALL_MEASURES,
         block = block,
     )
 }
