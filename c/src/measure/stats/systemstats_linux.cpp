@@ -1,3 +1,8 @@
+/**
+ * @file systemstats_linux.cpp
+ * @brief Implements linux specific code of the systemstats.hpp header.
+ */
+
 #if __linux__
 #include "systemstats.hpp"
 
@@ -92,6 +97,7 @@ void SystemStats::step() {
 Stats SystemStats::getStats() {
 	/** \todo: filter by requested metrics */
 	auto info = getSysInfo();
+	auto cpuInfo = getCPUInfo();
 	auto utilization = getUtilization();
 	/** \todo For more accurate reading: measure utime and stime in start() and report only the difference to the start
 	 *   value **/
@@ -111,10 +117,10 @@ Stats SystemStats::getStats() {
 			{MSR_CPU_FREQUENCY_MHZ, "TODO"s},
 			{MSR_CPU_FREQUENCY_MIN_MHZ, "TODO"s},
 			{MSR_CPU_FREQUENCY_MAX_MHZ, "TODO"s},
-			{MSR_CPU_VENDOR_ID, "TODO"s},
-			{MSR_CPU_BYTE_ORDER, "TODO"s},
+			{MSR_CPU_VENDOR_ID, cpuInfo.vendorId},
+			{MSR_CPU_BYTE_ORDER, cpuInfo.endianness},
 			{MSR_CPU_ARCHITECTURE, "TODO"s},
-			{MSR_CPU_MODEL_NAME, "TODO"s},
+			{MSR_CPU_MODEL_NAME, cpuInfo.modelname},
 			{MSR_CPU_CORES_PER_SOCKET, std::to_string(info.numCores)},
 			{MSR_CPU_THREADS_PER_CORE, "TODO"s},
 			{MSR_CPU_CACHES_L1_KB, "TODO"s},

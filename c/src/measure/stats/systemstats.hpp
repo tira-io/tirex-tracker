@@ -44,6 +44,20 @@ namespace msr {
 		static constexpr const char* description = "Collects system components and utilization metrics.";
 		static const char* version;
 		static const std::set<msrMeasure> measures;
+
+	private:
+		struct CPUInfo {
+			std::string modelname;
+			std::string vendorId;
+			unsigned coresPerSocket;
+			unsigned threadsPerCore;
+			struct {
+				unsigned l1d, l1i, l2, l3;
+			} caches;
+			std::string virtualization;
+			std::string endianness;
+		};
+		static CPUInfo getCPUInfo();
 	};
 } // namespace msr
 
