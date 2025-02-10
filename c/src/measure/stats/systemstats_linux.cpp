@@ -16,6 +16,7 @@
 #include <cinttypes>
 #include <filesystem>
 #include <fstream>
+#include <optional>
 
 using namespace std::string_literals;
 using std::chrono::steady_clock;
@@ -74,7 +75,7 @@ struct SystemStats::Utilization {
 };
 
 SysInfo getSysInfo();
-std::string readDistroFromLSB();
+std::string readDistro();
 
 void SystemStats::start() {
 	msr::log::info("linuxstats", "Collecting resources for Process {}", getpid());
@@ -114,15 +115,15 @@ Stats SystemStats::getStats() {
 			{MSR_CPU_USED_SYSTEM_PERCENT, std::to_string(sysCpuUtil.maxValue())},
 			{MSR_CPU_AVAILABLE_SYSTEM_CORES, "TODO"s},
 			{MSR_CPU_FEATURES, "TODO"s},
-			{MSR_CPU_FREQUENCY_MHZ, "TODO"s},
+			{MSR_CPU_FREQUENCY_MHZ, std::to_string(cpuInfo.frequency)},
 			{MSR_CPU_FREQUENCY_MIN_MHZ, "TODO"s},
 			{MSR_CPU_FREQUENCY_MAX_MHZ, "TODO"s},
 			{MSR_CPU_VENDOR_ID, cpuInfo.vendorId},
 			{MSR_CPU_BYTE_ORDER, cpuInfo.endianness},
 			{MSR_CPU_ARCHITECTURE, "TODO"s},
 			{MSR_CPU_MODEL_NAME, cpuInfo.modelname},
-			{MSR_CPU_CORES_PER_SOCKET, std::to_string(info.numCores)},
-			{MSR_CPU_THREADS_PER_CORE, "TODO"s},
+			{MSR_CPU_CORES_PER_SOCKET, std::to_string(cpuInfo.coresPerSocket)},
+			{MSR_CPU_THREADS_PER_CORE, std::to_string(cpuInfo.threadsPerCore)},
 			{MSR_CPU_CACHES_L1_KB, "TODO"s},
 			{MSR_CPU_CACHES_L2_KB, "TODO"s},
 			{MSR_CPU_CACHES_L3_KB, "TODO"s},
@@ -138,17 +139,17 @@ SysInfo getSysInfo() {
 	struct sysinfo info;
 	uname(&uts);
 	sysinfo(&info);
-	return {.osname = readDistroFromLSB(),
+	return {.osname = readDistro(),
 			.kerneldesc = {_fmt::format("{} {} {}", uts.sysname, uts.release, uts.machine)},
 			.numCores = static_cast<unsigned>(sysconf(_SC_NPROCESSORS_ONLN)),
 			.totalRamMB = ((std::uint64_t)info.totalram * info.mem_unit) / 1000 / 1000};
 }
 
-std::string readDistroFromLSB() {
+std::optional<std::string> readDistroFromLSB() {
 	std::ifstream stream("/etc/lsb-release");
 	if (!stream) {
 		msr::log::error("linux", "Could not open /etc/lsb-release");
-		return "(not found)";
+		return std::nullopt;
 	}
 	for (std::string line; std::getline(stream, line);) {
 		/** \fixme could fail if there are spaces or has no quotes **/
@@ -157,7 +158,30 @@ std::string readDistroFromLSB() {
 		}
 	}
 	msr::log::error("linux", "/etc/lsb-release did not contain DISTRIB_DESCRIPTION");
-	return "(not found)";
+	return std::nullopt;
+}
+
+std::optional<std::string> readDistroFromOS() {
+	std::ifstream stream("/etc/os-release");
+	if (!stream) {
+		msr::log::error("linux", "Could not open /etc/os-release");
+		return std::nullopt;
+	}
+	for (std::string line; std::getline(stream, line);) {
+		/** \fixme could fail if there are spaces or has no quotes **/
+		if (line.starts_with("PRETTY_NAME=\"")) {
+			return line.substr(13, line.length() - 13 - 1);
+		}
+	}
+	msr::log::error("linux", "/etc/os-release did not contain PRETTY_NAME");
+	return std::nullopt;
+}
+
+std::string readDistro() {
+	auto val = readDistroFromLSB();
+	if (val.has_value())
+		return val.value();
+	return readDistroFromOS().value_or("(not found)");
 }
 
 SystemStats::Utilization SystemStats::getUtilization() {

@@ -64,13 +64,19 @@ SystemStats::CPUInfo SystemStats::getCPUInfo() {
 		);
 	}
 	auto cluster = cpuinfo_get_cluster(0);
+	auto core = cpuinfo_get_core(0);
 
 	std::string endianness =
 			(std::endian::native == std::endian::big)
 					? "Big Endian"
-					: ((std::endian::native == std::endian::little) ? "Little Endian" : "Unknown Endianness");
+					: ((std::endian::native == std::endian::little) ? "Little Endian" : "Mixed Endian");
 
 	return CPUInfo{
-			.modelname = cluster->package->name, .vendorId = vendorToStr[cluster->vendor], .endianness = endianness
+			.modelname = cluster->package->name,
+			.vendorId = vendorToStr[cluster->vendor],
+			.coresPerSocket = cluster->core_count,
+			.threadsPerCore = cluster->processor_count / cluster->core_count,
+			.endianness = endianness,
+			.frequency = core->frequency
 	};
 }

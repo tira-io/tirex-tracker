@@ -56,6 +56,7 @@ namespace msr {
 			} caches;
 			std::string virtualization;
 			std::string endianness;
+			uint64_t frequency;
 		};
 		static CPUInfo getCPUInfo();
 	};
