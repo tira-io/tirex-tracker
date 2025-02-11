@@ -1,5 +1,5 @@
 [project]
-name = "measure"
+name = "tira-measure"
 authors = [
     { name = "Maik Fröbe", email = "maik.froebe@uni-jena.de" },
     { name = "Jan Heinrich Merker", email = "heinrich.merker@uni-jena.de" },

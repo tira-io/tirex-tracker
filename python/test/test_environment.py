@@ -1,5 +1,5 @@
 import unittest
-from measure import Environment
+from tira_measure import Environment
 
 class Tests(unittest.TestCase):
     def test_py_measure_can_be_instantiated(self):
