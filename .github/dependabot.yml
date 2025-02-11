@@ -1,0 +1,18 @@
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: python
+    schedule:
+      interval: weekly
+  - package-ecosystem: gradle
+    directory: jvm
+    schedule:
+      interval: weekly
+  - package-ecosystem: docker
+    directory: .devcontainer
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: .
+    schedule:
+      interval: monthly

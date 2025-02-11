@@ -1,9 +1,17 @@
 # The Measure Python API
 
-```py
-from measure import Environment
+Install via:
 
-environment = Environment("git.hash", "elapsed_time.wall_clock", ..., polling_ms=1000)  # defaults would be all measures, and some reasonable polling interval.
+```
+pip3 install 'git+https://github.com/tira-io/measure.git@python-language-structure#egg=py_measure&subdirectory=python'
+```
+
+Usage:
+
+```py
+from py_measure import Environment
+
+environment = Environment(["git", "system"], ..., polling_ms=1000)  # defaults would be all measures, and some reasonable polling interval.
 
 # Then measure with a context manager...
 with environment.measure():
@@ -20,7 +28,12 @@ environment.start_measuring()
 # do something
 environment.stop_measuring()
 
-print("start git hash", environment.measurements["git.hash"][0])
-print("end git hash", environment.measurements["git.hash"][-1])
-print("elapsed time", environment.measurements["elapsed_time.wall_clock"])
+print("start git hash", environment.measurements[0]["git"])
+```
+
+
+
+Run tests via:
+```
+pytest
 ```

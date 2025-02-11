@@ -1,0 +1,267 @@
+name: CI
+
+on:
+  push:
+
+concurrency:
+  group: ${{ github.actor }}-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  c-build-linux-library:
+    name: 🏗️ Build Linux library
+    runs-on: ubuntu-24.04
+    steps:
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+      - name: 🧰 Install compiler
+        run: sudo apt-get install -y g++-13
+      - name: 🔧 Configure CMake
+        run: |
+          cmake -S c/ -B c/build/ \
+          -D CMAKE_BUILD_TYPE=Release \
+          -D CMAKE_C_COMPILER=gcc-13 \
+          -D CMAKE_CXX_COMPILER=g++-13 \
+          -D BUILD_SHARED_LIBS=NO \
+          -D MEASURECMD_BUILD_DOCS=NO \
+          -D MEASURECMD_BUILD_DEB=NO \
+          -D MEASURECMD_BUILD_EXAMPLES=NO
+      - name: 🏗️ Build Linux binary
+        run: cmake --build c/build/ --config Release --target measureapi
+      - name: 📤 Upload Linux library
+        uses: actions/upload-artifact@v4
+        with:
+          name: c-linux-library
+          path: c/build/src/libmeasureapi.so
+  c-build-linux-cli:
+    name: 🏗️ Build Linux CLI
+    runs-on: ubuntu-24.04
+    steps:
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+      - name: 🧰 Install compiler
+        run: sudo apt-get install -y g++-13
+      - name: 🔧 Configure CMake
+        run: |
+          cmake -S c/ -B c/build/ \
+          -D CMAKE_BUILD_TYPE=Release \
+          -D CMAKE_C_COMPILER=gcc-13 \
+          -D CMAKE_CXX_COMPILER=g++-13 \
+          -D BUILD_SHARED_LIBS=NO \
+          -D MEASURECMD_BUILD_DOCS=NO \
+          -D MEASURECMD_BUILD_DEB=NO \
+          -D MEASURECMD_BUILD_EXAMPLES=YES
+      - name: 🏗️ Build Linux binary
+        run: cmake --build c/build/ --config Release --target measure
+      - name: 📤 Upload Linux CLI
+        uses: actions/upload-artifact@v4
+        with:
+          name: c-linux-cli
+          path: c/build/examples/03_measure_command/measure
+  c-build-debian-package:
+    name: 🏗️ Build Debian package
+    runs-on: ubuntu-24.04
+    steps:
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+      - name: 🧰 Install compiler
+        run: sudo apt-get install -y g++-13
+      - name: 🔧 Configure CMake
+        run: |
+          cmake -S c/ -B c/build/ \
+          -D CMAKE_BUILD_TYPE=Release \
+          -D CMAKE_C_COMPILER=gcc-13 \
+          -D CMAKE_CXX_COMPILER=g++-13 \
+          -D BUILD_SHARED_LIBS=NO \
+          -D MEASURECMD_BUILD_DOCS=NO \
+          -D MEASURECMD_BUILD_DEB=YES \
+          -D MEASURECMD_BUILD_EXAMPLES=NO
+      - name: 🏗️ Build Debian package
+        run: cmake --build c/build/ --config Release --target package
+      - name: 📤 Upload Debian package
+        uses: actions/upload-artifact@v4
+        with:
+          name: c-debian-package
+          path: c/build/measure-*-Linux.deb
+  jvm-build:
+    name: 🏗️ Gradle build
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+      - name: 🧰 Install JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 8
+          distribution: temurin
+          cache: gradle
+          cache-dependency-path: |
+            jvm/example/build.gradle.kts
+            jvm/library/build.gradle.kts
+      - name: 🏗️ Build with Gradle
+        run: jvm/gradlew --project-dir jvm/ build
+      - name: 📤 Upload Debian package
+        uses: actions/upload-artifact@v4
+        with:
+          name: jvm-jar
+          path: jvm/library/build/libs/library.jar
+  jvm-test:
+    name: 🧪 Gradle test
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+      - name: 🧰 Install JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 8
+          distribution: temurin
+          cache: gradle
+          cache-dependency-path: |
+            jvm/example/build.gradle.kts
+            jvm/library/build.gradle.kts
+      - name: 🧪 Test with Gradle
+        run: jvm/gradlew --project-dir jvm/ test
+  python-build:
+    name: 🏗️ Build Python wheels
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+      - name: 🧰 Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 🧰 Install dependencies
+        run: pip install build twine
+      - name: 🏗️ Build Python wheels
+        run: python -m build python
+      - name: 🧪 Check package bundles
+        run: twine check python/dist/*
+      - name: 📤 Upload Python wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-wheels
+          path: python/dist/
+  python-check:
+    name: 🔍 Check Python code
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+      - name: 🧰 Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: python/pyproject.toml
+      - name: 🧰 Install dependencies
+        run: pip install -e python[tests]
+      - name: 🔍 Check Python code
+        run: ruff check python
+  python-typing:
+    name: 🔍 Check Python static typing
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+      - name: 🧰 Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: python/pyproject.toml
+      - name: 🧰 Install dependencies
+        run: pip install -e python[tests]
+      - name: 🔍 Check Python static typing
+        run: mypy python
+  python-security:
+    name: 🔍 Check Python code security
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+      - name: 🧰 Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: python/pyproject.toml
+      - name: 🧰 Install dependencies
+        run: pip install -e python[tests]
+      - name: 🔍 Check Python code security
+        run: bandit -c python/pyproject.toml -r python
+  python-test:
+    name: 🧪 Test Python code
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+      - name: 🧰 Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: python/pyproject.toml
+      - name: 🧰 Install dependencies
+        run: pip install -e python[tests]
+      - name: 🧪 Test Python code
+        run: pytest --cov --cov-report xml python
+      - name: 📤 Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.xml
+  github-release:
+    name: 🚀 Create GitHub release
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    needs:
+      - c-build-linux-library
+      - c-build-linux-cli
+      - c-build-debian-package
+      - jvm-build
+      - jvm-test
+      - python-build
+      - python-check
+      - python-typing
+      - python-security
+      - python-test
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+      - name: 📥 Download Linux library
+        uses: actions/download-artifact@v4
+        with:
+          name: c-linux-library
+          path: tmp/c/
+      - name: 📥 Download Linux CLI
+        uses: actions/download-artifact@v4
+        with:
+          name: c-linux-cli
+          path: tmp/c/
+      - name: 📥 Download Debian package
+        uses: actions/download-artifact@v4
+        with:
+          name: c-debian-package
+          path: tmp/c/
+      - name: 📥 Download Python wheels
+        uses: actions/download-artifact@v4
+        with:
+          name: wheels
+          path: tmp/python/dist/
+      - name: 🚀 Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ github.ref_name }}
+          files: |
+            tmp/c/libmeasureapi.so
+            tmp/c/measure
+            tmp/c/measure-*-Linux.deb
+            tmp/python/dist/*
+          fail_on_unmatched_files: true
+          draft: false
+          prerelease: false
+          generate_release_notes: true

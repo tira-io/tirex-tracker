@@ -40,6 +40,9 @@ void SystemStats::start() {
 	starttime = steady_clock::now();
 	Utilization tmp;
 	parseStat(tmp); // Call parseStat once to init lastIdle and lastTotal
+	startUTime = tmp.userTimeMs;
+	startSysTime = tmp.sysTimeMs;
+	measureapi::log::debug("linuxstats", "Start systime {} ms, utime {} ms", startSysTime, startUTime);
 }
 void SystemStats::stop() { stoptime = steady_clock::now(); }
 void SystemStats::step() {
@@ -64,8 +67,8 @@ Stats SystemStats::getStats() {
 			 {"elapsed time",
 			  {{"wallclock (ms)",
 				{std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(stoptime - starttime).count())}},
-			   {"system (ms)", std::to_string(utilization.sysTimeMs)},
-			   {"user (ms)", std::to_string(utilization.userTimeMs)}}},
+			   {"system (ms)", std::to_string(utilization.sysTimeMs - startSysTime)},
+			   {"user (ms)", std::to_string(utilization.userTimeMs - startUTime)}}},
 			 {"resources", {{"Max RAM used (KB)", {std::to_string(ram.maxValue())}}}}}
 	};
 }

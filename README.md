@@ -46,9 +46,9 @@ measurecmd "<command>"
 to measure everything, you may want to know about the shell command `<command>`.
 
 ## API
-- [C Bindings](./c)
-- [Python Bindings](./python/)
-- [Java & Kotlin Bindings](./java/)
+- [C Bindings](c/)
+- [Python Bindings](python/)
+- [JVM Bindings (e.g., Java and Kotlin)](jvm/)
 ```c
 #include <measureapi.h>
 

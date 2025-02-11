@@ -1,0 +1,67 @@
+[project]
+name = "tira-measure"
+authors = [
+    { name = "Maik Fröbe", email = "maik.froebe@uni-jena.de" },
+    { name = "Jan Heinrich Merker", email = "heinrich.merker@uni-jena.de" },
+    { name = "Tim Hagen", email = "tim.hagen@uni-kassel.de" },
+]
+description = "TODO"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+tests = [
+    "bandit[toml]~=1.7",
+    "mypy~=1.5",
+    "pytest~=8.0",
+    "pytest-cov~=6.0",
+    "ruff~=0.8.1",
+]
+docs = [
+    "sphinx~=8.1",
+    "myst-parser~=4.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/tira-io/measure"
+"Bug Tracker" = "https://github.com/tira-io/measure/issues"
+
+[build-system]
+requires = ["setuptools~=75.4", "setuptools-scm~=8.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+exclude = ["build", "venv"]
+
+[tool.setuptools_scm]
+root = ".."
+
+[tool.ruff]
+exclude = ["build", "venv"]
+
+[tool.mypy]
+exclude = ["build", "venv"]
+ignore_missing_imports = true
+follow_imports = "silent"
+
+[tool.bandit]
+exclude_dirs = ["build", "venv"]
+
+[tool.bandit.assert_used]
+skips = ["**/test_*.py"]
+
+[tool.pytest.ini_options]
+log_cli = "True"
