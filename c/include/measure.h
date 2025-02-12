@@ -1,5 +1,7 @@
 /**
+ * @file measure.h
  * @brief Contains measure's external C API
+ * 
  */
 
 #ifndef MEASURE_H
@@ -27,17 +29,34 @@
 extern "C" {
 #endif
 
-typedef enum msrError_enum { MSR_SUCCESS = 0, MSR_INVALID_ARGUMENT } msrError;
+/**
+ * @defgroup error Error handling
+ * @details
+ * @{
+ */
+/**
+ * @brief Categorizes different classes of error.
+ */
+typedef enum msrError_enum { MSR_SUCCESS = 0, MSR_INVALID_ARGUMENT = 1 } msrError;
+/** @} */ // end of error
 
-typedef enum msrResultType_enum { MSR_STRING = 0, MSR_INTEGER = 1, MSR_FLOATING = 2 } msrResultType;
-
+/**
+ * @defgroup measure Measuring
+ * @brief
+ * @details
+ * @{
+ */
+/**
+ * @brief Identifiers for all available measurements.
+ * @details Different types (EnvInfo, Time Series, Measure)
+ */
 typedef enum msrMeasure_enum {
-	MSR_OS_NAME,
-	MSR_OS_KERNEL,
+	MSR_OS_NAME,   /**< Retrieve the name of the operating system (EnvInfo). */
+	MSR_OS_KERNEL, /**< Retrieve the version of the kernel (EnvInfo). */
 
-	MSR_TIME_ELAPSED_WALL_CLOCK_MS,
-	MSR_TIME_ELAPSED_USER_MS,
-	MSR_TIME_ELAPSED_SYSTEM_MS,
+	MSR_TIME_ELAPSED_WALL_CLOCK_MS, /**< Measure the "real" (wall clock) time in milliseconds that elapsed between msrStartMeasure and msrStopMeasure (Measurement). */
+	MSR_TIME_ELAPSED_USER_MS, /**< Measure the time in milliseconds that the program spend in user mode between msrStartMeasure and msrStopMeasure (Measurement). */
+	MSR_TIME_ELAPSED_SYSTEM_MS, /**< Measure the time in milliseconds that the program spend in kernel mode between msrStartMeasure and msrStopMeasure (Measurement). */
 
 	MSR_CPU_USED_PROCESS_PERCENT,
 	MSR_CPU_USED_SYSTEM_PERCENT,
@@ -64,7 +83,7 @@ typedef enum msrMeasure_enum {
 	MSR_RAM_AVAILABLE_SYSTEM_MB,
 	MSR_RAM_ENERGY_SYSTEM_JOULES,
 
-	MSR_GPU_SUPPORTED,
+	MSR_GPU_SUPPORTED, /**< Boolean value (0 or 1) representing whether GPU measurements are supported or not. */
 	MSR_GPU_MODEL_NAME,
 	MSR_GPU_NUM_CORES,
 	MSR_GPU_USED_PROCESS_PERCENT,
@@ -85,7 +104,12 @@ typedef enum msrMeasure_enum {
 	MSR_GIT_UNPUSHED_CHANGES,
 	MSR_GIT_UNCHECKED_FILES,
 
-	MSR_MEASURE_COUNT,
+	MSR_MEASURE_COUNT, /**< The total number of supported measures. */
+	/**
+	 * @brief Represents an invalid measurement.
+	 * 
+	 * @see msrNullConf
+	 */
 	MSR_MEASURE_INVALID = -1
 } msrMeasure;
 
@@ -100,6 +124,17 @@ typedef enum msrAggregateFn_enum {
  * @brief Holds a handle to an ongoing measurement task.
  */
 typedef struct msrMeasureHandle_st msrMeasureHandle;
+/** @} */ // end of measure
+
+/**
+ * @defgroup msrresult Result
+ * @details
+ * @{
+ */
+/**
+ * @brief 
+ */
+typedef enum msrResultType_enum { MSR_STRING = 0, MSR_INTEGER = 1, MSR_FLOATING = 2 } msrResultType;
 
 /**
  * @brief Holds a handle to the results of a measurement.
@@ -108,13 +143,6 @@ typedef struct msrMeasureHandle_st msrMeasureHandle;
  * @see msrStopMeasure(msrMeasureHandle*, char**)
  */
 typedef struct msrResult_st msrResult;
-
-typedef struct msrMeasureConf_st {
-	msrMeasure source;
-	msrAggregateFn aggregate;
-} msrMeasureConf;
-
-static const msrMeasureConf msrNullConf = {.source = MSR_MEASURE_INVALID};
 
 /**
  * @brief Holds a result entry, i.e., a key-value pair of a name (string) and a value (msrResult).
@@ -128,28 +156,11 @@ typedef struct msrResultEntry_st {
 /**
  * @brief 
  * 
+ * @param[in] result
+ * @param[in] index
+ * @param[out] entry
+ * @return MSR_SUCCESS on success or an error code. 
  */
-MSR_EXPORT msrError msrFetchInfo(const msrMeasureConf* measures, msrResult** result);
-
-/**
- * @brief Initializes the providers set in the configuration and starts measuring.
- * 
- * @param config the configuration to use to measure
- * @return a handle to the running measurement.
- * @see msrStopMeasure(msrMeasureHandle*, char**)
- */
-MSR_EXPORT msrError msrStartMeasure(const msrMeasureConf* measures, size_t pollIntervalMs, msrMeasureHandle** handle);
-
-/**
- * @brief Stops the measurement and deinitializes the data providers.
- * @details This function **must** be called **exactly once** for each measurement job.
- * 
- * @param measure The handle of the running measurement that should be stopped.
- * @return a handle to the result tree of the measurement. Must be freed by the caller using msrResultFree(msrResult*)
- * @see msrStartMeasure(msrConfig)
- */
-MSR_EXPORT msrError msrStopMeasure(msrMeasureHandle* handle, msrResult** result);
-
 MSR_EXPORT msrError msrResultEntryGetByIndex(const msrResult* result, size_t index, msrResultEntry* entry);
 
 /**
@@ -157,7 +168,7 @@ MSR_EXPORT msrError msrResultEntryGetByIndex(const msrResult* result, size_t ind
  * 
  * @param result 
  * @param num 
- * @return MSR_EXPORT 
+ * @return MSR_SUCCESS on success or an error code. 
  */
 MSR_EXPORT msrError msrResultEntryNum(const msrResult* result, size_t* num);
 
@@ -167,9 +178,61 @@ MSR_EXPORT msrError msrResultEntryNum(const msrResult* result, size_t* num);
  * @param result The result to be destructed.
  */
 MSR_EXPORT void msrResultFree(msrResult* result);
+/** @} */ // end of msrresult
 
 /**
- * @defgroup logging Definitions and functions relevant for telling measure where to log information to.
+ * @brief 
+ */
+typedef struct msrMeasureConf_st {
+	msrMeasure source;		  /**< @details The measurement to be configured. */
+	msrAggregateFn aggregate; /**< @details The type of aggregation to use. */
+} msrMeasureConf;
+
+/**
+ * @brief Represents an invalid measurement configuration.
+ * @details The null configuration should be used as a sentinel value to mark the end of the configuration in
+ * msrStartMeasure.
+ */
+static const msrMeasureConf msrNullConf = {.source = MSR_MEASURE_INVALID};
+
+/**
+ * @brief Fetches the system information from the measures requested in \p measures.
+ * 
+ * @param[in] measures 
+ * @param[out] result 
+ * @return MSR_SUCCESS on success or an error code. 
+ */
+MSR_EXPORT msrError msrFetchInfo(const msrMeasureConf* measures, msrResult** result);
+
+/**
+ * @ingroup measure
+ */
+/**
+ * @brief Initializes the providers set in the configuration and starts measuring.
+ * 
+ * @param measures 
+ * @param pollIntervalMs 
+ * @param[out] handle a handle to the running measurement.
+ * @return MSR_SUCCESS on success or an error code. 
+ * 
+ * @see msrStopMeasure
+ */
+MSR_EXPORT msrError msrStartMeasure(const msrMeasureConf* measures, size_t pollIntervalMs, msrMeasureHandle** handle);
+
+/**
+ * @brief Stops the measurement and deinitializes the data providers.
+ * @details This function **must** be called **exactly once** for each measurement job.
+ * 
+ * @param measure The handle of the running measurement that should be stopped.
+ * @return a handle to the result tree of the measurement. Must be freed by the caller using msrResultFree(msrResult*)
+ * @see msrStartMeasure
+ */
+MSR_EXPORT msrError msrStopMeasure(msrMeasureHandle* handle, msrResult** result);
+/** @} */ // end of measure
+
+/**
+ * @defgroup logging Logging
+ * @details Definitions and functions relevant for telling measure where to log information to.
  * @{
  */
 /**
@@ -196,7 +259,8 @@ MSR_EXPORT void msrSetLogCallback(msrLogCallback callback);
 /** @} */ // end of logging
 
 /**
- * @defgroup dataprovider Methods and definitions necessary to fetch information about the underlying data sources.
+ * @defgroup dataprovider Data Providers
+ * @details Methods and definitions necessary to fetch information about the underlying data sources.
  * Dataproviders are the underlying mechanism for collecting the requested metadata and are abstracted away by the API.
  * The following definitions can be used to get more information (e.g., to report detailed version information).
  * @{
@@ -225,25 +289,36 @@ typedef struct msrDataProvider_st {
  * free(buf);
  * ```
  * 
- * @param providers 
- * @param bufsize 
+ * @param[in] providers 
+ * @param[in] bufsize 
  * @return The number of available data providers.
- * @see msrDataProviderGetCount
  */
 MSR_EXPORT size_t msrDataProviderGetAll(msrDataProvider* providers, size_t bufsize);
 /** @} */ // end of dataprovider
 
 /**
- * @defgroup measureinfo
+ * @defgroup measureinfo Measure Info
+ * @details
+ * @{
+ */
+/**
+ * @brief
+ * @details
  */
 typedef struct msrMeasureInfo_st {
-	const char* description;
-	msrResultType datatype;
-	const char* example;
+	const char* description; /**< @brief A human legible description of the measurement. **/
+	msrResultType datatype;	 /**< @brief The datatype of the measurment **/
+	const char* example;	 /**< @brief An example value of what a value may look like. **/
 } msrMeasureInfo;
 
+/**
+ * @brief 
+ * 
+ * @param[in] measure 
+ * @param[out] info 
+ * @return MSR_SUCCESS on success or an error code. 
+ */
 MSR_EXPORT msrError msrMeasureInfoGet(msrMeasure measure, const msrMeasureInfo** info);
-
 /** @} */ // end of measureinfo
 #ifdef __cplusplus
 }

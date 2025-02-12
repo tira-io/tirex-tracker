@@ -41,6 +41,20 @@ static std::string getShortname(git_repository* repo) {
 	return hash;
 }
 
+static std::string getBranchName(git_repository* repo) {
+	git_reference* head;
+	if (int err; err = git_repository_head(&head, repo)) {
+		msr::log::error("gitstats", "Failed to fetch repository head: {}", git_error_last()->message);
+		return "(failed to fetch)";
+	}
+	const char* name;
+	if (int err; err = git_branch_name(&name, head)) {
+		msr::log::error("gitstats", "Failed to get branch name: {}", git_error_last()->message);
+		return "(failed to fetch)";
+	}
+	return {name};
+}
+
 static std::string getRemoteOrigin(git_repository* repo) {
 	git_remote* remote;
 	if (int err; err = git_remote_lookup(&remote, repo, "origin")) {
@@ -98,7 +112,7 @@ Stats GitStats::getStats() {
 		return {{MSR_GIT_IS_REPO, "1"s},
 				{MSR_GIT_HASH, "TODO"s},
 				{MSR_GIT_LAST_COMMIT_HASH, getLastCommitHash(repo)},
-				{MSR_GIT_BRANCH, "TODO"s},
+				{MSR_GIT_BRANCH, getBranchName(repo)},
 				{MSR_GIT_TAGS, "TODO"s},
 				{MSR_GIT_REMOTE_ORIGIN, getRemoteOrigin(repo)},
 				{MSR_GIT_UNCOMMITTED_CHANGES, (status.numModified != 0) ? "1"s : "0"s},
