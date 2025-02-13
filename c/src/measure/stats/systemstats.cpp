@@ -60,7 +60,7 @@ SystemStats::CPUInfo SystemStats::getCPUInfo() {
 	if (numClusters > 1) {
 		msr::log::warn(
 				"system", "I found that {} CPU clusters are installed and will only output statistics for the first",
-				numPackages
+				numClusters
 		);
 	}
 	auto cluster = cpuinfo_get_cluster(0);

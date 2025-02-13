@@ -46,11 +46,8 @@ const std::set<msrMeasure> SystemStats::measures{
 		MSR_CPU_MODEL_NAME,
 		MSR_CPU_CORES_PER_SOCKET,
 		MSR_CPU_THREADS_PER_CORE,
-		MSR_CPU_CACHES_L1_KB,
-		MSR_CPU_CACHES_L2_KB,
-		MSR_CPU_CACHES_L3_KB,
+		MSR_CPU_CACHES_KB,
 		MSR_CPU_VIRTUALIZATION,
-		MSR_CPU_BOGO_MIPS,
 
 		MSR_RAM_USED_PROCESS_KB,
 		MSR_RAM_USED_SYSTEM_MB,
@@ -124,11 +121,9 @@ Stats SystemStats::getStats() {
 			{MSR_CPU_MODEL_NAME, cpuInfo.modelname},
 			{MSR_CPU_CORES_PER_SOCKET, std::to_string(cpuInfo.coresPerSocket)},
 			{MSR_CPU_THREADS_PER_CORE, std::to_string(cpuInfo.threadsPerCore)},
-			{MSR_CPU_CACHES_L1_KB, "TODO"s},
-			{MSR_CPU_CACHES_L2_KB, "TODO"s},
-			{MSR_CPU_CACHES_L3_KB, "TODO"s},
+			{MSR_CPU_CACHES_KB, "{\"l1\": \"TODO KB\", \"l1d\": \"TODO KB\" \"l2\": \"TODO KB\", \"l3\": \"TODO KB\"}"s
+			},
 			{MSR_CPU_VIRTUALIZATION, "TODO"s},
-			{MSR_CPU_BOGO_MIPS, "TODO"s},
 			{MSR_RAM_USED_PROCESS_KB, std::to_string(ram.maxValue())},
 			{MSR_RAM_USED_SYSTEM_MB, std::to_string(sysRam.maxValue())},
 			{MSR_RAM_AVAILABLE_SYSTEM_MB, std::to_string(info.totalRamMB)}};

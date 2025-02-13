@@ -72,11 +72,8 @@ typedef enum msrMeasure_enum {
 	MSR_CPU_MODEL_NAME,
 	MSR_CPU_CORES_PER_SOCKET,
 	MSR_CPU_THREADS_PER_CORE,
-	MSR_CPU_CACHES_L1_KB,
-	MSR_CPU_CACHES_L2_KB,
-	MSR_CPU_CACHES_L3_KB,
+	MSR_CPU_CACHES_KB,
 	MSR_CPU_VIRTUALIZATION,
-	MSR_CPU_BOGO_MIPS,
 
 	MSR_RAM_USED_PROCESS_KB,
 	MSR_RAM_USED_SYSTEM_MB,
@@ -88,7 +85,7 @@ typedef enum msrMeasure_enum {
 	MSR_GPU_NUM_CORES,
 	MSR_GPU_USED_PROCESS_PERCENT,
 	MSR_GPU_USED_SYSTEM_PERCENT,
-	MSR_GPU_AVAILABLE_SYTEM_CORES,
+	MSR_GPU_AVAILABLE_SYSTEM_CORES,
 	MSR_GPU_VRAM_USED_PROCESS_MB,
 	MSR_GPU_VRAM_USED_SYSTEM_MB,
 	MSR_GPU_VRAM_AVAILABLE_SYSTEM_MB,
@@ -113,12 +110,12 @@ typedef enum msrMeasure_enum {
 	MSR_MEASURE_INVALID = -1
 } msrMeasure;
 
-typedef enum msrAggregateFn_enum {
-	MSR_AGG_NO,	 /**< Perform no aggregation. */
-	MSR_AGG_MAX, /**< For each aggregation intervall, store the maximum value. */
-	MSR_AGG_MIN, /**< For each aggregation intervall, store the minimum value. */
-	MSR_AGG_MEAN /**< For each aggregation intervall, store the average value. */
-} msrAggregateFn;
+#define MSR_AGG_NO (1 << 0)	  /**< Perform no aggregation. */
+#define MSR_AGG_MAX (1 << 1)  /**< For each aggregation intervall, store the maximum value. */
+#define MSR_AGG_MIN (1 << 2)  /**< For each aggregation intervall, store the minimum value. */
+#define MSR_AGG_MEAN (1 << 3) /**< For each aggregation intervall, store the average value. */
+
+typedef uint8_t msrAggregateFn;
 
 /**
  * @brief Holds a handle to an ongoing measurement task.

@@ -40,11 +40,8 @@ static const msrMeasureInfo measureInfos[]{
 		[MSR_CPU_MODEL_NAME] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
 		[MSR_CPU_CORES_PER_SOCKET] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
 		[MSR_CPU_THREADS_PER_CORE] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
-		[MSR_CPU_CACHES_L1_KB] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
-		[MSR_CPU_CACHES_L2_KB] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
-		[MSR_CPU_CACHES_L3_KB] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
+		[MSR_CPU_CACHES_KB] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
 		[MSR_CPU_VIRTUALIZATION] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
-		[MSR_CPU_BOGO_MIPS] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
 		[MSR_RAM_USED_PROCESS_KB] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
 		[MSR_RAM_USED_SYSTEM_MB] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
 		[MSR_RAM_AVAILABLE_SYSTEM_MB] =
@@ -58,7 +55,7 @@ static const msrMeasureInfo measureInfos[]{
 				{.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
 		[MSR_GPU_USED_SYSTEM_PERCENT] =
 				{.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
-		[MSR_GPU_AVAILABLE_SYTEM_CORES] =
+		[MSR_GPU_AVAILABLE_SYSTEM_CORES] =
 				{.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
 		[MSR_GPU_VRAM_USED_PROCESS_MB] =
 				{.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
