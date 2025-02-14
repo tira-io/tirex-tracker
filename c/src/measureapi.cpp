@@ -18,10 +18,12 @@ struct msrMeasureHandle_st final {
 	std::thread monitorthread;
 	std::promise<void> signal;
 
+	msrMeasureHandle_st(msrMeasureHandle_st& other) = delete;
+
 	explicit msrMeasureHandle_st(
-			std::vector<std::unique_ptr<msr::StatsProvider>>&& _providers, size_t pollIntervallMs
+			std::vector<std::unique_ptr<msr::StatsProvider>>&& _providers, size_t pollIntervalMs
 	) noexcept
-			: providers(std::move(_providers)), pollIntervalMs(pollIntervalMs) {
+			: pollIntervalMs(pollIntervalMs), providers(std::move(_providers)) {
 		// Start measuring
 		msr::log::info("measure", "Start Measuring");
 		for (auto& provider : providers)

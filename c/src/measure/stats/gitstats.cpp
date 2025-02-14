@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <string>
+#include <tuple>
 
 using namespace std::string_literals;
 
@@ -41,18 +42,34 @@ static std::string getShortname(git_repository* repo) {
 	return hash;
 }
 
-static std::string getBranchName(git_repository* repo) {
+static std::tuple<std::string, std::string> getBranchName(git_repository* repo) {
 	git_reference* head;
 	if (int err; err = git_repository_head(&head, repo)) {
 		msr::log::error("gitstats", "Failed to fetch repository head: {}", git_error_last()->message);
-		return "(failed to fetch)";
+		return {"(failed to fetch)", ""};
 	}
-	const char* name;
-	if (int err; err = git_branch_name(&name, head)) {
+	// Local Branch Name
+	const char* local;
+	if (int err; err = git_branch_name(&local, head)) {
 		msr::log::error("gitstats", "Failed to get branch name: {}", git_error_last()->message);
-		return "(failed to fetch)";
+		return {"(failed to fetch)", ""};
 	}
-	return {name};
+	// Upstream Branch Name
+	git_buf buf = GIT_BUF_INIT;
+	if (int err; (err = git_branch_upstream_name(&buf, repo, git_reference_name(head))) == 0) {
+		/** success **/
+	} else if (err == GIT_ENOTFOUND) {
+		git_buf_dispose(&buf);
+		msr::log::warn("gitstats", "Branch is unknown to upstream");
+		return {{local}, {""}};
+	} else {
+		git_buf_dispose(&buf);
+		msr::log::error("gitstats", "Failed to get upstream branch name: {}", git_error_last()->message);
+		return {{local}, {""}};
+	}
+	std::string remote = buf.ptr;
+	git_buf_dispose(&buf);
+	return {{local}, remote};
 }
 
 static std::string getRemoteOrigin(git_repository* repo) {
@@ -72,21 +89,43 @@ struct GitStatusStats {
 	size_t numModified;
 	/** The number of files that were not yet added to the repository **/
 	size_t numNew;
+	/** The number of commits ahead of remote origin **/
+	size_t ahead;
+	/** The number of commits behind of remote origin **/
+	size_t behind;
 };
 
 static GitStatusStats getStatusStats(git_repository* repo) {
-	GitStatusStats stats = {.numModified = 0, .numNew = 0};
-	git_status_list* list;
-	git_status_list_new(&list, repo, nullptr);
-	auto changes = git_status_list_entrycount(list);
-	for (size_t i = 0; i < changes; ++i) {
-		auto entry = git_status_byindex(list, i);
-		if (entry->status & (git_status_t::GIT_STATUS_INDEX_NEW | GIT_STATUS_WT_NEW))
-			++stats.numNew;
-		else if (entry->status & (git_status_t::GIT_STATUS_INDEX_MODIFIED | git_status_t::GIT_STATUS_WT_MODIFIED))
-			++stats.numModified;
+	GitStatusStats stats = {.numModified = 0, .numNew = 0, .ahead = 0, .behind = 0};
+	{
+		git_status_list* list;
+		git_status_list_new(&list, repo, nullptr);
+		auto changes = git_status_list_entrycount(list);
+		for (size_t i = 0; i < changes; ++i) {
+			auto entry = git_status_byindex(list, i);
+			if (entry->status & (git_status_t::GIT_STATUS_INDEX_NEW | GIT_STATUS_WT_NEW))
+				++stats.numNew;
+			else if (entry->status & (git_status_t::GIT_STATUS_INDEX_MODIFIED | git_status_t::GIT_STATUS_WT_MODIFIED))
+				++stats.numModified;
+		}
+		git_status_list_free(list);
 	}
-	git_status_list_free(list);
+	// Ahead / Behind
+	{
+		git_reference* upstream;
+		git_reference* head;
+		if (int err; err = git_repository_head(&head, repo)) {
+			msr::log::error("gitstats", "Failed to fetch repository head: {}", git_error_last()->message);
+			return stats;
+		}
+		if (int err; err = git_branch_upstream(&upstream, head)) {
+			msr::log::error("gitstats", "Failed to get upstream branch: {}", git_error_last()->message);
+			return stats;
+		}
+		auto local = git_reference_target(head);
+		auto remote = git_reference_target(upstream);
+		git_graph_ahead_behind(&stats.ahead, &stats.behind, repo, local, remote);
+	}
 	return stats;
 }
 
@@ -109,15 +148,18 @@ Stats GitStats::getStats() {
 				"gitstats", "I counted {} tracked files that were changed and {} untracked files", status.numModified,
 				status.numNew
 		);
+		msr::log::info("gitstats", "Local is {} commits ahead and {} behind upstream", status.ahead, status.behind);
+		auto [local, remote] = getBranchName(repo);
 		return {{MSR_GIT_IS_REPO, "1"s},
 				{MSR_GIT_HASH, "TODO"s},
 				{MSR_GIT_LAST_COMMIT_HASH, getLastCommitHash(repo)},
-				{MSR_GIT_BRANCH, getBranchName(repo)},
-				{MSR_GIT_BRANCH_UPSTREAM, "TODO"s},
+				{MSR_GIT_BRANCH, local},
+				{MSR_GIT_BRANCH_UPSTREAM, remote},
 				{MSR_GIT_TAGS, "TODO"s},
 				{MSR_GIT_REMOTE_ORIGIN, getRemoteOrigin(repo)},
 				{MSR_GIT_UNCOMMITTED_CHANGES, (status.numModified != 0) ? "1"s : "0"s},
-				{MSR_GIT_UNPUSHED_CHANGES, "TODO"s},
+				{MSR_GIT_UNPUSHED_CHANGES, ((status.ahead != 0) || (status.behind != 0) || remote.empty()) ? "1"s : "0"s
+				},
 				{MSR_GIT_UNCHECKED_FILES, (status.numNew != 0) ? "1"s : "0"s}};
 	} else {
 		return {{MSR_GIT_IS_REPO, "0"s}};
