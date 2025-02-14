@@ -12,6 +12,57 @@
 #include <ranges>
 #include <thread>
 
+static std::map<std::string, std::vector<msrMeasureConf>> confGroups = {
+		{"git",
+		 {{MSR_GIT_IS_REPO, MSR_AGG_NO},
+		  {MSR_GIT_HASH, MSR_AGG_NO},
+		  {MSR_GIT_LAST_COMMIT_HASH, MSR_AGG_NO},
+		  {MSR_GIT_BRANCH, MSR_AGG_NO},
+		  {MSR_GIT_BRANCH_UPSTREAM, MSR_AGG_NO},
+		  {MSR_GIT_TAGS, MSR_AGG_NO},
+		  {MSR_GIT_REMOTE_ORIGIN, MSR_AGG_NO},
+		  {MSR_GIT_UNCOMMITTED_CHANGES, MSR_AGG_NO},
+		  {MSR_GIT_UNPUSHED_CHANGES, MSR_AGG_NO},
+		  {MSR_GIT_UNCHECKED_FILES, MSR_AGG_NO}}},
+		{"system",
+		 {{MSR_OS_NAME, MSR_AGG_NO},
+		  {MSR_OS_KERNEL, MSR_AGG_NO},
+		  {MSR_TIME_ELAPSED_WALL_CLOCK_MS, MSR_AGG_NO},
+		  {MSR_TIME_ELAPSED_USER_MS, MSR_AGG_NO},
+		  {MSR_TIME_ELAPSED_SYSTEM_MS, MSR_AGG_NO},
+		  {MSR_CPU_USED_PROCESS_PERCENT, MSR_AGG_NO},
+		  {MSR_CPU_USED_SYSTEM_PERCENT, MSR_AGG_NO},
+		  {MSR_CPU_AVAILABLE_SYSTEM_CORES, MSR_AGG_NO},
+		  {MSR_CPU_FEATURES, MSR_AGG_NO},
+		  {MSR_CPU_FREQUENCY_MHZ, MSR_AGG_NO},
+		  {MSR_CPU_FREQUENCY_MIN_MHZ, MSR_AGG_NO},
+		  {MSR_CPU_FREQUENCY_MAX_MHZ, MSR_AGG_NO},
+		  {MSR_CPU_VENDOR_ID, MSR_AGG_NO},
+		  {MSR_CPU_BYTE_ORDER, MSR_AGG_NO},
+		  {MSR_CPU_ARCHITECTURE, MSR_AGG_NO},
+		  {MSR_CPU_MODEL_NAME, MSR_AGG_NO},
+		  {MSR_CPU_CORES_PER_SOCKET, MSR_AGG_NO},
+		  {MSR_CPU_THREADS_PER_CORE, MSR_AGG_NO},
+		  {MSR_CPU_CACHES, MSR_AGG_NO},
+		  {MSR_CPU_VIRTUALIZATION, MSR_AGG_NO},
+		  {MSR_RAM_USED_PROCESS_KB, MSR_AGG_NO},
+		  {MSR_RAM_USED_SYSTEM_MB, MSR_AGG_NO},
+		  {MSR_RAM_AVAILABLE_SYSTEM_MB, MSR_AGG_NO}}},
+		{"energy",
+		 {{MSR_CPU_ENERGY_SYSTEM_JOULES, MSR_AGG_NO},
+		  {MSR_RAM_ENERGY_SYSTEM_JOULES, MSR_AGG_NO},
+		  {MSR_GPU_ENERGY_SYSTEM_JOULES, MSR_AGG_NO}}},
+		{"gpu",
+		 {{MSR_GPU_SUPPORTED, MSR_AGG_NO},
+		  {MSR_GPU_MODEL_NAME, MSR_AGG_NO},
+		  {MSR_GPU_NUM_CORES, MSR_AGG_NO},
+		  {MSR_GPU_USED_PROCESS_PERCENT, MSR_AGG_NO},
+		  {MSR_GPU_USED_SYSTEM_PERCENT, MSR_AGG_NO},
+		  {MSR_GPU_VRAM_USED_PROCESS_MB, MSR_AGG_NO},
+		  {MSR_GPU_VRAM_USED_SYSTEM_MB, MSR_AGG_NO},
+		  {MSR_GPU_VRAM_AVAILABLE_SYSTEM_MB, MSR_AGG_NO}}}
+};
+
 static void logCallback(msrLogLevel level, const char* component, const char* message) {
 	static constexpr spdlog::level::level_enum levels[] = {
 			[msrLogLevel::TRACE] = spdlog::level::level_enum::trace,
@@ -43,13 +94,13 @@ static void runMeasureCmd(const MeasureCmdArgs& args) {
 	// Start measuring
 	std::vector<msrMeasureConf> measures;
 	for (const auto& provider : args.statproviders) {
-		/** \todo implement **/
-		throw std::runtime_error("Not yet implemented");
+		const auto& elements = confGroups.at(provider);
+		measures.insert(measures.end(), elements.begin(), elements.end());
 	}
 	measures.emplace_back(msrNullConf);
 
 	msrMeasureHandle* handle;
-	assert(msrStartMeasure(measures.data(), pollIntervalMs, &handle) == MSR_SUCCESS);
+	assert(msrStartMeasure(measures.data(), args.pollIntervalMs, &handle) == MSR_SUCCESS);
 
 	// Run the command
 	auto exitcode = std::system(args.command.c_str());

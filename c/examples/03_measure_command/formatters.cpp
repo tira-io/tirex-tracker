@@ -7,8 +7,6 @@ static const char* measureToName[] = {
 		[MSR_OS_KERNEL] = "os kernel",
 		[MSR_TIME_ELAPSED_WALL_CLOCK_MS] = "time elapsed wall clock ms",
 		[MSR_TIME_ELAPSED_USER_MS] = "time elapsed user ms",
-		[MSR_TIME_ELAPSED_WALL_CLOCK_MS] = "time elapsed wall clock ms",
-		[MSR_TIME_ELAPSED_USER_MS] = "time elapsed user ms",
 		[MSR_TIME_ELAPSED_SYSTEM_MS] = "time elapsed system ms",
 		[MSR_CPU_USED_PROCESS_PERCENT] = "cpu used process percent",
 		[MSR_CPU_USED_SYSTEM_PERCENT] = "cpu used system percent",
@@ -30,11 +28,15 @@ static const char* measureToName[] = {
 		[MSR_RAM_USED_SYSTEM_MB] = "ram used system mb",
 		[MSR_RAM_AVAILABLE_SYSTEM_MB] = "ram available system mb",
 		[MSR_RAM_ENERGY_SYSTEM_JOULES] = "ram energy system joules",
+		[MSR_GPU_SUPPORTED] = "gpu supported",
+		[MSR_GPU_MODEL_NAME] = "gpu model name",
+		[MSR_GPU_NUM_CORES] = "gpu num cores",
 		[MSR_GPU_USED_PROCESS_PERCENT] = "gpu used process percent",
 		[MSR_GPU_USED_SYSTEM_PERCENT] = "gpu used system percent",
 		[MSR_GPU_VRAM_USED_PROCESS_MB] = "gpu vram used process mb",
 		[MSR_GPU_VRAM_USED_SYSTEM_MB] = "gpu vram used system mb",
 		[MSR_GPU_VRAM_AVAILABLE_SYSTEM_MB] = "gpu vram available system mb",
+		[MSR_GPU_ENERGY_SYSTEM_JOULES] = "gpu energy system joules",
 		[MSR_GIT_IS_REPO] = "git is repo",
 		[MSR_GIT_HASH] = "git hash",
 		[MSR_GIT_LAST_COMMIT_HASH] = "git last commit hash",
@@ -60,5 +62,5 @@ void msr::simpleFormatter(std::ostream& stream, const msrResult* result) noexcep
 
 /* JSON FORMATTER */
 void msr::jsonFormatter(std::ostream& stream, const msrResult* result) noexcept {
-	throw std::runtime_error("Not implemented");
+	return msr::simpleFormatter(stream, result); /** \todo implement properly **/
 }
