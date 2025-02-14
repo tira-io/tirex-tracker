@@ -63,6 +63,152 @@ static const std::map<uint8_t, const char*> armimplementers = {
 		{0x6d, "Microsoft"}, {0x70, "Phytium"},	  {0xc0, "Ampere"}
 };
 
+// Commented out extensions are added in cpuinfo's isa flags but don't have a getter (yet?)
+static const std::pair<const char*, bool (*)(void)> flags[]{
+		/** x86 Extensions ############################################################################## **/
+		{"rdtsc", cpuinfo_has_x86_rdtsc},
+		{"rdtscp", cpuinfo_has_x86_rdtscp},
+		{"rdpid", cpuinfo_has_x86_rdpid},
+		//{"sysenter", cpuinfo_has_x86_sysenter},
+		//{"syscall", cpuinfo_has_x86_syscall},
+		//{"msr", cpuinfo_has_x86_msr},
+		{"clzero", cpuinfo_has_x86_clzero},
+		//{"clflush", cpuinfo_has_x86_clflush},
+		//{"clflushopt", cpuinfo_has_x86_clflushopt},
+		{"mwait", cpuinfo_has_x86_mwait},
+		{"mwaitx", cpuinfo_has_x86_mwaitx},
+		//{"emmx", cpuinfo_has_x86_emmx},
+		{"fxsave", cpuinfo_has_x86_fxsave},
+		{"xsave", cpuinfo_has_x86_xsave},
+		{"fpu", cpuinfo_has_x86_fpu},
+		{"mmx", cpuinfo_has_x86_mmx},
+		{"mmx_plus", cpuinfo_has_x86_mmx_plus},
+		//{"three_d_now", cpuinfo_has_x86_three_d_now},
+		//{"three_d_now_plus", cpuinfo_has_x86_three_d_now_plus},
+		//{"three_d_now_geode", cpuinfo_has_x86_three_d_now_geode},
+		{"prefetch", cpuinfo_has_x86_prefetch},
+		{"prefetchw", cpuinfo_has_x86_prefetchw},
+		{"prefetchwt1", cpuinfo_has_x86_prefetchwt1},
+		{"daz", cpuinfo_has_x86_daz},
+		{"sse", cpuinfo_has_x86_sse},
+		{"sse2", cpuinfo_has_x86_sse2},
+		{"sse3", cpuinfo_has_x86_sse3},
+		{"ssse3", cpuinfo_has_x86_ssse3},
+		{"sse4_1", cpuinfo_has_x86_sse4_1},
+		{"sse4_2", cpuinfo_has_x86_sse4_2},
+		{"sse4a", cpuinfo_has_x86_sse4a},
+		{"misaligned_sse", cpuinfo_has_x86_misaligned_sse},
+		{"avx", cpuinfo_has_x86_avx},
+		{"avxvnni", cpuinfo_has_x86_avxvnni},
+		{"fma3", cpuinfo_has_x86_fma3},
+		{"fma4", cpuinfo_has_x86_fma4},
+		{"xop", cpuinfo_has_x86_xop},
+		{"f16c", cpuinfo_has_x86_f16c},
+		{"avx2", cpuinfo_has_x86_avx2},
+		{"avx512f", cpuinfo_has_x86_avx512f},
+		{"avx512pf", cpuinfo_has_x86_avx512pf},
+		{"avx512er", cpuinfo_has_x86_avx512er},
+		{"avx512cd", cpuinfo_has_x86_avx512cd},
+		{"avx512dq", cpuinfo_has_x86_avx512dq},
+		{"avx512bw", cpuinfo_has_x86_avx512bw},
+		{"avx512vl", cpuinfo_has_x86_avx512vl},
+		{"avx512ifma", cpuinfo_has_x86_avx512ifma},
+		{"avx512vbmi", cpuinfo_has_x86_avx512vbmi},
+		{"avx512vbmi2", cpuinfo_has_x86_avx512vbmi2},
+		{"avx512bitalg", cpuinfo_has_x86_avx512bitalg},
+		{"avx512vpopcntdq", cpuinfo_has_x86_avx512vpopcntdq},
+		{"avx512vnni", cpuinfo_has_x86_avx512vnni},
+		{"avx512bf16", cpuinfo_has_x86_avx512bf16},
+		{"avx512fp16", cpuinfo_has_x86_avx512fp16},
+		{"avx512vp2intersect", cpuinfo_has_x86_avx512vp2intersect},
+		{"avx512_4vnniw", cpuinfo_has_x86_avx512_4vnniw},
+		{"avx512_4fmaps", cpuinfo_has_x86_avx512_4fmaps},
+		{"avx10_1", cpuinfo_has_x86_avx10_1},
+		{"avx10_2", cpuinfo_has_x86_avx10_2},
+		{"amx_bf16", cpuinfo_has_x86_amx_bf16},
+		{"amx_tile", cpuinfo_has_x86_amx_tile},
+		{"amx_int8", cpuinfo_has_x86_amx_int8},
+		{"amx_fp16", cpuinfo_has_x86_amx_fp16},
+		{"avx_vnni_int8", cpuinfo_has_x86_avx_vnni_int8},
+		{"avx_vnni_int16", cpuinfo_has_x86_avx_vnni_int16},
+		{"avx_ne_convert", cpuinfo_has_x86_avx_ne_convert},
+		{"hle", cpuinfo_has_x86_hle},
+		{"rtm", cpuinfo_has_x86_rtm},
+		{"xtest", cpuinfo_has_x86_xtest},
+		{"mpx", cpuinfo_has_x86_mpx},
+		{"cmov", cpuinfo_has_x86_cmov},
+		{"cmpxchg8b", cpuinfo_has_x86_cmpxchg8b},
+		{"cmpxchg16b", cpuinfo_has_x86_cmpxchg16b},
+		{"clwb", cpuinfo_has_x86_clwb},
+		{"movbe", cpuinfo_has_x86_movbe},
+		{"lahf_sahf", cpuinfo_has_x86_lahf_sahf},
+		//{"fs_gs_base", cpuinfo_has_x86_fs_gs_base},
+		{"lzcnt", cpuinfo_has_x86_lzcnt},
+		{"popcnt", cpuinfo_has_x86_popcnt},
+		{"tbm", cpuinfo_has_x86_tbm},
+		{"bmi", cpuinfo_has_x86_bmi},
+		{"bmi2", cpuinfo_has_x86_bmi2},
+		{"adx", cpuinfo_has_x86_adx},
+		{"aes", cpuinfo_has_x86_aes},
+		{"vaes", cpuinfo_has_x86_vaes},
+		{"pclmulqdq", cpuinfo_has_x86_pclmulqdq},
+		{"vpclmulqdq", cpuinfo_has_x86_vpclmulqdq},
+		{"gfni", cpuinfo_has_x86_gfni},
+		{"rdrand", cpuinfo_has_x86_rdrand},
+		{"rdseed", cpuinfo_has_x86_rdseed},
+		{"sha", cpuinfo_has_x86_sha},
+		//{"rng", cpuinfo_has_x86_rng},
+		//{"ace", cpuinfo_has_x86_ace},
+		//{"ace2", cpuinfo_has_x86_ace2},
+		//{"phe", cpuinfo_has_x86_phe},
+		//{"pmm", cpuinfo_has_x86_pmm},
+		//{"lwp", cpuinfo_has_x86_lwp},
+
+		/** ARM Extensions ############################################################################## **/
+		{"thumb", cpuinfo_has_arm_thumb},
+		{"thumb2", cpuinfo_has_arm_thumb2},
+		//{"thumbee", cpuinfo_has_arm_thumbee},
+		//{"jazelle", cpuinfo_has_arm_jazelle},
+		//{"armv5e", cpuinfo_has_arm_armv5e},
+		//{"armv6", cpuinfo_has_arm_armv6},
+		//{"armv6k", cpuinfo_has_arm_armv6k},
+		//{"armv7", cpuinfo_has_arm_armv7},
+		//{"armv7mp", cpuinfo_has_arm_armv7mp},
+		//{"armv8", cpuinfo_has_arm_armv8},
+		{"idiv", cpuinfo_has_arm_idiv},
+		{"vfpv2", cpuinfo_has_arm_vfpv2},
+		{"vfpv3", cpuinfo_has_arm_vfpv3},
+		//{"d32", cpuinfo_has_arm_d32},
+		//{"fp16", cpuinfo_has_arm_fp16},
+		//{"fma", cpuinfo_has_arm_fma},
+		{"wmmx", cpuinfo_has_arm_wmmx},
+		{"wmmx2", cpuinfo_has_arm_wmmx2},
+		{"neon", cpuinfo_has_arm_neon},
+		{"atomics", cpuinfo_has_arm_atomics},
+		{"bf16", cpuinfo_has_arm_bf16},
+		{"sve", cpuinfo_has_arm_sve},
+		{"sve2", cpuinfo_has_arm_sve2},
+		{"i8mm", cpuinfo_has_arm_i8mm},
+		{"sme", cpuinfo_has_arm_sme},
+		{"sme2", cpuinfo_has_arm_sme2},
+		{"sme2p1", cpuinfo_has_arm_sme2p1},
+		{"sme_i16i32", cpuinfo_has_arm_sme_i16i32},
+		{"sme_bi32i32", cpuinfo_has_arm_sme_bi32i32},
+		{"sme_b16b16", cpuinfo_has_arm_sme_b16b16},
+		{"sme_f16f16", cpuinfo_has_arm_sme_f16f16},
+		//{"rdm", cpuinfo_has_arm_rdm},
+		//{"fp16arith", cpuinfo_has_arm_fp16arith},
+		//{"dot", cpuinfo_has_arm_dot},
+		{"jscvt", cpuinfo_has_arm_jscvt},
+		{"fcma", cpuinfo_has_arm_fcma},
+		{"fhm", cpuinfo_has_arm_fhm},
+		{"aes", cpuinfo_has_arm_aes},
+		{"sha1", cpuinfo_has_arm_sha1},
+		{"sha2", cpuinfo_has_arm_sha2},
+		{"pmull", cpuinfo_has_arm_pmull},
+		{"crc32", cpuinfo_has_arm_crc32}
+};
+
 /**
  * @brief Returns a textual representation of the implementer as stored in the MIDR register
  * @details https://developer.arm.com/documentation/100442/0100/register-descriptions/aarch32-system-registers/midr--main-id-register
@@ -96,6 +242,15 @@ static std::vector<SystemStats::CPUInfo::Cache> getCaches() {
 	aggCaches<&SystemStats::CPUInfo::Cache::unified>(layer[2], cpuinfo_get_l3_caches(), cpuinfo_get_l3_caches_count());
 	aggCaches<&SystemStats::CPUInfo::Cache::unified>(layer[3], cpuinfo_get_l4_caches(), cpuinfo_get_l4_caches_count());
 	return {std::begin(layer), std::end(layer)};
+}
+
+static std::string getFlagStr() {
+	std::ostringstream stream;
+	for (auto&& [name, pred] : flags) {
+		if (pred())
+			stream << name << " ";
+	}
+	return stream.str();
 }
 
 SystemStats::CPUInfo SystemStats::getCPUInfo() {
@@ -134,6 +289,7 @@ SystemStats::CPUInfo SystemStats::getCPUInfo() {
 			.threadsPerCore = package->processor_count / package->core_count,
 			.caches = getCaches(),
 			.endianness = endianness,
-			.frequency = core->frequency
+			.frequency = core->frequency,
+			.flags = std::move(getFlagStr())
 	};
 }

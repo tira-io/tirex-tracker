@@ -24,6 +24,7 @@ namespace msr {
 			std::string virtualization;
 			std::string endianness;
 			uint64_t frequency;
+			std::string flags;
 		};
 
 	private:
