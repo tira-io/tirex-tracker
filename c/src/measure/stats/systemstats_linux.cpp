@@ -46,7 +46,7 @@ const std::set<msrMeasure> SystemStats::measures{
 		MSR_CPU_MODEL_NAME,
 		MSR_CPU_CORES_PER_SOCKET,
 		MSR_CPU_THREADS_PER_CORE,
-		MSR_CPU_CACHES_KB,
+		MSR_CPU_CACHES,
 		MSR_CPU_VIRTUALIZATION,
 
 		MSR_RAM_USED_PROCESS_KB,
@@ -100,6 +100,18 @@ Stats SystemStats::getStats() {
 	/** \todo For more accurate reading: measure utime and stime in start() and report only the difference to the start
 	 *   value **/
 
+	std::string caches = "";
+	size_t cacheIdx = 1;
+	for (auto& [unified, instruct, data] : cpuInfo.caches) {
+		if (unified)
+			caches += std::format("\"l{}\": \"{} KiB\",", cacheIdx, unified / 1024);
+		if (instruct)
+			caches += std::format("\"l{}i\": \"{} KiB\",", cacheIdx, instruct / 1024);
+		if (data)
+			caches += std::format("\"l{}d\": \"{} KiB\",", cacheIdx, data / 1024);
+		++cacheIdx;
+	}
+
 	auto wallclocktime =
 			std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(stoptime - starttime).count());
 
@@ -121,8 +133,7 @@ Stats SystemStats::getStats() {
 			{MSR_CPU_MODEL_NAME, cpuInfo.modelname},
 			{MSR_CPU_CORES_PER_SOCKET, std::to_string(cpuInfo.coresPerSocket)},
 			{MSR_CPU_THREADS_PER_CORE, std::to_string(cpuInfo.threadsPerCore)},
-			{MSR_CPU_CACHES_KB, "{\"l1\": \"TODO KB\", \"l1d\": \"TODO KB\" \"l2\": \"TODO KB\", \"l3\": \"TODO KB\"}"s
-			},
+			{MSR_CPU_CACHES, caches},
 			{MSR_CPU_VIRTUALIZATION, "TODO"s},
 			{MSR_RAM_USED_PROCESS_KB, std::to_string(ram.maxValue())},
 			{MSR_RAM_USED_SYSTEM_MB, std::to_string(sysRam.maxValue())},

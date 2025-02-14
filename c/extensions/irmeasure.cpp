@@ -33,7 +33,7 @@ static const std::map<std::string, std::set<msrMeasure>> measuresPerVersion{
 		  MSR_CPU_MODEL_NAME,
 		  MSR_CPU_CORES_PER_SOCKET,
 		  MSR_CPU_THREADS_PER_CORE,
-		  MSR_CPU_CACHES_KB,
+		  MSR_CPU_CACHES,
 		  MSR_CPU_VIRTUALIZATION,
 		  MSR_RAM_USED_PROCESS_KB,
 		  MSR_RAM_USED_SYSTEM_MB,
@@ -126,7 +126,7 @@ static void writePlatform(const ResultMap& results, std::ostream& stream) {
 		stream << "      byte order: " << it->second << '\n';
 	if (ResultMap::const_iterator it; (it = results.find(MSR_CPU_THREADS_PER_CORE)) != results.end())
 		stream << "      threads per core: " << it->second << '\n';
-	if (ResultMap::const_iterator it; (it = results.find(MSR_CPU_CACHES_KB)) != results.end())
+	if (ResultMap::const_iterator it; (it = results.find(MSR_CPU_CACHES)) != results.end())
 		stream << "      caches: " << it->second << '\n';
 	if (ResultMap::const_iterator it; (it = results.find(MSR_CPU_VIRTUALIZATION)) != results.end())
 		stream << "      virtualization: " << it->second << '\n';

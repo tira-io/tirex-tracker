@@ -9,6 +9,23 @@
 
 namespace msr {
 	class SystemStats final : public StatsProvider {
+	public:
+		struct CPUInfo {
+			struct Cache {
+				unsigned unified;  /**< LX cache size in byte **/
+				unsigned instruct; /**< LXi cache size in byte **/
+				unsigned data;	   /**< LXd cache size in byte **/
+			};
+			std::string modelname;
+			std::string vendorId;
+			unsigned coresPerSocket;
+			unsigned threadsPerCore;
+			std::vector<Cache> caches;
+			std::string virtualization;
+			std::string endianness;
+			uint64_t frequency;
+		};
+
 	private:
 		std::chrono::steady_clock::time_point starttime;
 		std::chrono::steady_clock::time_point stoptime;
@@ -46,18 +63,6 @@ namespace msr {
 		static const std::set<msrMeasure> measures;
 
 	private:
-		struct CPUInfo {
-			std::string modelname;
-			std::string vendorId;
-			unsigned coresPerSocket;
-			unsigned threadsPerCore;
-			struct {
-				unsigned l1d, l1i, l2, l3;
-			} caches;
-			std::string virtualization;
-			std::string endianness;
-			uint64_t frequency;
-		};
 		static CPUInfo getCPUInfo();
 	};
 } // namespace msr

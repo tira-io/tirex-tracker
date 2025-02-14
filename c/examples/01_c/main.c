@@ -32,7 +32,7 @@ static const char* measureToName[] = {
 		[MSR_CPU_MODEL_NAME] = "cpu model name",
 		[MSR_CPU_CORES_PER_SOCKET] = "cpu cores per socket",
 		[MSR_CPU_THREADS_PER_CORE] = "cpu threads per core",
-		[MSR_CPU_CACHES_KB] = "cpu caches kb",
+		[MSR_CPU_CACHES] = "cpu caches",
 		[MSR_CPU_VIRTUALIZATION] = "cpu virtualization",
 		[MSR_RAM_USED_PROCESS_KB] = "ram used process kb",
 		[MSR_RAM_USED_SYSTEM_MB] = "ram used system mb",
@@ -62,7 +62,8 @@ static const char* measureToName[] = {
 static void printResult(const msrResult* result, const char* prefix) {
 	size_t num;
 	msrResultEntry entry;
-	assert(msrResultEntryNum(result, &num) == MSR_SUCCESS);
+	int err = msrResultEntryNum(result, &num);
+	assert(err == MSR_SUCCESS);
 	for (size_t i = 0; i < num; ++i) {
 		if (msrResultEntryGetByIndex(result, i, &entry) != MSR_SUCCESS)
 			abort();
@@ -101,7 +102,7 @@ int main(int argc, char* argv[]) {
 			{MSR_CPU_MODEL_NAME, MSR_AGG_NO},
 			{MSR_CPU_CORES_PER_SOCKET, MSR_AGG_NO},
 			{MSR_CPU_THREADS_PER_CORE, MSR_AGG_NO},
-			{MSR_CPU_CACHES_KB, MSR_AGG_NO},
+			{MSR_CPU_CACHES, MSR_AGG_NO},
 			{MSR_CPU_VIRTUALIZATION, MSR_AGG_NO},
 			{MSR_RAM_USED_PROCESS_KB, MSR_AGG_NO},
 			{MSR_RAM_USED_SYSTEM_MB, MSR_AGG_NO},
@@ -141,7 +142,7 @@ int main(int argc, char* argv[]) {
 		char* data = calloc(24 * 1000 * 1000, 1);	  // allocate 24 MB
 		for (size_t i = 0; i < 24 * 1000 * 1000; ++i) // Access the data so it is not optimized away
 			data[i] = 1;
-		thrd_sleep(&(struct timespec){.tv_sec = 10}, NULL);
+		thrd_sleep(&(struct timespec){.tv_sec = 1}, NULL);
 		free(data);
 		//fib(45);
 	}

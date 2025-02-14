@@ -56,10 +56,10 @@ static const msrMeasureInfo measureInfos[]{
 				 .example = "Intel(R) Core(TM)2 Quad  CPU   Q8200  @ 2.33GHz"},
 		[MSR_CPU_CORES_PER_SOCKET] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
 		[MSR_CPU_THREADS_PER_CORE] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
-		[MSR_CPU_CACHES_KB] =
-				{.description = "Collects a dictionary which contains the size of each CPU cache (in kilobytes).",
+		[MSR_CPU_CACHES] =
+				{.description = "Collects a dictionary which contains the size of each CPU cache.",
 				 .datatype = msrResultType::MSR_STRING,
-				 .example = "{\"l1\": \"TODO KB\", \"l1d\": \"TODO KB\" \"l2\": \"TODO KB\", \"l3\": \"TODO KB\"}"},
+				 .example = "{\"l1i\": \"384 KiB\",\"l1d\": \"192 KiB\",\"l2\": \"3072 KiB\",\"l3\": \"16384 KiB\"}"},
 		[MSR_CPU_VIRTUALIZATION] =
 				{.description = "The virtualization technology supported by the CPU (e.g., VT-x or AMD-V), if any.",
 				 .datatype = msrResultType::MSR_STRING,

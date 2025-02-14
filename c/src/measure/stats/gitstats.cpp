@@ -158,8 +158,7 @@ Stats GitStats::getStats() {
 				{MSR_GIT_TAGS, "TODO"s},
 				{MSR_GIT_REMOTE_ORIGIN, getRemoteOrigin(repo)},
 				{MSR_GIT_UNCOMMITTED_CHANGES, (status.numModified != 0) ? "1"s : "0"s},
-				{MSR_GIT_UNPUSHED_CHANGES, ((status.ahead != 0) || (status.behind != 0) || remote.empty()) ? "1"s : "0"s
-				},
+				{MSR_GIT_UNPUSHED_CHANGES, ((status.ahead != 0) || remote.empty()) ? "1"s : "0"s},
 				{MSR_GIT_UNCHECKED_FILES, (status.numNew != 0) ? "1"s : "0"s}};
 	} else {
 		return {{MSR_GIT_IS_REPO, "0"s}};

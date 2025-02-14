@@ -78,6 +78,26 @@ static std::string armImplementerToStr(uint32_t midr) {
 	return _fmt::format("Unknown Implementer ({:#04x})", implementer);
 }
 
+template <uint32_t SystemStats::CPUInfo::Cache::*entry>
+static void aggCaches(SystemStats::CPUInfo::Cache& dest, const cpuinfo_cache* caches, uint32_t num) {
+	for (auto i = 0; i < num; ++i)
+		dest.*entry += caches[i].size;
+}
+
+static std::vector<SystemStats::CPUInfo::Cache> getCaches() {
+	// Assumes cpuinfo to be initialized
+	auto cluster = cpuinfo_get_cluster(0);
+	SystemStats::CPUInfo::Cache layer[4] = {};
+	aggCaches<&SystemStats::CPUInfo::Cache::instruct>(
+			layer[0], cpuinfo_get_l1i_caches(), cpuinfo_get_l1i_caches_count()
+	);
+	aggCaches<&SystemStats::CPUInfo::Cache::data>(layer[0], cpuinfo_get_l1d_caches(), cpuinfo_get_l1d_caches_count());
+	aggCaches<&SystemStats::CPUInfo::Cache::unified>(layer[1], cpuinfo_get_l2_caches(), cpuinfo_get_l2_caches_count());
+	aggCaches<&SystemStats::CPUInfo::Cache::unified>(layer[2], cpuinfo_get_l3_caches(), cpuinfo_get_l3_caches_count());
+	aggCaches<&SystemStats::CPUInfo::Cache::unified>(layer[3], cpuinfo_get_l4_caches(), cpuinfo_get_l4_caches_count());
+	return {std::begin(layer), std::end(layer)};
+}
+
 SystemStats::CPUInfo SystemStats::getCPUInfo() {
 	cpuinfo_initialize();
 	auto numProcessors = cpuinfo_get_processors_count();
@@ -95,6 +115,7 @@ SystemStats::CPUInfo SystemStats::getCPUInfo() {
 		);
 	}
 	auto cluster = cpuinfo_get_cluster(0);
+	auto package = cluster->package;
 	auto core = cpuinfo_get_core(0);
 
 	std::string endianness =
@@ -109,8 +130,9 @@ SystemStats::CPUInfo SystemStats::getCPUInfo() {
 #elif CPUINFO_ARCH_ARM || CPUINFO_ARCH_ARM64
 			.vendorId = armImplementerToStr(cluster->midr),
 #endif
-			.coresPerSocket = cluster->core_count,
-			.threadsPerCore = cluster->processor_count / cluster->core_count,
+			.coresPerSocket = package->core_count,
+			.threadsPerCore = package->processor_count / package->core_count,
+			.caches = getCaches(),
 			.endianness = endianness,
 			.frequency = core->frequency
 	};
