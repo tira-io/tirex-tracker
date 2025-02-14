@@ -11,17 +11,10 @@ using msr::GPUStats;
 using msr::Stats;
 
 const char* GPUStats::version = "nvml v." NVML_API_VERSION_STR;
-const std::set<msrMeasure> GPUStats::measures{
-		MSR_GPU_SUPPORTED,
-		MSR_GPU_MODEL_NAME,
-		MSR_GPU_NUM_CORES,
-		MSR_GPU_USED_PROCESS_PERCENT,
-		MSR_GPU_USED_SYSTEM_PERCENT,
-		MSR_GPU_AVAILABLE_SYSTEM_CORES,
-		MSR_GPU_VRAM_USED_PROCESS_MB,
-		MSR_GPU_VRAM_USED_SYSTEM_MB,
-		MSR_GPU_VRAM_AVAILABLE_SYSTEM_MB
-};
+const std::set<msrMeasure> GPUStats::measures{MSR_GPU_SUPPORTED,		   MSR_GPU_MODEL_NAME,
+											  MSR_GPU_NUM_CORES,		   MSR_GPU_USED_PROCESS_PERCENT,
+											  MSR_GPU_USED_SYSTEM_PERCENT, MSR_GPU_VRAM_USED_PROCESS_MB,
+											  MSR_GPU_VRAM_USED_SYSTEM_MB, MSR_GPU_VRAM_AVAILABLE_SYSTEM_MB};
 
 struct NVMLLib final : msr::utils::SharedLib {
 public:
@@ -175,7 +168,6 @@ Stats GPUStats::getStats() {
 				{MSR_GPU_NUM_CORES, "TODO"s},
 				{MSR_GPU_USED_PROCESS_PERCENT, "TODO"s},
 				{MSR_GPU_USED_SYSTEM_PERCENT, "TODO"s},
-				{MSR_GPU_AVAILABLE_SYSTEM_CORES, "TODO"s},
 				{MSR_GPU_VRAM_USED_PROCESS_MB, "TODO"s},
 				{MSR_GPU_VRAM_USED_SYSTEM_MB, std::to_string(nvml.vramUsageTotal.maxValue())},
 				{MSR_GPU_VRAM_AVAILABLE_SYSTEM_MB, vramTotal}};

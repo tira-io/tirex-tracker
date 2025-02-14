@@ -9,6 +9,14 @@
 
 #include <cpuinfo.h>
 
+#if __cpp_lib_format
+#include <format>
+namespace _fmt = std;
+#else
+#include <fmt/core.h>
+namespace _fmt = fmt;
+#endif
+
 #include <map>
 
 using msr::SystemStats;
@@ -47,6 +55,29 @@ std::map<cpuinfo_vendor, const char*> vendorToStr{
 		{cpuinfo_vendor_dec, "Digital Equipment Corporation"}
 };
 
+static const std::map<uint8_t, const char*> armimplementers = {
+		{0x41, "ARM"},		 {0x42, "Broadcom"},  {0x43, "Cavium"},	  {0x44, "DEC"},
+		{0x46, "FUJITSU"},	 {0x48, "HiSilicon"}, {0x49, "Infineon"}, {0x4d, "Motorola/Freescale"},
+		{0x4e, "NVIDIA"},	 {0x50, "APM"},		  {0x51, "Qualcomm"}, {0x53, "Samsung"},
+		{0x56, "Marvell"},	 {0x61, "Apple"},	  {0x66, "Faraday"},  {0x69, "Intel"},
+		{0x6d, "Microsoft"}, {0x70, "Phytium"},	  {0xc0, "Ampere"}
+};
+
+/**
+ * @brief Returns a textual representation of the implementer as stored in the MIDR register
+ * @details https://developer.arm.com/documentation/100442/0100/register-descriptions/aarch32-system-registers/midr--main-id-register
+ * 
+ * @param midr 
+ * @return  
+ */
+static std::string armImplementerToStr(uint32_t midr) {
+	auto implementer = static_cast<uint8_t>(midr >> 24);
+	auto it = armimplementers.find(implementer);
+	if (it != armimplementers.end())
+		return it->second;
+	return _fmt::format("Unknown Implementer ({:#04x})", implementer);
+}
+
 SystemStats::CPUInfo SystemStats::getCPUInfo() {
 	cpuinfo_initialize();
 	auto numProcessors = cpuinfo_get_processors_count();
@@ -73,7 +104,11 @@ SystemStats::CPUInfo SystemStats::getCPUInfo() {
 
 	return CPUInfo{
 			.modelname = cluster->package->name,
+#if CPUINFO_ARCH_X86 || CPUINFO_ARCH_X86_64
 			.vendorId = vendorToStr[cluster->vendor],
+#elif CPUINFO_ARCH_ARM || CPUINFO_ARCH_ARM64
+			.vendorId = armImplementerToStr(cluster->midr),
+#endif
 			.coresPerSocket = cluster->core_count,
 			.threadsPerCore = cluster->processor_count / cluster->core_count,
 			.endianness = endianness,

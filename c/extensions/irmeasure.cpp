@@ -44,7 +44,6 @@ static const std::map<std::string, std::set<msrMeasure>> measuresPerVersion{
 		  MSR_GPU_NUM_CORES,
 		  MSR_GPU_USED_PROCESS_PERCENT,
 		  MSR_GPU_USED_SYSTEM_PERCENT,
-		  MSR_GPU_AVAILABLE_SYSTEM_CORES,
 		  MSR_GPU_VRAM_USED_PROCESS_MB,
 		  MSR_GPU_VRAM_USED_SYSTEM_MB,
 		  MSR_GPU_VRAM_AVAILABLE_SYSTEM_MB,
@@ -53,6 +52,7 @@ static const std::map<std::string, std::set<msrMeasure>> measuresPerVersion{
 		  MSR_GIT_HASH,
 		  MSR_GIT_LAST_COMMIT_HASH,
 		  MSR_GIT_BRANCH,
+		  MSR_GIT_BRANCH_UPSTREAM,
 		  MSR_GIT_TAGS,
 		  MSR_GIT_REMOTE_ORIGIN,
 		  MSR_GIT_UNCOMMITTED_CHANGES,
@@ -143,8 +143,6 @@ static void writePlatform(const ResultMap& results, std::ostream& stream) {
 		stream << "      number of cores: " << it->second << '\n';
 	if (ResultMap::const_iterator it; (it = results.find(MSR_GPU_SUPPORTED)) != results.end())
 		stream << "      supported: " << it->second << '\n';
-	if (ResultMap::const_iterator it; (it = results.find(MSR_GPU_AVAILABLE_SYSTEM_CORES)) != results.end())
-		stream << "      available sytem cores: " << it->second << '\n';
 
 	//// RAM INFO
 	if (ResultMap::const_iterator it; (it = results.find(MSR_RAM_AVAILABLE_SYSTEM_MB)) != results.end())
@@ -182,6 +180,8 @@ static void writeImplementation(const ResultMap& results, std::ostream& stream) 
 		stream << "    hash: " << it->second << '\n';
 	if (ResultMap::const_iterator it; (it = results.find(MSR_GIT_BRANCH)) != results.end())
 		stream << "    branch: " << it->second << '\n';
+	if (ResultMap::const_iterator it; (it = results.find(MSR_GIT_BRANCH_UPSTREAM)) != results.end())
+		stream << "    upstream branch: " << it->second << '\n';
 	if (ResultMap::const_iterator it; (it = results.find(MSR_GIT_TAGS)) != results.end())
 		stream << "    tags: " << it->second << '\n';
 	if (ResultMap::const_iterator it; (it = results.find(MSR_GIT_UNCOMMITTED_CHANGES)) != results.end())

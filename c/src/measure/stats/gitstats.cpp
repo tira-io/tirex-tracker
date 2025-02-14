@@ -13,11 +13,11 @@ using msr::GitStats;
 using msr::Stats;
 
 const char* GitStats::version = "libgit v." LIBGIT2_VERSION;
-const std::set<msrMeasure> GitStats::measures{
-		MSR_GIT_IS_REPO,		MSR_GIT_HASH,		   MSR_GIT_LAST_COMMIT_HASH,	MSR_GIT_BRANCH,
-		MSR_GIT_TAGS,			MSR_GIT_REMOTE_ORIGIN, MSR_GIT_UNCOMMITTED_CHANGES, MSR_GIT_UNPUSHED_CHANGES,
-		MSR_GIT_UNCHECKED_FILES
-};
+const std::set<msrMeasure> GitStats::measures{MSR_GIT_IS_REPO,			MSR_GIT_HASH,
+											  MSR_GIT_LAST_COMMIT_HASH, MSR_GIT_BRANCH,
+											  MSR_GIT_BRANCH_UPSTREAM,	MSR_GIT_TAGS,
+											  MSR_GIT_REMOTE_ORIGIN,	MSR_GIT_UNCOMMITTED_CHANGES,
+											  MSR_GIT_UNPUSHED_CHANGES, MSR_GIT_UNCHECKED_FILES};
 
 static std::string getLastCommitHash(git_repository* repo) {
 	git_oid id;
@@ -113,6 +113,7 @@ Stats GitStats::getStats() {
 				{MSR_GIT_HASH, "TODO"s},
 				{MSR_GIT_LAST_COMMIT_HASH, getLastCommitHash(repo)},
 				{MSR_GIT_BRANCH, getBranchName(repo)},
+				{MSR_GIT_BRANCH_UPSTREAM, "TODO"s},
 				{MSR_GIT_TAGS, "TODO"s},
 				{MSR_GIT_REMOTE_ORIGIN, getRemoteOrigin(repo)},
 				{MSR_GIT_UNCOMMITTED_CHANGES, (status.numModified != 0) ? "1"s : "0"s},
