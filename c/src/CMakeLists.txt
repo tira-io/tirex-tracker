@@ -13,6 +13,7 @@ add_library(measureapi SHARED
 	measure/stats/gpustats.cpp
 	measure/stats/systemstats.cpp
 	measure/stats/systemstats_linux.cpp
+	measure/stats/systemstats_macos.cpp
 )
 
 target_compile_features(measureapi PUBLIC cxx_std_20)
@@ -32,6 +33,7 @@ add_library(measureapi_static STATIC
 	measure/stats/gpustats.cpp
 	measure/stats/systemstats.cpp
 	measure/stats/systemstats_linux.cpp
+	measure/stats/systemstats_macos.cpp
 )
 target_compile_features(measureapi_static PUBLIC cxx_std_20)
 target_include_directories(measureapi_static PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../include)
@@ -52,11 +54,13 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # Libraries
 ##########################################################################################
 # CPPJoule
-FetchContent_Declare(cppjoule GIT_REPOSITORY https://github.com/TheMrSheldon/CPPJoules.git GIT_TAG main)#GIT_TAG v1.0)
-FetchContent_MakeAvailable(cppjoule)
-set_property(TARGET CPP_Joules PROPERTY POSITION_INDEPENDENT_CODE ON)
-target_link_libraries(measureapi PRIVATE CPP_Joules)
-target_link_libraries(measureapi_static PRIVATE CPP_Joules)
+if (NOT (UNIX AND APPLE)) # CPPJouls does not support macos right now
+	FetchContent_Declare(cppjoule GIT_REPOSITORY https://github.com/TheMrSheldon/CPPJoules.git GIT_TAG main)#GIT_TAG v1.0)
+	FetchContent_MakeAvailable(cppjoule)
+	set_property(TARGET CPP_Joules PROPERTY POSITION_INDEPENDENT_CODE ON)
+	target_link_libraries(measureapi PRIVATE CPP_Joules)
+	target_link_libraries(measureapi_static PRIVATE CPP_Joules)
+endif()
 
 # LibGit
 option(USE_HTTPS OFF)
@@ -93,3 +97,13 @@ FetchContent_MakeAvailable(cpuinfo)
 set_property(TARGET cpuinfo PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(measureapi PRIVATE cpuinfo::cpuinfo)
 target_link_libraries(measureapi_static PRIVATE cpuinfo::cpuinfo)
+
+# Mac Only: Bind to CoreFoundation to get IOReport for system information
+if (UNIX AND APPLE)
+	#if(CMAKE_OBJCXX_LINK_LIBRARY_USING_FRAMEWORK_SUPPORTED)
+		target_link_libraries(measureapi PRIVATE "$<LINK_LIBRARY:FRAMEWORK,CoreFoundation>")
+		target_link_libraries(measureapi_static PRIVATE "$<LINK_LIBRARY:FRAMEWORK,CoreFoundation>")
+	#else()
+	#	message(FATAL_ERROR "failed to link to corefoundation")
+	#endif()
+endif()

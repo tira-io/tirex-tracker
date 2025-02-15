@@ -24,36 +24,6 @@ using std::chrono::steady_clock;
 using msr::Stats;
 using msr::SystemStats;
 
-const char* SystemStats::version = nullptr;
-const std::set<msrMeasure> SystemStats::measures{
-		MSR_OS_NAME,
-		MSR_OS_KERNEL,
-
-		MSR_TIME_ELAPSED_WALL_CLOCK_MS,
-		MSR_TIME_ELAPSED_USER_MS,
-		MSR_TIME_ELAPSED_SYSTEM_MS,
-
-		MSR_CPU_USED_PROCESS_PERCENT,
-		MSR_CPU_USED_SYSTEM_PERCENT,
-		MSR_CPU_AVAILABLE_SYSTEM_CORES,
-		MSR_CPU_FEATURES,
-		MSR_CPU_FREQUENCY_MHZ,
-		MSR_CPU_FREQUENCY_MIN_MHZ,
-		MSR_CPU_FREQUENCY_MAX_MHZ,
-		MSR_CPU_VENDOR_ID,
-		MSR_CPU_BYTE_ORDER,
-		MSR_CPU_ARCHITECTURE,
-		MSR_CPU_MODEL_NAME,
-		MSR_CPU_CORES_PER_SOCKET,
-		MSR_CPU_THREADS_PER_CORE,
-		MSR_CPU_CACHES,
-		MSR_CPU_VIRTUALIZATION,
-
-		MSR_RAM_USED_PROCESS_KB,
-		MSR_RAM_USED_SYSTEM_MB,
-		MSR_RAM_AVAILABLE_SYSTEM_MB
-};
-
 struct SysInfo {
 	std::string osname;		/**< The name of the operating system that is currently running **/
 	std::string kerneldesc; /**< The os kernel that is currently running **/
@@ -104,11 +74,11 @@ Stats SystemStats::getStats() {
 	size_t cacheIdx = 1;
 	for (auto& [unified, instruct, data] : cpuInfo.caches) {
 		if (unified)
-			caches += std::format("\"l{}\": \"{} KiB\",", cacheIdx, unified / 1024);
+			caches += _fmt::format("\"l{}\": \"{} KiB\",", cacheIdx, unified / 1024);
 		if (instruct)
-			caches += std::format("\"l{}i\": \"{} KiB\",", cacheIdx, instruct / 1024);
+			caches += _fmt::format("\"l{}i\": \"{} KiB\",", cacheIdx, instruct / 1024);
 		if (data)
-			caches += std::format("\"l{}d\": \"{} KiB\",", cacheIdx, data / 1024);
+			caches += _fmt::format("\"l{}d\": \"{} KiB\",", cacheIdx, data / 1024);
 		++cacheIdx;
 	}
 

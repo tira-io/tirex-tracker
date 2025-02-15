@@ -21,6 +21,36 @@ namespace _fmt = fmt;
 
 using msr::SystemStats;
 
+const char* SystemStats::version = nullptr;
+const std::set<msrMeasure> SystemStats::measures{
+		MSR_OS_NAME,
+		MSR_OS_KERNEL,
+
+		MSR_TIME_ELAPSED_WALL_CLOCK_MS,
+		MSR_TIME_ELAPSED_USER_MS,
+		MSR_TIME_ELAPSED_SYSTEM_MS,
+
+		MSR_CPU_USED_PROCESS_PERCENT,
+		MSR_CPU_USED_SYSTEM_PERCENT,
+		MSR_CPU_AVAILABLE_SYSTEM_CORES,
+		MSR_CPU_FEATURES,
+		MSR_CPU_FREQUENCY_MHZ,
+		MSR_CPU_FREQUENCY_MIN_MHZ,
+		MSR_CPU_FREQUENCY_MAX_MHZ,
+		MSR_CPU_VENDOR_ID,
+		MSR_CPU_BYTE_ORDER,
+		MSR_CPU_ARCHITECTURE,
+		MSR_CPU_MODEL_NAME,
+		MSR_CPU_CORES_PER_SOCKET,
+		MSR_CPU_THREADS_PER_CORE,
+		MSR_CPU_CACHES,
+		MSR_CPU_VIRTUALIZATION,
+
+		MSR_RAM_USED_PROCESS_KB,
+		MSR_RAM_USED_SYSTEM_MB,
+		MSR_RAM_AVAILABLE_SYSTEM_MB
+};
+
 std::map<cpuinfo_vendor, const char*> vendorToStr{
 		{cpuinfo_vendor_unknown, "Unknown"},
 		{cpuinfo_vendor_intel, "Intel Corporation"},
@@ -253,12 +283,16 @@ static std::string getFlagStr() {
 	return stream.str();
 }
 
+
+SystemStats::SystemStats() {}
+
 SystemStats::CPUInfo SystemStats::getCPUInfo() {
 	cpuinfo_initialize();
 	auto numProcessors = cpuinfo_get_processors_count();
 	auto numPackages = cpuinfo_get_packages_count();
 	auto numCores = cpuinfo_get_cores_count();
 	auto numClusters = cpuinfo_get_clusters_count();
+
 	msr::log::info(
 			"system", "Found {} physical and {} logical processors with a total of {} cores clustered into {} clusters",
 			numPackages, numProcessors, numCores, numClusters
@@ -283,7 +317,7 @@ SystemStats::CPUInfo SystemStats::getCPUInfo() {
 #if CPUINFO_ARCH_X86 || CPUINFO_ARCH_X86_64
 			.vendorId = vendorToStr[cluster->vendor],
 #elif CPUINFO_ARCH_ARM || CPUINFO_ARCH_ARM64
-			.vendorId = armImplementerToStr(cluster->midr),
+			.vendorId = (cluster->vendor != cpuinfo_vendor_unknown)? vendorToStr[cluster->vendor] : armImplementerToStr(cluster->midr),
 #endif
 			.coresPerSocket = package->core_count,
 			.threadsPerCore = package->processor_count / package->core_count,

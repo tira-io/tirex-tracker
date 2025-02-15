@@ -52,7 +52,7 @@ namespace msr {
 #endif
 
 	public:
-		SystemStats() = default;
+		SystemStats();
 
 		void start() override;
 		void stop() override;
