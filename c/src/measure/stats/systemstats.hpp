@@ -18,6 +18,7 @@ namespace msr {
 			};
 			std::string modelname;
 			std::string vendorId;
+			unsigned numCores;
 			unsigned coresPerSocket;
 			unsigned threadsPerCore;
 			std::vector<Cache> caches;

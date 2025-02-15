@@ -122,7 +122,7 @@ Stats SystemStats::getStats() {
 			{MSR_TIME_ELAPSED_SYSTEM_MS, std::to_string(utilization.sysTimeMs - startSysTime)},
 			{MSR_CPU_USED_PROCESS_PERCENT, "TODO"s},
 			{MSR_CPU_USED_SYSTEM_PERCENT, std::to_string(sysCpuUtil.maxValue())},
-			{MSR_CPU_AVAILABLE_SYSTEM_CORES, "TODO"s},
+			{MSR_CPU_AVAILABLE_SYSTEM_CORES, std::to_string(cpuInfo.numCores)},
 			{MSR_CPU_FEATURES, cpuInfo.flags},
 			{MSR_CPU_FREQUENCY_MHZ, std::to_string(cpuInfo.frequency)},
 			{MSR_CPU_FREQUENCY_MIN_MHZ, "TODO"s},

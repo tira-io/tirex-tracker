@@ -285,6 +285,7 @@ SystemStats::CPUInfo SystemStats::getCPUInfo() {
 #elif CPUINFO_ARCH_ARM || CPUINFO_ARCH_ARM64
 			.vendorId = armImplementerToStr(cluster->midr),
 #endif
+			.numCores = cpuinfo_get_cores_count(),
 			.coresPerSocket = package->core_count,
 			.threadsPerCore = package->processor_count / package->core_count,
 			.caches = getCaches(),
