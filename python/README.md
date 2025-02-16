@@ -3,13 +3,13 @@
 Install via:
 
 ```
-pip3 install 'git+https://github.com/tira-io/measure.git@python-language-structure#egg=py_measure&subdirectory=python'
+pip3 install tira-measure
 ```
 
 Usage:
 
 ```py
-from py_measure import Environment
+from tira_measure import Environment
 
 environment = Environment(["git", "system"], ..., polling_ms=1000)  # defaults would be all measures, and some reasonable polling interval.
 
