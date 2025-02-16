@@ -11,6 +11,7 @@ add_library(measureapi SHARED
 	measure/stats/energystats.cpp
 	measure/stats/gitstats.cpp
 	measure/stats/gpustats.cpp
+	measure/stats/systemstats.cpp
 	measure/stats/systemstats_linux.cpp
 )
 
@@ -29,13 +30,15 @@ add_library(measureapi_static STATIC
 	measure/stats/energystats.cpp
 	measure/stats/gitstats.cpp
 	measure/stats/gpustats.cpp
+	measure/stats/systemstats.cpp
 	measure/stats/systemstats_linux.cpp
 )
 target_compile_features(measureapi_static PUBLIC cxx_std_20)
 target_include_directories(measureapi_static PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../include)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-	target_link_options(measureapi PRIVATE -static-libgcc -static-libstdc++)
+	# Statically link standard library for c++
+	# target_link_options(measureapi PRIVATE -static-libgcc -static-libstdc++)
 endif()
 
 target_link_libraries(measureapi PUBLIC dl)  # dlopen, dlclose, ...
@@ -77,3 +80,16 @@ FetchContent_MakeAvailable(fmt)
 set_property(TARGET fmt PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(measureapi PRIVATE fmt::fmt)
 target_link_libraries(measureapi_static PRIVATE fmt::fmt)
+
+# lscpu
+# option(CPUINFO_LOG_TO_STDIO OFF)
+option(CPUINFO_BUILD_TOOLS OFF)
+option(CPUINFO_BUILD_UNIT_TESTS OFF)
+option(CPUINFO_BUILD_MOCK_TESTS OFF)
+option(CPUINFO_BUILD_BENCHMARKS OFF)
+# set(CPUINFO_LOG_LEVEL "debug")
+FetchContent_Declare(cpuinfo GIT_REPOSITORY https://github.com/pytorch/cpuinfo.git GIT_TAG aaac07ee499895770c89163ce0920ef8bb41ed23)
+FetchContent_MakeAvailable(cpuinfo)
+set_property(TARGET cpuinfo PROPERTY POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(measureapi PRIVATE cpuinfo::cpuinfo)
+target_link_libraries(measureapi_static PRIVATE cpuinfo::cpuinfo)

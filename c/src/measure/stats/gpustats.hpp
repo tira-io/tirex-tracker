@@ -14,6 +14,7 @@ namespace msr {
 			std::vector<nvmlDevice_t> devices;
 			TimeSeries<unsigned> vramUsageTotal;
 			TimeSeries<unsigned> vramUsageProcess;
+			TimeSeries<unsigned> utilizationTotal;
 		} nvml;
 
 	public:
