@@ -36,7 +36,7 @@ def test_measure_infos() -> None:
     assert actual is not None
     assert isinstance(actual, Mapping)
     assert len(actual) > 0
-    for measure in Measure:
+    for measure in ALL_MEASURES:
         assert measure in actual.keys()
 
 
@@ -51,12 +51,14 @@ def test_fetch_info() -> None:
     for value in actual.values():
         assert isinstance(value, ResultEntry)
     assert Measure.OS_NAME in actual.keys()
-    assert actual[Measure.OS_NAME].source is not None
-    assert actual[Measure.OS_NAME].source is Measure.OS_NAME
-    assert actual[Measure.OS_NAME].type is not None
-    assert actual[Measure.OS_NAME].type is ResultType.STRING
-    assert actual[Measure.OS_NAME].value is not None
-    assert len(actual[Measure.OS_NAME].value) > 0
+    result_entry = actual[Measure.OS_NAME]
+    assert result_entry is not None
+    assert result_entry.source is not None
+    assert result_entry.source is Measure.OS_NAME
+    assert result_entry.type is not None
+    assert result_entry.type is ResultType.STRING
+    assert result_entry.value is not None
+    assert len(result_entry.value) > 0
 
 
 def test_measure_start_and_stop() -> None:
@@ -74,16 +76,15 @@ def test_measure_start_and_stop() -> None:
     for value in actual.values():
         assert isinstance(value, ResultEntry)
     assert Measure.TIME_ELAPSED_WALL_CLOCK_MS in actual.keys()
-    assert actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS].source is not None
-    assert (
-        actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS].source
-        is Measure.TIME_ELAPSED_WALL_CLOCK_MS
-    )
-    assert actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS].type is not None
-    # FIXME
-    # assert actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS].type is ResultType.FLOATING
-    assert actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS].value is not None
-    time_elapsed = float(actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS].value)
+    result_entry = actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS]
+    assert result_entry is not None
+    assert result_entry.source is not None
+    assert result_entry.source is Measure.TIME_ELAPSED_WALL_CLOCK_MS
+    assert result_entry.type is not None
+    # FIXME:
+    # assert result_entry.type is ResultType.FLOATING
+    assert result_entry.value is not None
+    time_elapsed = float(result_entry.value)
     assert time_elapsed > 0.0
 
 
@@ -95,16 +96,15 @@ def test_measure_using_with_statement() -> None:
     for value in actual.values():
         assert isinstance(value, ResultEntry)
     assert Measure.TIME_ELAPSED_WALL_CLOCK_MS in actual.keys()
-    assert actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS].source is not None
-    assert (
-        actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS].source
-        is Measure.TIME_ELAPSED_WALL_CLOCK_MS
-    )
-    assert actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS].type is not None
-    # FIXME
-    # assert actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS].type is ResultType.FLOATING
-    assert actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS].value is not None
-    time_elapsed = float(actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS].value)
+    result_entry = actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS]
+    assert result_entry is not None
+    assert result_entry.source is not None
+    assert result_entry.source is Measure.TIME_ELAPSED_WALL_CLOCK_MS
+    assert result_entry.type is not None
+    # FIXME:
+    # assert result_entry.type is ResultType.FLOATING
+    assert result_entry.value is not None
+    time_elapsed = float(result_entry.value)
     assert time_elapsed > 0.0
 
 
@@ -125,16 +125,15 @@ def test_measure_using_function_decorator() -> None:
     for value in actual.values():
         assert isinstance(value, ResultEntry)
     assert Measure.TIME_ELAPSED_WALL_CLOCK_MS in actual.keys()
-    assert actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS].source is not None
-    assert (
-        actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS].source
-        is Measure.TIME_ELAPSED_WALL_CLOCK_MS
-    )
-    assert actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS].type is not None
-    # FIXME
-    # assert actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS].type is ResultType.FLOATING
-    assert actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS].value is not None
-    time_elapsed = float(actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS].value)
+    result_entry = actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS]
+    assert result_entry is not None
+    assert result_entry.source is not None
+    assert result_entry.source is Measure.TIME_ELAPSED_WALL_CLOCK_MS
+    assert result_entry.type is not None
+    # FIXME:
+    # assert result_entry.type is ResultType.FLOATING
+    assert result_entry.value is not None
+    time_elapsed = float(result_entry.value)
     assert time_elapsed > 0.0
 
 
@@ -143,7 +142,7 @@ def measure() -> Measure:
     return Measure.TIME_ELAPSED_WALL_CLOCK_MS
 
 
-# FIXME
+# FIXME:
 # def test_measure_type_matches(measure: Measure) -> None:
 #     with measuring(measures=[measure]) as actual:
 #         sleep(0.01)
@@ -152,6 +151,6 @@ def measure() -> Measure:
 #     assert isinstance(actual, Mapping)
 #     assert len(actual) == 1
 #     assert measure in actual.keys()
-#     result = actual[measure]
-#     assert isinstance(result, ResultEntry)
-#     assert result.source is measure
+#     result_entry = actual[measure]
+#     assert isinstance(result_entry, ResultEntry)
+#     assert result_entry.source is measure

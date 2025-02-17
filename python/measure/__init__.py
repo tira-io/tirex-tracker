@@ -78,17 +78,15 @@ class Measure(IntEnum):
     CPU_THREADS_PER_CORE = auto()
     CPU_CACHES = auto()
     CPU_VIRTUALIZATION = auto()
-    # CPU_BOGO_MIPS = auto()
     RAM_USED_PROCESS_KB = auto()
     RAM_USED_SYSTEM_MB = auto()
     RAM_AVAILABLE_SYSTEM_MB = auto()
     RAM_ENERGY_SYSTEM_JOULES = auto()
     GPU_SUPPORTED = auto()
     GPU_MODEL_NAME = auto()
-    GPU_NUM_CORES = auto()
+    GPU_AVAILABLE_SYSTEM_CORES = auto()  # aka. GPU_NUM_CORES
     GPU_USED_PROCESS_PERCENT = auto()
     GPU_USED_SYSTEM_PERCENT = auto()
-    # GPU_AVAILABLE_SYSTEM_CORES = auto()
     GPU_VRAM_USED_PROCESS_MB = auto()
     GPU_VRAM_USED_SYSTEM_MB = auto()
     GPU_VRAM_AVAILABLE_SYSTEM_MB = auto()
@@ -124,7 +122,7 @@ _INVALID_AGGREGATION = -1
 ALL_AGGREGATIONS = set(Aggregation)
 
 
-class MeasureHandle(Structure):
+class MeasurementHandle(Structure):
     _fields_ = []
 
 
@@ -197,10 +195,14 @@ class LogCallback(Protocol):
         pass
 
 
-def _wrap_log_callback(log_callback: Optional[LogCallback]) -> Optional[CFunctionType]:
+def _noop_log_callback(level: LogLevel, component: str, message: str):
+    return None
+
+
+def _to_native_log_callback(log_callback: LogCallback) -> CFunctionType:
     @CFUNCTYPE(None, c_int, c_char_p, c_char_p)
     def _log_callback(level: c_int, component: c_char_p, message: c_char_p) -> None:
-        if log_callback is None:
+        if log_callback is _noop_log_callback:
             return  # Do nothing.
 
         component_bytes = component.value
@@ -271,10 +273,6 @@ class _MeasureInfo(Structure):
         )
 
 
-def _find_library() -> Path:
-    return Path(__file__).parent / "libmeasureapi.so"
-
-
 class _MeasureLibrary(CDLL):
     msrResultEntryGetByIndex: Callable[
         [Pointer[_Result], int, Pointer[_ResultEntry]], int
@@ -285,12 +283,19 @@ class _MeasureLibrary(CDLL):
         [Array[_MeasureConfiguration], Pointer[Pointer[_Result]]], int
     ]
     msrStartMeasure: Callable[
-        [Array[_MeasureConfiguration], int, Pointer[Pointer[MeasureHandle]]], int
+        [Array[_MeasureConfiguration], int, Pointer[Pointer[MeasurementHandle]]], int
     ]
-    msrStopMeasure: Callable[[Pointer[MeasureHandle], Pointer[Pointer[_Result]]], int]
+    msrStopMeasure: Callable[
+        [Pointer[MeasurementHandle], Pointer[Pointer[_Result]]], int
+    ]
+    # FIXME:
     # msrSetLogCallback: Callable[[CFunctionType], None]
     msrDataProviderGetAll: Callable[[Array[_ProviderInfo], int], int]
     msrMeasureInfoGet: Callable[[int, Pointer[Pointer[_MeasureInfo]]], int]
+
+
+def _find_library() -> Path:
+    return Path(__file__).parent / "libmeasureapi.so"
 
 
 def _load_library() -> _MeasureLibrary:
@@ -314,14 +319,15 @@ def _load_library() -> _MeasureLibrary:
     library.msrStartMeasure.argtypes = [
         Array[_MeasureConfiguration],
         c_size_t,
-        POINTER(POINTER(MeasureHandle)),
+        POINTER(POINTER(MeasurementHandle)),
     ]
     library.msrStartMeasure.restype = c_int
     library.msrStopMeasure.argtypes = [
-        POINTER(MeasureHandle),
+        POINTER(MeasurementHandle),
         POINTER(POINTER(_Result)),
     ]
     library.msrStopMeasure.restype = c_int
+    # FIXME:
     # library.msrSetLogCallback.argtypes = [c_void_p]
     # library.msrSetLogCallback.restype = c_void_p
     library.msrDataProviderGetAll.argtypes = [Array[_ProviderInfo], c_size_t]
@@ -357,9 +363,8 @@ def provider_infos() -> Collection[ProviderInfo]:
 
 def measure_infos() -> Mapping[Measure, MeasureInfo]:
     measure_infos: dict[Measure, MeasureInfo] = {}
-    for measure in Measure:
+    for measure in ALL_MEASURES:
         measure_info_pointer = pointer(pointer(_MeasureInfo()))
-        print(measure.value)
         error_int = _LIBRARY.msrMeasureInfoGet(measure.value, measure_info_pointer)
         _handle_error(error_int)
         measure_info = measure_info_pointer.contents.contents
@@ -371,11 +376,10 @@ def measure_infos() -> Mapping[Measure, MeasureInfo]:
 # TODO: Maybe rename this function.
 def fetch_info(
     measures: Iterable[Measure] = ALL_MEASURES,
-    poll_intervall_ms: int = -1,
-    log_callback: Optional[LogCallback] = None,
+    log_callback: LogCallback = _noop_log_callback,
 ) -> Mapping[Measure, ResultEntry]:
     # FIXME
-    # _LIBRARY.msrSetLogCallback(_wrap_log_callback(log_callback))
+    # _LIBRARY.msrSetLogCallback(_to_native_log_callback(log_callback))
 
     configs = [
         _MeasureConfiguration(measure.value, Aggregation.NO.value)
@@ -389,7 +393,7 @@ def fetch_info(
     result = result_pointer.contents
 
     # FIXME
-    # _LIBRARY.msrSetLogCallback(_wrap_log_callback(None))
+    # _LIBRARY.msrSetLogCallback(_to_native_log_callback(_nop_log_callback))
 
     num_entries_pointer = pointer(c_size_t())
     error_int = _LIBRARY.msrResultEntryNum(result, num_entries_pointer)
@@ -409,10 +413,10 @@ def fetch_info(
 def start_measurement(
     measures: Iterable[Measure] = ALL_MEASURES,
     poll_intervall_ms: int = -1,
-    log_callback: Optional[LogCallback] = None,
-) -> Pointer[MeasureHandle]:
+    log_callback: LogCallback = _noop_log_callback,
+) -> Pointer[MeasurementHandle]:
     # FIXME
-    # _LIBRARY.msrSetLogCallback(_wrap_log_callback(log_callback))
+    # _LIBRARY.msrSetLogCallback(_to_native_log_callback(log_callback))
 
     configs = [
         _MeasureConfiguration(measure.value, Aggregation.NO.value)
@@ -420,7 +424,7 @@ def start_measurement(
     ] + [_NULL_MEASURE_CONFIGURATION]
     configs_array = (_MeasureConfiguration * (len(configs)))(*configs)
 
-    measurement_handle_pointer = pointer(pointer(MeasureHandle()))
+    measurement_handle_pointer = pointer(pointer(MeasurementHandle()))
     error_int = _LIBRARY.msrStartMeasure(
         configs_array, poll_intervall_ms, measurement_handle_pointer
     )
@@ -429,7 +433,7 @@ def start_measurement(
 
 
 def stop_measurement(
-    measurement_handle: Pointer[MeasureHandle],
+    measurement_handle: Pointer[MeasurementHandle],
 ) -> Mapping[Measure, ResultEntry]:
     result_pointer = pointer(pointer(_Result()))
     error_int = _LIBRARY.msrStopMeasure(measurement_handle, result_pointer)
@@ -437,7 +441,7 @@ def stop_measurement(
     result = result_pointer.contents
 
     # FIXME
-    # _LIBRARY.msrSetLogCallback(_wrap_log_callback(None))
+    # _LIBRARY.msrSetLogCallback(_to_native_log_callback(_nop_log_callback))
 
     num_entries_pointer = pointer(c_size_t())
     error_int = _LIBRARY.msrResultEntryNum(result, num_entries_pointer)
@@ -458,7 +462,7 @@ def stop_measurement(
 def measuring(
     measures: Iterable[Measure] = ALL_MEASURES,
     poll_intervall_ms: int = -1,
-    log_callback: Optional[LogCallback] = None,
+    log_callback: LogCallback = _noop_log_callback,
 ) -> Generator[Mapping[Measure, ResultEntry], Any, Mapping[Measure, ResultEntry]]:
     measurement_handle = start_measurement(
         measures=measures,
@@ -492,7 +496,7 @@ def measured(f_or_measures: Callable[P, T]) -> Union[Callable[P, T], ResultsAcce
 def measured(
     f_or_measures: Iterable[Measure] = ALL_MEASURES,
     poll_intervall_ms: int = ...,
-    log_callback: Optional[LogCallback] = ...,
+    log_callback: LogCallback = ...,
 ) -> Callable[[Callable[P, T]], Union[Callable[P, T], ResultsAccessor]]:
     pass
 
@@ -501,7 +505,7 @@ def measured(
 def measured(
     f_or_measures: Union[Callable[P, T], Iterable[Measure]] = ALL_MEASURES,
     poll_intervall_ms: int = -1,
-    log_callback: Optional[LogCallback] = None,
+    log_callback: LogCallback = _noop_log_callback,
 ) -> Union[
     Union[Callable[P, T], ResultsAccessor],
     Callable[[Callable[P, T]], Union[Callable[P, T], ResultsAccessor]],
