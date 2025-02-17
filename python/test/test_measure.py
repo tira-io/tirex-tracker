@@ -3,7 +3,7 @@ from typing import Collection, Mapping
 
 from pytest import fixture
 
-from measure import (
+from tira_measure import (
     provider_infos,
     measure_infos,
     fetch_info,
