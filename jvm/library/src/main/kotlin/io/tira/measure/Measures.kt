@@ -4,192 +4,424 @@ package io.tira.measure
 
 import com.sun.jna.*
 import com.sun.jna.Structure.FieldOrder
+import com.sun.jna.platform.unix.LibCAPI
 
-enum class LogLevel(val id: Int) {
-    TRACE(0), DEBUG(1), INFO(2), WARN(3), ERROR(4), ASSERT(5);
+
+private const val ENCODING = "ascii"
+
+
+enum class Error(val value: Int) {
+    SUCCESS(0), INVALID_ARGUMENT(1);
 
     companion object {
-        fun fromInt(id: Int): LogLevel {
-            if (entries.none { level -> level.id == id }) {
-                throw IllegalArgumentException("${LogLevel::class.simpleName} with id '$id' does not exist.")
+        internal fun fromValue(value: Int): Error {
+            if (entries.none { it.value == value }) {
+                throw IllegalArgumentException("${Error::class.simpleName} with value '$value' does not exist.")
             }
-            return entries.first { level -> level.id == id }
+            return entries.first { it.value == value }
         }
     }
 }
 
-enum class Measure(val id: String, val providerId: String) {
-    TIME_ELAPSED_WALL_CLOCK("elapsed time.wallclock (ms)", "system"),
-    TIME_ELAPSED_USER("elapsed time.user (ms)", "system"),
-    TIME_ELAPSED_SYSTEM("elapsed time.system (ms)", "system"),
-    CPU_MAX_USED_SYSTEM_PERCENT("system.CPU Utilization Max (%)", "system"),
-    CPU_AVAILABLE_SYSTEM_CORES("system.num cores", "system"),
-    RAM_MAX_USED_PROCESS_KB("resources.Max RAM used (KB)", "system"),
-    RAM_MAX_USED_SYSTEM_KB("system.Max RAM used (MB)", "system"),
-    RAM_AVAILABLE_SYSTEM_MB("system.RAM (MB)", "system");
+enum class Measure(val value: Int) {
+    OS_NAME(0), OS_KERNEL(1), TIME_ELAPSED_WALL_CLOCK_MS(2), TIME_ELAPSED_USER_MS(3), TIME_ELAPSED_SYSTEM_MS(4), CPU_USED_PROCESS_PERCENT(
+        5
+    ),
+    CPU_USED_SYSTEM_PERCENT(6), CPU_AVAILABLE_SYSTEM_CORES(7), CPU_ENERGY_SYSTEM_JOULES(8), CPU_FEATURES(9), CPU_FREQUENCY_MHZ(
+        10
+    ),
+    CPU_FREQUENCY_MIN_MHZ(11), CPU_FREQUENCY_MAX_MHZ(12), CPU_VENDOR_ID(13), CPU_BYTE_ORDER(14), CPU_ARCHITECTURE(15), CPU_MODEL_NAME(
+        16
+    ),
+    CPU_CORES_PER_SOCKET(17), CPU_THREADS_PER_CORE(18), CPU_CACHES(19), CPU_VIRTUALIZATION(20), RAM_USED_PROCESS_KB(21), RAM_USED_SYSTEM_MB(
+        22
+    ),
+    RAM_AVAILABLE_SYSTEM_MB(23), RAM_ENERGY_SYSTEM_JOULES(24), GPU_SUPPORTED(25), GPU_MODEL_NAME(26), GPU_AVAILABLE_SYSTEM_CORES(
+        27
+    ), // aka. GPU_NUM_CORES
+    GPU_USED_PROCESS_PERCENT(28), GPU_USED_SYSTEM_PERCENT(29), GPU_VRAM_USED_PROCESS_MB(30), GPU_VRAM_USED_SYSTEM_MB(31), GPU_VRAM_AVAILABLE_SYSTEM_MB(
+        32
+    ),
+    GPU_ENERGY_SYSTEM_JOULES(33), GIT_IS_REPO(34), GIT_HASH(35), GIT_LAST_COMMIT_HASH(36), GIT_BRANCH(37), GIT_BRANCH_UPSTREAM(
+        38
+    ),
+    GIT_TAGS(39), GIT_REMOTE_ORIGIN(40), GIT_UNCOMMITTED_CHANGES(41), GIT_UNPUSHED_CHANGES(42), GIT_UNCHECKED_FILES(43);
 
     companion object {
-
-        fun fromId(id: String): Measure {
-            if (entries.none { measure -> measure.id == id }) {
-                throw IllegalArgumentException("${Measure::class.simpleName} with id '$id' does not exist.")
+        internal fun fromValue(value: Int): Measure {
+            if (Measure.entries.none { it.value == value }) {
+                throw IllegalArgumentException("${Measure::class.simpleName} with value '$value' does not exist.")
             }
-            return entries.first { measure -> measure.id == id }
+            return Measure.entries.first { it.value == value }
         }
     }
 }
+
+private const val INVALID_MEASURE = -1
 
 val ALL_MEASURES = Measure.entries.toSet()
 
-private interface NativeLogCallback : Callback {
+enum class Aggregation(val value: Int) {
+    NO(1 shl 0), MAX(1 shl 1), MIN(1 shl 2), MEAN(1 shl 3);
+
+    companion object {
+        internal fun fromValue(value: Int): Aggregation {
+            if (entries.none { it.value == value }) {
+                throw IllegalArgumentException("${Aggregation::class.simpleName} with value '$value' does not exist.")
+            }
+            return entries.first { it.value == value }
+        }
+    }
+}
+
+private const val INVALID_AGGREGATION = -1
+
+val ALL_AGGREGATIONS = Aggregation.entries.toSet()
+
+class MeasurementHandle : Structure()
+
+enum class ResultType(val value: Int) {
+    STRING(0), INTEGER(1), FLOATING(2);
+
+    companion object {
+        internal fun fromValue(value: Int): ResultType {
+            if (entries.none { it.value == value }) {
+                throw IllegalArgumentException("${ResultType::class.simpleName} with value '$value' does not exist.")
+            }
+            return entries.first { it.value == value }
+        }
+    }
+}
+
+internal class Result : Structure()
+
+data class ResultEntry(
+    val source: Measure,
+    val value: String?,
+    val type: ResultType,
+)
+
+@FieldOrder("source", "value", "type")
+internal open class NativeResultEntry(pointer: Pointer? = null) : Structure(pointer), Structure.ByReference {
+    @JvmField
+    var source: Int? = null
+
+    @JvmField
+    var value: String? = null
+
+    @JvmField
+    var type: Int? = null
+
+    fun toResultEntry(): ResultEntry {
+        autoRead()
+        return ResultEntry(
+            source = Measure.fromValue(requireNotNull(source)),
+            value = requireNotNull(value),
+            type = ResultType.fromValue(requireNotNull(type)),
+        )
+    }
+}
+
+data class MeasureConfiguration(
+    val measure: Measure,
+    val aggregation: Aggregation,
+)
+
+@FieldOrder("measure", "aggregation")
+internal open class NativeMeasureConf() : Structure() {
+    @JvmField
+    var measure: Int? = null
+
+    @JvmField
+    var aggregation: Int? = null
+}
+
+private val NULL_MEASURE_CONFIGURATION = NativeMeasureConf().also {
+    it.measure = INVALID_MEASURE
+    it.aggregation = INVALID_AGGREGATION
+}
+
+
+enum class LogLevel(val value: Int) {
+    TRACE(0), DEBUG(1), INFO(2), WARN(3), ERROR(4), ASSERT(5);
+
+    companion object {
+        internal fun fromValue(value: Int): LogLevel {
+            if (entries.none { it.value == value }) {
+                throw IllegalArgumentException("${LogLevel::class.simpleName} with value '$value' does not exist.")
+            }
+            return entries.first { it.value == value }
+        }
+    }
+}
+
+interface LogCallback {
+    operator fun invoke(level: LogLevel, component: String, message: String)
+}
+
+private object NoopLogCallback : LogCallback {
+    override fun invoke(level: LogLevel, component: String, message: String) = Unit
+}
+
+fun noopLogCallback(level: LogLevel, component: String, message: String) = Unit
+
+internal interface NativeLogCallback : Callback {
     fun invoke(level: Int, component: String, message: String)
 }
 
-data class Provider(
+
+private fun ((level: LogLevel, component: String, message: String) -> Unit).toNativeLogCallback(): NativeLogCallback {
+    return object : NativeLogCallback {
+        override fun invoke(level: Int, component: String, message: String) {
+            this@toNativeLogCallback(LogLevel.fromValue(level), component, message)
+        }
+    }
+}
+
+private fun LogCallback.toNativeLogCallback(): NativeLogCallback {
+    return object : NativeLogCallback {
+        override fun invoke(level: Int, component: String, message: String) {
+            this@toNativeLogCallback(LogLevel.fromValue(level), component, message)
+        }
+    }
+}
+
+data class ProviderInfo(
     val name: String,
     val description: String,
     val version: String?,
 )
 
 @FieldOrder("name", "description", "version")
-internal class NativeProvider : Structure() {
+internal open class NativeProviderInfo(pointer: Pointer? = null) : Structure(pointer) {
     @JvmField
-    var name: String = ""
+    val name: String? = null
 
     @JvmField
-    var description: String = ""
+    val description: String? = null
 
     @JvmField
-    var version: String? = ""
+    val version: String? = null
 
-    fun toProvider(): Provider {
-        return Provider(name, description, version)
+    fun toProvider(): ProviderInfo {
+        autoRead()
+        return ProviderInfo(
+            name = requireNotNull(name),
+            description = requireNotNull(description),
+            version = version,
+        )
     }
 }
 
-@FieldOrder("providers", "monitor", "pollIntervalMillis")
-internal class Config(
-    @Suppress("unused") @JvmField var providers: Pointer,
-    @Suppress("unused") @JvmField var monitor: Boolean,
-    @Suppress("unused") @JvmField var pollIntervalMillis: Long,
-) : Structure(), Structure.ByValue
 
-typealias MeasurementRef = Pointer
+data class MeasureInfo(
+    val description: String,
+    val dataType: ResultType,
+    val example: String,
+)
 
-internal typealias MeasurementResultRef = Pointer
 
-@FieldOrder("name", "value")
-internal class ResultEntry : Structure() {
+@FieldOrder("description", "dataType", "example")
+internal open class NativeMeasureInfo(pointer: Pointer? = null) : Structure(pointer) {
     @JvmField
-    var name: String = ""
+    var description: String? = null
 
     @JvmField
-    var value: MeasurementResultRef? = null
+    var dataType: Int? = null
+
+    @JvmField
+    var example: String? = null
+
+    fun toMeasureInfo(): MeasureInfo {
+        autoRead()
+        return MeasureInfo(
+            description = requireNotNull(description),
+            dataType = ResultType.fromValue(requireNotNull(dataType)),
+            example = requireNotNull(example),
+        )
+    }
 }
 
-private interface MeasureLibrary : Library {
-    fun mapiGetDataProviders(buffer: Array<NativeProvider>?, bufferSize: Int): Int
-    fun mapiSetLogCallback(callback: NativeLogCallback?)
-    fun mapiStartMeasure(config: Config): MeasurementRef
-    fun mapiStopMeasure(measure: MeasurementRef): MeasurementResultRef
-    fun mapiResultGetValue(measurementResultRef: MeasurementResultRef, value: Pointer?): Boolean
-    fun mapiResultGetEntries(
-        measurementResultRef: MeasurementResultRef, buffer: Array<ResultEntry>?, bufferSize: Int
-    ): Int
 
-    fun mapiResultFree(measurementResultRef: MeasurementResultRef)
+private interface MeasureLibrary : Library {
+    fun msrResultEntryGetByIndex(result: Pointer, index: LibCAPI.size_t, entry: Pointer): Int
+    fun msrResultEntryNum(result: Pointer, num: Pointer): Int
+    fun msrResultFree(result: Pointer)
+    fun msrFetchInfo(measures: Array<NativeMeasureConf>, result: Pointer): Int
+    fun msrStartMeasure(measures: Array<NativeMeasureConf>, pollIntervalMs: LibCAPI.size_t, handle: Pointer): Int
+    fun msrStopMeasure(handle: Pointer, result: Pointer): Int
+
+    //FIXME:
+    //fun msrSetLogCallback(callback: NativeLogCallback)
+    fun msrDataProviderGetAll(buffer: Array<NativeProviderInfo>?, bufferSize: LibCAPI.size_t): LibCAPI.size_t
+    fun msrMeasureInfoGet(measure: Int, info: Pointer): Int
 }
 
 private val LIBRARY = Native.load(
     "measureapi",
     MeasureLibrary::class.java,
-    mapOf(Library.OPTION_STRING_ENCODING to "ascii"),
+    mapOf(Library.OPTION_STRING_ENCODING to ENCODING),
 )
 
-val providers: List<Provider>
-    get() {
-        val numProviders = LIBRARY.mapiGetDataProviders(null, 0)
-        if (numProviders == 0) {
-            return emptyList()
+private inline fun <R> usePointer(block: (Pointer) -> R): R = Memory(Native.POINTER_SIZE.toLong()).use(block)
+
+
+private inline fun <T: Structure, R> T.use(block: (T) -> R): R {
+    try {
+        return block(this)
+    } finally {
+        this.clear()
+    }
+}
+
+private fun handleError(error: Error) {
+    return when (error) {
+        Error.SUCCESS -> Unit
+        Error.INVALID_ARGUMENT -> throw IllegalArgumentException("Invalid argument in native call.")
+    }
+}
+
+private fun handleError(error: Int) = handleError(Error.fromValue(error))
+
+
+val providerInfos: Collection<ProviderInfo> by lazy {
+    val numProviders = LIBRARY.msrDataProviderGetAll(null, LibCAPI.size_t(0)).toInt()
+    if (numProviders == 0) {
+        emptyList<ProviderInfo>()
+    }
+    @Suppress("UNCHECKED_CAST") val buffer = NativeProviderInfo().toArray(numProviders) as Array<NativeProviderInfo>
+    LIBRARY.msrDataProviderGetAll(buffer, LibCAPI.size_t(numProviders.toLong()))
+    buffer.map { it.toProvider() }
+}
+
+val measureInfos: Map<Measure, MeasureInfo> by lazy {
+    ALL_MEASURES.associateWith { measure ->
+        usePointer { measureInfoPointer ->
+            val errorInt = LIBRARY.msrMeasureInfoGet(measure.value, measureInfoPointer)
+            handleError(errorInt)
+            NativeMeasureInfo(measureInfoPointer.getPointer(0)).toMeasureInfo()
         }
-        @Suppress("UNCHECKED_CAST") val buffer = NativeProvider().toArray(numProviders) as Array<NativeProvider>
-        LIBRARY.mapiGetDataProviders(buffer, numProviders)
-        return buffer.map { provider -> provider.toProvider() }
+    }
+}
+
+// TODO: Add aggregation(s) (mapping) parameter.
+// TODO: Maybe rename this function.
+fun fetchInfo(
+    measures: Iterable<Measure> = ALL_MEASURES,
+    logCallback: ((level: LogLevel, component: String, message: String) -> Unit) = ::noopLogCallback,
+): Map<Measure, ResultEntry> {
+    //FIXME:
+    //LIBRARY.msrSetLogCallback(logCallback.toNativeLogCallback())
+
+    val configs = measures.map { measure ->
+        NativeMeasureConf().also {
+            it.measure = measure.value
+            it.aggregation = Aggregation.NO.value
+        }
+    } + NULL_MEASURE_CONFIGURATION
+    @Suppress("UNCHECKED_CAST") val configArray = NativeMeasureConf().toArray(configs.size) as Array<NativeMeasureConf>
+    configs.forEachIndexed { i, config ->
+        configArray[i].measure = config.measure
+        configArray[i].aggregation = config.aggregation
+        configArray[i].write()
     }
 
-private fun Iterable<String>.toStringArray() = StringArray(this.toList().toTypedArray())
+    val result: Pointer = usePointer { resultPointer ->
+        val errorInt = LIBRARY.msrFetchInfo(configArray, resultPointer)
+        handleError(errorInt)
+        resultPointer.getPointer(0)
+    }
 
+    //FIXME:
+    //LIBRARY.msrSetLogCallback(::noopLogCallback.toNativeLogCallback())
+
+    val numEntries: Long = usePointer { numEntriesPointer ->
+        val errorInt = LIBRARY.msrResultEntryNum(result, numEntriesPointer)
+        handleError(errorInt)
+        LibCAPI.size_t.ByReference().also {
+            it.pointer = numEntriesPointer
+        }.longValue()
+    }
+    val entries = (0 until numEntries).map { index ->
+        NativeResultEntry().use { resultEntry ->
+            val errorInt = LIBRARY.msrResultEntryGetByIndex(result, LibCAPI.size_t(index), resultEntry.pointer)
+            handleError(errorInt)
+            resultEntry.toResultEntry()
+        }
+    }
+    LIBRARY.msrResultFree(result)
+    return entries.associate { entry ->
+        entry.source to entry
+    }
+}
+
+// TODO: Add aggregation(s) (mapping) parameter.
 fun startMeasurement(
     measures: Iterable<Measure> = ALL_MEASURES,
-    pollIntervalMillis: Long? = null,
-    logCallback: ((level: LogLevel, component: String, message: String) -> Unit)? = null,
-): MeasurementRef {
-    val internalLogCallback = if (logCallback != null) object : NativeLogCallback {
-        override fun invoke(level: Int, component: String, message: String) {
-            logCallback(LogLevel.fromInt(level), component, message)
+    pollIntervalMillis: Long = -1,
+    logCallback: ((level: LogLevel, component: String, message: String) -> Unit) = ::noopLogCallback,
+): Pointer {
+    //FIXME:
+    //LIBRARY.msrSetLogCallback(logCallback.toNativeLogCallback())
+
+    val configs = measures.map { measure ->
+        NativeMeasureConf().also {
+            it.measure = measure.value
+            it.aggregation = Aggregation.NO.value
         }
-    } else null
-    LIBRARY.mapiSetLogCallback(internalLogCallback)
+    } + NULL_MEASURE_CONFIGURATION
+    @Suppress("UNCHECKED_CAST") val configArray = NativeMeasureConf().toArray(configs.size) as Array<NativeMeasureConf>
+    configs.forEachIndexed { i, config ->
+        configArray[i].measure = config.measure
+        configArray[i].aggregation = config.aggregation
+        configArray[i].write()
+    }
 
-    val providers = measures.map { measure -> measure.providerId }.toSet().toStringArray()
-
-    val config = if (pollIntervalMillis != null) Config(
-        providers = providers,
-        monitor = true,
-        pollIntervalMillis = pollIntervalMillis,
-    ) else Config(
-        providers = providers,
-        monitor = false,
-        pollIntervalMillis = 0L,
-    )
-
-    val measurement = LIBRARY.mapiStartMeasure(config)
-    return measurement
-}
-
-private fun MeasurementResultRef.parse(name: String = ""): Map<Measure, String> {
-    val isLeaf = LIBRARY.mapiResultGetValue(this, null)
-    if (isLeaf) {
-        val measure = Measure.fromId(name)
-
-        val pointerPointer = Memory(Native.POINTER_SIZE.toLong())
-        LIBRARY.mapiResultGetValue(this, pointerPointer)
-        val valuePointer = pointerPointer.getPointer(0)
-
-        val value = valuePointer.getString(0)
-        pointerPointer.close()
-
-        return mapOf(measure to value)
-    } else {
-        val namePrefix = if (name != "") "$name." else ""
-        val numEntries = LIBRARY.mapiResultGetEntries(this, null, 0)
-        if (numEntries == 0) {
-            return emptyMap()
-        }
-
-        @Suppress("UNCHECKED_CAST") val entries = ResultEntry().toArray(numEntries) as Array<ResultEntry>
-        LIBRARY.mapiResultGetEntries(this, entries, numEntries)
-
-        return entries.flatMap { entry ->
-            requireNotNull(entry.value).parse("$namePrefix${entry.name}").toList()
-        }.toMap()
+    return usePointer { measurementHandlePointer ->
+        val errorInt =
+            LIBRARY.msrStartMeasure(configArray, LibCAPI.size_t(pollIntervalMillis), measurementHandlePointer)
+        handleError(errorInt)
+        measurementHandlePointer.getPointer(0)
     }
 }
 
-fun stopMeasurement(measurement: MeasurementRef): Map<Measure, String> {
-    val result = LIBRARY.mapiStopMeasure(measurement)
-    LIBRARY.mapiSetLogCallback(null)
-    val parsedResults = result.parse()
-    LIBRARY.mapiResultFree(result)
-    return parsedResults
+
+fun stopMeasurement(measureHandle: Pointer): Map<Measure, ResultEntry> {
+    val result: Pointer = usePointer { resultPointer ->
+        val errorInt = LIBRARY.msrStopMeasure(measureHandle, resultPointer)
+        handleError(errorInt)
+        resultPointer.getPointer(0)
+    }
+
+    //FIXME:
+    //LIBRARY.msrSetLogCallback(::noopLogCallback.toNativeLogCallback())
+
+    val numEntries: Long = usePointer { numEntriesPointer ->
+        val errorInt = LIBRARY.msrResultEntryNum(result, numEntriesPointer)
+        handleError(errorInt)
+        LibCAPI.size_t.ByReference().also {
+            it.pointer = numEntriesPointer
+        }.longValue()
+    }
+    val entries = (0 until numEntries).map { index ->
+        NativeResultEntry().use { resultEntry ->
+            val errorInt = LIBRARY.msrResultEntryGetByIndex(result, LibCAPI.size_t(index), resultEntry.pointer)
+            handleError(errorInt)
+            resultEntry.toResultEntry()
+        }
+    }
+    LIBRARY.msrResultFree(result)
+    return entries.associate { entry ->
+        entry.source to entry
+    }
 }
 
 inline fun measure(
     measures: Iterable<Measure> = ALL_MEASURES,
-    pollIntervalMillis: Long? = null,
-    noinline logCallback: ((level: LogLevel, component: String, message: String) -> Unit)? = null,
+    pollIntervalMillis: Long = -1,
+    noinline logCallback: (level: LogLevel, component: String, message: String) -> Unit = ::noopLogCallback,
     crossinline block: () -> Unit,
-): Map<Measure, String> {
+): Map<Measure, ResultEntry> {
     val measurement = startMeasurement(
         measures = measures,
         pollIntervalMillis = pollIntervalMillis,
@@ -204,28 +436,27 @@ inline fun measure(
     return stopMeasurement(measurement)
 }
 
-interface JvmLogCallback {
-    fun invoke(level: LogLevel, component: String, message: String)
-}
 
-interface JvmBlockCallback {
+interface BlockCallback {
     fun invoke()
 }
 
 fun measure(
     measures: Iterable<Measure> = ALL_MEASURES,
-    pollIntervalMillis: Long? = null,
-    logCallback: JvmLogCallback? = null,
-    block: JvmBlockCallback,
-): Map<Measure, String> {
+    pollIntervalMillis: Long = -1,
+    logCallback: LogCallback = NoopLogCallback,
+    block: BlockCallback,
+): Map<Measure, ResultEntry> {
     return measure(
         measures = measures,
         pollIntervalMillis = pollIntervalMillis,
-        logCallback = if (logCallback != null) {
+        logCallback = if (logCallback is NoopLogCallback) {
+            ::noopLogCallback
+        } else {
             { level: LogLevel, component: String, message: String ->
                 logCallback.invoke(level, component, message)
             }
-        } else null,
+        },
         block = {
             block.invoke()
         },
@@ -234,31 +465,31 @@ fun measure(
 
 fun measure(
     measures: Iterable<Measure> = ALL_MEASURES,
-    pollIntervalMillis: Long? = null,
-    block: JvmBlockCallback,
-): Map<Measure, String> {
+    pollIntervalMillis: Long = -1,
+    block: BlockCallback,
+): Map<Measure, ResultEntry> {
     return measure(
         measures = measures,
         pollIntervalMillis = pollIntervalMillis,
-        logCallback = null,
+        logCallback = NoopLogCallback,
         block = block,
     )
 }
 
 fun measure(
     measures: Iterable<Measure> = ALL_MEASURES,
-    block: JvmBlockCallback,
-): Map<Measure, String> {
+    block: BlockCallback,
+): Map<Measure, ResultEntry> {
     return measure(
         measures = measures,
-        pollIntervalMillis = null,
+        pollIntervalMillis = -1,
         block = block,
     )
 }
 
 fun measure(
-    block: JvmBlockCallback,
-): Map<Measure, String> {
+    block: BlockCallback,
+): Map<Measure, ResultEntry> {
     return measure(
         measures = ALL_MEASURES,
         block = block,
