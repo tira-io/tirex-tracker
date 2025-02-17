@@ -8,8 +8,8 @@ private fun logCallback(level: LogLevel, component: String, message: String) {
 }
 
 fun main() {
-    println(providers)
-    val result = measure(setOf(Measure.TIME_ELAPSED_WALL_CLOCK), 100, ::logCallback) {
+    println(providerInfos)
+    val result = measure(setOf(Measure.TIME_ELAPSED_WALL_CLOCK_MS), 100, ::logCallback) {
         sleep(2000)
     }
     println(result)
