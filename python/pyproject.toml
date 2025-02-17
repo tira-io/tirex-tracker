@@ -40,7 +40,7 @@ docs = [
 "Bug Tracker" = "https://github.com/tira-io/measure/issues"
 
 [build-system]
-requires = ["setuptools~=75.4", "setuptools-scm~=8.0"]
+requires = ["setuptools~=75.8", "setuptools-scm~=8.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
