@@ -113,9 +113,9 @@ def test_measure_using_function_decorator() -> None:
     def sleep_and_measure(time: float) -> None:
         sleep(0.1)
 
-    sleep_and_measure(0.1)
+    sleep_and_measure(0.1)  # type: ignore
 
-    actual = sleep_and_measure.results
+    actual = sleep_and_measure.results  # type: ignore
 
     assert actual is not None
     assert isinstance(actual, Mapping)
