@@ -105,13 +105,15 @@ jobs:
         with:
           name: c-linux-library
           path: jvm/library/src/main/resources/
-      - name: 🏗️ Build with Gradle
+      - name: 🏗️ Build project
         run: jvm/gradlew --project-dir jvm/ build
+      - name: 🏗️ Build JAR
+        run: jvm/gradlew --project-dir jvm/ publishToMavenLocal
       - name: 📤 Upload JAR
         uses: actions/upload-artifact@v4
         with:
           name: jvm-jar
-          path: jvm/library/build/libs/library.jar
+          path: ~/.m2/repository/io/tira/measure/*/measure-*.jar
   jvm-test:
     name: 🧪 Test JVM library
     runs-on: ubuntu-latest
@@ -357,7 +359,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: jvm-jar
-          path: tmp/jvm/measure.jar
+          path: tmp/jvm/
       - name: 🚀 Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
@@ -367,7 +369,7 @@ jobs:
             tmp/c/measure
             tmp/c/measure-*-Linux.deb
             tmp/python/dist/*
-            tmp/jvm/measure.jar
+            tmp/jvm/*.jar
           fail_on_unmatched_files: true
           draft: false
           prerelease: false
