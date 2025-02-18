@@ -351,8 +351,13 @@ jobs:
       - name: 📥 Download Python wheels
         uses: actions/download-artifact@v4
         with:
-          name: wheels
+          name: python-wheels
           path: tmp/python/dist/
+      - name: 📥 Download JVM JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: jvm-jar
+          path: tmp/jvm/measure.jar
       - name: 🚀 Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
@@ -362,6 +367,7 @@ jobs:
             tmp/c/measure
             tmp/c/measure-*-Linux.deb
             tmp/python/dist/*
+            tmp/jvm/measure.jar
           fail_on_unmatched_files: true
           draft: false
           prerelease: false
