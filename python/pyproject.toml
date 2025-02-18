@@ -6,7 +6,7 @@ authors = [
     { name = "Jan Heinrich Merker", email = "heinrich.merker@uni-jena.de" },
     { name = "Tim Hagen", email = "tim.hagen@uni-kassel.de" },
 ]
-description = "TODO"
+description = "Measuring what really matters."
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
@@ -20,6 +20,9 @@ classifiers = [
     "Operating System :: OS Independent",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "typing-extensions~=4.12",
 ]
 
 [project.optional-dependencies]
