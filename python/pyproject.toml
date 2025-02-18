@@ -31,7 +31,7 @@ tests = [
     "mypy~=1.5",
     "pytest~=8.0",
     "pytest-cov~=6.0",
-    "ruff~=0.8.1",
+    "ruff~=0.9.6",
 ]
 docs = [
     "sphinx~=8.1",
