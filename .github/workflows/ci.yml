@@ -369,7 +369,7 @@ jobs:
             tmp/c/measure
             tmp/c/measure-*-Linux.deb
             tmp/python/dist/*
-            tmp/jvm/*.jar
+            tmp/jvm/*/*.jar
           fail_on_unmatched_files: true
           draft: false
           prerelease: false
