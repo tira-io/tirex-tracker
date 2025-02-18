@@ -165,7 +165,7 @@ jobs:
         env:
           USERNAME: ${{ github.actor }}
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: jvm/gradlew --project-dir jvm/ build
+        run: jvm/gradlew --project-dir jvm/ publishAllPublicationsToGitHubPackagesRepository
   python-build:
     name: 🏗️ Build Python wheels
     runs-on: ubuntu-latest
