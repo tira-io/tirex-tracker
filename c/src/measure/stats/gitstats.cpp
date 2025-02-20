@@ -4,8 +4,9 @@
 #include "../utils/rangeutils.hpp"
 
 #include <git2.h>
+#include <openssl/sha.h>
 
-#include <iostream>
+#include <fstream>
 #include <ranges>
 #include <string>
 #include <tuple>
@@ -116,6 +117,35 @@ static std::vector<std::string> getTags(git_repository* repo) {
 	return tagNames;
 }
 
+static std::string hashAllFiles(git_repository* repo) {
+	SHA_CTX ctx;
+	SHA1_Init(&ctx);
+	git_status_list* list;
+	git_status_options opts = GIT_STATUS_OPTIONS_INIT;
+	opts.flags = GIT_STATUS_OPT_INCLUDE_UNTRACKED | GIT_STATUS_OPT_INCLUDE_UNMODIFIED;
+	git_status_list_new(&list, repo, &opts);
+	auto changes = git_status_list_entrycount(list);
+	for (size_t i = 0; i < changes; ++i) {
+		auto entry = git_status_byindex(list, i);
+		// std::cout << "Dunno: " << entry->index_to_workdir->new_file.path << std::endl;
+		std::ifstream is(entry->index_to_workdir->new_file.path, std::ios::binary);
+		if (!is) {
+			msr::log::error("gitstats", "Error opening file: {}", entry->index_to_workdir->new_file.path);
+			continue;
+		}
+		for (char buffer[8192]; is; is.read(buffer, sizeof(buffer)))
+			SHA1_Update(&ctx, buffer, is.gcount());
+	}
+	git_status_list_free(list);
+	unsigned char hash[SHA_DIGEST_LENGTH];
+	SHA1_Final(hash, &ctx);
+	std::ostringstream oss{};
+	oss << std::setfill('0') << std::setw(2) << std::hex;
+	for (auto c : hash)
+		oss << (unsigned)c;
+	return oss.str();
+}
+
 struct GitStatusStats {
 	/** The number of files that were previously added to the repository and have uncommitted changes **/
 	size_t numModified;
@@ -181,7 +211,7 @@ Stats GitStats::getInfo() {
 		msr::log::info("gitstats", "Local is {} commits ahead and {} behind upstream", status.ahead, status.behind);
 		auto [local, remote] = getBranchName(repo);
 		return {{MSR_GIT_IS_REPO, "1"s},
-				{MSR_GIT_HASH, "TODO"s},
+				{MSR_GIT_HASH, hashAllFiles(repo)},
 				{MSR_GIT_LAST_COMMIT_HASH, getLastCommitHash(repo)},
 				{MSR_GIT_BRANCH, local},
 				{MSR_GIT_BRANCH_UPSTREAM, remote},
