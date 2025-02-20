@@ -4,8 +4,9 @@
 #include "../utils/rangeutils.hpp"
 
 #include <git2.h>
-#include <openssl/sha.h>
+#include <sha1.h>
 
+#include <filesystem>
 #include <fstream>
 #include <ranges>
 #include <string>
@@ -118,32 +119,25 @@ static std::vector<std::string> getTags(git_repository* repo) {
 }
 
 static std::string hashAllFiles(git_repository* repo) {
-	SHA_CTX ctx;
-	SHA1_Init(&ctx);
+	Chocobo1::SHA1 hash;
 	git_status_list* list;
 	git_status_options opts = GIT_STATUS_OPTIONS_INIT;
 	opts.flags = GIT_STATUS_OPT_INCLUDE_UNTRACKED | GIT_STATUS_OPT_INCLUDE_UNMODIFIED;
 	git_status_list_new(&list, repo, &opts);
 	auto changes = git_status_list_entrycount(list);
+	std::filesystem::path root = git_repository_workdir(repo);
 	for (size_t i = 0; i < changes; ++i) {
 		auto entry = git_status_byindex(list, i);
-		// std::cout << "Dunno: " << entry->index_to_workdir->new_file.path << std::endl;
-		std::ifstream is(entry->index_to_workdir->new_file.path, std::ios::binary);
+		std::ifstream is(root / entry->index_to_workdir->new_file.path, std::ios::binary);
 		if (!is) {
 			msr::log::error("gitstats", "Error opening file: {}", entry->index_to_workdir->new_file.path);
 			continue;
 		}
 		for (char buffer[8192]; is; is.read(buffer, sizeof(buffer)))
-			SHA1_Update(&ctx, buffer, is.gcount());
+			hash.addData(buffer, is.gcount());
 	}
 	git_status_list_free(list);
-	unsigned char hash[SHA_DIGEST_LENGTH];
-	SHA1_Final(hash, &ctx);
-	std::ostringstream oss{};
-	oss << std::setfill('0') << std::setw(2) << std::hex;
-	for (auto c : hash)
-		oss << (unsigned)c;
-	return oss.str();
+	return hash.finalize().toString();
 }
 
 struct GitStatusStats {
