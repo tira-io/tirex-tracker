@@ -15,10 +15,18 @@ size_t msrDataProviderGetAll(msrDataProvider* buf, size_t bufsize) {
 }
 
 static const msrMeasureInfo measureInfos[]{
-		[MSR_OS_NAME] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
-		[MSR_OS_KERNEL] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
+		// OS
+		[MSR_OS_NAME] =
+				{.description = "Name and version of the operating system under which is currently running.",
+				 .datatype = msrResultType::MSR_STRING,
+				 .example = "TODO"},
+		[MSR_OS_KERNEL] =
+				{.description = "The version of the kernel that the operating system is running on.",
+				 .datatype = msrResultType::MSR_STRING,
+				 .example = "TODO"},
+		// Time
 		[MSR_TIME_ELAPSED_WALL_CLOCK_MS] =
-				{.description = "The (\"real\") wall clock time in milliseconds elapsed during the measurement.",
+				{.description = "The (\"real\") wall clock time in milliseconds elapsed during tracking.",
 				 .datatype = msrResultType::MSR_STRING,
 				 .example = "1234"},
 		[MSR_TIME_ELAPSED_USER_MS] =
@@ -29,55 +37,106 @@ static const msrMeasureInfo measureInfos[]{
 				{.description = "Time spent in the platform's system mode.",
 				 .datatype = msrResultType::MSR_STRING,
 				 .example = "1234"},
+		// CPU
 		[MSR_CPU_USED_PROCESS_PERCENT] =
-				{.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
+				{.description = "CPU usage of the tracked process in percent per logical CPU cores.",
+				 .datatype = msrResultType::MSR_STRING,
+				 .example = "TODO"},
 		[MSR_CPU_USED_SYSTEM_PERCENT] =
-				{.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
+				{.description = "CPU usage of the entire system in percent per logical CPU cores.",
+				 .datatype = msrResultType::MSR_STRING,
+				 .example = "TODO"},
 		[MSR_CPU_AVAILABLE_SYSTEM_CORES] =
-				{.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
+				{.description = "Number of CPU cores available in the system.",
+				 .datatype = msrResultType::MSR_STRING,
+				 .example = "TODO"},
 		[MSR_CPU_ENERGY_SYSTEM_JOULES] =
-				{.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
-		[MSR_CPU_FEATURES] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
-		[MSR_CPU_FREQUENCY_MHZ] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
-		[MSR_CPU_FREQUENCY_MIN_MHZ] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
-		[MSR_CPU_FREQUENCY_MAX_MHZ] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
+				{.description =
+						 "The energy consumed by the CPU by the entire system over the tracked period in joules. ",
+				 .datatype = msrResultType::MSR_STRING,
+				 .example = "TODO"},
+		[MSR_CPU_FEATURES] =
+				{.description = "List of hardware features the CPU supports (e.g., the instruction set, encryption "
+								"capabilities).",
+				 .datatype = msrResultType::MSR_STRING,
+				 .example = "TODO"},
+		[MSR_CPU_FREQUENCY_MHZ] =
+				{.description = "Current CPU speed in megahertz.",
+				 .datatype = msrResultType::MSR_STRING,
+				 .example = "TODO"},
+		[MSR_CPU_FREQUENCY_MIN_MHZ] =
+				{.description = "Minimum possible CPU speed in megahertz.",
+				 .datatype = msrResultType::MSR_STRING,
+				 .example = "TODO"},
+		[MSR_CPU_FREQUENCY_MAX_MHZ] =
+				{.description = "Maximum possible CPU speed in megahertz. ",
+				 .datatype = msrResultType::MSR_STRING,
+				 .example = "TODO"},
 		[MSR_CPU_VENDOR_ID] =
-				{.description = "A humand legible name for the vendor of the CPU.",
+				{.description = "A textual name for the vendor of the CPU.",
 				 .datatype = msrResultType::MSR_STRING,
 				 .example = "Intel Corporation"},
 		[MSR_CPU_BYTE_ORDER] =
-				{.description = "The endianness (big-, little-, mixed-endian) used by the CPU.",
+				{.description = "The endianness (big-, little-, or mixed-endian) used by the CPU. ",
 				 .datatype = msrResultType::MSR_STRING,
 				 .example = "Little Endian"},
-		[MSR_CPU_ARCHITECTURE] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
+		[MSR_CPU_ARCHITECTURE] =
+				{.description = "The architecture (x86, x86_64, ARM, ...) of the CPU.",
+				 .datatype = msrResultType::MSR_STRING,
+				 .example = "aarch64"},
 		[MSR_CPU_MODEL_NAME] =
 				{.description = "The name of the concrete CPU model.",
 				 .datatype = msrResultType::MSR_STRING,
 				 .example = "Intel(R) Core(TM)2 Quad  CPU   Q8200  @ 2.33GHz"},
-		[MSR_CPU_CORES_PER_SOCKET] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
-		[MSR_CPU_THREADS_PER_CORE] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
+		[MSR_CPU_CORES_PER_SOCKET] =
+				{.description = "Number of CPU cores located on a single physical socket.",
+				 .datatype = msrResultType::MSR_STRING,
+				 .example = "8"},
+		[MSR_CPU_THREADS_PER_CORE] =
+				{.description = "Number of logical CPU cores (threads) per core.",
+				 .datatype = msrResultType::MSR_STRING,
+				 .example = "2"},
 		[MSR_CPU_CACHES] =
-				{.description = "Collects a dictionary which contains the size of each CPU cache.",
+				{.description = "The sizes of each CPU cache (e.g., L1, L2, L3) in kibibytes.",
 				 .datatype = msrResultType::MSR_STRING,
 				 .example = "{\"l1i\": \"384 KiB\",\"l1d\": \"192 KiB\",\"l2\": \"3072 KiB\",\"l3\": \"16384 KiB\"}"},
 		[MSR_CPU_VIRTUALIZATION] =
 				{.description = "The virtualization technology supported by the CPU (e.g., VT-x or AMD-V), if any.",
 				 .datatype = msrResultType::MSR_STRING,
 				 .example = "VT-x"},
-		[MSR_RAM_USED_PROCESS_KB] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
-		[MSR_RAM_USED_SYSTEM_MB] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
+		// RAM
+		[MSR_RAM_USED_PROCESS_KB] =
+				{.description = "RAM usage of the tracked process in kilobytes.",
+				 .datatype = msrResultType::MSR_STRING,
+				 .example = "TODO"},
+		[MSR_RAM_USED_SYSTEM_MB] =
+				{.description = "RAM usage of the entire system in megabytes. ",
+				 .datatype = msrResultType::MSR_STRING,
+				 .example = "TODO"},
 		[MSR_RAM_AVAILABLE_SYSTEM_MB] =
-				{.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
+				{.description = "Amount of RAM available in the system in megabytes.",
+				 .datatype = msrResultType::MSR_STRING,
+				 .example = "TODO"},
 		[MSR_RAM_ENERGY_SYSTEM_JOULES] =
-				{.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
-		[MSR_GPU_SUPPORTED] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
-		[MSR_GPU_MODEL_NAME] = {.description = "TODO", .datatype = msrResultType::MSR_STRING, .example = "TODO"},
+				{.description =
+						 "The energy consumed by the DRAM by the entire system over the tracked period in joules.",
+				 .datatype = msrResultType::MSR_STRING,
+				 .example = "TODO"},
+		// GPU
+		[MSR_GPU_SUPPORTED] =
+				{.description = "1 if a GPU is detected in the system, and we support tracking it; 0 otherwise.",
+				 .datatype = msrResultType::MSR_STRING,
+				 .example = "TODO"},
+		[MSR_GPU_MODEL_NAME] =
+				{.description = "The name of the GPU model detected in the system.",
+				 .datatype = msrResultType::MSR_STRING,
+				 .example = "TODO"},
 		[MSR_GPU_NUM_CORES] =
 				{.description = "Number of GPU cores available in the system.",
 				 .datatype = msrResultType::MSR_STRING,
 				 .example = "TODO"},
 		[MSR_GPU_USED_PROCESS_PERCENT] =
-				{.description = "GPU usage of the measured process in percent.",
+				{.description = "GPU usage of the tracked process in percent.",
 				 .datatype = msrResultType::MSR_STRING,
 				 .example = "TODO"},
 		[MSR_GPU_USED_SYSTEM_PERCENT] =
@@ -85,7 +144,7 @@ static const msrMeasureInfo measureInfos[]{
 				 .datatype = msrResultType::MSR_STRING,
 				 .example = "TODO"},
 		[MSR_GPU_VRAM_USED_PROCESS_MB] =
-				{.description = "GPU VRAM usage of the measured process in megabyte.",
+				{.description = "GPU VRAM usage of the tracked process in megabyte.",
 				 .datatype = msrResultType::MSR_STRING,
 				 .example = "TODO"},
 		[MSR_GPU_VRAM_USED_SYSTEM_MB] =
@@ -100,6 +159,7 @@ static const msrMeasureInfo measureInfos[]{
 				{.description = "The energy consumed by the GPU for the entire system in joules.",
 				 .datatype = msrResultType::MSR_STRING,
 				 .example = "TODO"},
+		// Git
 		[MSR_GIT_IS_REPO] =
 				{.description = "1 if the current working directory is (part of) a Git repository; 0 otherwise",
 				 .datatype = msrResultType::MSR_STRING,
@@ -120,7 +180,7 @@ static const msrMeasureInfo measureInfos[]{
 				 .datatype = msrResultType::MSR_STRING,
 				 .example = "main"},
 		[MSR_GIT_TAGS] =
-				{.description = "ist of Git tag(s) at the current commit, if any.",
+				{.description = "List of Git tag(s) at the current commit, if any.",
 				 .datatype = msrResultType::MSR_STRING,
 				 .example = "[\"1.0.0\"]"},
 		[MSR_GIT_REMOTE_ORIGIN] =

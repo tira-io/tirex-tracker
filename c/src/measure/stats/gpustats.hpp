@@ -12,18 +12,17 @@ namespace msr {
 		struct {
 			const bool supported;
 			std::vector<nvmlDevice_t> devices;
-			TimeSeries<unsigned> vramUsageTotal;
-			TimeSeries<unsigned> vramUsageProcess;
-			TimeSeries<unsigned> utilizationTotal;
+			TimeSeries<unsigned> vramUsageTotal{true};
+			TimeSeries<unsigned> vramUsageProcess{true};
+			TimeSeries<unsigned> utilizationTotal{true};
 		} nvml;
 
 	public:
 		GPUStats();
 
-		void start() override;
-		void stop() override;
 		void step() override;
 		Stats getStats() override;
+		Stats getInfo() override;
 
 		static constexpr const char* description = "Collects gpu related metrics.";
 		static const char* version;

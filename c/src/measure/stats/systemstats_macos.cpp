@@ -8,8 +8,8 @@
 #include "systemstats.hpp"
 
 #include "../../logging.hpp"
-#include "./macos/sysctl.hpp"
 #include "./macos/ioreport.h"
+#include "./macos/sysctl.hpp"
 
 #include <string>
 
@@ -21,12 +21,10 @@ using std::chrono::steady_clock;
 using msr::Stats;
 using msr::SystemStats;
 
-static std::string getOSDesc() {
-    return _fmt::format("MacOS {}", getSysctl<std::string>("kern.osproductversion"));
-}
+static std::string getOSDesc() { return _fmt::format("MacOS {}", getSysctl<std::string>("kern.osproductversion")); }
 
 static std::string getKernelDesc() {
-    return _fmt::format("{} {}", getSysctl<std::string>("kern.ostype"), getSysctl<std::string>("kern.osrelease"));
+	return _fmt::format("{} {}", getSysctl<std::string>("kern.ostype"), getSysctl<std::string>("kern.osrelease"));
 }
 
 #include <dlfcn.h>
@@ -36,32 +34,31 @@ void SystemStats::start() {
 	starttime = steady_clock::now();
 	// msr::log::debug("macosstats", "Start systime {} ms, utime {} ms", startSysTime, startUTime);
 
-    IOReportLib ioreport;
+	IOReportLib ioreport;
 
-    CFDictionaryRef channel;
-    auto str1 = CFStringCreateWithCString(kCFAllocatorDefault, "Energy Model", kCFStringEncodingASCII);
-    auto str2 = CFStringCreateWithCString(kCFAllocatorDefault, "CPU Stats", kCFStringEncodingASCII);
-    auto str3 = CFStringCreateWithCString(kCFAllocatorDefault, "CPU Core Performance States", kCFStringEncodingASCII);
-    channel = ioreport.copyChannelsInGroup(str1, nullptr, 0, 0, 0);
-    auto channel2 = ioreport.copyChannelsInGroup(str2, str3, 0, 0, 0);
-    ioreport.mergeChannels(channel, channel2, nullptr);
-    CFRelease(channel2);
-    CFRelease(str1);
-    CFRelease(str2);
-    CFRelease(str3);
-    auto size = CFDictionaryGetCount(channel);
-    auto mutchan = CFDictionaryCreateMutableCopy(kCFAllocatorDefault, size, channel);
+	CFDictionaryRef channel;
+	auto str1 = CFStringCreateWithCString(kCFAllocatorDefault, "Energy Model", kCFStringEncodingASCII);
+	auto str2 = CFStringCreateWithCString(kCFAllocatorDefault, "CPU Stats", kCFStringEncodingASCII);
+	auto str3 = CFStringCreateWithCString(kCFAllocatorDefault, "CPU Core Performance States", kCFStringEncodingASCII);
+	channel = ioreport.copyChannelsInGroup(str1, nullptr, 0, 0, 0);
+	auto channel2 = ioreport.copyChannelsInGroup(str2, str3, 0, 0, 0);
+	ioreport.mergeChannels(channel, channel2, nullptr);
+	CFRelease(channel2);
+	CFRelease(str1);
+	CFRelease(str2);
+	CFRelease(str3);
+	auto size = CFDictionaryGetCount(channel);
+	auto mutchan = CFDictionaryCreateMutableCopy(kCFAllocatorDefault, size, channel);
 }
 void SystemStats::stop() { stoptime = steady_clock::now(); }
-void SystemStats::step() {
-}
+void SystemStats::step() {}
 
 Stats SystemStats::getStats() {
 	/** \todo: filter by requested metrics */
 	auto cpuInfo = getCPUInfo();
 
-    /** \todo this should not be needed once https://github.com/pytorch/cpuinfo/pull/246/files is merged. **/
-    cpuInfo.modelname = getSysctl<std::string>("machdep.cpu.brand_string");
+	/** \todo this should not be needed once https://github.com/pytorch/cpuinfo/pull/246/files is merged. **/
+	cpuInfo.modelname = getSysctl<std::string>("machdep.cpu.brand_string");
 
 	std::string caches = "";
 	size_t cacheIdx = 1;
@@ -97,9 +94,9 @@ Stats SystemStats::getStats() {
 			{MSR_CPU_CORES_PER_SOCKET, std::to_string(cpuInfo.coresPerSocket)},
 			{MSR_CPU_THREADS_PER_CORE, std::to_string(cpuInfo.threadsPerCore)},
 			{MSR_CPU_CACHES, caches},
-			{MSR_CPU_VIRTUALIZATION, "[]"s},
+			{MSR_CPU_VIRTUALIZATION, ""s},
 			{MSR_RAM_USED_PROCESS_KB, "TODO"s},
 			{MSR_RAM_USED_SYSTEM_MB, "TODO"s},
-			{MSR_RAM_AVAILABLE_SYSTEM_MB, std::to_string(getSysctl<uint64_t>("hw.memsize_usable")/1000/1000)}};
+			{MSR_RAM_AVAILABLE_SYSTEM_MB, std::to_string(getSysctl<uint64_t>("hw.memsize_usable") / 1000 / 1000)}};
 }
 #endif

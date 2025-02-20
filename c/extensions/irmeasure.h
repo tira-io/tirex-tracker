@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-MSR_EXPORT msrError msrResultExportIrMetadata(const msrResult* result, const char* filepath);
+MSR_EXPORT msrError msrResultExportIrMetadata(const msrResult* info, const msrResult* result, const char* filepath);
 
 #ifdef __cplusplus
 }

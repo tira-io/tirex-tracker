@@ -15,8 +15,8 @@
 #if (!defined(__STDC_NO_THREADS__) || __STDC_NO_THREADS__)
 #include <threads.h>
 #else
-#include <unistd.h>
 #include <time.h>
+#include <unistd.h>
 
 static int thrd_sleep(const struct timespec* duration, struct timespec* remaining) {
 	return nanosleep(duration, remaining);
@@ -78,7 +78,7 @@ static const char* measureToName[] = {
 
 int main(int argc, char* argv[]) {
 	msrMeasureHandle* measure;
-	msrResult* result;
+	msrResult *info, *result;
 
 	const msrMeasureConf providers[] = {
 			{MSR_OS_NAME, MSR_AGG_NO},
@@ -128,9 +128,8 @@ int main(int argc, char* argv[]) {
 	msrSetLogCallback(logcallback);
 
 	// Print information about the system (e.g., OS Information, HW Specs, ...)
-	/*if (msrFetchInfo(providers, &result) != MSR_SUCCESS)
+	if (msrFetchInfo(providers, &info) != MSR_SUCCESS)
 		abort();
-	msrResultFree(result);*/
 
 	// Track metadata
 	if (msrStartMeasure(providers, 100, &measure) != MSR_SUCCESS)
@@ -146,8 +145,9 @@ int main(int argc, char* argv[]) {
 	if (msrStopMeasure(measure, &result) != MSR_SUCCESS)
 		abort();
 	printf("Writing results to ./test.ir_metadata\n");
-	if (msrResultExportIrMetadata(result, "./test.ir_metadata") != MSR_SUCCESS)
+	if (msrResultExportIrMetadata(info, result, "./test.ir_metadata") != MSR_SUCCESS)
 		abort();
+	msrResultFree(info);
 	msrResultFree(result);
 	return 0;
 }

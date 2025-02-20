@@ -11,17 +11,11 @@
 #include <set>
 #include <string>
 
-struct msrResult_st {
-public:
-	using Value = std::variant<std::string, msr::TimeSeries<unsigned>>;
-	std::vector<std::pair<msrMeasure, Value>> value;
-
-public:
-	msrResult_st(std::initializer_list<std::pair<msrMeasure, Value>> il) : value(std::move(il)) {}
-};
-
 namespace msr {
-	using Stats = msrResult_st;
+	using StatVal = std::variant<std::string, msr::TimeSeries<unsigned>>;
+	using Stats = std::map<msrMeasure, StatVal>;
+
+	msrResult_st* createMsrResultFromStats(Stats&& stats);
 
 	class StatsProvider {
 	public:

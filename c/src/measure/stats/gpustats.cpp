@@ -126,18 +126,6 @@ GPUStats::GPUStats() : nvml({.supported = initNVML(), .devices = {}}) {
 	}
 }
 
-void GPUStats::start() {
-	if (!nvml.supported)
-		return;
-}
-void GPUStats::stop() {
-	if (!nvml.supported)
-		return;
-	/** \todo implement **/
-}
-
-#include <iostream>
-
 void GPUStats::step() {
 	if (!nvml.supported)
 		return;
@@ -161,6 +149,19 @@ void GPUStats::step() {
 }
 
 Stats GPUStats::getStats() {
+	/** \todo: filter by requested metrics */
+	if (nvml.supported) {
+		return {
+				{MSR_GPU_USED_PROCESS_PERCENT, "TODO"s},
+				{MSR_GPU_USED_SYSTEM_PERCENT, nvml.utilizationTotal},
+				{MSR_GPU_VRAM_USED_PROCESS_MB, "TODO"s},
+				{MSR_GPU_VRAM_USED_SYSTEM_MB, nvml.vramUsageTotal},
+		};
+	} else {
+		return {};
+	}
+}
+Stats GPUStats::getInfo() {
 	/** \todo: filter by requested metrics */
 	if (nvml.supported) {
 		std::string modelName;
@@ -192,10 +193,6 @@ Stats GPUStats::getStats() {
 		return {{MSR_GPU_SUPPORTED, "1"s},
 				{MSR_GPU_MODEL_NAME, modelName},
 				{MSR_GPU_NUM_CORES, cores},
-				{MSR_GPU_USED_PROCESS_PERCENT, "TODO"s},
-				{MSR_GPU_USED_SYSTEM_PERCENT, "TODO"s},
-				{MSR_GPU_VRAM_USED_PROCESS_MB, "TODO"s},
-				{MSR_GPU_VRAM_USED_SYSTEM_MB, std::to_string(nvml.vramUsageTotal.maxValue())},
 				{MSR_GPU_VRAM_AVAILABLE_SYSTEM_MB, vramTotal}};
 	} else {
 		return {{MSR_GPU_SUPPORTED, "0"s}};

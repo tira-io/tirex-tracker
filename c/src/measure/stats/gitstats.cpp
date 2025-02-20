@@ -33,17 +33,6 @@ static std::string getLastCommitHash(git_repository* repo) {
 	return std::string{buf};
 }
 
-static std::string getShortname(git_repository* repo) {
-	git_reference* head;
-	if (int err; err = git_repository_head(&head, repo)) {
-		msr::log::error("gitstats", "Failed to fetch repository head: {}", git_error_last()->message);
-		return "";
-	}
-	std::string hash = git_reference_shorthand(head);
-	git_reference_free(head);
-	return hash;
-}
-
 static std::tuple<std::string, std::string> getBranchName(git_repository* repo) {
 	git_reference* head;
 	if (int err; err = git_repository_head(&head, repo)) {
@@ -87,7 +76,7 @@ static std::string getRemoteOrigin(git_repository* repo) {
 }
 
 template <typename T>
-int wrap(const char* name, git_oid* oid, void* payload) {
+static int wrap(const char* name, git_oid* oid, void* payload) {
 	auto& fn = *static_cast<T*>(payload);
 	return fn(name, oid);
 }
@@ -99,9 +88,9 @@ static std::vector<std::string> getTags(git_repository* repo) {
 		msr::log::error("gitstats", "Failed to lookup HEAD: {}", git_error_last()->message);
 		return {};
 	}
-	std::function<int(const char*, git_oid*)> callback = [head, &repo, &tagNames](const char* name, git_oid* oid) {
-		git_object* object;
-		const git_oid* target;
+	auto callback = [head, &repo, &tagNames](const char* name, git_oid* oid) {
+		git_object* object = nullptr;
+		const git_oid* target = nullptr;
 		if (int err; err = git_object_lookup(&object, repo, oid, GIT_OBJECT_ANY)) {
 			msr::log::error("gitstats", "Failed to lookup object: {}", git_error_last()->message);
 			return 0; // Return 0 to stop processing this tag but don't abort the iteration
@@ -120,6 +109,7 @@ static std::vector<std::string> getTags(git_repository* repo) {
 		if (git_oid_equal(&head, target)) {
 			tagNames.emplace_back(name);
 		}
+		git_object_free(object);
 		return 0;
 	};
 	git_tag_foreach(repo, wrap<decltype(callback)>, static_cast<void*>(&callback));
@@ -180,8 +170,6 @@ GitStats::~GitStats() { git_libgit2_shutdown(); }
 
 bool GitStats::isRepository() const noexcept { return repo != nullptr; }
 
-void GitStats::start() { msr::log::info("gitstats", "Is a Git Repository: {}", (isRepository() ? "Yes" : "No")); }
-void GitStats::stop() { /* nothing to do */ }
 Stats GitStats::getInfo() {
 	/** \todo: filter by requested metrics */
 	if (isRepository()) {

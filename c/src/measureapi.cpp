@@ -43,8 +43,8 @@ struct msrMeasureHandle_st final {
 		// Collect statistics and print them
 		msr::Stats stats{}; /** \todo ranges **/
 		for (auto& provider : providers) {
-			auto tmp = provider->getStats().value;
-			stats.value.insert(stats.value.end(), tmp.begin(), tmp.end());
+			auto tmp = provider->getStats();
+			stats.insert(tmp.begin(), tmp.end());
 		}
 		return stats;
 	}
@@ -84,10 +84,10 @@ msrError msrFetchInfo(const msrMeasureConf* measures, msrResult** result) {
 		return err;
 	msr::Stats stats{}; /** \todo ranges **/
 	for (auto& provider : providers) {
-		auto tmp = provider->getInfo().value;
-		stats.value.insert(stats.value.end(), tmp.begin(), tmp.end());
+		auto tmp = provider->getInfo();
+		stats.insert(tmp.begin(), tmp.end());
 	}
-	*result = new msr::Stats(std::move(stats));
+	*result = createMsrResultFromStats(std::move(stats));
 	return MSR_SUCCESS;
 }
 
@@ -104,6 +104,6 @@ msrError msrStopMeasure(msrMeasureHandle* measure, msrResult** result) {
 		return MSR_INVALID_ARGUMENT;
 	auto res = measure->stop();
 	delete measure;
-	*result = new msr::Stats(std::move(res));
+	*result = createMsrResultFromStats(std::move(res));
 	return MSR_SUCCESS;
 }

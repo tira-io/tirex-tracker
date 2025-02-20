@@ -74,8 +74,7 @@ static std::function<bool(const msrResultEntry&)> versionFilter(const std::strin
  * @return
  */
 template <typename C>
-static ResultMap asMap(const msrResult* result, C&& filter) {
-	ResultMap ret;
+static void asMap(ResultMap& ret, const msrResult* result, C&& filter) {
 	size_t num;
 	msrResultEntry entry;
 	if (msrResultEntryNum(result, &num) != msrError::MSR_SUCCESS)
@@ -88,7 +87,6 @@ static ResultMap asMap(const msrResult* result, C&& filter) {
 			ret[entry.source] = static_cast<const char*>(entry.value);
 		}
 	}
-	return ret;
 }
 
 /**
@@ -115,7 +113,7 @@ static void writePlatform(const ResultMap& results, std::ostream& stream) {
 	if (ResultMap::const_iterator it; (it = results.find(MSR_CPU_FEATURES)) != results.end())
 		stream << "      features: " << it->second << '\n';
 	if (ResultMap::const_iterator it; (it = results.find(MSR_CPU_FREQUENCY_MHZ)) != results.end())
-		stream << "      frequency: " << it->second << " MHz\n";
+		stream << "      frequency: " << it->second << '\n';
 	if (ResultMap::const_iterator it; (it = results.find(MSR_CPU_FREQUENCY_MIN_MHZ)) != results.end())
 		stream << "      frequency min: " << it->second << " MHz\n";
 	if (ResultMap::const_iterator it; (it = results.find(MSR_CPU_FREQUENCY_MAX_MHZ)) != results.end())
@@ -159,7 +157,7 @@ static void writePlatform(const ResultMap& results, std::ostream& stream) {
 
 /**
  * @brief 
- * @details For more information on the specification, refer to https://www.ir metadata.org/metadata/implementation/.
+ * @details For more information on the specification, refer to https://www.ir-metadata.org/metadata/implementation/.
  * 
  * @param results 
  * @param stream 
@@ -207,102 +205,41 @@ static void writeResources(const ResultMap& results, std::ostream& stream) {
 	//// CPU DATA
 	stream << "  cpu:\n";
 	if (ResultMap::const_iterator it; (it = results.find(MSR_CPU_USED_PROCESS_PERCENT)) != results.end())
-		stream << "    used process: " << it->second << " %\n";
-	stream << "    used system:\n";
-	if (ResultMap::const_iterator it; (it = results.find(MSR_CPU_USED_SYSTEM_PERCENT)) != results.end()) {
-		stream << "      max: " << it->second << " %\n";
-		stream << "      avg: " << it->second << " %\n"; /** \todo implement **/
-		stream << "      min: " << it->second << " %\n"; /** \todo implement **/
-		stream << "      timeseries:\n";
-		stream << "        max: [12,25,40,9]\n";
-		stream << "        avg: [16,69,76,8]\n";
-		stream << "        min: [15,68,73,7]\n";
-		stream << "        timestamps_ms: [0, 100, 200, 300]\n"; /** \todo implement **/
-	}
+		stream << "    used process: " << it->second << '\n';
+	if (ResultMap::const_iterator it; (it = results.find(MSR_CPU_USED_SYSTEM_PERCENT)) != results.end())
+		stream << "    used system: " << it->second << '\n';
 	//// GPU DATA
 	stream << "  gpu:\n";
-	if (ResultMap::const_iterator it; (it = results.find(MSR_GPU_USED_PROCESS_PERCENT)) != results.end()) {
-		stream << "    used process: " << it->second << " %\n";
-		stream << "      max: " << it->second << " %\n";
-		stream << "      avg: " << it->second << " %\n"; /** \todo implement **/
-		stream << "      min: " << it->second << " %\n"; /** \todo implement **/
-		stream << "      timeseries:\n";
-		stream << "        max: [12,25,40,9]\n";
-		stream << "        avg: [16,69,76,8]\n";
-		stream << "        min: [15,68,73,7]\n";
-		stream << "        timestamps_ms: [0, 100, 200, 300]\n"; /** \todo implement **/
-	}
-	if (ResultMap::const_iterator it; (it = results.find(MSR_GPU_USED_SYSTEM_PERCENT)) != results.end()) {
-		stream << "    used system: " << it->second << " %\n";
-		stream << "      max: " << it->second << " %\n";
-		stream << "      avg: " << it->second << " %\n"; /** \todo implement **/
-		stream << "      min: " << it->second << " %\n"; /** \todo implement **/
-		stream << "      timeseries:\n";
-		stream << "        max: [12,25,40,9]\n";
-		stream << "        avg: [16,69,76,8]\n";
-		stream << "        min: [15,68,73,7]\n";
-		stream << "        timestamps_ms: [0, 100, 200, 300]\n"; /** \todo implement **/
-	}
-	if (ResultMap::const_iterator it; (it = results.find(MSR_GPU_VRAM_USED_PROCESS_MB)) != results.end()) {
-		stream << "    vram used process: " << it->second << " MB\n";
-		stream << "      max: " << it->second << " %\n";
-		stream << "      avg: " << it->second << " %\n"; /** \todo implement **/
-		stream << "      min: " << it->second << " %\n"; /** \todo implement **/
-		stream << "      timeseries:\n";
-		stream << "        max: [12,25,40,9]\n";
-		stream << "        avg: [16,69,76,8]\n";
-		stream << "        min: [15,68,73,7]\n";
-		stream << "        timestamps_ms: [0, 100, 200, 300]\n"; /** \todo implement **/
-	}
-	if (ResultMap::const_iterator it; (it = results.find(MSR_GPU_VRAM_USED_SYSTEM_MB)) != results.end()) {
-		stream << "    vram used system: " << it->second << " MB\n";
-		stream << "      max: " << it->second << " %\n";
-		stream << "      avg: " << it->second << " %\n"; /** \todo implement **/
-		stream << "      min: " << it->second << " %\n"; /** \todo implement **/
-		stream << "      timeseries:\n";
-		stream << "        max: [12,25,40,9]\n";
-		stream << "        avg: [16,69,76,8]\n";
-		stream << "        min: [15,68,73,7]\n";
-		stream << "        timestamps_ms: [0, 100, 200, 300]\n"; /** \todo implement **/
-	}
+	if (ResultMap::const_iterator it; (it = results.find(MSR_GPU_USED_PROCESS_PERCENT)) != results.end())
+		stream << "    used process: " << it->second << '\n';
+	if (ResultMap::const_iterator it; (it = results.find(MSR_GPU_USED_SYSTEM_PERCENT)) != results.end())
+		stream << "    used system: " << it->second << '\n';
+	if (ResultMap::const_iterator it; (it = results.find(MSR_GPU_VRAM_USED_PROCESS_MB)) != results.end())
+		stream << "    vram used process: " << it->second << '\n';
+	if (ResultMap::const_iterator it; (it = results.find(MSR_GPU_VRAM_USED_SYSTEM_MB)) != results.end())
+		stream << "    vram used system: " << it->second << '\n';
 	//// RAM DATA
 	stream << "  ram:\n";
-	if (ResultMap::const_iterator it; (it = results.find(MSR_RAM_USED_PROCESS_KB)) != results.end()) {
-		stream << "    used process: " << it->second << " KB\n";
-		stream << "      max: " << it->second << " %\n";
-		stream << "      avg: " << it->second << " %\n"; /** \todo implement **/
-		stream << "      min: " << it->second << " %\n"; /** \todo implement **/
-		stream << "      timeseries:\n";
-		stream << "        max: [12,25,40,9]\n";
-		stream << "        avg: [16,69,76,8]\n";
-		stream << "        min: [15,68,73,7]\n";
-		stream << "        timestamps_ms: [0, 100, 200, 300]\n"; /** \todo implement **/
-	}
-	if (ResultMap::const_iterator it; (it = results.find(MSR_RAM_USED_SYSTEM_MB)) != results.end()) {
-		stream << "    used system: " << it->second << " MB\n";
-		stream << "      max: " << it->second << " %\n";
-		stream << "      avg: " << it->second << " %\n"; /** \todo implement **/
-		stream << "      min: " << it->second << " %\n"; /** \todo implement **/
-		stream << "      timeseries:\n";
-		stream << "        max: [12,25,40,9]\n";
-		stream << "        avg: [16,69,76,8]\n";
-		stream << "        min: [15,68,73,7]\n";
-		stream << "        timestamps_ms: [0, 100, 200, 300]\n"; /** \todo implement **/
-	}
+	if (ResultMap::const_iterator it; (it = results.find(MSR_RAM_USED_PROCESS_KB)) != results.end())
+		stream << "    used process: " << it->second << '\n';
+	if (ResultMap::const_iterator it; (it = results.find(MSR_RAM_USED_SYSTEM_MB)) != results.end())
+		stream << "    used system: " << it->second << '\n';
 }
 
-msrError msrResultExportIrMetadata(const msrResult* result, const char* filepath) {
+msrError msrResultExportIrMetadata(const msrResult* info, const msrResult* result, const char* filepath) {
 	std::string version = "0.2";
-	auto results = asMap(result, versionFilter(version));
+	ResultMap map;
+	asMap(map, info, versionFilter(version));
+	asMap(map, result, versionFilter(version));
 
 	std::ofstream stream(filepath);
 	if (!stream)
 		return msrError::MSR_INVALID_ARGUMENT;
 	stream << "ir_metadata.start\n";
 	stream << "schema version: " << version << '\n';
-	writePlatform(results, stream);
-	writeImplementation(results, stream);
-	writeResources(results, stream);
+	writePlatform(map, stream);
+	writeImplementation(map, stream);
+	writeResources(map, stream);
 	stream << "ir_metadata.end\n";
 	return msrError::MSR_SUCCESS;
 }

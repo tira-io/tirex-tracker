@@ -8,19 +8,43 @@
 namespace msr {
 	template <typename T>
 	struct TimeSeries final {
+		using clock = std::chrono::high_resolution_clock;
+
 	private:
+		const bool storeSeries;
+		const clock::time_point starttime;
 		T max;
-		std::vector<std::pair<std::chrono::high_resolution_clock::time_point, T>> values;
+		T min;
+		T avg;
+		std::vector<std::chrono::milliseconds> timepoints;
+		std::vector<T> values;
 
 	public:
+		TimeSeries(bool storeSeries)
+				: storeSeries(storeSeries), starttime(clock::now()), max(), min(), avg(), timepoints(), values() {}
+
 		void addValue(const T& value) noexcept {
-			values.emplace_back(std::pair<std::chrono::high_resolution_clock::time_point, T>{std::chrono::high_resolution_clock::now(), value
-			});
+			if (storeSeries) {
+				timepoints.emplace_back(std::chrono::duration_cast<std::chrono::milliseconds>(clock::now() - starttime)
+				);
+				values.emplace_back(value);
+			}
 			max = std::max(max, value);
+			min = std::max(min, value);
+			/** \todo update average **/
 		}
-		void reset() { values.clear(); }
+		void reset() {
+			timepoints.clear();
+			values.clear();
+		}
 
 		const T& maxValue() const noexcept { return max; }
+		const T& minValue() const noexcept { return min; }
+		const T& avgValue() const noexcept { return avg; }
+		const std::pair<const std::vector<std::chrono::milliseconds>&, const std::vector<T>&>
+		timeseries() const noexcept {
+			return {timepoints, values};
+		}
 	};
 }; // namespace msr
 

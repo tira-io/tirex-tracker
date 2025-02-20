@@ -14,8 +14,8 @@
 #if (!defined(__STDC_NO_THREADS__) || __STDC_NO_THREADS__)
 #include <threads.h>
 #else
-#include <unistd.h>
 #include <time.h>
+#include <unistd.h>
 
 static int thrd_sleep(const struct timespec* duration, struct timespec* remaining) {
 	return nanosleep(duration, remaining);
@@ -155,6 +155,7 @@ int main(int argc, char* argv[]) {
 	if (msrStartMeasure(providers, 100, &measure) != MSR_SUCCESS)
 		abort();
 	{
+		thrd_sleep(&(struct timespec){.tv_sec = 1}, NULL);
 		char* data = calloc(24 * 1000 * 1000, 1);	  // allocate 24 MB
 		for (size_t i = 0; i < 24 * 1000 * 1000; ++i) // Access the data so it is not optimized away
 			data[i] = 1;

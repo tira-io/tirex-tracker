@@ -36,10 +36,10 @@ namespace msr {
 		std::chrono::steady_clock::time_point starttime;
 		std::chrono::steady_clock::time_point stoptime;
 
-		msr::TimeSeries<unsigned> ram;
-		msr::TimeSeries<unsigned> sysCpuUtil;
-		msr::TimeSeries<unsigned> sysRam;
-		msr::TimeSeries<uint32_t> frequency;
+		msr::TimeSeries<unsigned> ram{true};
+		msr::TimeSeries<unsigned> sysCpuUtil{true};
+		msr::TimeSeries<unsigned> sysRam{true};
+		msr::TimeSeries<uint32_t> frequency{true};
 
 #if __linux__
 		size_t startUTime, stopUTime;
@@ -64,6 +64,7 @@ namespace msr {
 		void stop() override;
 		void step() override;
 		Stats getStats() override;
+		Stats getInfo() override;
 
 		static constexpr const char* description = "Collects system components and utilization metrics.";
 		static const char* version;

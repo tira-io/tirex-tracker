@@ -2,6 +2,7 @@
 #define MEASURE_UTILS_RANGEUTILS_HPP
 
 #include <ranges>
+#include <sstream>
 #include <string>
 
 namespace msr::utils {
@@ -9,13 +10,15 @@ namespace msr::utils {
 #ifdef __cpp_lib_ranges_join_with
 		return range | std::join_with(delimiter);
 #else
-		std::string joined = "";
+		std::stringstream stream;
+		bool first = true;
 		for (auto& elem : range) {
-			if (!joined.empty())
-				joined += delimiter;
-			joined += elem;
+			if (!first)
+				stream << delimiter;
+			stream << elem;
+			first = false;
 		}
-		return joined;
+		return stream.str();
 #endif
 	}
 } // namespace msr::utils

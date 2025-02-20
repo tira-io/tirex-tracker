@@ -66,6 +66,7 @@ void SystemStats::stop() {
 	stopUTime = utilization.userTimeMs;
 	stopSysTime = utilization.sysTimeMs;
 }
+
 void SystemStats::step() {
 	auto utilization = getUtilization();
 	ram.addValue(utilization.ramUsedKB);
@@ -76,10 +77,27 @@ void SystemStats::step() {
 
 Stats SystemStats::getStats() {
 	/** \todo: filter by requested metrics */
+	auto cpuInfo = getCPUInfo();
+
+	auto wallclocktime =
+			std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(stoptime - starttime).count());
+
+	return {
+			{{MSR_TIME_ELAPSED_WALL_CLOCK_MS, wallclocktime},
+			 {MSR_TIME_ELAPSED_USER_MS, std::to_string(stopUTime - startUTime)},
+			 {MSR_TIME_ELAPSED_SYSTEM_MS, std::to_string(stopSysTime - startSysTime)},
+			 {MSR_CPU_USED_PROCESS_PERCENT, "TODO"s},
+			 {MSR_CPU_USED_SYSTEM_PERCENT, sysCpuUtil},
+			 {MSR_CPU_FREQUENCY_MHZ, frequency},
+			 {MSR_RAM_USED_PROCESS_KB, ram},
+			 {MSR_RAM_USED_SYSTEM_MB, sysRam}}
+	};
+}
+
+Stats SystemStats::getInfo() {
+	/** \todo: filter by requested metrics */
 	auto info = getSysInfo();
 	auto cpuInfo = getCPUInfo();
-	/** \todo For more accurate reading: measure utime and stime in start() and report only the difference to the start
-	 *   value **/
 
 	std::string caches = "";
 	size_t cacheIdx = 1;
@@ -93,19 +111,10 @@ Stats SystemStats::getStats() {
 		++cacheIdx;
 	}
 
-	auto wallclocktime =
-			std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(stoptime - starttime).count());
-
 	return {{MSR_OS_NAME, info.osname},
 			{MSR_OS_KERNEL, info.kerneldesc},
-			{MSR_TIME_ELAPSED_WALL_CLOCK_MS, wallclocktime},
-			{MSR_TIME_ELAPSED_USER_MS, std::to_string(stopUTime - startUTime)},
-			{MSR_TIME_ELAPSED_SYSTEM_MS, std::to_string(stopSysTime - startSysTime)},
-			{MSR_CPU_USED_PROCESS_PERCENT, "TODO"s},
-			{MSR_CPU_USED_SYSTEM_PERCENT, sysCpuUtil},
 			{MSR_CPU_AVAILABLE_SYSTEM_CORES, std::to_string(cpuInfo.numCores)},
 			{MSR_CPU_FEATURES, cpuInfo.flags},
-			{MSR_CPU_FREQUENCY_MHZ, frequency},
 			{MSR_CPU_FREQUENCY_MIN_MHZ, std::to_string(cpuInfo.frequency_min)},
 			{MSR_CPU_FREQUENCY_MAX_MHZ, std::to_string(cpuInfo.frequency_max)},
 			{MSR_CPU_VENDOR_ID, cpuInfo.vendorId},
@@ -116,9 +125,7 @@ Stats SystemStats::getStats() {
 			{MSR_CPU_THREADS_PER_CORE, std::to_string(cpuInfo.threadsPerCore)},
 			{MSR_CPU_CACHES, caches},
 			{MSR_CPU_VIRTUALIZATION,
-			 (cpuInfo.virtualization.svm ? ""s : "AMD-V "s) + (cpuInfo.virtualization.vmx ? ""s : "VT-x"s)},
-			{MSR_RAM_USED_PROCESS_KB, ram},
-			{MSR_RAM_USED_SYSTEM_MB, sysRam},
+			 (cpuInfo.virtualization.svm ? "AMD-V "s : ""s) + (cpuInfo.virtualization.vmx ? "VT-x"s : ""s)},
 			{MSR_RAM_AVAILABLE_SYSTEM_MB, std::to_string(info.totalRamMB)}};
 }
 

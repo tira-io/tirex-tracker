@@ -16,8 +16,6 @@ namespace msr {
 
 		bool isRepository() const noexcept;
 
-		void start() override;
-		void stop() override;
 		Stats getInfo() override;
 
 		static constexpr const char* description = "Collects git related metrics.";
