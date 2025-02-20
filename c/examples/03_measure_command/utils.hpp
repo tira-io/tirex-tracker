@@ -5,6 +5,7 @@
 
 #include <measure.h>
 
+#include <vector>
 #include <format>
 #include <string>
 
@@ -15,7 +16,10 @@ static constexpr const char* compiler = "clang " __VERSION__;
 static constexpr const char* compiler = "gcc " __VERSION__;
 #endif
 #elif defined(_MSC_VER)
-static constexpr const char* compiler = "msvc " _MSC_FULL_VER;
+#define STRINGIFY( L )       #L
+#define MAKESTRING( M, L )   M(L)
+#define STRINGIZE(X)         MAKESTRING( STRINGIFY, X )
+static constexpr const char* compiler = "msvc " STRINGIZE(_MSC_FULL_VER);
 #else
 static constexpr const char* compiler = "unknown compiler";
 #endif
@@ -23,9 +27,8 @@ static constexpr const char* compiler = "unknown compiler";
 static std::string buildVersionString() {
 	auto versionString = std::format("{}\nBuilt with {} for C++ {}", msr::getVersionStr(), compiler, __cplusplus);
 	auto numProviders = msrDataProviderGetAll(nullptr, 0);
-	/** I don't know how compatible this is accross compilers; otherwise use a vector. **/
-	msrDataProvider buf[numProviders];
-	msrDataProviderGetAll(buf, sizeof(buf) / sizeof(buf[0]));
+	std::vector<msrDataProvider> buf{numProviders};
+	msrDataProviderGetAll(buf.data(), buf.size());
 	for (const auto& provider : buf)
 		if (provider.version)
 			versionString += std::string("\n") + provider.version;

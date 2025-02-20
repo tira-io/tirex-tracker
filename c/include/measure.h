@@ -11,9 +11,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#if defined _WINDOWS
-#if !defined MEASUREAPI_STATIC_IMPORT
-#if defined MEASUREAPI_LIB_EXPORT
+#if defined(_WINDOWS)
+#if !defined(MEASUREAPI_STATIC_IMPORT)
+#if defined(MEASUREAPI_LIB_EXPORT)
 #define MSR_EXPORT __declspec(dllexport)
 #else
 #define MSR_EXPORT __declspec(dllimport)

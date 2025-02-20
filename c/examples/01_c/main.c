@@ -5,6 +5,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WINDOWS
+#include <windows.h>
+#include <synchapi.h>
+#include <time.h>
+
+static int thrd_sleep(const struct timespec* duration, struct timespec* remaining) {
+	Sleep(duration->tv_sec*1000);
+	return 0;
+}
+#else
 #if defined(__has_include)
 #if !__has_include(<threads.h>)
 // Under MacOS this is not set properly :(
@@ -20,6 +30,7 @@
 static int thrd_sleep(const struct timespec* duration, struct timespec* remaining) {
 	return nanosleep(duration, remaining);
 }
+#endif
 #endif
 
 static void logcallback(msrLogLevel level, const char* component, const char* message) {

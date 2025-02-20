@@ -53,7 +53,7 @@ public:
 	NVMLLib() : msr::utils::SharedLib() {}
 #elif defined(_WIN64)
 /** \todo add support **/
-#error "Support for windows needs to be added here"
+	NVMLLib() : msr::utils::SharedLib("nvml.dll") {}
 #else
 #error "Unsupported OS"
 #endif

@@ -65,12 +65,12 @@ static std::map<std::string, std::vector<msrMeasureConf>> confGroups = {
 
 static void logCallback(msrLogLevel level, const char* component, const char* message) {
 	static constexpr spdlog::level::level_enum levels[] = {
-			[msrLogLevel::TRACE] = spdlog::level::level_enum::trace,
-			[msrLogLevel::DEBUG] = spdlog::level::level_enum::debug,
-			[msrLogLevel::INFO] = spdlog::level::level_enum::info,
-			[msrLogLevel::WARN] = spdlog::level::level_enum::warn,
-			[msrLogLevel::ERROR] = spdlog::level::level_enum::err,
-			[msrLogLevel::CRITICAL] = spdlog::level::level_enum::critical
+			/*[msrLogLevel::TRACE] =*/ spdlog::level::level_enum::trace,
+			/*[msrLogLevel::DEBUG] =*/ spdlog::level::level_enum::debug,
+			/*[msrLogLevel::INFO] =*/ spdlog::level::level_enum::info,
+			/*[msrLogLevel::WARN] =*/ spdlog::level::level_enum::warn,
+			/*[msrLogLevel::ERROR] =*/ spdlog::level::level_enum::err,
+			/*[msrLogLevel::CRITICAL] =*/ spdlog::level::level_enum::critical
 	};
 	msr::getLogger(component)->log(levels[level], message);
 }

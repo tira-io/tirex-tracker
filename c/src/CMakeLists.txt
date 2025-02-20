@@ -15,11 +15,13 @@ add_library(measureapi SHARED
 	measure/stats/systemstats.cpp
 	measure/stats/systemstats_linux.cpp
 	measure/stats/systemstats_macos.cpp
+	measure/stats/systemstats_windows.cpp
 )
 
 target_compile_features(measureapi PUBLIC cxx_std_20)
 target_include_directories(measureapi PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../include)
 set_property(TARGET measureapi PROPERTY POSITION_INDEPENDENT_CODE ON)
+target_compile_definitions(measureapi PRIVATE MEASUREAPI_LIB_EXPORT)
 
 
 add_library(measureapi_static STATIC
@@ -35,16 +37,20 @@ add_library(measureapi_static STATIC
 	measure/stats/systemstats.cpp
 	measure/stats/systemstats_linux.cpp
 	measure/stats/systemstats_macos.cpp
+	measure/stats/systemstats_windows.cpp
 )
 target_compile_features(measureapi_static PUBLIC cxx_std_20)
 target_include_directories(measureapi_static PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../include)
+target_compile_definitions(measureapi_static PUBLIC MEASUREAPI_STATIC_IMPORT)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	# Statically link standard library for c++
 	# target_link_options(measureapi PRIVATE -static-libgcc -static-libstdc++)
 endif()
 
-target_link_libraries(measureapi PUBLIC dl)  # dlopen, dlclose, ...
+if (LINUX)
+	target_link_libraries(measureapi PUBLIC dl)  # dlopen, dlclose, ...
+endif()
 
 
 set(BUILD_SHARED_LIBS OFF)
@@ -87,7 +93,7 @@ set_property(TARGET fmt PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(measureapi PRIVATE fmt::fmt)
 target_link_libraries(measureapi_static PRIVATE fmt::fmt)
 
-# lscpu
+# cpuinfo
 # option(CPUINFO_LOG_TO_STDIO OFF)
 option(CPUINFO_BUILD_TOOLS OFF)
 option(CPUINFO_BUILD_UNIT_TESTS OFF)

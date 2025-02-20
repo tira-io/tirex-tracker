@@ -10,6 +10,7 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <variant>
 
 namespace msr {
 	using StatVal = std::variant<std::string, msr::TimeSeries<unsigned>>;

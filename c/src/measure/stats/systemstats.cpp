@@ -22,11 +22,16 @@ namespace _fmt = fmt;
 
 using msr::SystemStats;
 
+#ifdef __linux__
 extern "C" {
 // Not part of the public API but we use them for now until there is a public API for frequency
 uint32_t cpuinfo_linux_get_processor_min_frequency(uint32_t processor);
 uint32_t cpuinfo_linux_get_processor_max_frequency(uint32_t processor);
 }
+#else
+uint32_t cpuinfo_linux_get_processor_min_frequency(uint32_t processor) { throw std::runtime_error(""); /** \todo remove **/}
+uint32_t cpuinfo_linux_get_processor_max_frequency(uint32_t processor) {throw std::runtime_error(""); /** \todo remove **/}
+#endif
 
 const char* SystemStats::version = nullptr;
 const std::set<msrMeasure> SystemStats::measures{
@@ -263,7 +268,7 @@ static std::string armImplementerToStr(uint32_t midr) {
 
 template <uint32_t SystemStats::CPUInfo::Cache::* entry>
 static void aggCaches(SystemStats::CPUInfo::Cache& dest, const cpuinfo_cache* caches, uint32_t num) {
-	for (auto i = 0; i < num; ++i)
+	for (auto i = 0u; i < num; ++i)
 		dest.*entry += caches[i].size;
 }
 
@@ -301,7 +306,8 @@ static SystemStats::CPUInfo::VirtFlags getVirtSupport() {
 			return {.svm = line.find("svm") != std::string::npos, .vmx = line.find("vmx") != std::string::npos};
 	return {.svm = false, .vmx = false};
 #elif defined(_WIN64)
-#error "TODO: support windows"
+	throw std::runtime_error("virt support not yet supported"); /** \todo implement **/
+//#error "TODO: support windows"
 #else
 #error "unsupported OS"
 #endif

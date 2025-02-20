@@ -7,6 +7,8 @@
 #include "gpustats.hpp"
 #include "systemstats.hpp"
 
+#include <algorithm>
+
 using msr::EnergyStats;
 using msr::GitStats;
 using msr::GPUStats;
