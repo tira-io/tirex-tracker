@@ -1,10 +1,12 @@
 #include "gitstats.hpp"
 
 #include "../../logging.hpp"
+#include "../utils/rangeutils.hpp"
 
 #include <git2.h>
 
 #include <iostream>
+#include <ranges>
 #include <string>
 #include <tuple>
 
@@ -84,6 +86,46 @@ static std::string getRemoteOrigin(git_repository* repo) {
 	return url;
 }
 
+template <typename T>
+int wrap(const char* name, git_oid* oid, void* payload) {
+	auto& fn = *static_cast<T*>(payload);
+	return fn(name, oid);
+}
+
+static std::vector<std::string> getTags(git_repository* repo) {
+	std::vector<std::string> tagNames;
+	git_oid head;
+	if (int err; err = git_reference_name_to_id(&head, repo, "HEAD")) {
+		msr::log::error("gitstats", "Failed to lookup HEAD: {}", git_error_last()->message);
+		return {};
+	}
+	std::function<int(const char*, git_oid*)> callback = [head, &repo, &tagNames](const char* name, git_oid* oid) {
+		git_object* object;
+		const git_oid* target;
+		if (int err; err = git_object_lookup(&object, repo, oid, GIT_OBJECT_ANY)) {
+			msr::log::error("gitstats", "Failed to lookup object: {}", git_error_last()->message);
+			return 0; // Return 0 to stop processing this tag but don't abort the iteration
+		}
+		if (git_object_type(object) == GIT_OBJECT_TAG) { // Annotated tag
+			git_tag* tag;
+			if (int err; err = git_tag_lookup(&tag, repo, oid)) {
+				msr::log::error("gitstats", "Failed to lookup tag: {}", git_error_last()->message);
+				return 0; // Return 0 to stop processing this tag but don't abort the iteration
+			}
+			target = git_tag_target_id(tag);
+			git_tag_free(tag);
+		} else { // Lightweight tag
+			target = oid;
+		}
+		if (git_oid_equal(&head, target)) {
+			tagNames.emplace_back(name);
+		}
+		return 0;
+	};
+	git_tag_foreach(repo, wrap<decltype(callback)>, static_cast<void*>(&callback));
+	return tagNames;
+}
+
 struct GitStatusStats {
 	/** The number of files that were previously added to the repository and have uncommitted changes **/
 	size_t numModified;
@@ -140,7 +182,7 @@ bool GitStats::isRepository() const noexcept { return repo != nullptr; }
 
 void GitStats::start() { msr::log::info("gitstats", "Is a Git Repository: {}", (isRepository() ? "Yes" : "No")); }
 void GitStats::stop() { /* nothing to do */ }
-Stats GitStats::getStats() {
+Stats GitStats::getInfo() {
 	/** \todo: filter by requested metrics */
 	if (isRepository()) {
 		auto status = getStatusStats(repo);
@@ -155,7 +197,7 @@ Stats GitStats::getStats() {
 				{MSR_GIT_LAST_COMMIT_HASH, getLastCommitHash(repo)},
 				{MSR_GIT_BRANCH, local},
 				{MSR_GIT_BRANCH_UPSTREAM, remote},
-				{MSR_GIT_TAGS, "TODO"s},
+				{MSR_GIT_TAGS, "["s + msr::utils::join(getTags(repo), ',') + "]"s},
 				{MSR_GIT_REMOTE_ORIGIN, getRemoteOrigin(repo)},
 				{MSR_GIT_UNCOMMITTED_CHANGES, (status.numModified != 0) ? "1"s : "0"s},
 				{MSR_GIT_UNPUSHED_CHANGES, ((status.ahead != 0) || remote.empty()) ? "1"s : "0"s},

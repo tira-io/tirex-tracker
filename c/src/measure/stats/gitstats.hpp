@@ -18,7 +18,7 @@ namespace msr {
 
 		void start() override;
 		void stop() override;
-		Stats getStats() override;
+		Stats getInfo() override;
 
 		static constexpr const char* description = "Collects git related metrics.";
 		static const char* version;

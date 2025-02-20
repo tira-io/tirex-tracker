@@ -59,14 +59,8 @@ struct msrMeasureHandle_st final {
 	}
 };
 
-msrError msrFetchInfo(const msrMeasureConf* measures, msrResult** result) {
-	*result = new msrResult({{msrMeasure::MSR_OS_NAME, "msrFetchInfo is not implemented yet :("}});
-	/** \todo implement **/
-	return MSR_SUCCESS;
-}
-
-msrError msrStartMeasure(const msrMeasureConf* measures, size_t pollIntervalMs, msrMeasureHandle** handle) {
-	std::vector<std::unique_ptr<msr::StatsProvider>> providers;
+static msrError
+initProviders(const msrMeasureConf* measures, std::vector<std::unique_ptr<msr::StatsProvider>>& providers) {
 	std::set<msrMeasure> msrset;
 	for (auto conf = measures; conf->source != msrMeasure::MSR_MEASURE_INVALID; ++conf) {
 		auto [it, inserted] = msrset.insert(conf->source); /** \todo implement **/
@@ -81,6 +75,26 @@ msrError msrStartMeasure(const msrMeasureConf* measures, size_t pollIntervalMs, 
 		/** \todo log which are not associated **/
 		msr::log::warn("measure", "Not all requested measures are associated with a data provider");
 	}
+	return MSR_SUCCESS;
+}
+
+msrError msrFetchInfo(const msrMeasureConf* measures, msrResult** result) {
+	std::vector<std::unique_ptr<msr::StatsProvider>> providers;
+	if (msrError err; (err = initProviders(measures, providers)) != MSR_SUCCESS)
+		return err;
+	msr::Stats stats{}; /** \todo ranges **/
+	for (auto& provider : providers) {
+		auto tmp = provider->getInfo().value;
+		stats.value.insert(stats.value.end(), tmp.begin(), tmp.end());
+	}
+	*result = new msr::Stats(std::move(stats));
+	return MSR_SUCCESS;
+}
+
+msrError msrStartMeasure(const msrMeasureConf* measures, size_t pollIntervalMs, msrMeasureHandle** handle) {
+	std::vector<std::unique_ptr<msr::StatsProvider>> providers;
+	if (msrError err; (err = initProviders(measures, providers)) != MSR_SUCCESS)
+		return err;
 	*handle = new msrMeasureHandle{std::move(providers), pollIntervalMs};
 	return MSR_SUCCESS;
 }
