@@ -3,6 +3,8 @@
 
 #include <measure.h>
 
+#include "../measure.hpp"
+
 #include <functional>
 #include <map>
 #include <memory>
@@ -11,10 +13,11 @@
 
 struct msrResult_st {
 public:
-	std::vector<std::pair<msrMeasure, std::string>> value;
+	using Value = std::variant<std::string, msr::TimeSeries<unsigned>>;
+	std::vector<std::pair<msrMeasure, Value>> value;
 
 public:
-	msrResult_st(std::initializer_list<std::pair<msrMeasure, std::string>> il) : value(std::move(il)) {}
+	msrResult_st(std::initializer_list<std::pair<msrMeasure, Value>> il) : value(std::move(il)) {}
 };
 
 namespace msr {

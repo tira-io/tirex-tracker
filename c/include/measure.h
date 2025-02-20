@@ -110,10 +110,10 @@ typedef enum msrMeasure_enum {
 	MSR_MEASURE_INVALID = -1
 } msrMeasure;
 
-#define MSR_AGG_NO (1 << 0)	  /**< Perform no aggregation. */
-#define MSR_AGG_MAX (1 << 1)  /**< For each aggregation intervall, store the maximum value. */
-#define MSR_AGG_MIN (1 << 2)  /**< For each aggregation intervall, store the minimum value. */
-#define MSR_AGG_MEAN (1 << 3) /**< For each aggregation intervall, store the average value. */
+#define MSR_AGG_NO (1 << 1)	  /**< Perform no aggregation. */
+#define MSR_AGG_MAX (1 << 2)  /**< For each aggregation intervall, store the maximum value. */
+#define MSR_AGG_MIN (1 << 3)  /**< For each aggregation intervall, store the minimum value. */
+#define MSR_AGG_MEAN (1 << 4) /**< For each aggregation intervall, store the average value. */
 
 typedef uint8_t msrAggregateFn;
 

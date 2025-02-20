@@ -65,6 +65,7 @@ endif()
 # LibGit
 option(USE_HTTPS OFF)
 option(BUILD_CLI OFF) # Do not build the Git CLI
+option(BUILD_TESTS OFF)
 FetchContent_Declare(libgit GIT_REPOSITORY https://github.com/libgit2/libgit2.git GIT_TAG v1.8.4)
 FetchContent_MakeAvailable(libgit)
 set_property(TARGET libgit2 PROPERTY POSITION_INDEPENDENT_CODE ON)

@@ -17,9 +17,16 @@ namespace _fmt = std;
 namespace _fmt = fmt;
 #endif
 
+#include <fstream>
 #include <map>
 
 using msr::SystemStats;
+
+extern "C" {
+// Not part of the public API but we use them for now until there is a public API for frequency
+uint32_t cpuinfo_linux_get_processor_min_frequency(uint32_t processor);
+uint32_t cpuinfo_linux_get_processor_max_frequency(uint32_t processor);
+}
 
 const char* SystemStats::version = nullptr;
 const std::set<msrMeasure> SystemStats::measures{
@@ -254,7 +261,7 @@ static std::string armImplementerToStr(uint32_t midr) {
 	return _fmt::format("Unknown Implementer ({:#04x})", implementer);
 }
 
-template <uint32_t SystemStats::CPUInfo::Cache::*entry>
+template <uint32_t SystemStats::CPUInfo::Cache::* entry>
 static void aggCaches(SystemStats::CPUInfo::Cache& dest, const cpuinfo_cache* caches, uint32_t num) {
 	for (auto i = 0; i < num; ++i)
 		dest.*entry += caches[i].size;
@@ -283,6 +290,22 @@ static std::string getFlagStr() {
 	return stream.str();
 }
 
+static SystemStats::CPUInfo::VirtFlags getVirtSupport() {
+#ifdef __APPLE__
+	return {.svm = false, .vmx = false};
+#elif defined(__linux__)
+	/** This is a crude implementation for now that only takes into account the flags of the very first processor **/
+	std::ifstream is("/proc/cpuinfo");
+	for (std::string line; std::getline(is, line);)
+		if (line.starts_with("Features"))
+			return {.svm = line.find("svm") != std::string::npos, .vmx = line.find("vmx") != std::string::npos};
+	return {.svm = false, .vmx = false};
+#elif defined(_WIN64)
+#error "TODO: support windows"
+#else
+#error "unsupported OS"
+#endif
+}
 
 SystemStats::SystemStats() {}
 
@@ -317,14 +340,17 @@ SystemStats::CPUInfo SystemStats::getCPUInfo() {
 #if CPUINFO_ARCH_X86 || CPUINFO_ARCH_X86_64
 			.vendorId = vendorToStr[cluster->vendor],
 #elif CPUINFO_ARCH_ARM || CPUINFO_ARCH_ARM64
-			.vendorId = (cluster->vendor != cpuinfo_vendor_unknown)? vendorToStr[cluster->vendor] : armImplementerToStr(cluster->midr),
+			.vendorId = (cluster->vendor != cpuinfo_vendor_unknown) ? vendorToStr[cluster->vendor]
+																	: armImplementerToStr(cluster->midr),
 #endif
 			.numCores = cpuinfo_get_cores_count(),
 			.coresPerSocket = package->core_count,
 			.threadsPerCore = package->processor_count / package->core_count,
 			.caches = getCaches(),
 			.endianness = endianness,
-			.frequency = core->frequency,
-			.flags = std::move(getFlagStr())
+			.frequency_min = cpuinfo_linux_get_processor_min_frequency(0),
+			.frequency_max = cpuinfo_linux_get_processor_max_frequency(0),
+			.flags = std::move(getFlagStr()),
+			.virtualization = getVirtSupport()
 	};
 }

@@ -22,10 +22,14 @@ namespace msr {
 			unsigned coresPerSocket;
 			unsigned threadsPerCore;
 			std::vector<Cache> caches;
-			std::string virtualization;
 			std::string endianness;
-			uint64_t frequency;
+			uint32_t frequency_min;
+			uint32_t frequency_max;
 			std::string flags;
+			struct VirtFlags {
+				bool svm; /**< AMD-V support Ü*/
+				bool vmx; /**< VT-x support **/
+			} virtualization;
 		};
 
 	private:
@@ -35,10 +39,11 @@ namespace msr {
 		msr::TimeSeries<unsigned> ram;
 		msr::TimeSeries<unsigned> sysCpuUtil;
 		msr::TimeSeries<unsigned> sysRam;
+		msr::TimeSeries<uint32_t> frequency;
 
 #if __linux__
-		size_t startUTime;
-		size_t startSysTime;
+		size_t startUTime, stopUTime;
+		size_t startSysTime, stopSysTime;
 
 		struct Utilization;
 
