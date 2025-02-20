@@ -3,7 +3,15 @@
 
 #include "provider.hpp"
 
+#ifndef __APPLE__
 #include <cppJoules.hpp>
+#else
+class EnergyTracker {
+public:
+void start() {}
+void stop() {}
+};
+#endif
 
 namespace msr {
 	class EnergyStats final : public StatsProvider {

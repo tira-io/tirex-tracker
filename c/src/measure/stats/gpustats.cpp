@@ -49,8 +49,8 @@ public:
 #if defined(__linux__)
 	NVMLLib() : msr::utils::SharedLib("libnvidia-ml.so.1") {}
 #elif defined(__APPLE__)
-/** \todo This should not be an error, the SharedLib instance should just not be "good" **/
-#error "MacOS is not supported to fetch NVIDIA GPU information"
+	/* "MacOS is not supported to fetch NVIDIA GPU information */
+	NVMLLib() : msr::utils::SharedLib() {}
 #elif defined(_WIN64)
 /** \todo add support **/
 #error "Support for windows needs to be added here"

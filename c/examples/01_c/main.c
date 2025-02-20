@@ -4,7 +4,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#if defined(__has_include)
+#if !__has_include(<threads.h>)
+// Under MacOS this is not set properly :(
+#define __STDC_NO_THREADS__ 0
+#endif
+#endif
+#if (!defined(__STDC_NO_THREADS__) || __STDC_NO_THREADS__)
 #include <threads.h>
+#else
+#include <unistd.h>
+#include <time.h>
+
+static int thrd_sleep(const struct timespec* duration, struct timespec* remaining) {
+	return nanosleep(duration, remaining);
+}
+#endif
 
 static void logcallback(msrLogLevel level, const char* component, const char* message) {
 	static const char* levlToStr[] = {[TRACE] = "TRACE", [DEBUG] = "DEBUG", [INFO] = "INFO",
