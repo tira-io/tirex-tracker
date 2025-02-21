@@ -70,7 +70,7 @@ def persist_ir_metadata(
             if not module.startswith("_")
         }
     )
-    python_packages = sorted(
+    python_installed_packages = sorted(
         {
             f"{distribution.project_name}=={distribution.version}"
             for distribution in working_set
@@ -78,28 +78,29 @@ def persist_ir_metadata(
     )
 
     ipython = get_ipython()
+    python_is_interactive = ipython is not None
     if ipython is not None:
         # TODO: Add IPython-specific metadata to `ir_metadata`.
         with TemporaryDirectory() as temp_dir:
             tmp_dir_path = Path(temp_dir)
 
-            ipython_script_file_path = tmp_dir_path / "script.py"
+            python_script_file_path = tmp_dir_path / "script.py"
             with redirect_stdout(None):
-                ipython.magic(f"save -f {ipython_script_file_path} 1-9999")
-            with ipython_script_file_path.open("rt") as file:
-                ipython_script_file_contents = file.read()
+                ipython.magic(f"save -f {python_script_file_path} 1-9999")
+            with python_script_file_path.open("rt") as file:
+                python_script_file_contents = file.read()
 
-            ipython_notebook_file_path = tmp_dir_path / "notebook.ipynb"
+            python_notebook_file_path = tmp_dir_path / "notebook.ipynb"
             with redirect_stdout(None):
-                ipython.magic(f"notebook {ipython_notebook_file_path}")
-            with ipython_notebook_file_path.open("rt") as file:
-                ipython_notebook_file_contents = file.read()
+                ipython.magic(f"notebook {python_notebook_file_path}")
+            with python_notebook_file_path.open("rt") as file:
+                python_notebook_file_contents = file.read()
 
     else:
         # TODO: Add script-specific metadata to `ir_metadata`.
-        python_executed_file_path = Path(extract_stack()[0].filename).resolve()
-        with python_executed_file_path.open("rt") as file:
-            python_executed_file_contents = file.read()
+        python_script_file_path = Path(extract_stack()[0].filename).resolve()
+        with python_script_file_path.open("rt") as file:
+            python_script_file_contents = file.read()
 
     # Serialize the updated ir_metadata.
     with output_file_path.open("wb") as file:
