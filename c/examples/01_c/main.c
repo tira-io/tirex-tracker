@@ -172,7 +172,7 @@ int main(int argc, char* argv[]) {
 			data[i] = 1;
 		thrd_sleep(&(struct timespec){.tv_sec = 1}, NULL);
 		free(data);
-		//fib(45);
+		fib(45);
 	}
 	if (msrStopMeasure(measure, &result) != MSR_SUCCESS)
 		abort();

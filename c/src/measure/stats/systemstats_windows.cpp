@@ -12,6 +12,7 @@
 #include <windows.h>
 #include <versionhelpers.h>
 #include <powrprof.h>
+#include <psapi.h>
 
 #include <tuple>
 
@@ -93,26 +94,20 @@ static void getProcessorFrequencies(std::vector<uint32_t>& freq) {
     DWORD dwSize = sizeof(PROCESSOR_POWER_INFORMATION) * si.dwNumberOfProcessors;
 	CallNtPowerInformation(ProcessorInformation, NULL, 0, &data[0], dwSize);
 
-
 	freq.resize(si.dwNumberOfProcessors);
 	for (size_t i = 0; i < data.size(); ++i)
 		freq[i] = data[i].CurrentMhz;
 }
 
-static std::tuple<size_t, size_t> getSysAndUserTime() {
+static uint64_t fileTimeToUint64(const FILETIME& ft) {
+	return (static_cast<uint64_t>(ft.dwHighDateTime)<<32)|static_cast<uint64_t>(ft.dwLowDateTime);
+}
+
+std::tuple<size_t, size_t> SystemStats::getSysAndUserTime() const {
+	HANDLE pid = GetCurrentProcess(); /** \todo move this into a member variable **/
 	FILETIME creationTime, exitTime, kernelTime, userTime;
-    
-    // Get the current process handle
-    HANDLE hProcess = GetCurrentProcess();
-    
-    // Retrieve process times (user time, system time, etc.)
-    if (GetProcessTimes(hProcess, &creationTime, &exitTime, &kernelTime, &userTime)) {
-        ULARGE_INTEGER userTime64, systemTime64;
-        userTime64.LowPart = userTime.dwLowDateTime;
-        userTime64.HighPart = userTime.dwHighDateTime;
-        systemTime64.LowPart = kernelTime.dwLowDateTime;
-        systemTime64.HighPart = kernelTime.dwHighDateTime;
-		return {systemTime64.QuadPart, userTime64.QuadPart};
+    if (GetProcessTimes(pid, &creationTime, &exitTime, &kernelTime, &userTime)) {
+		return {fileTimeToUint64(kernelTime), fileTimeToUint64(userTime)};
     } else {
 		msr::log::error("windowstats", "Failed to get process times");
 		return {0,0};
@@ -124,10 +119,97 @@ static size_t tickToMs(size_t tick) {
 	return tick / 10000;
 }
 
+static unsigned getRAMUsageKB(HANDLE pid) {
+    PROCESS_MEMORY_COUNTERS pmc;
+    if (GetProcessMemoryInfo(pid, &pmc, sizeof(pmc))) {
+    	return pmc.WorkingSetSize / 1000;
+    } else {
+		msr::log::error("windowsstats", "Failed to get process memory info");
+		return 0;
+    }
+}
+
+static unsigned getSystemRAMUsageMB() {
+	MEMORYSTATUSEX stat;
+    stat.dwLength = sizeof(MEMORYSTATUSEX);
+    if (GlobalMemoryStatusEx(&stat)) {
+        SIZE_T totalMemory = stat.ullTotalPhys;
+        SIZE_T availableMemory = stat.ullAvailPhys;
+        return (totalMemory - availableMemory) / 1000 / 1000;
+    } else {
+		msr::log::error("windowsstats", "Failed to get system memory info");
+		return 0;
+    }
+}
+
+uint8_t SystemStats::getCPUUtilization() {
+	FILETIME sysIdle, sysKernel, sysUser;
+    if (GetSystemTimes(&sysIdle, &sysKernel, &sysUser) == 0) {
+		msr::log::error("windowsstats", "Failed to get system times");
+        return 0;
+	}
+	uint8_t util = 1;
+    if (prevSysIdle.dwLowDateTime != 0 && prevSysIdle.dwHighDateTime != 0) {
+        auto sysIdleDiff = fileTimeToUint64(sysIdle) - fileTimeToUint64(prevSysIdle);
+        auto sysKernelDiff = fileTimeToUint64(sysKernel) - fileTimeToUint64(prevSysKernel);
+        auto sysUserDiff = fileTimeToUint64(sysUser) - fileTimeToUint64(prevSysUser);
+        auto sysTotal = sysKernelDiff + sysUserDiff;
+        auto kernelTotal = sysKernelDiff - sysIdleDiff; // kernelTime - IdleTime = kernelTime, because sysKernel include IdleTime
+
+        if (sysTotal > 0) // sometimes kernelTime > idleTime
+            util = static_cast<uint8_t>(((kernelTotal + sysUserDiff) * 100) / sysTotal);
+    }
+
+    prevSysIdle = sysIdle;
+    prevSysKernel = sysKernel;
+    prevSysUser = sysUser;
+
+    return util;
+}
+
+uint8_t SystemStats::getProcCPUUtilization(HANDLE pid) {
+	FILETIME ftime, fsys, fuser;
+    ULARGE_INTEGER now, sys, user;
+    size_t percent;
+
+    GetSystemTimeAsFileTime(&ftime);
+    memcpy(&now, &ftime, sizeof(FILETIME));
+
+    GetProcessTimes(pid, &ftime, &ftime, &fsys, &fuser);
+    memcpy(&sys, &fsys, sizeof(FILETIME));
+    memcpy(&user, &fuser, sizeof(FILETIME));
+    percent = (sys.QuadPart - lastSysCPU.QuadPart) +
+        (user.QuadPart - lastUserCPU.QuadPart);
+    percent /= (now.QuadPart - lastCPU.QuadPart);
+	percent *= 100;
+    percent /= numProcessors;
+    lastCPU = now;
+    lastUserCPU = user;
+    lastSysCPU = sys;
+    return static_cast<uint8_t>(percent);
+}
+
+SystemStats::Utilization SystemStats::getUtilization() {
+	HANDLE pid = GetCurrentProcess();
+	return Utilization{
+		.ramUsedKB = getRAMUsageKB(pid),
+		.cpuUtilization = getProcCPUUtilization(pid),
+		.system = {
+			.ramUsedMB = getSystemRAMUsageMB(),
+			.cpuUtilization = getCPUUtilization()
+		}
+	};
+}
+
 void SystemStats::start() {
 	starttime = steady_clock::now();
 	std::tie(startSysTime, startUTime) = getSysAndUserTime();
 	msr::log::debug("windowsstats", "Start systime {} ms, utime {} ms", tickToMs(startSysTime), tickToMs(startUTime));
+	getUtilization(); // Call getUtilization once to init CPU Utilization tracking
+	//
+	SYSTEM_INFO sysInfo;
+	GetSystemInfo(&sysInfo);
+    numProcessors = sysInfo.dwNumberOfProcessors;
 }
 void SystemStats::stop() {
 	stoptime = steady_clock::now();
@@ -137,6 +219,11 @@ void SystemStats::step() {
 	thread_local static std::vector<uint32_t> cpuFreqs;
 	getProcessorFrequencies(cpuFreqs);
 
+	auto utilization = getUtilization();
+	ram.addValue(utilization.ramUsedKB);
+	sysRam.addValue(utilization.system.ramUsedMB);
+	cpuUtil.addValue(utilization.cpuUtilization);
+	sysCpuUtil.addValue(utilization.system.cpuUtilization);
 	frequency.addValue(cpuFreqs[0]);
 }
 
@@ -146,16 +233,16 @@ Stats SystemStats::getStats() {
 			std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(stoptime - starttime).count());
 
 	return {
-			{MSR_TIME_ELAPSED_WALL_CLOCK_MS, wallclocktime},
-			{MSR_TIME_ELAPSED_USER_MS, std::to_string(tickToMs(stopUTime - startUTime))},
-			{MSR_TIME_ELAPSED_SYSTEM_MS, std::to_string(tickToMs(stopSysTime - startSysTime))},
-			{MSR_CPU_USED_PROCESS_PERCENT, "TODO"s},
-			{MSR_CPU_USED_SYSTEM_PERCENT, "TODO"s},
-			{MSR_CPU_FREQUENCY_MHZ, frequency},
-			{MSR_RAM_USED_PROCESS_KB, "TODO"s},
-			{MSR_RAM_USED_SYSTEM_MB, "TODO"s}};
+			{{MSR_TIME_ELAPSED_WALL_CLOCK_MS, wallclocktime},
+			 {MSR_TIME_ELAPSED_USER_MS, std::to_string(stopUTime - startUTime)},
+			 {MSR_TIME_ELAPSED_SYSTEM_MS, std::to_string(stopSysTime - startSysTime)},
+			 {MSR_CPU_USED_PROCESS_PERCENT, cpuUtil},
+			 {MSR_CPU_USED_SYSTEM_PERCENT, sysCpuUtil},
+			 {MSR_CPU_FREQUENCY_MHZ, frequency},
+			 {MSR_RAM_USED_PROCESS_KB, ram},
+			 {MSR_RAM_USED_SYSTEM_MB, sysRam}}
+	};
 }
-
 
 Stats SystemStats::getInfo() {
 	/** \todo: filter by requested metrics */

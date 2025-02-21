@@ -32,16 +32,6 @@ struct SysInfo {
 	uint64_t totalRamMB;	  /**< The total amount of RAM (in Megabytes) installed in the system **/
 };
 
-struct SystemStats::Utilization {
-	unsigned ramUsedKB;	 /**< Amount of RAM used by the monitored process alone **/
-	unsigned userTimeMs; /**< Time spent by the monitored process in user mode **/
-	unsigned sysTimeMs;	 /**< Time spent by the monitored process in system mode **/
-	struct {
-		unsigned ramUsedMB;		/**< Amount of RAM (in Megabytes) used by all processes **/
-		uint8_t cpuUtilization; /**< CPU utilization of all processes **/
-	} system;
-};
-
 SysInfo getSysInfo();
 std::string readDistro();
 
@@ -77,8 +67,6 @@ void SystemStats::step() {
 
 Stats SystemStats::getStats() {
 	/** \todo: filter by requested metrics */
-	auto cpuInfo = getCPUInfo();
-
 	auto wallclocktime =
 			std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(stoptime - starttime).count());
 
@@ -86,7 +74,7 @@ Stats SystemStats::getStats() {
 			{{MSR_TIME_ELAPSED_WALL_CLOCK_MS, wallclocktime},
 			 {MSR_TIME_ELAPSED_USER_MS, std::to_string(stopUTime - startUTime)},
 			 {MSR_TIME_ELAPSED_SYSTEM_MS, std::to_string(stopSysTime - startSysTime)},
-			 {MSR_CPU_USED_PROCESS_PERCENT, "TODO"s},
+			 {MSR_CPU_USED_PROCESS_PERCENT, cpuUtil},
 			 {MSR_CPU_USED_SYSTEM_PERCENT, sysCpuUtil},
 			 {MSR_CPU_FREQUENCY_MHZ, frequency},
 			 {MSR_RAM_USED_PROCESS_KB, ram},

@@ -6,6 +6,12 @@
 
 #include <chrono>
 #include <vector>
+#include <tuple>
+
+#if _WINDOWS
+#include <windows.h>
+#undef ERROR //  Make problems with logging.h otherwise
+#endif
 
 namespace msr {
 	class SystemStats final : public StatsProvider {
@@ -27,7 +33,7 @@ namespace msr {
 			uint32_t frequency_max;
 			std::string flags;
 			struct VirtFlags {
-				bool svm; /**< AMD-V support Ü*/
+				bool svm; /**< AMD-V support **/
 				bool vmx; /**< VT-x support **/
 			} virtualization;
 		};
@@ -37,24 +43,40 @@ namespace msr {
 		std::chrono::steady_clock::time_point stoptime;
 
 		msr::TimeSeries<unsigned> ram{true};
-		msr::TimeSeries<unsigned> sysCpuUtil{true};
 		msr::TimeSeries<unsigned> sysRam{true};
+		msr::TimeSeries<unsigned> cpuUtil{true};
+		msr::TimeSeries<unsigned> sysCpuUtil{true};
 		msr::TimeSeries<uint32_t> frequency{true};
 		
 		size_t startUTime, stopUTime;
 		size_t startSysTime, stopSysTime;
 
-#if __linux__
-		struct Utilization;
+		struct Utilization {
+			unsigned ramUsedKB;	 /**< Amount of RAM used by the monitored process alone **/
+			uint8_t cpuUtilization; /**< CPU utilization (in percent) of the tracked process **/
+			struct {
+				unsigned ramUsedMB;		/**< Amount of RAM (in Megabytes) used by all processes **/
+				uint8_t cpuUtilization; /**< CPU utilization of all processes **/
+			} system;
+		};
+		Utilization getUtilization();
+		std::tuple<size_t, size_t> getSysAndUserTime() const;
 
+#if __linux__
 		size_t lastIdle;
 		size_t lastTotal;
 
-		Utilization getUtilization();
 		void parseMemInfo(Utilization& utilization);
 		void parseStat(Utilization& utilization);
 		void parseStatm(pid_t pid, Utilization& utilization);
 		void parseStat(pid_t pid, Utilization& utilization);
+#elif _WINDOWS
+		FILETIME prevSysIdle, prevSysKernel, prevSysUser;
+		ULARGE_INTEGER lastCPU, lastSysCPU, lastUserCPU;
+		unsigned numProcessors;
+
+		uint8_t getCPUUtilization();
+		uint8_t getProcCPUUtilization(HANDLE pid);
 #endif
 
 	public:
