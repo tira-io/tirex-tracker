@@ -40,11 +40,11 @@ namespace msr {
 		msr::TimeSeries<unsigned> sysCpuUtil{true};
 		msr::TimeSeries<unsigned> sysRam{true};
 		msr::TimeSeries<uint32_t> frequency{true};
-
-#if __linux__
+		
 		size_t startUTime, stopUTime;
 		size_t startSysTime, stopSysTime;
 
+#if __linux__
 		struct Utilization;
 
 		size_t lastIdle;

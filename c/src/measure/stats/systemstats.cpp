@@ -17,6 +17,7 @@ namespace _fmt = std;
 namespace _fmt = fmt;
 #endif
 
+#include <tuple>
 #include <fstream>
 #include <map>
 
@@ -28,9 +29,33 @@ extern "C" {
 uint32_t cpuinfo_linux_get_processor_min_frequency(uint32_t processor);
 uint32_t cpuinfo_linux_get_processor_max_frequency(uint32_t processor);
 }
+std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
+	return {cpuinfo_linux_get_processor_min_frequency(processor), cpuinfo_linux_get_processor_max_frequency(processor)};	
+}
 #else
-uint32_t cpuinfo_linux_get_processor_min_frequency(uint32_t processor) { throw std::runtime_error(""); /** \todo remove **/}
-uint32_t cpuinfo_linux_get_processor_max_frequency(uint32_t processor) {throw std::runtime_error(""); /** \todo remove **/}
+#include <windows.h>
+#include <powrprof.h>
+
+#pragma comment(lib, "Powrprof.lib")
+
+std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
+	struct PROCESSOR_POWER_INFORMATION {
+		ULONG  Number;
+		ULONG  MaxMhz;
+		ULONG  CurrentMhz;
+		ULONG  MhzLimit;
+		ULONG  MaxIdleState;
+		ULONG  CurrentIdleState;
+	};
+	SYSTEM_INFO si = {0};
+    GetSystemInfo(&si);
+
+    std::vector<PROCESSOR_POWER_INFORMATION> data(si.dwNumberOfProcessors);
+    DWORD dwSize = sizeof(PROCESSOR_POWER_INFORMATION) * si.dwNumberOfProcessors;
+	CallNtPowerInformation(ProcessorInformation, NULL, 0, &data[0], dwSize);
+
+	return {0, data[processor].MaxMhz};
+}
 #endif
 
 const char* SystemStats::version = nullptr;
@@ -295,23 +320,31 @@ static std::string getFlagStr() {
 	return stream.str();
 }
 
-static SystemStats::CPUInfo::VirtFlags getVirtSupport() {
+static SystemStats::CPUInfo::VirtFlags getVirtSupport();
 #ifdef __APPLE__
+SystemStats::CPUInfo::VirtFlags getVirtSupport() {
 	return {.svm = false, .vmx = false};
+}
 #elif defined(__linux__)
+SystemStats::CPUInfo::VirtFlags getVirtSupport() {
 	/** This is a crude implementation for now that only takes into account the flags of the very first processor **/
 	std::ifstream is("/proc/cpuinfo");
 	for (std::string line; std::getline(is, line);)
 		if (line.starts_with("Features"))
 			return {.svm = line.find("svm") != std::string::npos, .vmx = line.find("vmx") != std::string::npos};
 	return {.svm = false, .vmx = false};
-#elif defined(_WIN64)
-	throw std::runtime_error("virt support not yet supported"); /** \todo implement **/
-//#error "TODO: support windows"
-#else
-#error "unsupported OS"
-#endif
 }
+#elif defined(_WIN64)
+#include <windows.h>
+
+SystemStats::CPUInfo::VirtFlags getVirtSupport() {
+	bool hasvirt = IsProcessorFeaturePresent(PF_VIRT_FIRMWARE_ENABLED);
+	auto cluster = cpuinfo_get_cluster(0);
+	return {.svm = hasvirt && (cluster->vendor == cpuinfo_vendor_amd), .vmx = hasvirt && (cluster->vendor == cpuinfo_vendor_intel)};
+}
+#else
+#error "getVirtSupport not supported for this OS"
+#endif
 
 SystemStats::SystemStats() {}
 
@@ -341,6 +374,8 @@ SystemStats::CPUInfo SystemStats::getCPUInfo() {
 					? "Big Endian"
 					: ((std::endian::native == std::endian::little) ? "Little Endian" : "Mixed Endian");
 
+	auto [minFreq, maxFreq] = getProcessorMinMaxFreq(0);
+
 	return CPUInfo{
 			.modelname = cluster->package->name,
 #if CPUINFO_ARCH_X86 || CPUINFO_ARCH_X86_64
@@ -354,8 +389,8 @@ SystemStats::CPUInfo SystemStats::getCPUInfo() {
 			.threadsPerCore = package->processor_count / package->core_count,
 			.caches = getCaches(),
 			.endianness = endianness,
-			.frequency_min = cpuinfo_linux_get_processor_min_frequency(0),
-			.frequency_max = cpuinfo_linux_get_processor_max_frequency(0),
+			.frequency_min = minFreq,
+			.frequency_max = maxFreq,
 			.flags = std::move(getFlagStr()),
 			.virtualization = getVirtSupport()
 	};
