@@ -33,7 +33,7 @@ uint32_t cpuinfo_linux_get_processor_cur_frequency(uint32_t processor);
 uint8_t SystemStats::getProcCPUUtilization() {
 	auto [systime, utime] = getSysAndUserTime();
 	auto time = steady_clock::now();
-	auto timeActiveMs = systime + utime;
+	auto timeActiveMs = tickToMs(systime + utime);
 	auto percent = static_cast<uint8_t>(
 			(timeActiveMs - lastProcActiveMs) * 100 /
 			std::chrono::duration_cast<std::chrono::milliseconds>(time - lastProcTime).count()
@@ -45,7 +45,6 @@ uint8_t SystemStats::getProcCPUUtilization() {
 
 size_t SystemStats::tickToMs(size_t tick) {
 	static const auto ticksPerSec = static_cast<unsigned>(sysconf(_SC_CLK_TCK));
-	// 1 tick = 100 ns = 10^-4 ms
 	return (tick * 1000u) / ticksPerSec;
 }
 

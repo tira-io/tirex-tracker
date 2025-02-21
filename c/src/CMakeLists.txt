@@ -108,12 +108,10 @@ target_link_libraries(measureapi_static PRIVATE cpuinfo::cpuinfo)
 
 # Mac Only: Bind to CoreFoundation to get IOReport for system information
 if (UNIX AND APPLE)
-	#if(CMAKE_OBJCXX_LINK_LIBRARY_USING_FRAMEWORK_SUPPORTED)
-		target_link_libraries(measureapi PRIVATE "$<LINK_LIBRARY:FRAMEWORK,CoreFoundation>")
-		target_link_libraries(measureapi_static PRIVATE "$<LINK_LIBRARY:FRAMEWORK,CoreFoundation>")
-	#else()
-	#	message(FATAL_ERROR "failed to link to corefoundation")
-	#endif()
+	target_link_libraries(measureapi PRIVATE "$<LINK_LIBRARY:FRAMEWORK,CoreFoundation>")
+	target_link_libraries(measureapi PRIVATE "$<LINK_LIBRARY:FRAMEWORK,IOKit>")
+	target_link_libraries(measureapi_static PRIVATE "$<LINK_LIBRARY:FRAMEWORK,CoreFoundation>")
+	target_link_libraries(measureapi_static PRIVATE "$<LINK_LIBRARY:FRAMEWORK,IOKit>")
 endif()
 
 # Hash

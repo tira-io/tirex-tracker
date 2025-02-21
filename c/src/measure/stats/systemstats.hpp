@@ -70,23 +70,29 @@ namespace msr {
 		std::tuple<size_t, size_t> getSysAndUserTime() const;
 		static size_t tickToMs(size_t tick);
 
+		uint8_t getProcCPUUtilization();
 #if __linux__
-		size_t lastIdle;
-		size_t lastTotal;
-		size_t lastProcActiveMs;
-		std::chrono::steady_clock::time_point lastProcTime;
+		size_t lastIdle = 0;
+		size_t lastTotal = 0;
+		size_t lastProcActiveMs = 0;
+		std::chrono::steady_clock::time_point lastProcTime{};
 
 		void parseMemInfo(Utilization& utilization);
 		void parseStat(Utilization& utilization);
 		void parseStatm(pid_t pid, Utilization& utilization);
-		uint8_t getProcCPUUtilization();
 #elif _WINDOWS
 		FILETIME prevSysIdle, prevSysKernel, prevSysUser;
 		ULARGE_INTEGER lastCPU, lastSysCPU, lastUserCPU;
 		unsigned numProcessors;
 
 		uint8_t getCPUUtilization();
-		uint8_t getProcCPUUtilization(HANDLE pid);
+#elif __APPLE__
+		size_t lastIdle = 0;
+		size_t lastTotal = 0;
+		size_t lastProcActiveMs = 0;
+		std::chrono::steady_clock::time_point lastProcTime{};
+
+		uint8_t getCPUUtilization();
 #endif
 
 	public:

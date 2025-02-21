@@ -35,7 +35,7 @@ uint32_t cpuinfo_linux_get_processor_max_frequency(uint32_t processor);
 std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
 	return {cpuinfo_linux_get_processor_min_frequency(processor), cpuinfo_linux_get_processor_max_frequency(processor)};
 }
-#else
+#elif _WINDOWS
 #include <powrprof.h>
 #include <windows.h>
 
@@ -58,6 +58,12 @@ std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
 	CallNtPowerInformation(ProcessorInformation, NULL, 0, &data[0], dwSize);
 
 	return {0, data[processor].MaxMhz};
+}
+#elif __APPLE__
+#include "macos/sysctl.hpp"
+
+std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
+	return {0, 0}; /** Not implemented as I don't know of any way to get this information from macOS. **/
 }
 #endif
 
@@ -402,6 +408,11 @@ Stats SystemStats::getInfo() {
 	/** \todo: filter by requested metrics */
 	auto info = getSysInfo();
 	auto cpuInfo = getCPUInfo();
+
+#ifdef __APPLE__
+	/** \todo this should not be needed once https://github.com/pytorch/cpuinfo/pull/246/files is merged. **/
+	cpuInfo.modelname = getSysctl<std::string>("machdep.cpu.brand_string");
+#endif
 
 	std::string caches = "";
 	size_t cacheIdx = 1;

@@ -180,7 +180,8 @@ uint8_t SystemStats::getCPUUtilization() {
 	return util;
 }
 
-uint8_t SystemStats::getProcCPUUtilization(HANDLE pid) {
+uint8_t SystemStats::getProcCPUUtilization() {
+	HANDLE pid = GetCurrentProcess(); /** \todo store in member **/
 	FILETIME ftime, fsys, fuser;
 	ULARGE_INTEGER now, sys, user;
 	size_t percent;
@@ -202,7 +203,7 @@ uint8_t SystemStats::getProcCPUUtilization(HANDLE pid) {
 }
 
 SystemStats::Utilization SystemStats::getUtilization() {
-	HANDLE pid = GetCurrentProcess();
+	HANDLE pid = GetCurrentProcess(); /** \todo store in member **/
 	return Utilization{
 			.ramUsedKB = getRAMUsageKB(pid),
 			.cpuUtilization = getProcCPUUtilization(pid),
