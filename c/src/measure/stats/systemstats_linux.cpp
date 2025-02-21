@@ -34,13 +34,19 @@ uint8_t SystemStats::getProcCPUUtilization() {
 	auto [systime, utime] = getSysAndUserTime();
 	auto time = steady_clock::now();
 	auto timeActiveMs = tickToMs(systime + utime);
-	auto percent = static_cast<uint8_t>(
-			(timeActiveMs - lastProcActiveMs) * 100 /
-			std::chrono::duration_cast<std::chrono::milliseconds>(time - lastProcTime).count()
-	);
-	lastProcTime = time;
-	lastProcActiveMs = timeActiveMs;
-	return percent;
+	auto totTime = std::chrono::duration_cast<std::chrono::milliseconds>(time - lastProcTime).count();
+	if (totTime != 0) {
+		auto percent = static_cast<uint8_t>(
+				(timeActiveMs - lastProcActiveMs) * 100 /
+				totTime
+		);
+		lastProcTime = time;
+		lastProcActiveMs = timeActiveMs;
+		return percent;
+	} else {
+		msr::log::warn("linuxstats", "Called too quickly apart ({} ms)", totTime);
+	}
+	return 0;
 }
 
 size_t SystemStats::tickToMs(size_t tick) {
