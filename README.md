@@ -22,19 +22,7 @@
 ## Measure Command
 Check out our [latest release](https://github.com/tira-io/measure/releases/latest) to find a plethora of prebuilt binaries for various architectures (AMD64, ARM64) and operating systems (Windows, Linux, MacOS). Simply downloading what fits you should work since everything is compiled into a single file. 
 
-## Measure API
-### CMake (FetchContent)
-```cmake
-include(FetchContent)
-
-# Use GIT_TAG to request the tag (or branch) you would like
-FetchContent_Declare(measure GIT_REPOSITORY https://github.com/tira-io/measure.git GIT_TAG v0.0.1)
-FetchContent_MakeAvailable(measure)
-target_link_libraries(<yourtarget> measure::measureapi)
-```
-
-
-
+## TIREx-Tracker
 # Usage
 Generally, `measure` offers two ways of measuring programs: a [commandline interface](#command) and a [C API](#api) that can be called from and integrated into other languages easily. Please also have a look at the [examples](./examples) to see how it can be used.
 
@@ -49,13 +37,6 @@ to measure everything, you may want to know about the shell command `<command>`.
 - [C Bindings](c/)
 - [Python Bindings](python/)
 - [JVM Bindings (e.g., Java and Kotlin)](jvm/)
-```c
-#include <measure.h>
-
-int main(int argc, char* argv[]) {
-    TODO
-}
-```
 
 
 

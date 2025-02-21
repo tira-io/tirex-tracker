@@ -30,7 +30,7 @@ namespace msr {
 				values.emplace_back(value);
 			}
 			max = std::max(max, value);
-			min = std::max(min, value);
+			min = std::min(min, value);
 			/** \todo update average **/
 		}
 		void reset() {

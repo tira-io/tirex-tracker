@@ -17,10 +17,13 @@ namespace _fmt = std;
 namespace _fmt = fmt;
 #endif
 
-#include <tuple>
 #include <fstream>
 #include <map>
+#include <tuple>
 
+using namespace std::string_literals;
+
+using msr::Stats;
 using msr::SystemStats;
 
 #ifdef __linux__
@@ -30,28 +33,28 @@ uint32_t cpuinfo_linux_get_processor_min_frequency(uint32_t processor);
 uint32_t cpuinfo_linux_get_processor_max_frequency(uint32_t processor);
 }
 std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
-	return {cpuinfo_linux_get_processor_min_frequency(processor), cpuinfo_linux_get_processor_max_frequency(processor)};	
+	return {cpuinfo_linux_get_processor_min_frequency(processor), cpuinfo_linux_get_processor_max_frequency(processor)};
 }
 #else
-#include <windows.h>
 #include <powrprof.h>
+#include <windows.h>
 
 #pragma comment(lib, "Powrprof.lib")
 
 std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
 	struct PROCESSOR_POWER_INFORMATION {
-		ULONG  Number;
-		ULONG  MaxMhz;
-		ULONG  CurrentMhz;
-		ULONG  MhzLimit;
-		ULONG  MaxIdleState;
-		ULONG  CurrentIdleState;
+		ULONG Number;
+		ULONG MaxMhz;
+		ULONG CurrentMhz;
+		ULONG MhzLimit;
+		ULONG MaxIdleState;
+		ULONG CurrentIdleState;
 	};
 	SYSTEM_INFO si = {0};
-    GetSystemInfo(&si);
+	GetSystemInfo(&si);
 
-    std::vector<PROCESSOR_POWER_INFORMATION> data(si.dwNumberOfProcessors);
-    DWORD dwSize = sizeof(PROCESSOR_POWER_INFORMATION) * si.dwNumberOfProcessors;
+	std::vector<PROCESSOR_POWER_INFORMATION> data(si.dwNumberOfProcessors);
+	DWORD dwSize = sizeof(PROCESSOR_POWER_INFORMATION) * si.dwNumberOfProcessors;
 	CallNtPowerInformation(ProcessorInformation, NULL, 0, &data[0], dwSize);
 
 	return {0, data[processor].MaxMhz};
@@ -322,9 +325,7 @@ static std::string getFlagStr() {
 
 static SystemStats::CPUInfo::VirtFlags getVirtSupport();
 #ifdef __APPLE__
-SystemStats::CPUInfo::VirtFlags getVirtSupport() {
-	return {.svm = false, .vmx = false};
-}
+SystemStats::CPUInfo::VirtFlags getVirtSupport() { return {.svm = false, .vmx = false}; }
 #elif defined(__linux__)
 SystemStats::CPUInfo::VirtFlags getVirtSupport() {
 	/** This is a crude implementation for now that only takes into account the flags of the very first processor **/
@@ -340,7 +341,8 @@ SystemStats::CPUInfo::VirtFlags getVirtSupport() {
 SystemStats::CPUInfo::VirtFlags getVirtSupport() {
 	bool hasvirt = IsProcessorFeaturePresent(PF_VIRT_FIRMWARE_ENABLED);
 	auto cluster = cpuinfo_get_cluster(0);
-	return {.svm = hasvirt && (cluster->vendor == cpuinfo_vendor_amd), .vmx = hasvirt && (cluster->vendor == cpuinfo_vendor_intel)};
+	return {.svm = hasvirt && (cluster->vendor == cpuinfo_vendor_amd),
+			.vmx = hasvirt && (cluster->vendor == cpuinfo_vendor_intel)};
 }
 #else
 #error "getVirtSupport not supported for this OS"
@@ -393,5 +395,57 @@ SystemStats::CPUInfo SystemStats::getCPUInfo() {
 			.frequency_max = maxFreq,
 			.flags = std::move(getFlagStr()),
 			.virtualization = getVirtSupport()
+	};
+}
+
+Stats SystemStats::getInfo() {
+	/** \todo: filter by requested metrics */
+	auto info = getSysInfo();
+	auto cpuInfo = getCPUInfo();
+
+	std::string caches = "";
+	size_t cacheIdx = 1;
+	for (auto& [unified, instruct, data] : cpuInfo.caches) {
+		if (unified)
+			caches += _fmt::format("\"l{}\": \"{} KiB\",", cacheIdx, unified / 1024);
+		if (instruct)
+			caches += _fmt::format("\"l{}i\": \"{} KiB\",", cacheIdx, instruct / 1024);
+		if (data)
+			caches += _fmt::format("\"l{}d\": \"{} KiB\",", cacheIdx, data / 1024);
+		++cacheIdx;
+	}
+
+	return {{MSR_OS_NAME, info.osname},
+			{MSR_OS_KERNEL, info.kerneldesc},
+			{MSR_CPU_AVAILABLE_SYSTEM_CORES, std::to_string(cpuInfo.numCores)},
+			{MSR_CPU_FEATURES, cpuInfo.flags},
+			{MSR_CPU_FREQUENCY_MIN_MHZ, std::to_string(cpuInfo.frequency_min)},
+			{MSR_CPU_FREQUENCY_MAX_MHZ, std::to_string(cpuInfo.frequency_max)},
+			{MSR_CPU_VENDOR_ID, cpuInfo.vendorId},
+			{MSR_CPU_BYTE_ORDER, cpuInfo.endianness},
+			{MSR_CPU_ARCHITECTURE, info.architecture},
+			{MSR_CPU_MODEL_NAME, cpuInfo.modelname},
+			{MSR_CPU_CORES_PER_SOCKET, std::to_string(cpuInfo.coresPerSocket)},
+			{MSR_CPU_THREADS_PER_CORE, std::to_string(cpuInfo.threadsPerCore)},
+			{MSR_CPU_CACHES, caches},
+			{MSR_CPU_VIRTUALIZATION,
+			 (cpuInfo.virtualization.svm ? "AMD-V "s : ""s) + (cpuInfo.virtualization.vmx ? "VT-x"s : ""s)},
+			{MSR_RAM_AVAILABLE_SYSTEM_MB, std::to_string(info.totalRamMB)}};
+}
+
+Stats SystemStats::getStats() {
+	/** \todo: filter by requested metrics */
+	auto wallclocktime =
+			std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(stoptime - starttime).count());
+
+	return {
+			{{MSR_TIME_ELAPSED_WALL_CLOCK_MS, wallclocktime},
+			 {MSR_TIME_ELAPSED_USER_MS, std::to_string(tickToMs(stopUTime - startUTime))},
+			 {MSR_TIME_ELAPSED_SYSTEM_MS, std::to_string(tickToMs(stopSysTime - startSysTime))},
+			 {MSR_CPU_USED_PROCESS_PERCENT, cpuUtil},
+			 {MSR_CPU_USED_SYSTEM_PERCENT, sysCpuUtil},
+			 {MSR_CPU_FREQUENCY_MHZ, frequency},
+			 {MSR_RAM_USED_PROCESS_KB, ram},
+			 {MSR_RAM_USED_SYSTEM_MB, sysRam}}
 	};
 }

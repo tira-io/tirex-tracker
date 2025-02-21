@@ -5,8 +5,9 @@
 #include "provider.hpp"
 
 #include <chrono>
-#include <vector>
+#include <string>
 #include <tuple>
+#include <vector>
 
 #if _WINDOWS
 #include <windows.h>
@@ -16,6 +17,12 @@
 namespace msr {
 	class SystemStats final : public StatsProvider {
 	public:
+		struct SysInfo {
+			std::string osname;		  /**< The name of the operating system that is currently running **/
+			std::string kerneldesc;	  /**< The os kernel that is currently running **/
+			std::string architecture; /**< The architecture currently running on **/
+			uint64_t totalRamMB;	  /**< The total amount of RAM (in Megabytes) installed in the system **/
+		};
 		struct CPUInfo {
 			struct Cache {
 				unsigned unified;  /**< LX cache size in byte **/
@@ -24,7 +31,7 @@ namespace msr {
 			};
 			std::string modelname;
 			std::string vendorId;
-			unsigned numCores;
+			unsigned numCores; /**< The number of CPU cores of the system **/
 			unsigned coresPerSocket;
 			unsigned threadsPerCore;
 			std::vector<Cache> caches;
@@ -47,12 +54,12 @@ namespace msr {
 		msr::TimeSeries<unsigned> cpuUtil{true};
 		msr::TimeSeries<unsigned> sysCpuUtil{true};
 		msr::TimeSeries<uint32_t> frequency{true};
-		
+
 		size_t startUTime, stopUTime;
 		size_t startSysTime, stopSysTime;
 
 		struct Utilization {
-			unsigned ramUsedKB;	 /**< Amount of RAM used by the monitored process alone **/
+			unsigned ramUsedKB;		/**< Amount of RAM used by the monitored process alone **/
 			uint8_t cpuUtilization; /**< CPU utilization (in percent) of the tracked process **/
 			struct {
 				unsigned ramUsedMB;		/**< Amount of RAM (in Megabytes) used by all processes **/
@@ -61,15 +68,18 @@ namespace msr {
 		};
 		Utilization getUtilization();
 		std::tuple<size_t, size_t> getSysAndUserTime() const;
+		static size_t tickToMs(size_t tick);
 
 #if __linux__
 		size_t lastIdle;
 		size_t lastTotal;
+		size_t lastProcActiveMs;
+		std::chrono::steady_clock::time_point lastProcTime;
 
 		void parseMemInfo(Utilization& utilization);
 		void parseStat(Utilization& utilization);
 		void parseStatm(pid_t pid, Utilization& utilization);
-		void parseStat(pid_t pid, Utilization& utilization);
+		uint8_t getProcCPUUtilization();
 #elif _WINDOWS
 		FILETIME prevSysIdle, prevSysKernel, prevSysUser;
 		ULARGE_INTEGER lastCPU, lastSysCPU, lastUserCPU;
@@ -93,6 +103,7 @@ namespace msr {
 		static const std::set<msrMeasure> measures;
 
 	private:
+		static SysInfo getSysInfo();
 		static CPUInfo getCPUInfo();
 	};
 } // namespace msr

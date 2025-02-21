@@ -18,21 +18,11 @@
 #include <fstream>
 #include <optional>
 
-using namespace std::string_literals;
 using std::chrono::steady_clock;
 
 using msr::Stats;
 using msr::SystemStats;
 
-struct SysInfo {
-	std::string osname;		  /**< The name of the operating system that is currently running **/
-	std::string kerneldesc;	  /**< The os kernel that is currently running **/
-	std::string architecture; /**< The architecture currently running on **/
-	unsigned numCores;		  /**< The number of CPU cores of the system **/
-	uint64_t totalRamMB;	  /**< The total amount of RAM (in Megabytes) installed in the system **/
-};
-
-SysInfo getSysInfo();
 std::string readDistro();
 
 extern "C" {
@@ -40,84 +30,42 @@ extern "C" {
 uint32_t cpuinfo_linux_get_processor_cur_frequency(uint32_t processor);
 }
 
-void SystemStats::start() {
-	msr::log::info("linuxstats", "Collecting resources for Process {}", getpid());
-	starttime = steady_clock::now();
-	Utilization tmp;
-	parseStat(tmp); // Call parseStat once to init lastIdle and lastTotal
-	parseStat(getpid(), tmp);
-	startUTime = tmp.userTimeMs;
-	startSysTime = tmp.sysTimeMs;
-	msr::log::debug("linuxstats", "Start systime {} ms, utime {} ms", startSysTime, startUTime);
-}
-void SystemStats::stop() {
-	stoptime = steady_clock::now();
-	auto utilization = getUtilization();
-	stopUTime = utilization.userTimeMs;
-	stopSysTime = utilization.sysTimeMs;
+uint8_t SystemStats::getProcCPUUtilization() {
+	auto [systime, utime] = getSysAndUserTime();
+	auto time = steady_clock::now();
+	auto timeActiveMs = systime + utime;
+	auto percent = static_cast<uint8_t>(
+			(timeActiveMs - lastProcActiveMs) * 100 /
+			std::chrono::duration_cast<std::chrono::milliseconds>(time - lastProcTime).count()
+	);
+	lastProcTime = time;
+	lastProcActiveMs = timeActiveMs;
+	return percent;
 }
 
-void SystemStats::step() {
-	auto utilization = getUtilization();
-	ram.addValue(utilization.ramUsedKB);
-	sysCpuUtil.addValue(utilization.system.cpuUtilization);
-	sysRam.addValue(utilization.system.ramUsedMB);
-	frequency.addValue(cpuinfo_linux_get_processor_cur_frequency(0));
+size_t SystemStats::tickToMs(size_t tick) {
+	static const auto ticksPerSec = static_cast<unsigned>(sysconf(_SC_CLK_TCK));
+	// 1 tick = 100 ns = 10^-4 ms
+	return (tick * 1000u) / ticksPerSec;
 }
 
-Stats SystemStats::getStats() {
-	/** \todo: filter by requested metrics */
-	auto wallclocktime =
-			std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(stoptime - starttime).count());
-
-	return {
-			{{MSR_TIME_ELAPSED_WALL_CLOCK_MS, wallclocktime},
-			 {MSR_TIME_ELAPSED_USER_MS, std::to_string(stopUTime - startUTime)},
-			 {MSR_TIME_ELAPSED_SYSTEM_MS, std::to_string(stopSysTime - startSysTime)},
-			 {MSR_CPU_USED_PROCESS_PERCENT, cpuUtil},
-			 {MSR_CPU_USED_SYSTEM_PERCENT, sysCpuUtil},
-			 {MSR_CPU_FREQUENCY_MHZ, frequency},
-			 {MSR_RAM_USED_PROCESS_KB, ram},
-			 {MSR_RAM_USED_SYSTEM_MB, sysRam}}
-	};
+std::tuple<size_t, size_t> SystemStats::getSysAndUserTime() const {
+	auto pid = getpid(); /** \todo store in member **/
+	// Table 1-4 in https://www.kernel.org/doc/html/latest/filesystems/proc.html
+	auto statFile = std::filesystem::path("/") / "proc" / std::to_string(pid) / "stat";
+	auto is = std::ifstream(statFile.c_str());
+	size_t ignore, utime, stime;
+	char cignore;
+	is >> ignore;
+	// Skip filename
+	while (is && is.get() != ')')
+		;
+	is >> cignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >>
+			utime >> stime;
+	return {stime, utime};
 }
 
-Stats SystemStats::getInfo() {
-	/** \todo: filter by requested metrics */
-	auto info = getSysInfo();
-	auto cpuInfo = getCPUInfo();
-
-	std::string caches = "";
-	size_t cacheIdx = 1;
-	for (auto& [unified, instruct, data] : cpuInfo.caches) {
-		if (unified)
-			caches += _fmt::format("\"l{}\": \"{} KiB\",", cacheIdx, unified / 1024);
-		if (instruct)
-			caches += _fmt::format("\"l{}i\": \"{} KiB\",", cacheIdx, instruct / 1024);
-		if (data)
-			caches += _fmt::format("\"l{}d\": \"{} KiB\",", cacheIdx, data / 1024);
-		++cacheIdx;
-	}
-
-	return {{MSR_OS_NAME, info.osname},
-			{MSR_OS_KERNEL, info.kerneldesc},
-			{MSR_CPU_AVAILABLE_SYSTEM_CORES, std::to_string(cpuInfo.numCores)},
-			{MSR_CPU_FEATURES, cpuInfo.flags},
-			{MSR_CPU_FREQUENCY_MIN_MHZ, std::to_string(cpuInfo.frequency_min)},
-			{MSR_CPU_FREQUENCY_MAX_MHZ, std::to_string(cpuInfo.frequency_max)},
-			{MSR_CPU_VENDOR_ID, cpuInfo.vendorId},
-			{MSR_CPU_BYTE_ORDER, cpuInfo.endianness},
-			{MSR_CPU_ARCHITECTURE, info.architecture},
-			{MSR_CPU_MODEL_NAME, cpuInfo.modelname},
-			{MSR_CPU_CORES_PER_SOCKET, std::to_string(cpuInfo.coresPerSocket)},
-			{MSR_CPU_THREADS_PER_CORE, std::to_string(cpuInfo.threadsPerCore)},
-			{MSR_CPU_CACHES, caches},
-			{MSR_CPU_VIRTUALIZATION,
-			 (cpuInfo.virtualization.svm ? "AMD-V "s : ""s) + (cpuInfo.virtualization.vmx ? "VT-x"s : ""s)},
-			{MSR_RAM_AVAILABLE_SYSTEM_MB, std::to_string(info.totalRamMB)}};
-}
-
-SysInfo getSysInfo() {
+SystemStats::SysInfo SystemStats::getSysInfo() {
 	struct utsname uts;
 	struct sysinfo info;
 	uname(&uts);
@@ -125,8 +73,28 @@ SysInfo getSysInfo() {
 	return {.osname = readDistro(),
 			.kerneldesc = {_fmt::format("{} {} {}", uts.sysname, uts.release, uts.machine)},
 			.architecture = uts.machine,
-			.numCores = static_cast<unsigned>(sysconf(_SC_NPROCESSORS_ONLN)),
 			.totalRamMB = ((std::uint64_t)info.totalram * info.mem_unit) / 1000 / 1000};
+}
+
+void SystemStats::start() {
+	msr::log::info("linuxstats", "Collecting resources for Process {}", getpid());
+	starttime = steady_clock::now();
+	std::tie(startSysTime, startUTime) = getSysAndUserTime();
+	msr::log::debug("linuxstats", "Start systime {} ms, utime {} ms", tickToMs(startSysTime), tickToMs(startUTime));
+	getUtilization(); // Call getUtilization once to init CPU Utilization tracking
+}
+void SystemStats::stop() {
+	stoptime = steady_clock::now();
+	std::tie(stopSysTime, stopUTime) = getSysAndUserTime();
+}
+
+void SystemStats::step() {
+	auto utilization = getUtilization();
+	ram.addValue(utilization.ramUsedKB);
+	sysRam.addValue(utilization.system.ramUsedMB);
+	cpuUtil.addValue(utilization.cpuUtilization);
+	sysCpuUtil.addValue(utilization.system.cpuUtilization);
+	frequency.addValue(cpuinfo_linux_get_processor_cur_frequency(0));
 }
 
 std::optional<std::string> readDistroFromLSB() {
@@ -172,7 +140,6 @@ SystemStats::Utilization SystemStats::getUtilization() {
 	Utilization utilization;
 	auto pid = getpid();
 	parseStat(utilization);
-	parseStat(pid, utilization);
 	parseStatm(pid, utilization);
 
 	struct sysinfo info;
@@ -180,6 +147,7 @@ SystemStats::Utilization SystemStats::getUtilization() {
 	utilization.system.ramUsedMB =
 			((std::uint64_t)(info.totalram - info.freeram - info.bufferram - info.freehigh) * info.mem_unit) / 1000 /
 			1000;
+	utilization.cpuUtilization = getProcCPUUtilization();
 
 	return utilization;
 }
@@ -229,20 +197,4 @@ void SystemStats::parseStatm(pid_t pid, Utilization& utilization) {
 	utilization.ramUsedKB = (resident * getpagesize()) / 1000;
 }
 
-void SystemStats::parseStat(pid_t pid, Utilization& utilization) {
-	// Table 1-4 in https://www.kernel.org/doc/html/latest/filesystems/proc.html
-	auto statFile = std::filesystem::path("/") / "proc" / std::to_string(pid) / "stat";
-	auto is = std::ifstream(statFile.c_str());
-	size_t ignore, utime, stime;
-	char cignore;
-	is >> ignore;
-	// Skip filename
-	while (is && is.get() != ')')
-		;
-	is >> cignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >>
-			utime >> stime;
-	auto ticksPerSec = (unsigned)sysconf(_SC_CLK_TCK);
-	utilization.userTimeMs = (utime * 1000u) / ticksPerSec;
-	utilization.sysTimeMs = (stime * 1000u) / ticksPerSec;
-}
 #endif
