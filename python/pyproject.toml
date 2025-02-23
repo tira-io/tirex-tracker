@@ -5,7 +5,7 @@ authors = [
     { name = "Jan Heinrich Merker", email = "heinrich.merker@uni-jena.de" },
     { name = "Tim Hagen", email = "tim.hagen@uni-kassel.de" },
 ]
-description = "Measuring what really matters."
+description = "Automatic resource and metadata tracking for IR experiments."
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [

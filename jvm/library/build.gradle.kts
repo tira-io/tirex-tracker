@@ -48,7 +48,7 @@ publishing {
 
             pom {
                 name = "tirex-tracker"
-                description = "Measuring what really matters."
+                description = "Automatic resource and metadata tracking for IR experiments."
                 url = "https://github.com/tira-io/tirex-tracker"
                 licenses {
                     license {
