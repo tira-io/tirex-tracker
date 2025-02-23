@@ -113,7 +113,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jvm-jar
-          path: ~/.m2/repository/io/tira/measure/*/measure-*.jar
+          path: ~/.m2/repository/io/tira/tirex-tracker/*/measure-*.jar
   jvm-test:
     name: 🧪 Test JVM library
     runs-on: ubuntu-latest
@@ -184,7 +184,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: c-linux-library
-          path: python/tira_measure/
+          path: python/tirex_tracker/
       - name: 🧰 Install dependencies
         run: pip install build twine
       - name: 🏗️ Build Python wheels
@@ -214,7 +214,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: c-linux-library
-          path: python/tira_measure/
+          path: python/tirex_tracker/
       - name: 🧰 Install dependencies
         run: pip install -e python[tests]
       - name: 🔍 Check Python code
@@ -237,7 +237,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: c-linux-library
-          path: python/tira_measure/
+          path: python/tirex_tracker/
       - name: 🧰 Install dependencies
         run: pip install -e python[tests]
       - name: 🔍 Check Python static typing
@@ -260,7 +260,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: c-linux-library
-          path: python/tira_measure/
+          path: python/tirex_tracker/
       - name: 🧰 Install dependencies
         run: pip install -e python[tests]
       - name: 🔍 Check Python code security
@@ -283,7 +283,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: c-linux-library
-          path: python/tira_measure/
+          path: python/tirex_tracker/
       - name: 🧰 Install dependencies
         run: pip install -e python[tests]
       - name: 🧪 Test Python code

@@ -572,5 +572,4 @@ build
 .idea
 .vscode
 __pycache__
-py_measure.egg-info
 build

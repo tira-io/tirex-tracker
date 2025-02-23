@@ -31,7 +31,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/tira-io/measure")
+            url = uri("https://maven.pkg.github.com/tira-io/tirex-tracker")
             credentials {
                 username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
                 password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
@@ -41,15 +41,15 @@ publishing {
     publications {
         register<MavenPublication>("gpr") {
             groupId = "io.tira"
-            artifactId = "measure"
+            artifactId = "tirex-tracker"
             version = gitVersion()
 
             from(components["java"])
 
             pom {
-                name = "measure"
+                name = "tirex-tracker"
                 description = "Measuring what really matters."
-                url = "https://github.com/tira-io/measure"
+                url = "https://github.com/tira-io/tirex-tracker"
                 licenses {
                     license {
                         name = "MIT License"
@@ -71,9 +71,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection = "scm:git:git://github.com/tira-io/measure.git"
-                    developerConnection = "scm:git:ssh://git@github.com:tira-io/measure.git"
-                    url = "https://github.com/tira-io/measure"
+                    connection = "scm:git:git://github.com/tira-io/tirex-tracker.git"
+                    developerConnection = "scm:git:ssh://git@github.com:tira-io/tirex-tracker.git"
+                    url = "https://github.com/tira-io/tirex-tracker"
                 }
             }
         }

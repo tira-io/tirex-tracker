@@ -1,5 +1,5 @@
 [project]
-name = "tira-measure"
+name = "tirex-tracker"
 authors = [
     { name = "Maik Fröbe", email = "maik.froebe@uni-jena.de" },
     { name = "Jan Heinrich Merker", email = "heinrich.merker@uni-jena.de" },
@@ -43,8 +43,8 @@ docs = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/tira-io/measure"
-"Bug Tracker" = "https://github.com/tira-io/measure/issues"
+"Homepage" = "https://github.com/tira-io/tirex-tracker"
+"Bug Tracker" = "https://github.com/tira-io/tirex-tracker/issues"
 
 [build-system]
 requires = ["setuptools~=75.8", "setuptools-scm~=8.0"]
