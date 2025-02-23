@@ -1,22 +1,22 @@
 <!-- TODO: Add badges. -->
 
-<img width="100%" src="assets/banner.jpeg">
-<h1 align="center">TIREx tracker</h1>
-<center>
-<p align="center">
-    <h3 align="center">Automatic resource and metadata tracking for IR experiments.</h3>
-</p>
-<p align="center">
-    <a><img alt="GPL 2.0 License" src="https://img.shields.io/github/license/tira-io/measure.svg" style="filter: none;"/></a>
-    <a><img alt="Current Release" src="https://img.shields.io/github/release/tira-io/measure.svg" style="filter: none;"/></a>
-    <br>
-    <a href="#installation">Installation</a> &nbsp;|&nbsp;
-    <a href="#command">Command</a> &nbsp;|&nbsp;
-    <a href="#api">API</a> &nbsp;|&nbsp;
-    <a href="https://github.com/tira-io/tirex-tracker/tree/main/examples">Examples</a> &nbsp;|&nbsp;
-    <a href="#citation">Citation</a>
-</p>
-</center>
+<img width="100%" src="assets/banner.jpeg" alt="TIREx tracker banner image">
+<h1 style="text-align:center;">TIREx Tracker</h1>
+<p style="text-align:center;">Automatic resource and metadata tracking for IR experiments.</p>
+<div  style="text-align:center;">
+
+[![CI](https://img.shields.io/github/actions/workflow/status/tira-io/tirex-tracker/ci.yml?branch=main&style=flat-square)](https://github.com/tira-io/tirex-tracker/actions/workflows/ci.yml)
+[![Maintenance](https://img.shields.io/maintenance/yes/2025?style=flat-square)](https://github.com/tira-io/tirex-tracker/graphs/contributors) <!-- [![Code coverage](https://img.shields.io/codecov/c/github/tira-io/tirex-tracker?style=flat-square)](https://codecov.io/github/tira-io/tirex-tracker/) --> \
+[![PyPi](https://img.shields.io/pypi/v/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Python](https://img.shields.io/pypi/pyversions/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Downloads](https://img.shields.io/pypi/dm/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) \
+[![Maven](https://img.shields.io/github/v/tag/tira-io/tirex-tracker?style=flat-square&label=maven)](https://github.com/tira-io/tirex-tracker/packages/) [![Static Badge](https://img.shields.io/badge/java-%E2%89%A58-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/packages/) \
+[![Issues](https://img.shields.io/github/issues/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/issues) [![Commit activity](https://img.shields.io/github/commit-activity/m/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/commits) [![License](https://img.shields.io/github/license/tira-io/tirex-tracker?style=flat-square)](LICENSE)
+
+[CLI](#command-line-tool) • [C/C++ API](#cc-api) • [Python API](#python-api) • [Java/Kotlin API](#javakotlinjvm-api) • [Citation](#citation)
+
+</div>
+
+The TIREx tracker is a command line tool and API to automatically track resource usage, hardware specifications, and [other metadata](#tracked-measures) when running information retrieval experiments.
+It can be used either from the [command line](#command-line-tool), from [C/C++ code](#cc-api), in [Python applications](#python-api), or in [Java/Kotlin applications](#javakotlinjvm-api).
 
 ## Command Line Tool
 
@@ -169,20 +169,54 @@ void main() {
 
 ## Contributing
 
-<!-- TODO: Developer installation instructions and tests usage for C, Python, and JVM. -->
+We happily accept [pull requests](https://github.com/tira-io/tirex-tracker/compare), [feature requests](https://github.com/tira-io/tirex-tracker/issues/new/choose), and [bug reports](https://github.com/tira-io/tirex-tracker/issues/new/choose) to the TIREx tracker!
+To get started for contributing to the development, first clone this repository:
 
 ```shell
-pytest
+git clone https://github.com/tira-io/tirex-tracker.git
+cd tirex-tracker
 ```
 
+The further steps will depend on which part of the TIREx tracker's API you work on: the [C API](#c-development), the [Python API](#python-development), or the [JVM API](#jvm-development).
+
+### C development
+
+<!-- TODO: C development instructions (setup and tests). -->
+
+### Python development
+
+When developing (parts of) the Python API, first create a virtual environment and then install all necessary developer tooling by running:
+
+```shell
+python3 -m venv venv/
+source venv/bin/activate
+pip install python/[tests]
+```
+
+Once the Python developer tools are set up like that, you can check the Python code, static typing, and security, and run all tests with:
+
+```shell
+ruff check python/  # Code format and LINT
+mypy python/        # Static typing
+bandit -c python/pyproject.toml -r python/  # Security
+pytest python/      # Unit tests
+```
+
+### JVM Development
+
+<!-- TODO: JVM development instructions (setup and tests). -->
+
 ## Citation
+
+The TIREx tracker's accompanying paper is under review. We will add citation instructions once it is published.
 
 <!-- TODO: Add citation (written out and as BibTeX). -->
 
 ## License
 
-<!-- TODO: Add license note. -->
+The TIREx tracker code is licensed under the [MIT License](./LICENSE).
+If you use the TIREx tracker in your experiments, we would appreciate you [citing](#citation) our paper.
 
 ## Abstract
 
-<!-- TODO: Add abstract of the paper. -->
+> The reproducibility and transparency of retrieval experiments heavily depends on properly provided information on the experimental setup and conditions. But as manually curating such experiment metadata can be tedious, error-prone, and inconsistent, metadata should be systematically collected in an automatic way—similar to the collection of Python and git-specific settings in the `ir_metadata` reference implementation. To enable a platform-independent automatic metadata collection following the `ir_metadata` specification, we introduce the TIREx tracker: a tool realized via a lightweight C binary, pre-compiled with all dependencies for all major platforms to track hardware configurations, usage of power/CPUs/RAM/GPUs, and experiment/system versions. The TIREx tracker seamlessly integrates into Python, Java, or C/C++ workflows and can be easily incorporated in run submissions of shared tasks, which we showcase for the TIRA/TIREx platform. Code, binaries, and documentation are publicly available at <https://github.com/tira-io/tirex-tracker>.
