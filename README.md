@@ -74,15 +74,19 @@ int main() {
 
 The TIREx tracker will automatically track the specified metrics and metadata for everything that is run between `tirexStartTracking` and `tirexStopTracking`.
 
+You can customize the measures to track by adjusting the `conf` array in the example above.
+
+<!-- TODO: ir_metadata export instructions. -->
+
 ## Python API
 
-<!-- TODO: Installation instructions. -->
+First, install the TIREx tracker Python package from [PyPI](https://pypi.org/project/tirex-tracker/):
 
 ```shell
 pip install tirex-tracker
 ```
 
-<!-- TODO: Usage instructions. -->
+Now, you can track the hardware metrics and metadata of your Python code by using the [context manager](https://geeksforgeeks.org/context-manager-in-python/):
 
 ```python
 from tirex_tracker import tracking
@@ -92,6 +96,8 @@ with tracking() as results:
 
 print(results)
 ```
+
+Alternatively, you can track the hardware metrics and metadata of a Python function by using the [function decorator](https://geeksforgeeks.org/decorators-in-python/):
 
 ```python
 from tirex_tracker import tracked
@@ -105,6 +111,8 @@ do_something()
 print(do_something.results)
 ```
 
+If you cannot use either the context manager or the function decorator from above, you can manually start and stop the tracking:
+
 ```python
 from tirex_tracker import start_tracking, stop_tracking
 
@@ -116,6 +124,10 @@ finally:
 
 print(results)
 ```
+
+<!-- TODO: Explain parameters. -->
+
+<!-- TODO: ir_metadata export instructions. -->
 
 ## Java/Kotlin/JVM API
 
@@ -146,6 +158,10 @@ void main() {
   System.out.println(result);
 }
 ```
+
+<!-- TODO: Explain parameters. -->
+
+<!-- TODO: ir_metadata export instructions. -->
 
 ## Tracked Measures
 

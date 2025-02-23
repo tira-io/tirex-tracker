@@ -11,7 +11,7 @@ from IPython import get_ipython
 from pkg_resources import working_set
 from yaml import safe_load, dump
 
-from tira_measure import MeasurementHandle
+from tirex_tracker import TrackingHandle
 
 
 if TYPE_CHECKING:
@@ -26,7 +26,7 @@ else:
 
 
 def persist_ir_metadata(
-    measurement_handle: Pointer[MeasurementHandle],
+    tracking_handle: Pointer[TrackingHandle],
     output_directory: PathLike = Path.cwd(),
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
@@ -40,7 +40,7 @@ def persist_ir_metadata(
     if output_file_path.exists():
         raise ValueError("Metadata file already exists in the output directory.")
 
-    # TODO: Run the C-internal ir_metadata export from the `measurement_handle` to `output_file_path`.
+    # TODO: Run the C-internal ir_metadata export from the `tracking_handle` to `output_file_path`.
 
     # Parse the initial ir_metadata.
     with output_file_path.open("rb") as file:
