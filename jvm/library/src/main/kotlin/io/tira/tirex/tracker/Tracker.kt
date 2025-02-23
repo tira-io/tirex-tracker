@@ -1,6 +1,6 @@
-@file:JvmName("Measures")
+@file:JvmName("Tracker")
 
-package io.tira.measure
+package io.tira.tirex.tracker
 
 import com.sun.jna.*
 import com.sun.jna.Structure.FieldOrder
@@ -49,10 +49,10 @@ enum class Measure(val value: Int) {
 
     companion object {
         internal fun fromValue(value: Int): Measure {
-            if (Measure.entries.none { it.value == value }) {
+            if (entries.none { it.value == value }) {
                 throw IllegalArgumentException("${Measure::class.simpleName} with value '$value' does not exist.")
             }
-            return Measure.entries.first { it.value == value }
+            return entries.first { it.value == value }
         }
     }
 }
@@ -128,7 +128,7 @@ data class MeasureConfiguration(
 )
 
 @FieldOrder("measure", "aggregation")
-internal open class NativeMeasureConf() : Structure() {
+internal open class NativeMeasureConfiguration() : Structure() {
     @JvmField
     var measure: Int? = null
 
@@ -136,7 +136,7 @@ internal open class NativeMeasureConf() : Structure() {
     var aggregation: Int? = null
 }
 
-private val NULL_MEASURE_CONFIGURATION = NativeMeasureConf().also {
+private val NULL_MEASURE_CONFIGURATION = NativeMeasureConfiguration().also {
     it.measure = INVALID_MEASURE
     it.aggregation = INVALID_AGGREGATION
 }
@@ -243,12 +243,12 @@ internal open class NativeMeasureInfo(pointer: Pointer? = null) : Structure(poin
 }
 
 
-private interface MeasureLibrary : Library {
+private interface TrackerLibrary : Library {
     fun msrResultEntryGetByIndex(result: Pointer, index: LibCAPI.size_t, entry: Pointer): Int
     fun msrResultEntryNum(result: Pointer, num: Pointer): Int
     fun msrResultFree(result: Pointer)
-    fun msrFetchInfo(measures: Array<NativeMeasureConf>, result: Pointer): Int
-    fun msrStartMeasure(measures: Array<NativeMeasureConf>, pollIntervalMs: LibCAPI.size_t, handle: Pointer): Int
+    fun msrFetchInfo(measures: Array<NativeMeasureConfiguration>, result: Pointer): Int
+    fun msrStartMeasure(measures: Array<NativeMeasureConfiguration>, pollIntervalMs: LibCAPI.size_t, handle: Pointer): Int
     fun msrStopMeasure(handle: Pointer, result: Pointer): Int
 
     //FIXME:
@@ -259,7 +259,7 @@ private interface MeasureLibrary : Library {
 
 private val LIBRARY = Native.load(
     "measureapi",
-    MeasureLibrary::class.java,
+    TrackerLibrary::class.java,
     mapOf(Library.OPTION_STRING_ENCODING to ENCODING),
 )
 
@@ -314,12 +314,12 @@ fun fetchInfo(
     //LIBRARY.msrSetLogCallback(logCallback.toNativeLogCallback())
 
     val configs = measures.map { measure ->
-        NativeMeasureConf().also {
+        NativeMeasureConfiguration().also {
             it.measure = measure.value
             it.aggregation = Aggregation.NO.value
         }
     } + NULL_MEASURE_CONFIGURATION
-    @Suppress("UNCHECKED_CAST") val configArray = NativeMeasureConf().toArray(configs.size) as Array<NativeMeasureConf>
+    @Suppress("UNCHECKED_CAST") val configArray = NativeMeasureConfiguration().toArray(configs.size) as Array<NativeMeasureConfiguration>
     configs.forEachIndexed { i, config ->
         configArray[i].measure = config.measure
         configArray[i].aggregation = config.aggregation
@@ -356,7 +356,7 @@ fun fetchInfo(
 }
 
 // TODO: Add aggregation(s) (mapping) parameter.
-fun startMeasurement(
+fun startTracking(
     measures: Iterable<Measure> = ALL_MEASURES,
     pollIntervalMillis: Long = -1,
     logCallback: ((level: LogLevel, component: String, message: String) -> Unit) = ::noopLogCallback,
@@ -365,12 +365,12 @@ fun startMeasurement(
     //LIBRARY.msrSetLogCallback(logCallback.toNativeLogCallback())
 
     val configs = measures.map { measure ->
-        NativeMeasureConf().also {
+        NativeMeasureConfiguration().also {
             it.measure = measure.value
             it.aggregation = Aggregation.NO.value
         }
     } + NULL_MEASURE_CONFIGURATION
-    @Suppress("UNCHECKED_CAST") val configArray = NativeMeasureConf().toArray(configs.size) as Array<NativeMeasureConf>
+    @Suppress("UNCHECKED_CAST") val configArray = NativeMeasureConfiguration().toArray(configs.size) as Array<NativeMeasureConfiguration>
     configs.forEachIndexed { i, config ->
         configArray[i].measure = config.measure
         configArray[i].aggregation = config.aggregation
@@ -386,7 +386,7 @@ fun startMeasurement(
 }
 
 
-fun stopMeasurement(measureHandle: Pointer): Map<Measure, ResultEntry> {
+fun stopTracking(measureHandle: Pointer): Map<Measure, ResultEntry> {
     val result: Pointer = usePointer { resultPointer ->
         val errorInt = LIBRARY.msrStopMeasure(measureHandle, resultPointer)
         handleError(errorInt)
@@ -416,7 +416,7 @@ fun stopMeasurement(measureHandle: Pointer): Map<Measure, ResultEntry> {
     }
 }
 
-inline fun measure(
+inline fun track(
     measures: Iterable<Measure> = ALL_MEASURES,
     pollIntervalMillis: Long = -1,
     noinline logCallback: (level: LogLevel, component: String, message: String) -> Unit = ::noopLogCallback,
@@ -430,10 +430,10 @@ inline fun measure(
     try {
         block()
     } catch (e: Throwable) {
-        stopMeasurement(measurement)
+        stopTracking(measurement)
         throw e
     }
-    return stopMeasurement(measurement)
+    return stopTracking(measurement)
 }
 
 
@@ -441,13 +441,13 @@ interface BlockCallback {
     fun invoke()
 }
 
-fun measure(
+fun track(
     measures: Iterable<Measure> = ALL_MEASURES,
     pollIntervalMillis: Long = -1,
     logCallback: LogCallback = NoopLogCallback,
     block: BlockCallback,
 ): Map<Measure, ResultEntry> {
-    return measure(
+    return track(
         measures = measures,
         pollIntervalMillis = pollIntervalMillis,
         logCallback = if (logCallback is NoopLogCallback) {
@@ -463,12 +463,12 @@ fun measure(
     )
 }
 
-fun measure(
+fun track(
     measures: Iterable<Measure> = ALL_MEASURES,
     pollIntervalMillis: Long = -1,
     block: BlockCallback,
 ): Map<Measure, ResultEntry> {
-    return measure(
+    return track(
         measures = measures,
         pollIntervalMillis = pollIntervalMillis,
         logCallback = NoopLogCallback,
@@ -476,21 +476,21 @@ fun measure(
     )
 }
 
-fun measure(
+fun track(
     measures: Iterable<Measure> = ALL_MEASURES,
     block: BlockCallback,
 ): Map<Measure, ResultEntry> {
-    return measure(
+    return track(
         measures = measures,
         pollIntervalMillis = -1,
         block = block,
     )
 }
 
-fun measure(
+fun track(
     block: BlockCallback,
 ): Map<Measure, ResultEntry> {
-    return measure(
+    return track(
         measures = ALL_MEASURES,
         block = block,
     )

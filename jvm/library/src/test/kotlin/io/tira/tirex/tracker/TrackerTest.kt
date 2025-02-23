@@ -1,15 +1,13 @@
-package io.tira.measure
+package io.tira.tirex.tracker
 
-import java.lang.Thread.sleep
-
-import kotlin.test.Test
+import org.junit.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class MeasuresTest {
+class TrackerTest {
     @Test
     fun testProviderInfos() {
         val actual = providerInfos
@@ -57,12 +55,12 @@ class MeasuresTest {
 
     @Test
     fun testMeasureStartAndStop() {
-        val ref = startMeasurement(setOf(Measure.TIME_ELAPSED_WALL_CLOCK_MS))
+        val ref = startTracking(setOf(Measure.TIME_ELAPSED_WALL_CLOCK_MS))
         val actual: Map<Measure, ResultEntry>
         try {
-            sleep(100)
+            Thread.sleep(100)
         } finally {
-            actual = stopMeasurement(ref)
+            actual = stopTracking(ref)
         }
 
         assertNotNull(actual)
@@ -89,8 +87,8 @@ class MeasuresTest {
 
     @Test
     fun testMeasureUsingBlock() {
-        val actual = measure(setOf(Measure.TIME_ELAPSED_WALL_CLOCK_MS)) {
-            sleep(100)
+        val actual = track(setOf(Measure.TIME_ELAPSED_WALL_CLOCK_MS)) {
+            Thread.sleep(100)
         }
 
         assertNotNull(actual)

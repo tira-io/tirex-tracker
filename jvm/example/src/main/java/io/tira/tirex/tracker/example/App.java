@@ -1,7 +1,10 @@
 
-package io.tira.measure.example;
+package io.tira.tirex.tracker.example;
 
-import io.tira.measure.*;
+import io.tira.tirex.tracker.LogLevel;
+import io.tira.tirex.tracker.Measure;
+import io.tira.tirex.tracker.ResultEntry;
+import io.tira.tirex.tracker.Tracker;
 
 import java.util.Map;
 import java.util.Set;
@@ -12,9 +15,9 @@ class App {
     }
 
     public static void main(String[] args) {
-        System.out.println(Measures.getProviderInfos());
+        System.out.println(Tracker.getProviderInfos());
         Set<Measure> measures = Set.of(Measure.TIME_ELAPSED_WALL_CLOCK_MS);
-        Map<Measure, ResultEntry> result = Measures.measure(measures, 100L, App::logCallback, () -> {
+        Map<Measure, ResultEntry> result = Tracker.track(measures, 100L, App::logCallback, () -> {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
