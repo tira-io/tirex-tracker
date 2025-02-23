@@ -410,7 +410,7 @@ def fetch_info(
 
 
 # TODO: Add aggregation(s) (mapping) parameter.
-def start_measurement(
+def start_tracking(
     measures: Iterable[Measure] = ALL_MEASURES,
     poll_intervall_ms: int = -1,
     log_callback: LogCallback = _noop_log_callback,
@@ -432,7 +432,7 @@ def start_measurement(
     return measurement_handle_pointer.contents
 
 
-def stop_measurement(
+def stop_tracking(
     measurement_handle: Pointer[MeasurementHandle],
 ) -> Mapping[Measure, ResultEntry]:
     result_pointer = pointer(pointer(_Result()))
@@ -459,12 +459,12 @@ def stop_measurement(
 
 # TODO: Add aggregation(s) (mapping) parameter.
 @contextmanager
-def measuring(
+def tracking(
     measures: Iterable[Measure] = ALL_MEASURES,
     poll_intervall_ms: int = -1,
     log_callback: LogCallback = _noop_log_callback,
 ) -> Generator[Mapping[Measure, ResultEntry], Any, Mapping[Measure, ResultEntry]]:
-    measurement_handle = start_measurement(
+    measurement_handle = start_tracking(
         measures=measures,
         poll_intervall_ms=poll_intervall_ms,
         log_callback=log_callback,
@@ -473,7 +473,7 @@ def measuring(
     try:
         yield results
     finally:
-        tmp_results = stop_measurement(measurement_handle)
+        tmp_results = stop_tracking(measurement_handle)
         results.clear()
         results.update(tmp_results)
         return results
@@ -488,12 +488,12 @@ class ResultsAccessor(Protocol):
 
 
 @overload
-def measured(f_or_measures: Callable[P, T]) -> Union[Callable[P, T], ResultsAccessor]:
+def tracked(f_or_measures: Callable[P, T]) -> Union[Callable[P, T], ResultsAccessor]:
     pass
 
 
 @overload
-def measured(
+def tracked(
     f_or_measures: Iterable[Measure] = ALL_MEASURES,
     poll_intervall_ms: int = ...,
     log_callback: LogCallback = ...,
@@ -502,7 +502,7 @@ def measured(
 
 
 # TODO: Add aggregation(s) (mapping) parameter.
-def measured(
+def tracked(
     f_or_measures: Union[Callable[P, T], Iterable[Measure]] = ALL_MEASURES,
     poll_intervall_ms: int = -1,
     log_callback: LogCallback = _noop_log_callback,
@@ -518,12 +518,12 @@ def measured(
         @wraps(f)
         def wrapper(*args, **kwds):
             nonlocal results
-            measurement_handle = start_measurement()
+            measurement_handle = start_tracking()
             try:
                 return f(*args, **kwds)
             finally:
                 results.clear()
-                tmp_results = stop_measurement(measurement_handle)
+                tmp_results = stop_tracking(measurement_handle)
                 results.update(tmp_results)
 
         results_wrapper = cast(Union[Callable[P, T], ResultsAccessor], wrapper)
@@ -539,7 +539,7 @@ def measured(
             @wraps(f)
             def wrapper(*args, **kwds):
                 nonlocal results
-                measurement_handle = start_measurement(
+                measurement_handle = start_tracking(
                     measures=measures,
                     poll_intervall_ms=poll_intervall_ms,
                     log_callback=log_callback,
@@ -548,7 +548,7 @@ def measured(
                     return f(*args, **kwds)
                 finally:
                     results.clear()
-                    tmp_results = stop_measurement(measurement_handle)
+                    tmp_results = stop_tracking(measurement_handle)
                     results.update(tmp_results)
 
             results_wrapper = cast(Union[Callable[P, T], ResultsAccessor], wrapper)
