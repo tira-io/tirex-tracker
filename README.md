@@ -1,19 +1,21 @@
 <!-- TODO: Add badges. -->
 
 <img width="100%" src="assets/banner.jpeg" alt="TIREx tracker banner image">
-<h1 style="text-align:center;">TIREx Tracker</h1>
-<p style="text-align:center;">Automatic resource and metadata tracking for IR experiments.</p>
-<div  style="text-align:center;">
+<h1 align="center">TIREx Tracker</h1>
+<p align="center">Automatic resource and metadata tracking for IR experiments.</p>
+<div align="center">
 
 [![CI](https://img.shields.io/github/actions/workflow/status/tira-io/tirex-tracker/ci.yml?branch=main&style=flat-square)](https://github.com/tira-io/tirex-tracker/actions/workflows/ci.yml)
 [![Maintenance](https://img.shields.io/maintenance/yes/2025?style=flat-square)](https://github.com/tira-io/tirex-tracker/graphs/contributors) <!-- [![Code coverage](https://img.shields.io/codecov/c/github/tira-io/tirex-tracker?style=flat-square)](https://codecov.io/github/tira-io/tirex-tracker/) --> \
 [![PyPi](https://img.shields.io/pypi/v/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Python](https://img.shields.io/pypi/pyversions/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Downloads](https://img.shields.io/pypi/dm/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) \
-[![Maven](https://img.shields.io/github/v/tag/tira-io/tirex-tracker?style=flat-square&label=maven)](https://github.com/tira-io/tirex-tracker/packages/) [![Static Badge](https://img.shields.io/badge/java-%E2%89%A58-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/packages/) \
+[![Maven](https://img.shields.io/github/v/tag/tira-io/tirex-tracker?style=flat-square&label=maven)](https://github.com/tira-io/tirex-tracker/packages/) [![Java](https://img.shields.io/badge/java-%E2%89%A5_8-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/packages/) \
 [![Issues](https://img.shields.io/github/issues/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/issues) [![Commit activity](https://img.shields.io/github/commit-activity/m/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/commits) [![License](https://img.shields.io/github/license/tira-io/tirex-tracker?style=flat-square)](LICENSE)
 
 [CLI](#command-line-tool) • [C/C++ API](#cc-api) • [Python API](#python-api) • [Java/Kotlin API](#javakotlinjvm-api) • [Citation](#citation)
 
 </div>
+
+---
 
 The TIREx tracker is a command line tool and API to automatically track resource usage, hardware specifications, and [other metadata](#tracked-measures) when running information retrieval experiments.
 It can be used either from the [command line](#command-line-tool), from [C/C++ code](#cc-api), in [Python applications](#python-api), or in [Java/Kotlin applications](#javakotlinjvm-api).
@@ -131,31 +133,83 @@ print(results)
 
 ## Java/Kotlin/JVM API
 
-<!-- TODO: Installation instructions with Gradle. -->
-<!-- TODO: Installation instructions with Maven. -->
+The Java/Kotlin API can be installed via Gradle or Maven from [GitHub Packages](https://github.com/tira-io/tirex-tracker/packages/).
+To use GitHub Packages, you must first authenticate ([Maven instructions](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry#authenticating-to-github-packages), [Gradle instructions](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#authenticating-to-github-packages)).
+After installing the package, you can use the TIREx tracker JVM API in your [Java](#java-usage) or [Kotlin](#kotlin-usage) projects.
 
-<!-- TODO: Usage instructions with Kotlin. -->
-<!-- TODO: Usage instructions with Java. -->
+### Gradle Dependency
+
+For Gradle, add the following line to the `dependencies` block of your `build.gradle` (or `build.gradle.kts`) file:
+
+```gradle
+dependencies {
+    implementation("io.tira:tirex-tracker:x.x.x")
+}
+```
+
+### Maven Dependency
+
+For Maven projects, add these lines to your `pom.xml` file:
+
+```xml
+<dependency>
+  <groupId>io.tira</groupId>
+  <artifactId>tirex-tracker</artifactId>
+  <version>x.x.x</version>
+</dependency>
+```
+
+Replace the version placeholder (`x.x.x`) with the [latest version tag](https://github.com/tira-io/tirex-tracker/releases/latest).
+
+
+You can now use the TIREx tracker JVM API in your [Java](#java-usage) or [Kotlin](#kotlin-usage) projects.
+
+### Java Usage
+
+For pure Java projects, the easiest way is to use the `track` function and pass your code to be tracked as a lambda like this:
+
+```java
+package io.tira.tirex.tracker.example;
+
+import io.tira.tirex.tracker.*;
+
+void main() {
+    var result = Tracker.track(() -> {
+        // Do something...
+    });
+
+    System.out.println(result);
+}
+```
+
+Alternatively, use the try-with-resources syntax like this:
+
+```java
+Tracked tracked = new Tracked();
+try (tracked) {
+    // Do something...
+}
+    
+System.out.println(tracked.result);
+```
+
+<!-- TODO: Explain parameters. -->
+
+### Kotlin Usage
+
+In Kotlin projects, the `track` function takes an inline lambda so that your code can be tracked like this:
 
 ```kotlin
-package io.tira.tirex.tracker.example;
-import io.tira.tirex.tracker.*;
+package io.tira.tirex.tracker.example
+
+import io.tira.tirex.tracker.*
+
 fun main() {
   val result = track {
     // Do something...
   }
+  
   println(result)
-}
-```
-
-```java
-package io.tira.tirex.tracker.example;
-import io.tira.tirex.tracker.*;
-void main() {
-  var result = Tracker.track(() -> {
-    // Do something...
-  });
-  System.out.println(result);
 }
 ```
 
