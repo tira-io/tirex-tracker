@@ -204,7 +204,19 @@ pytest python/      # Unit tests
 
 ### JVM Development
 
-<!-- TODO: JVM development instructions (setup and tests). -->
+The JVM wrapper API uses [Gradle](https://gradle.org/) for build and test.
+Consistent builds are ensured by using a [Gradle wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper_basics.html).
+To build the classes, run:
+
+```shell
+jvm/gradlew --project-dir jvm/ build
+```
+
+Tests for Java and Kotlin usage can be run by:
+
+```shell
+jvm/gradlew --project-dir jvm/ test
+```
 
 ## Citation
 
