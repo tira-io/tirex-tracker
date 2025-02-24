@@ -13,7 +13,7 @@ class TrackerTest {
         val actual = providerInfos
 
         assertNotNull(actual)
-        assertIs<List<ProviderInfo>>(actual)
+        assertIs<Collection<ProviderInfo>>(actual)
         assertTrue { actual.isNotEmpty() }
     }
 
