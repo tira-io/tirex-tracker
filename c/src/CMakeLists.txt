@@ -50,7 +50,7 @@ endif()
 
 set(BUILD_SHARED_LIBS OFF)
 set_property(TARGET measureapi_static PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_property(TARGET measureapi PROPERTY POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 
 ##########################################################################################
