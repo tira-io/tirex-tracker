@@ -15,7 +15,8 @@ from ctypes import (
 )
 from functools import wraps
 from enum import IntEnum, auto, Enum
-from importlib.metadata import distributions, version
+from importlib_metadata import distributions, version
+from importlib_resources import files
 from io import BytesIO
 from json import dumps, loads
 from os import PathLike
@@ -603,8 +604,10 @@ class _TirexTrackerLibrary(CDLL):
 
 
 def _find_library() -> Path:
+    import tirex_tracker
+
     # TODO: Decide between the libraries for the different platforms.
-    return Path(__file__).parent / "libmeasure_full.so"
+    return files(tirex_tracker) / "libmeasure_full.so"
 
 
 def _load_library() -> _TirexTrackerLibrary:
