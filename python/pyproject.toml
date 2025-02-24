@@ -36,6 +36,7 @@ tests = [
     "pytest~=8.0",
     "pytest-cov~=6.0",
     "ruff~=0.8.1",
+    "types-pyyaml~=6.0",
 ]
 docs = [
     "sphinx~=8.1",
