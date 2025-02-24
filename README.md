@@ -167,6 +167,13 @@ void main() {
 
 <!-- TODO: Shortly list the tracked measures or groups from the paper. -->
 
+### `ir_metadata` Extension
+
+The resources, hardware specifications, and metadata tracked by the TIREx tracker can easily be exported to an [`ir_metadata`](https://ir-metadata.org/) file.
+Not all of our extensive metadata fits well into the current `ir_metadata` specification [version 0.1](https://ir-metadata.org/metadata/overview/). We therefore extend the specification and propose `ir_metadata` 0.2-beta: 
+
+<!-- TODO: List all added fields compared to the `ir_metadata` 0.1 specification. -->
+
 ## Contributing
 
 We happily accept [pull requests](https://github.com/tira-io/tirex-tracker/compare), [feature requests](https://github.com/tira-io/tirex-tracker/issues/new/choose), and [bug reports](https://github.com/tira-io/tirex-tracker/issues/new/choose) to the TIREx tracker!
@@ -181,7 +188,45 @@ The further steps will depend on which part of the TIREx tracker's API you work 
 
 ### C development
 
-<!-- TODO: C development instructions (setup and tests). -->
+We use [CMake](https://cmake.org/) to build the C library, command line tool, and examples. Different build targets are used so that you can select what to build.
+[Doxygen](https://doxygen.nl/) is used to generate the documentation for the C API.
+If you haven't installed CMake and/or Doxygen, please install it as described [here for CMake](https://cmake.org/download/) and [here for Doxygen](https://doxygen.nl/download.html)
+
+First, setup CMake to use the correct version of [GCC](https://gcc.gnu.org/) and enable all build targets by running:
+
+```shell
+cmake -S c/ -B c/build/ \
+  -D CMAKE_BUILD_TYPE=Release \
+  -D CMAKE_C_COMPILER=gcc-13 \
+  -D CMAKE_CXX_COMPILER=g++-13 \
+  -D BUILD_SHARED_LIBS=YES \
+  -D MEASURECMD_BUILD_DOCS=YES \
+  -D MEASURECMD_BUILD_DEB=YES \
+  -D MEASURECMD_BUILD_EXAMPLES=YES
+```
+
+(Hint: If you do not want to generate the documentation and have not installed Doxygen, you can disable it by setting `MEASURECMD_BUILD_DOCS=NO`.)
+
+You can then build the library (and examples) like this:
+
+```shell
+cmake --build c/build/ --config Release --target measure_full
+```
+
+This will compile the C API into a statically linked library at `c/build/extensions/libmeasure_full.so`.
+
+<!-- TODO: How to build the macOS or Windows library and where to find it? -->
+<!-- TODO: How to build the "minimal" library without the `ir_metadata` export? -->
+
+The Debian package is built by running:
+
+```shell
+cmake --build c/build/ --config Release --target package
+```
+
+You will find the compiled Debian package file at `c/build/measure-*-Linux.deb` (where `*` is the version).
+
+<!-- TODO: C test instructions. -->
 
 ### Python development
 
@@ -202,6 +247,8 @@ bandit -c python/pyproject.toml -r python/  # Security
 pytest python/      # Unit tests
 ```
 
+<!-- TODO: Build Python documentation from docstrings? -->
+
 ### JVM Development
 
 The JVM wrapper API uses [Gradle](https://gradle.org/) for build and test.
@@ -217,6 +264,8 @@ Tests for Java and Kotlin usage can be run by:
 ```shell
 jvm/gradlew --project-dir jvm/ test
 ```
+
+<!-- TODO: How to build the Javadoc? -->
 
 ## Citation
 
