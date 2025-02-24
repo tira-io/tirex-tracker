@@ -19,10 +19,37 @@ dependencies {
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.11.0-M2")
 }
 
+val javaLanguageVersion = JavaLanguageVersion.of(8)
+val javaLanguageVersionTest = JavaLanguageVersion.of(17)
+
 kotlin {
-    jvmToolchain(8)
+    jvmToolchain {
+        languageVersion = javaLanguageVersion
+    }
+}
+
+tasks {
+    test {
+        javaLauncher = project.javaToolchains.launcherFor {
+            languageVersion = javaLanguageVersionTest
+        }
+    }
+
+    compileTestKotlin {
+        val launcher = project.javaToolchains.launcherFor {
+            languageVersion = javaLanguageVersionTest
+        }
+        kotlinJavaToolchain.toolchain.use(launcher)
+    }
+
+    compileTestJava {
+        javaCompiler = project.javaToolchains.compilerFor {
+            languageVersion = javaLanguageVersionTest
+        }
+    }
 }
 
 val gitVersion: Closure<String> by extra
