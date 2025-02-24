@@ -1,11 +1,16 @@
 import groovy.lang.Closure
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `java-library`
     `maven-publish`
     kotlin("jvm")
+    kotlin("plugin.serialization")
     id("com.palantir.git-version")
+    id("org.cthing.build-constants")
 }
+
+val gitVersion: Closure<String> by extra
 
 repositories {
     mavenCentral()
@@ -16,6 +21,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("net.java.dev.jna:jna-platform:5.16.0")
     api("net.java.dev.jna:jna:5.16.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
+    implementation("com.charleskorn.kaml:kaml:0.72.0")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
@@ -50,9 +57,19 @@ tasks {
             languageVersion = javaLanguageVersionTest
         }
     }
-}
 
-val gitVersion: Closure<String> by extra
+    generateBuildConstants {
+        classname = "io.tira.tirex.tracker.Build"
+
+        projectGroup = "io.tira"
+        projectName = "tirex-tracker"
+        projectVersion = gitVersion()
+    }
+
+    withType<KotlinCompile>().configureEach {
+        dependsOn(generateBuildConstants)
+    }
+}
 
 publishing {
     repositories {
