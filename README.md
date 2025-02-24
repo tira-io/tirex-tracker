@@ -182,7 +182,7 @@ void main() {
 }
 ```
 
-Alternatively, use the try-with-resources syntax like this:
+Alternatively, use the [try-with-resources syntax](https://baeldung.com/java-try-with-resources) like this:
 
 ```java
 Tracked tracked = new Tracked();
@@ -197,7 +197,7 @@ System.out.println(tracked.result);
 
 ### Kotlin Usage
 
-In Kotlin projects, the `track` function takes an inline lambda so that your code can be tracked like this:
+In Kotlin projects, the `track` function takes an [inline block](https://kotlinlang.org/docs/inline-functions.html) so that your code can be tracked like this:
 
 ```kotlin
 package io.tira.tirex.tracker.example
@@ -208,7 +208,7 @@ fun main() {
   val result = track {
     // Do something...
   }
-  
+
   println(result)
 }
 ```
