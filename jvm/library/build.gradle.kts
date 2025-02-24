@@ -1,10 +1,10 @@
 import groovy.lang.Closure
 
 plugins {
-    kotlin("jvm") version "2.1.10"
     `java-library`
     `maven-publish`
-    id("com.palantir.git-version") version "3.1.0"
+    kotlin("jvm")
+    id("com.palantir.git-version")
 }
 
 repositories {
