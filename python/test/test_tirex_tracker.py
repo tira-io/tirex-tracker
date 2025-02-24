@@ -13,6 +13,7 @@ from tirex_tracker import (
     stop_tracking,
     tracking,
     tracked,
+    track,
     Measure,
     ResultEntry,
     ResultType,
@@ -94,6 +95,27 @@ def test_measure_start_and_stop() -> None:
 def test_measure_using_with_statement() -> None:
     with tracking([Measure.TIME_ELAPSED_WALL_CLOCK_MS]) as actual:
         sleep(0.1)
+
+    for key in actual.keys():
+        assert isinstance(key, Measure)
+    for value in actual.values():
+        assert isinstance(value, ResultEntry)
+    assert Measure.TIME_ELAPSED_WALL_CLOCK_MS in actual.keys()
+    result_entry = actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS]
+    assert result_entry is not None
+    assert result_entry.source is not None
+    assert result_entry.source is Measure.TIME_ELAPSED_WALL_CLOCK_MS
+    assert result_entry.type is not None
+    # FIXME:
+    # assert result_entry.type is ResultType.FLOATING
+    assert result_entry.value is not None
+    time_elapsed = float(result_entry.value)
+    assert time_elapsed > 0.0
+
+
+def test_measure_using_lambda() -> None:
+    actual = track(lambda: sleep(0.1), [Measure.TIME_ELAPSED_WALL_CLOCK_MS])
+
     for key in actual.keys():
         assert isinstance(key, Measure)
     for value in actual.values():
@@ -154,6 +176,7 @@ def test_tracking_export_ir_metadata() -> None:
             export_format=ExportFormat.IR_METADATA,
         ) as actual:
             sleep(0.1)
+
         for key in actual.keys():
             assert isinstance(key, Measure)
         for value in actual.values():
@@ -175,20 +198,6 @@ def test_tracking_export_ir_metadata() -> None:
         assert export_file_path.stat().st_size > 0
 
 
-@fixture(params=list(ALL_MEASURES))
-def measure(request) -> Measure:
-    return request.param
+# TODO: Add test to check that the result type matches the measure info's data type.
 
-
-# FIXME:
-# def test_measure_type_matches(measure: Measure) -> None:
-#     with measuring(measures=[measure]) as actual:
-#         sleep(0.01)
-
-#     assert actual is not None
-#     assert isinstance(actual, Mapping)
-#     assert len(actual) == 1
-#     assert measure in actual.keys()
-#     result_entry = actual[measure]
-#     assert isinstance(result_entry, ResultEntry)
-#     assert result_entry.source is measure
+# TODO: Add test to check that exactly and only the requested measures are returned.
