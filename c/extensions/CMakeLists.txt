@@ -5,7 +5,7 @@ target_include_directories(measureext_ir PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(measureext_ir PUBLIC measureapi)
 
 
-add_library(measure_full
+add_library(measure_full SHARED
     irmeasure.cpp
 )
 target_include_directories(measure_full PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_CURRENT_LIST_DIR}/../include)
