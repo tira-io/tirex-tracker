@@ -51,57 +51,74 @@ typedef enum msrError_enum { MSR_SUCCESS = 0, MSR_INVALID_ARGUMENT = 1 } msrErro
  * @details Different types (EnvInfo, Time Series, Measure)
  */
 typedef enum msrMeasure_enum {
-	MSR_OS_NAME,   /**< Retrieve the name of the operating system (EnvInfo). */
-	MSR_OS_KERNEL, /**< Retrieve the version of the kernel (EnvInfo). */
+	MSR_OS_NAME = 0,   /**< Retrieve the name of the operating system (EnvInfo). */
+	MSR_OS_KERNEL = 1, /**< Retrieve the version of the kernel (EnvInfo). */
 
-	MSR_TIME_ELAPSED_WALL_CLOCK_MS, /**< Measure the "real" (wall clock) time in milliseconds that elapsed between msrStartMeasure and msrStopMeasure (Measurement). */
-	MSR_TIME_ELAPSED_USER_MS, /**< Measure the time in milliseconds that the program spend in user mode between msrStartMeasure and msrStopMeasure (Measurement). */
-	MSR_TIME_ELAPSED_SYSTEM_MS, /**< Measure the time in milliseconds that the program spend in kernel mode between msrStartMeasure and msrStopMeasure (Measurement). */
+	/**
+	 * @brief Measure the "real" (wall clock) time in milliseconds that elapsed between msrStartMeasure and
+	 * msrStopMeasure (Measurement).
+	 */
+	MSR_TIME_ELAPSED_WALL_CLOCK_MS = 2,
+	/**
+	 * @brief Measure the time in milliseconds that the program spend in user mode between msrStartMeasure and
+	 * msrStopMeasure (Measurement).
+	 */
+	MSR_TIME_ELAPSED_USER_MS = 3,
+	/**
+	 * @brief Measure the time in milliseconds that the program spend in kernel mode between msrStartMeasure and
+	 * msrStopMeasure (Measurement).
+	 */
+	MSR_TIME_ELAPSED_SYSTEM_MS = 4,
 
-	MSR_CPU_USED_PROCESS_PERCENT,
-	MSR_CPU_USED_SYSTEM_PERCENT,
-	MSR_CPU_AVAILABLE_SYSTEM_CORES,
-	MSR_CPU_ENERGY_SYSTEM_JOULES,
-	MSR_CPU_FEATURES,
-	MSR_CPU_FREQUENCY_MHZ,
-	MSR_CPU_FREQUENCY_MIN_MHZ,
-	MSR_CPU_FREQUENCY_MAX_MHZ,
-	MSR_CPU_VENDOR_ID,
-	MSR_CPU_BYTE_ORDER,
-	MSR_CPU_ARCHITECTURE,
-	MSR_CPU_MODEL_NAME,
-	MSR_CPU_CORES_PER_SOCKET,
-	MSR_CPU_THREADS_PER_CORE,
-	MSR_CPU_CACHES,
-	MSR_CPU_VIRTUALIZATION,
+	MSR_CPU_USED_PROCESS_PERCENT = 5,
+	MSR_CPU_USED_SYSTEM_PERCENT = 6,
+	MSR_CPU_AVAILABLE_SYSTEM_CORES = 7,
+	MSR_CPU_ENERGY_SYSTEM_JOULES = 8,
+	MSR_CPU_FEATURES = 9,
+	MSR_CPU_FREQUENCY_MHZ = 10,
+	MSR_CPU_FREQUENCY_MIN_MHZ = 11,
+	MSR_CPU_FREQUENCY_MAX_MHZ = 12,
+	MSR_CPU_VENDOR_ID = 13,
+	MSR_CPU_BYTE_ORDER = 14,
+	MSR_CPU_ARCHITECTURE = 15,
+	MSR_CPU_MODEL_NAME = 16,
+	MSR_CPU_CORES_PER_SOCKET = 17,
+	MSR_CPU_THREADS_PER_CORE = 18,
+	MSR_CPU_CACHES = 19,
+	MSR_CPU_VIRTUALIZATION = 20,
 
-	MSR_RAM_USED_PROCESS_KB,
-	MSR_RAM_USED_SYSTEM_MB,
-	MSR_RAM_AVAILABLE_SYSTEM_MB,
-	MSR_RAM_ENERGY_SYSTEM_JOULES,
+	MSR_RAM_USED_PROCESS_KB = 21,
+	MSR_RAM_USED_SYSTEM_MB = 22,
+	MSR_RAM_AVAILABLE_SYSTEM_MB = 23,
+	MSR_RAM_ENERGY_SYSTEM_JOULES = 24,
 
-	MSR_GPU_SUPPORTED, /**< Boolean value (0 or 1) representing whether GPU measurements are supported or not. */
-	MSR_GPU_MODEL_NAME,
-	MSR_GPU_NUM_CORES,
-	MSR_GPU_USED_PROCESS_PERCENT,
-	MSR_GPU_USED_SYSTEM_PERCENT,
-	MSR_GPU_VRAM_USED_PROCESS_MB,
-	MSR_GPU_VRAM_USED_SYSTEM_MB,
-	MSR_GPU_VRAM_AVAILABLE_SYSTEM_MB,
-	MSR_GPU_ENERGY_SYSTEM_JOULES,
+	/** @brief Boolean value (0 or 1) representing whether GPU measurements are supported or not. */
+	MSR_GPU_SUPPORTED = 25,
+	MSR_GPU_MODEL_NAME = 26,
+	MSR_GPU_NUM_CORES = 27,
+	MSR_GPU_USED_PROCESS_PERCENT = 28,
+	MSR_GPU_USED_SYSTEM_PERCENT = 29,
+	MSR_GPU_VRAM_USED_PROCESS_MB = 30,
+	MSR_GPU_VRAM_USED_SYSTEM_MB = 31,
+	MSR_GPU_VRAM_AVAILABLE_SYSTEM_MB = 32,
+	MSR_GPU_ENERGY_SYSTEM_JOULES = 33,
 
-	MSR_GIT_IS_REPO,
-	MSR_GIT_HASH,
-	MSR_GIT_LAST_COMMIT_HASH,
-	MSR_GIT_BRANCH,
-	MSR_GIT_BRANCH_UPSTREAM,
-	MSR_GIT_TAGS,
-	MSR_GIT_REMOTE_ORIGIN,
-	MSR_GIT_UNCOMMITTED_CHANGES,
-	MSR_GIT_UNPUSHED_CHANGES,
-	MSR_GIT_UNCHECKED_FILES,
+	MSR_GIT_IS_REPO = 34,
+	MSR_GIT_HASH = 35,
+	MSR_GIT_LAST_COMMIT_HASH = 36,
+	MSR_GIT_BRANCH = 37,
+	MSR_GIT_BRANCH_UPSTREAM = 38,
+	MSR_GIT_TAGS = 39,
+	MSR_GIT_REMOTE_ORIGIN = 40,
+	MSR_GIT_UNCOMMITTED_CHANGES = 41,
+	MSR_GIT_UNPUSHED_CHANGES = 42,
+	MSR_GIT_UNCHECKED_FILES = 43,
 
-	MSR_MEASURE_COUNT, /**< The total number of supported measures. */
+	/**
+	 * @brief The total number of supported measures.
+	 * @details It can be assumed that every number in the range `[0, MSR_MEASURE_COUNT]` is a valid enum value.
+	 */
+	MSR_MEASURE_COUNT,
 	/**
 	 * @brief Represents an invalid measurement.
 	 * 
@@ -130,6 +147,7 @@ typedef struct msrMeasureHandle_st msrMeasureHandle;
  */
 /**
  * @brief 
+ * @details Note: Currently unused
  */
 typedef enum msrResultType_enum { MSR_STRING = 0, MSR_INTEGER = 1, MSR_FLOATING = 2 } msrResultType;
 

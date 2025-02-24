@@ -43,18 +43,13 @@ target_compile_features(measureapi_static PUBLIC cxx_std_20)
 target_include_directories(measureapi_static PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../include)
 target_compile_definitions(measureapi_static PUBLIC MEASUREAPI_STATIC_IMPORT)
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-	# Statically link standard library for c++
-	# target_link_options(measureapi PRIVATE -static-libgcc -static-libstdc++)
-endif()
-
 if (LINUX)
 	target_link_libraries(measureapi PUBLIC dl)  # dlopen, dlclose, ...
 endif()
 
 
 set(BUILD_SHARED_LIBS OFF)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set_property(TARGET measureapi_static PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 
 ##########################################################################################
