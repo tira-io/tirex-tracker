@@ -27,12 +27,12 @@ jobs:
           -D MEASURECMD_BUILD_DEB=NO \
           -D MEASURECMD_BUILD_EXAMPLES=NO
       - name: 🏗️ Build Linux binary
-        run: cmake --build c/build/ --config Release --target measureapi
+        run: cmake --build c/build/ --config Release --target measure_full
       - name: 📤 Upload Linux library
         uses: actions/upload-artifact@v4
         with:
           name: c-linux-library
-          path: c/build/src/libmeasureapi.so
+          path: c/build/extensions/libmeasure_full.so
   c-build-linux-cli:
     name: 🏗️ Build Linux CLI
     runs-on: ubuntu-24.04
@@ -365,7 +365,7 @@ jobs:
         with:
           name: Release ${{ github.ref_name }}
           files: |
-            tmp/c/libmeasureapi.so
+            tmp/c/measure_full.so
             tmp/c/measure
             tmp/c/measure-*-Linux.deb
             tmp/python/dist/*
