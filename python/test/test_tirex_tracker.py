@@ -3,14 +3,14 @@ from typing import Collection, Mapping
 
 from pytest import fixture
 
-from tira_measure import (
+from tirex_tracker import (
     provider_infos,
     measure_infos,
     fetch_info,
-    start_measurement,
-    stop_measurement,
-    measuring,
-    measured,
+    start_tracking,
+    stop_tracking,
+    tracking,
+    tracked,
     Measure,
     ResultEntry,
     ResultType,
@@ -62,11 +62,11 @@ def test_fetch_info() -> None:
 
 
 def test_measure_start_and_stop() -> None:
-    ref = start_measurement([Measure.TIME_ELAPSED_WALL_CLOCK_MS])
+    ref = start_tracking([Measure.TIME_ELAPSED_WALL_CLOCK_MS])
     try:
         sleep(0.1)
     finally:
-        actual = stop_measurement(ref)
+        actual = stop_tracking(ref)
 
     assert actual is not None
     assert isinstance(actual, Mapping)
@@ -89,7 +89,7 @@ def test_measure_start_and_stop() -> None:
 
 
 def test_measure_using_with_statement() -> None:
-    with measuring([Measure.TIME_ELAPSED_WALL_CLOCK_MS]) as actual:
+    with tracking([Measure.TIME_ELAPSED_WALL_CLOCK_MS]) as actual:
         sleep(0.1)
     for key in actual.keys():
         assert isinstance(key, Measure)
@@ -109,7 +109,7 @@ def test_measure_using_with_statement() -> None:
 
 
 def test_measure_using_function_decorator() -> None:
-    @measured([Measure.TIME_ELAPSED_WALL_CLOCK_MS])
+    @tracked([Measure.TIME_ELAPSED_WALL_CLOCK_MS])
     def sleep_and_measure(time: float) -> None:
         sleep(0.1)
 

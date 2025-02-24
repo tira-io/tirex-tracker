@@ -122,7 +122,7 @@ _INVALID_AGGREGATION = -1
 ALL_AGGREGATIONS = set(Aggregation)
 
 
-class MeasurementHandle(Structure):
+class TrackingHandle(Structure):
     _fields_ = []
 
 
@@ -273,7 +273,7 @@ class _MeasureInfo(Structure):
         )
 
 
-class _MeasureLibrary(CDLL):
+class _TirexTrackerLibrary(CDLL):
     msrResultEntryGetByIndex: Callable[
         [Pointer[_Result], int, Pointer[_ResultEntry]], int
     ]
@@ -283,10 +283,10 @@ class _MeasureLibrary(CDLL):
         [Array[_MeasureConfiguration], Pointer[Pointer[_Result]]], int
     ]
     msrStartMeasure: Callable[
-        [Array[_MeasureConfiguration], int, Pointer[Pointer[MeasurementHandle]]], int
+        [Array[_MeasureConfiguration], int, Pointer[Pointer[TrackingHandle]]], int
     ]
     msrStopMeasure: Callable[
-        [Pointer[MeasurementHandle], Pointer[Pointer[_Result]]], int
+        [Pointer[TrackingHandle], Pointer[Pointer[_Result]]], int
     ]
     # FIXME:
     # msrSetLogCallback: Callable[[CFunctionType], None]
@@ -298,7 +298,7 @@ def _find_library() -> Path:
     return Path(__file__).parent / "libmeasureapi.so"
 
 
-def _load_library() -> _MeasureLibrary:
+def _load_library() -> _TirexTrackerLibrary:
     library = cdll.LoadLibrary(str(_find_library()))
     # Note: Not defining the function argument and return types can cause issues with down-casted addresses for the handle in the past.
     library.msrResultEntryGetByIndex.argtypes = [
@@ -319,11 +319,11 @@ def _load_library() -> _MeasureLibrary:
     library.msrStartMeasure.argtypes = [
         Array[_MeasureConfiguration],
         c_size_t,
-        POINTER(POINTER(MeasurementHandle)),
+        POINTER(POINTER(TrackingHandle)),
     ]
     library.msrStartMeasure.restype = c_int
     library.msrStopMeasure.argtypes = [
-        POINTER(MeasurementHandle),
+        POINTER(TrackingHandle),
         POINTER(POINTER(_Result)),
     ]
     library.msrStopMeasure.restype = c_int
@@ -335,7 +335,7 @@ def _load_library() -> _MeasureLibrary:
     library.msrMeasureInfoGet.argtypes = [c_int, POINTER(POINTER(_MeasureInfo))]
     library.msrMeasureInfoGet.restype = c_int
 
-    return cast(_MeasureLibrary, library)
+    return cast(_TirexTrackerLibrary, library)
 
 
 _LIBRARY = _load_library()
@@ -410,11 +410,11 @@ def fetch_info(
 
 
 # TODO: Add aggregation(s) (mapping) parameter.
-def start_measurement(
+def start_tracking(
     measures: Iterable[Measure] = ALL_MEASURES,
     poll_intervall_ms: int = -1,
     log_callback: LogCallback = _noop_log_callback,
-) -> Pointer[MeasurementHandle]:
+) -> Pointer[TrackingHandle]:
     # FIXME
     # _LIBRARY.msrSetLogCallback(_to_native_log_callback(log_callback))
 
@@ -424,7 +424,7 @@ def start_measurement(
     ] + [_NULL_MEASURE_CONFIGURATION]
     configs_array = (_MeasureConfiguration * (len(configs)))(*configs)
 
-    measurement_handle_pointer = pointer(pointer(MeasurementHandle()))
+    measurement_handle_pointer = pointer(pointer(TrackingHandle()))
     error_int = _LIBRARY.msrStartMeasure(
         configs_array, poll_intervall_ms, measurement_handle_pointer
     )
@@ -432,8 +432,8 @@ def start_measurement(
     return measurement_handle_pointer.contents
 
 
-def stop_measurement(
-    measurement_handle: Pointer[MeasurementHandle],
+def stop_tracking(
+    measurement_handle: Pointer[TrackingHandle],
 ) -> Mapping[Measure, ResultEntry]:
     result_pointer = pointer(pointer(_Result()))
     error_int = _LIBRARY.msrStopMeasure(measurement_handle, result_pointer)
@@ -459,12 +459,12 @@ def stop_measurement(
 
 # TODO: Add aggregation(s) (mapping) parameter.
 @contextmanager
-def measuring(
+def tracking(
     measures: Iterable[Measure] = ALL_MEASURES,
     poll_intervall_ms: int = -1,
     log_callback: LogCallback = _noop_log_callback,
 ) -> Generator[Mapping[Measure, ResultEntry], Any, Mapping[Measure, ResultEntry]]:
-    measurement_handle = start_measurement(
+    handle = start_tracking(
         measures=measures,
         poll_intervall_ms=poll_intervall_ms,
         log_callback=log_callback,
@@ -473,7 +473,7 @@ def measuring(
     try:
         yield results
     finally:
-        tmp_results = stop_measurement(measurement_handle)
+        tmp_results = stop_tracking(handle)
         results.clear()
         results.update(tmp_results)
         return results
@@ -488,12 +488,12 @@ class ResultsAccessor(Protocol):
 
 
 @overload
-def measured(f_or_measures: Callable[P, T]) -> Union[Callable[P, T], ResultsAccessor]:
+def tracked(f_or_measures: Callable[P, T]) -> Union[Callable[P, T], ResultsAccessor]:
     pass
 
 
 @overload
-def measured(
+def tracked(
     f_or_measures: Iterable[Measure] = ALL_MEASURES,
     poll_intervall_ms: int = ...,
     log_callback: LogCallback = ...,
@@ -502,7 +502,7 @@ def measured(
 
 
 # TODO: Add aggregation(s) (mapping) parameter.
-def measured(
+def tracked(
     f_or_measures: Union[Callable[P, T], Iterable[Measure]] = ALL_MEASURES,
     poll_intervall_ms: int = -1,
     log_callback: LogCallback = _noop_log_callback,
@@ -518,12 +518,12 @@ def measured(
         @wraps(f)
         def wrapper(*args, **kwds):
             nonlocal results
-            measurement_handle = start_measurement()
+            handle = start_tracking()
             try:
                 return f(*args, **kwds)
             finally:
                 results.clear()
-                tmp_results = stop_measurement(measurement_handle)
+                tmp_results = stop_tracking(handle)
                 results.update(tmp_results)
 
         results_wrapper = cast(Union[Callable[P, T], ResultsAccessor], wrapper)
@@ -539,7 +539,7 @@ def measured(
             @wraps(f)
             def wrapper(*args, **kwds):
                 nonlocal results
-                measurement_handle = start_measurement(
+                handle = start_tracking(
                     measures=measures,
                     poll_intervall_ms=poll_intervall_ms,
                     log_callback=log_callback,
@@ -548,7 +548,7 @@ def measured(
                     return f(*args, **kwds)
                 finally:
                     results.clear()
-                    tmp_results = stop_measurement(measurement_handle)
+                    tmp_results = stop_tracking(handle)
                     results.update(tmp_results)
 
             results_wrapper = cast(Union[Callable[P, T], ResultsAccessor], wrapper)
