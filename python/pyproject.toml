@@ -22,10 +22,10 @@ classifiers = [
 ]
 dependencies = [
     "typing-extensions~=4.12",
+    "importlib-metadata~=8.6",
     "ipython~=8.32",
     "mergedeep~=1.3",
     "pyyaml~=6.0",
-    "setuptools~=75.8",
 ]
 dynamic = ["version"]
 
