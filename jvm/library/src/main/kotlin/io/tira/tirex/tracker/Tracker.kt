@@ -5,7 +5,10 @@ package io.tira.tirex.tracker
 import com.sun.jna.*
 import com.sun.jna.Structure.FieldOrder
 import com.sun.jna.platform.unix.LibCAPI
-
+import kotlinx.serialization.json.Json
+import java.io.Closeable
+import java.io.File
+import java.nio.file.Path
 
 private const val ENCODING = "ascii"
 
@@ -45,7 +48,20 @@ enum class Measure(val value: Int) {
     GPU_ENERGY_SYSTEM_JOULES(33), GIT_IS_REPO(34), GIT_HASH(35), GIT_LAST_COMMIT_HASH(36), GIT_BRANCH(37), GIT_BRANCH_UPSTREAM(
         38
     ),
-    GIT_TAGS(39), GIT_REMOTE_ORIGIN(40), GIT_UNCOMMITTED_CHANGES(41), GIT_UNPUSHED_CHANGES(42), GIT_UNCHECKED_FILES(43);
+    GIT_TAGS(39), GIT_REMOTE_ORIGIN(40), GIT_UNCOMMITTED_CHANGES(41), GIT_UNPUSHED_CHANGES(42), GIT_UNCHECKED_FILES(43), JAVA_VERSION(
+        2001
+    ),
+    JAVA_VERSION_DATE(2002), JAVA_VENDOR(2003), JAVA_VENDOR_URL(2004), JAVA_VENDOR_VERSION(2005), JAVA_HOME(2006), JAVA_VM_SPECIFICATION_VERSION(
+        2007
+    ),
+
+    JAVA_VM_SPECIFICATION_VENDOR(2008), JAVA_VM_SPECIFICATION_NAME(2009), JAVA_VM_VERSION(2010), JAVA_VM_VENDOR(2011), JAVA_VM_NAME(
+        2012
+    ),
+    JAVA_SPECIFICATION_VERSION(2013), JAVA_SPECIFICATION_MAINTENANCE_VERSION(2014), JAVA_SPECIFICATION_VENDOR(2015), JAVA_SPECIFICATION_NAME(
+        2016
+    ),
+    JAVA_CLASS_VERSION(2017), JAVA_CLASS_PATH(2018), JAVA_LIBRARY_PATH(2019), JAVA_IO_TMPDIR(2020);
 
     companion object {
         internal fun fromValue(value: Int): Measure {
@@ -59,6 +75,7 @@ enum class Measure(val value: Int) {
 
 private const val INVALID_MEASURE = -1
 
+@Suppress("unused")
 @JvmField
 val ALL_MEASURES = Measure.entries.toSet()
 
@@ -77,13 +94,14 @@ enum class Aggregation(val value: Int) {
 
 private const val INVALID_AGGREGATION = -1
 
+@Suppress("unused")
 @JvmField
 val ALL_AGGREGATIONS = Aggregation.entries.toSet()
 
-class MeasurementHandle : Structure()
+//internal class NativeTrackingHandle : Structure()
 
 enum class ResultType(val value: Int) {
-    STRING(0), INTEGER(1), FLOATING(2);
+    STRING(0), INTEGER(1), FLOATING(2), STRING_LIST(3), BOOLEAN(4);
 
     companion object {
         internal fun fromValue(value: Int): ResultType {
@@ -95,7 +113,7 @@ enum class ResultType(val value: Int) {
     }
 }
 
-internal class Result : Structure()
+//internal class NativeResult : Structure()
 
 data class ResultEntry(
     val source: Measure,
@@ -161,11 +179,11 @@ interface LogCallback {
     operator fun invoke(level: LogLevel, component: String, message: String)
 }
 
-private object NoopLogCallback : LogCallback {
-    override fun invoke(level: LogLevel, component: String, message: String) = Unit
-}
-
-fun noopLogCallback(level: LogLevel, component: String, message: String) = Unit
+fun noopLogCallback(
+    @Suppress("unused") level: LogLevel,
+    @Suppress("unused") component: String,
+    @Suppress("unused") message: String
+) = Unit
 
 internal interface NativeLogCallback : Callback {
     fun invoke(level: Int, component: String, message: String)
@@ -216,6 +234,13 @@ internal open class NativeProviderInfo(pointer: Pointer? = null) : Structure(poi
 }
 
 
+private val JAVA_PROVIDER = ProviderInfo(
+    name = "Python",
+    description = "Python-specific measures.",
+    version = Build.PROJECT_VERSION,
+)
+
+
 data class MeasureInfo(
     val description: String,
     val dataType: ResultType,
@@ -244,23 +269,181 @@ internal open class NativeMeasureInfo(pointer: Pointer? = null) : Structure(poin
     }
 }
 
+private val JAVA_MEASURES: Map<Measure, MeasureInfo> = mapOf(
+    Measure.JAVA_VERSION to MeasureInfo(
+        description = "Java Runtime Environment version.",
+        dataType = ResultType.STRING,
+        example = Json.encodeToString("21.0.6"),
+    ),
+    Measure.JAVA_VERSION_DATE to MeasureInfo(
+        description = "Java Runtime Environment version date, in ISO-8601 YYYY-MM-DD format.",
+        dataType = ResultType.STRING,
+        example = Json.encodeToString("2025-01-21"),
+    ),
+    Measure.JAVA_VENDOR to MeasureInfo(
+        description = "Java Runtime Environment vendor.",
+        dataType = ResultType.STRING,
+        example = Json.encodeToString("Ubuntu"),
+    ),
+    Measure.JAVA_VENDOR_URL to MeasureInfo(
+        description = "Java Runtime Environment vendor URL.",
+        dataType = ResultType.STRING,
+        example = Json.encodeToString("https://ubuntu.com/"),
+    ),
+    Measure.JAVA_VENDOR_VERSION to MeasureInfo(
+        description = "Java Runtime Environment vendor version.",
+        dataType = ResultType.STRING,
+        example = Json.encodeToString("21.0.6+7-Ubuntu-124.04.1"),
+    ),
+    Measure.JAVA_HOME to MeasureInfo(
+        description = "Java installation directory.",
+        dataType = ResultType.STRING,
+        example = Json.encodeToString("/usr/lib/jvm/java-21-openjdk-amd64"),
+    ),
+    Measure.JAVA_VM_SPECIFICATION_VERSION to MeasureInfo(
+        description = "Java Virtual Machine specification version.",
+        dataType = ResultType.STRING,
+        example = Json.encodeToString("21"),
+    ),
+    Measure.JAVA_VM_SPECIFICATION_VENDOR to MeasureInfo(
+        description = "Java Virtual Machine specification vendor.",
+        dataType = ResultType.STRING,
+        example = Json.encodeToString("Oracle Corporation"),
+    ),
+    Measure.JAVA_VM_SPECIFICATION_NAME to MeasureInfo(
+        description = "Java Virtual Machine specification name.",
+        dataType = ResultType.STRING,
+        example = Json.encodeToString("Java Virtual Machine Specification"),
+    ),
+    Measure.JAVA_VM_VERSION to MeasureInfo(
+        description = "Java Virtual Machine implementation version.",
+        dataType = ResultType.STRING,
+        example = Json.encodeToString("21.0.6+7-Ubuntu-124.04.1"),
+    ),
+    Measure.JAVA_VM_VENDOR to MeasureInfo(
+        description = "Java Virtual Machine implementation vendor.",
+        dataType = ResultType.STRING,
+        example = Json.encodeToString("Ubuntu"),
+    ),
+    Measure.JAVA_VM_NAME to MeasureInfo(
+        description = "Java Virtual Machine implementation name.",
+        dataType = ResultType.STRING,
+        example = Json.encodeToString("OpenJDK 64-Bit Server VM"),
+    ),
+    Measure.JAVA_SPECIFICATION_VERSION to MeasureInfo(
+        description = "Java Runtime Environment specification version.",
+        dataType = ResultType.STRING,
+        example = Json.encodeToString("21"),
+    ),
+    Measure.JAVA_SPECIFICATION_MAINTENANCE_VERSION to MeasureInfo(
+        description = "Java Runtime Environment specification maintenance version.",
+        dataType = ResultType.STRING,
+        example = Json.encodeToString("1"),
+    ),
+    Measure.JAVA_SPECIFICATION_VENDOR to MeasureInfo(
+        description = "Java Runtime Environment specification vendor.",
+        dataType = ResultType.STRING,
+        example = Json.encodeToString("Oracle Corporation"),
+    ),
+    Measure.JAVA_SPECIFICATION_NAME to MeasureInfo(
+        description = "Java Runtime Environment specification name.",
+        dataType = ResultType.STRING,
+        example = Json.encodeToString("Java Platform API Specification"),
+    ),
+    Measure.JAVA_CLASS_VERSION to MeasureInfo(
+        description = "Latest Java class file format version recognized by the Java runtime.",
+        dataType = ResultType.STRING,
+        example = Json.encodeToString("65.0"),
+    ),
+    Measure.JAVA_CLASS_PATH to MeasureInfo(
+        description = "Java class path.",
+        dataType = ResultType.STRING_LIST,
+        example = Json.encodeToString(
+            listOf<String>(
+                "/path/to/build/classes/java/main",
+                "/path/to/build/classes/kotlin/main",
+                "/path/to/kotlin-stdlib-2.1.10.jar",
+                "/path/to/jna-5.16.0.jar",
+                "/pth/to/jna-platform-5.16.0.jar",
+            )
+        ),
+    ),
+    Measure.JAVA_LIBRARY_PATH to MeasureInfo(
+        description = "List of paths to search when loading libraries.",
+        dataType = ResultType.STRING_LIST,
+        example = Json.encodeToString(
+            listOf<String>(
+                "/usr/lib/x86_64-linux-gnu/jni",
+                "/lib/x86_64-linux-gnu",
+                "/usr/lib/x86_64-linux-gnu",
+                "/usr/lib/jni",
+                "/lib",
+                "/usr/lib",
+            )
+        ),
+    ),
+    Measure.JAVA_IO_TMPDIR to MeasureInfo(
+        description = "Default temp file path.",
+        dataType = ResultType.STRING,
+        example = Json.encodeToString("/tmp"),
+    ),
+)
+
+
+private fun getJavaInfo(measures: Iterable<Measure>): Pair<Map<Measure, ResultEntry>, Iterable<Measure>> {
+    val results = mutableMapOf<Measure, ResultEntry>()
+
+    for (measure in measures) {
+        if (measure !in JAVA_MEASURES.keys) continue
+
+        val propertyName = measure.name.lowercase().replace("_", ".")
+        val property: String? = System.getProperty(propertyName)
+
+        val resultEntry = when (measure) {
+            Measure.JAVA_CLASS_PATH, Measure.JAVA_LIBRARY_PATH -> ResultEntry(
+                source = measure,
+                value = Json.encodeToString(property?.split(File.pathSeparator) ?: listOf()),
+                type = ResultType.STRING_LIST,
+            )
+
+            else -> ResultEntry(
+                source = measure,
+                value = Json.encodeToString(property),
+                type = ResultType.STRING,
+            )
+        }
+
+        results[measure] = resultEntry
+    }
+
+    val filteredMeasures = measures.filterNot { it in JAVA_MEASURES.keys }
+
+    return results to filteredMeasures
+}
+
+enum class ExportFormat(val value: String) {
+    IR_METADATA("ir_metadata");
+}
+
 
 private interface TrackerLibrary : Library {
     fun msrResultEntryGetByIndex(result: Pointer, index: LibCAPI.size_t, entry: Pointer): Int
     fun msrResultEntryNum(result: Pointer, num: Pointer): Int
     fun msrResultFree(result: Pointer)
     fun msrFetchInfo(measures: Array<NativeMeasureConfiguration>, result: Pointer): Int
-    fun msrStartMeasure(measures: Array<NativeMeasureConfiguration>, pollIntervalMs: LibCAPI.size_t, handle: Pointer): Int
-    fun msrStopMeasure(handle: Pointer, result: Pointer): Int
+    fun msrStartMeasure(
+        measures: Array<NativeMeasureConfiguration>, pollIntervalMs: LibCAPI.size_t, handle: Pointer
+    ): Int
 
-    //FIXME:
-    //fun msrSetLogCallback(callback: NativeLogCallback)
+    fun msrStopMeasure(handle: Pointer, result: Pointer): Int
+    fun msrSetLogCallback(callback: NativeLogCallback)
     fun msrDataProviderGetAll(buffer: Array<NativeProviderInfo>?, bufferSize: LibCAPI.size_t): LibCAPI.size_t
     fun msrMeasureInfoGet(measure: Int, info: Pointer): Int
+    fun msrResultExportIrMetadata(info: Pointer, result: Pointer, filePath: String): Int
 }
 
 private val LIBRARY = Native.load(
-    "measureapi",
+    "measure_full",
     TrackerLibrary::class.java,
     mapOf(Library.OPTION_STRING_ENCODING to ENCODING),
 )
@@ -286,6 +469,22 @@ private fun handleError(error: Error) {
 private fun handleError(error: Int) = handleError(Error.fromValue(error))
 
 
+@Suppress("unused")
+@JvmOverloads
+fun setLogCallback(
+    logCallback: ((level: LogLevel, component: String, message: String) -> Unit) = ::noopLogCallback,
+) {
+    LIBRARY.msrSetLogCallback(logCallback.toNativeLogCallback())
+}
+
+@Suppress("unused")
+
+fun setLogCallback(
+    logCallback: LogCallback,
+) {
+    LIBRARY.msrSetLogCallback(logCallback.toNativeLogCallback())
+}
+
 val providerInfos: Collection<ProviderInfo> by lazy {
     val numProviders = LIBRARY.msrDataProviderGetAll(null, LibCAPI.size_t(0)).toInt()
     if (numProviders == 0) {
@@ -293,41 +492,71 @@ val providerInfos: Collection<ProviderInfo> by lazy {
     }
     @Suppress("UNCHECKED_CAST") val buffer = NativeProviderInfo().toArray(numProviders) as Array<NativeProviderInfo>
     LIBRARY.msrDataProviderGetAll(buffer, LibCAPI.size_t(numProviders.toLong()))
-    buffer.map { it.toProvider() }
+    buffer.map { it.toProvider() } + listOf(JAVA_PROVIDER)
 }
 
 val measureInfos: Map<Measure, MeasureInfo> by lazy {
     ALL_MEASURES.associateWith { measure ->
-        usePointer { measureInfoPointer ->
-            val errorInt = LIBRARY.msrMeasureInfoGet(measure.value, measureInfoPointer)
-            handleError(errorInt)
-            NativeMeasureInfo(measureInfoPointer.getPointer(0)).toMeasureInfo()
+        if (measure in JAVA_MEASURES.keys) {
+            JAVA_MEASURES.getValue(measure)
+        } else {
+            usePointer { measureInfoPointer ->
+                val errorInt = LIBRARY.msrMeasureInfoGet(measure.value, measureInfoPointer)
+                handleError(errorInt)
+                NativeMeasureInfo(measureInfoPointer.getPointer(0)).toMeasureInfo()
+            }
         }
     }
 }
 
-// TODO: Add aggregation(s) (mapping) parameter.
-// TODO: Maybe rename this function.
-@JvmOverloads
-fun fetchInfo(
-    measures: Iterable<Measure> = ALL_MEASURES,
-    logCallback: ((level: LogLevel, component: String, message: String) -> Unit) = ::noopLogCallback,
-): Map<Measure, ResultEntry> {
-    //FIXME:
-    //LIBRARY.msrSetLogCallback(logCallback.toNativeLogCallback())
+private fun parseResults(result: Pointer): Map<Measure, ResultEntry> {
+    val numEntries: Long = usePointer { numEntriesPointer ->
+        val errorInt = LIBRARY.msrResultEntryNum(result, numEntriesPointer)
+        handleError(errorInt)
+        LibCAPI.size_t.ByReference().also {
+            it.pointer = numEntriesPointer
+        }.longValue()
+    }
+    val entries = (0 until numEntries).map { index ->
+        NativeResultEntry().use { resultEntry ->
+            val errorInt = LIBRARY.msrResultEntryGetByIndex(result, LibCAPI.size_t(index), resultEntry.pointer)
+            handleError(errorInt)
+            resultEntry.toResultEntry()
+        }
+    }
+    LIBRARY.msrResultFree(result)
+    return entries.associate { entry ->
+        entry.source to entry
+    }
+}
 
+private fun prepareMeasureConfigurations(measures: Iterable<Measure>): Array<NativeMeasureConfiguration> {
     val configs = measures.map { measure ->
         NativeMeasureConfiguration().also {
             it.measure = measure.value
             it.aggregation = Aggregation.NO.value
         }
     } + NULL_MEASURE_CONFIGURATION
-    @Suppress("UNCHECKED_CAST") val configArray = NativeMeasureConfiguration().toArray(configs.size) as Array<NativeMeasureConfiguration>
+    @Suppress("UNCHECKED_CAST") val configArray =
+        NativeMeasureConfiguration().toArray(configs.size) as Array<NativeMeasureConfiguration>
     configs.forEachIndexed { i, config ->
         configArray[i].measure = config.measure
         configArray[i].aggregation = config.aggregation
         configArray[i].write()
     }
+    return configArray
+}
+
+// TODO: Add aggregation(s) (mapping) parameter.
+@JvmOverloads
+fun fetchInfo(
+    measures: Iterable<Measure> = ALL_MEASURES,
+): Map<Measure, ResultEntry> {
+    // Get Java info first, and then strip Java measures from the list.
+    val (javaInfo, remainingMeasures) = getJavaInfo(measures)
+
+    // Prepare the measure configurations.
+    val configArray = prepareMeasureConfigurations(remainingMeasures)
 
     val result: Pointer = usePointer { resultPointer ->
         val errorInt = LIBRARY.msrFetchInfo(configArray, resultPointer)
@@ -335,102 +564,229 @@ fun fetchInfo(
         resultPointer.getPointer(0)
     }
 
-    //FIXME:
-    //LIBRARY.msrSetLogCallback(::noopLogCallback.toNativeLogCallback())
+    return parseResults(result) + javaInfo
+}
 
-    val numEntries: Long = usePointer { numEntriesPointer ->
-        val errorInt = LIBRARY.msrResultEntryNum(result, numEntriesPointer)
-        handleError(errorInt)
-        LibCAPI.size_t.ByReference().also {
-            it.pointer = numEntriesPointer
-        }.longValue()
+
+class TrackingHandle private constructor(
+    private val fetchInfoResult: Pointer,
+    private val trackingHandle: Pointer,
+    private val javaInfo: Map<Measure, ResultEntry>,
+    private val systemName: String?,
+    private val systemDescription: String?,
+    private val exportFilePath: File?,
+    private val exportFormat: ExportFormat?,
+    val results: MutableMap<Measure, ResultEntry>,
+) : AutoCloseable, Closeable, Map<Measure, ResultEntry> by results {
+
+    companion object {
+        // TODO: Add aggregation(s) (mapping) parameter.
+        @JvmStatic
+        @JvmOverloads
+        fun start(
+            measures: Iterable<Measure> = ALL_MEASURES,
+            pollIntervalMillis: Long = -1,
+            systemName: String? = null,
+            systemDescription: String? = null,
+            exportFilePath: File? = null,
+            exportFormat: ExportFormat? = null,
+        ): TrackingHandle {
+            // Get Java info first, and then strip Java measures from the list.
+            val (javaInfo, remainingMeasures) = getJavaInfo(measures)
+
+            // Prepare the measure configurations.
+            val configArray = prepareMeasureConfigurations(remainingMeasures)
+
+            // Get other info, first, before starting the tracking.
+            val fetchInfoResult: Pointer = usePointer { resultPointer ->
+                val errorInt = LIBRARY.msrFetchInfo(configArray, resultPointer)
+                handleError(errorInt)
+                resultPointer.getPointer(0)
+            }
+
+            // Start the tracking.
+            val trackingHandle = usePointer { measurementHandlePointer ->
+                val errorInt =
+                    LIBRARY.msrStartMeasure(configArray, LibCAPI.size_t(pollIntervalMillis), measurementHandlePointer)
+                handleError(errorInt)
+                measurementHandlePointer.getPointer(0)
+            }
+
+            return TrackingHandle(
+                fetchInfoResult = fetchInfoResult,
+                trackingHandle = trackingHandle,
+                javaInfo = javaInfo,
+                systemName = systemName,
+                systemDescription = systemDescription,
+                exportFilePath = exportFilePath,
+                exportFormat = exportFormat,
+                results = mutableMapOf(),
+            )
+        }
+
+        @Suppress("unused")
+        @JvmStatic
+        @JvmOverloads
+        fun start(
+            measures: Iterable<Measure> = ALL_MEASURES,
+            pollIntervalMillis: Long = -1,
+            systemName: String? = null,
+            systemDescription: String? = null,
+            exportFilePath: Path,
+            exportFormat: ExportFormat? = null,
+        ): TrackingHandle = start(
+            measures = measures,
+            pollIntervalMillis = pollIntervalMillis,
+            systemName = systemName,
+            systemDescription = systemDescription,
+            exportFilePath = exportFilePath.toFile(),
+            exportFormat = exportFormat,
+        )
     }
-    val entries = (0 until numEntries).map { index ->
-        NativeResultEntry().use { resultEntry ->
-            val errorInt = LIBRARY.msrResultEntryGetByIndex(result, LibCAPI.size_t(index), resultEntry.pointer)
+
+    fun stop(): Map<Measure, ResultEntry> {
+        val result: Pointer = usePointer { resultPointer ->
+            val errorInt = LIBRARY.msrStopMeasure(trackingHandle, resultPointer)
             handleError(errorInt)
-            resultEntry.toResultEntry()
+            resultPointer.getPointer(0)
+        }
+
+        export(result)
+
+        results += parseResults(fetchInfoResult)
+        results += javaInfo
+        results += parseResults(result)
+        return results
+    }
+
+    override fun close() {
+        stop()
+    }
+
+    // Note: The `Map` member methods are provided via delegate.
+
+    private fun export(result: Pointer) {
+        if (exportFilePath == null) return
+        when (exportFormat) {
+            null -> return
+            ExportFormat.IR_METADATA -> exportIrMetadata(result)
         }
     }
-    LIBRARY.msrResultFree(result)
-    return entries.associate { entry ->
-        entry.source to entry
+
+    private fun exportIrMetadata(result: Pointer) {
+        if (exportFilePath == null) return
+
+        if (exportFilePath.exists()) {
+            throw IllegalArgumentException("Metadata file already exists.")
+        }
+
+        // Run the C-internal ir_metadata export.
+        LIBRARY.msrResultExportIrMetadata(
+            fetchInfoResult,
+            result,
+            exportFilePath.toString(),
+        )
+
+        println(exportFilePath.readText())
+        // TODO: Parse the initial ir_metadata.
+        // TODO: Add user-provided metadata.
+        // TODO: Add Java-specific metadata.
+        // TODO: Serialize the updated ir_metadata.
     }
 }
 
-// TODO: Add aggregation(s) (mapping) parameter.
+
 @JvmOverloads
 fun startTracking(
     measures: Iterable<Measure> = ALL_MEASURES,
     pollIntervalMillis: Long = -1,
-    logCallback: ((level: LogLevel, component: String, message: String) -> Unit) = ::noopLogCallback,
-): Pointer {
-    //FIXME:
-    //LIBRARY.msrSetLogCallback(logCallback.toNativeLogCallback())
+    systemName: String? = null,
+    systemDescription: String? = null,
+    exportFilePath: File? = null,
+    exportFormat: ExportFormat? = null,
+) = TrackingHandle.start(
+    measures = measures,
+    pollIntervalMillis = pollIntervalMillis,
+    systemName = systemName,
+    systemDescription = systemDescription,
+    exportFilePath = exportFilePath,
+    exportFormat = exportFormat,
+)
 
-    val configs = measures.map { measure ->
-        NativeMeasureConfiguration().also {
-            it.measure = measure.value
-            it.aggregation = Aggregation.NO.value
-        }
-    } + NULL_MEASURE_CONFIGURATION
-    @Suppress("UNCHECKED_CAST") val configArray = NativeMeasureConfiguration().toArray(configs.size) as Array<NativeMeasureConfiguration>
-    configs.forEachIndexed { i, config ->
-        configArray[i].measure = config.measure
-        configArray[i].aggregation = config.aggregation
-        configArray[i].write()
-    }
-
-    return usePointer { measurementHandlePointer ->
-        val errorInt =
-            LIBRARY.msrStartMeasure(configArray, LibCAPI.size_t(pollIntervalMillis), measurementHandlePointer)
-        handleError(errorInt)
-        measurementHandlePointer.getPointer(0)
-    }
-}
+@Suppress("unused")
+@JvmOverloads
+fun startTracking(
+    measures: Iterable<Measure> = ALL_MEASURES,
+    pollIntervalMillis: Long = -1,
+    systemName: String? = null,
+    systemDescription: String? = null,
+    exportFilePath: Path,
+    exportFormat: ExportFormat? = null,
+) = startTracking(
+    measures = measures,
+    pollIntervalMillis = pollIntervalMillis,
+    systemName = systemName,
+    systemDescription = systemDescription,
+    exportFilePath = exportFilePath.toFile(),
+    exportFormat = exportFormat,
+)
 
 
-fun stopTracking(measureHandle: Pointer): Map<Measure, ResultEntry> {
-    val result: Pointer = usePointer { resultPointer ->
-        val errorInt = LIBRARY.msrStopMeasure(measureHandle, resultPointer)
-        handleError(errorInt)
-        resultPointer.getPointer(0)
-    }
+fun stopTracking(trackingHandle: TrackingHandle) = trackingHandle.stop()
 
-    //FIXME:
-    //LIBRARY.msrSetLogCallback(::noopLogCallback.toNativeLogCallback())
 
-    val numEntries: Long = usePointer { numEntriesPointer ->
-        val errorInt = LIBRARY.msrResultEntryNum(result, numEntriesPointer)
-        handleError(errorInt)
-        LibCAPI.size_t.ByReference().also {
-            it.pointer = numEntriesPointer
-        }.longValue()
-    }
-    val entries = (0 until numEntries).map { index ->
-        NativeResultEntry().use { resultEntry ->
-            val errorInt = LIBRARY.msrResultEntryGetByIndex(result, LibCAPI.size_t(index), resultEntry.pointer)
-            handleError(errorInt)
-            resultEntry.toResultEntry()
-        }
-    }
-    LIBRARY.msrResultFree(result)
-    return entries.associate { entry ->
-        entry.source to entry
-    }
-}
+@JvmOverloads
+fun tracking(
+    measures: Iterable<Measure> = ALL_MEASURES,
+    pollIntervalMillis: Long = -1,
+    systemName: String? = null,
+    systemDescription: String? = null,
+    exportFilePath: File? = null,
+    exportFormat: ExportFormat? = null,
+) = TrackingHandle.start(
+    measures = measures,
+    pollIntervalMillis = pollIntervalMillis,
+    systemName = systemName,
+    systemDescription = systemDescription,
+    exportFilePath = exportFilePath,
+    exportFormat = exportFormat,
+)
+
+@Suppress("unused")
+@JvmOverloads
+fun tracking(
+    measures: Iterable<Measure> = ALL_MEASURES,
+    pollIntervalMillis: Long = -1,
+    systemName: String? = null,
+    systemDescription: String? = null,
+    exportFilePath: Path,
+    exportFormat: ExportFormat? = null,
+) = tracking(
+    measures = measures,
+    pollIntervalMillis = pollIntervalMillis,
+    systemName = systemName,
+    systemDescription = systemDescription,
+    exportFilePath = exportFilePath.toFile(),
+    exportFormat = exportFormat,
+)
 
 @JvmOverloads
 inline fun track(
     measures: Iterable<Measure> = ALL_MEASURES,
     pollIntervalMillis: Long = -1,
-    noinline logCallback: (level: LogLevel, component: String, message: String) -> Unit = ::noopLogCallback,
+    systemName: String? = null,
+    systemDescription: String? = null,
+    exportFilePath: File? = null,
+    exportFormat: ExportFormat? = null,
     crossinline block: () -> Unit,
 ): Map<Measure, ResultEntry> {
     val measurement = startTracking(
         measures = measures,
         pollIntervalMillis = pollIntervalMillis,
-        logCallback = logCallback,
+        systemName = systemName,
+        systemDescription = systemDescription,
+        exportFilePath = exportFilePath,
+        exportFormat = exportFormat,
     )
     try {
         block()
@@ -441,6 +797,25 @@ inline fun track(
     return stopTracking(measurement)
 }
 
+@Suppress("unused")
+@JvmOverloads
+inline fun track(
+    measures: Iterable<Measure> = ALL_MEASURES,
+    pollIntervalMillis: Long = -1,
+    systemName: String? = null,
+    systemDescription: String? = null,
+    exportFilePath: Path,
+    exportFormat: ExportFormat? = null,
+    crossinline block: () -> Unit,
+) = track(
+    measures = measures,
+    pollIntervalMillis = pollIntervalMillis,
+    systemName = systemName,
+    systemDescription = systemDescription,
+    exportFilePath = exportFilePath.toFile(),
+    exportFormat = exportFormat,
+    block = block,
+)
 
 interface BlockCallback {
     fun invoke()
@@ -450,68 +825,39 @@ interface BlockCallback {
 fun track(
     measures: Iterable<Measure> = ALL_MEASURES,
     pollIntervalMillis: Long = -1,
-    logCallback: LogCallback = NoopLogCallback,
+    systemName: String? = null,
+    systemDescription: String? = null,
+    exportFilePath: File? = null,
+    exportFormat: ExportFormat? = null,
     block: BlockCallback,
-): Map<Measure, ResultEntry> {
-    return track(
-        measures = measures,
-        pollIntervalMillis = pollIntervalMillis,
-        logCallback = if (logCallback is NoopLogCallback) {
-            ::noopLogCallback
-        } else {
-            { level: LogLevel, component: String, message: String ->
-                logCallback.invoke(level, component, message)
-            }
-        },
-        block = {
-            block.invoke()
-        },
-    )
-}
+) = track(
+    measures = measures,
+    pollIntervalMillis = pollIntervalMillis,
+    systemName = systemName,
+    systemDescription = systemDescription,
+    exportFilePath = exportFilePath,
+    exportFormat = exportFormat,
+    block = {
+        block.invoke()
+    },
+)
 
-class Tracked : AutoCloseable {
-    var results: Map<Measure, ResultEntry> = emptyMap()
-
-    private var handle: Pointer? = null
-
-    constructor(
-        measures: Iterable<Measure> = ALL_MEASURES,
-        pollIntervalMillis: Long = -1,
-        logCallback: LogCallback = NoopLogCallback,
-    ) {
-        val previousHandle = handle
-        if (previousHandle != null) {
-            // Ensure that we do not leak any previously started tracking thread, but discard it.
-            stopTracking(previousHandle)
-        }
-        handle = startTracking()
-    }
-
-    constructor(
-        measures: Iterable<Measure> = ALL_MEASURES,
-        pollIntervalMillis: Long = -1,
-    ) : this(
-        measures = measures,
-        pollIntervalMillis = pollIntervalMillis,
-        logCallback = NoopLogCallback,
-    )
-
-    constructor(
-        measures: Iterable<Measure> = ALL_MEASURES,
-    ) : this(
-        measures = measures,
-        pollIntervalMillis = -1,
-    )
-
-    constructor() : this(
-        measures = ALL_MEASURES,
-    )
-
-    fun stopTracking(): Map<Measure, ResultEntry> {
-        return stopTracking(requireNotNull(handle))
-    }
-
-    override fun close() {
-        results = stopTracking()
-    }
-}
+@Suppress("unused")
+@JvmOverloads
+fun track(
+    measures: Iterable<Measure> = ALL_MEASURES,
+    pollIntervalMillis: Long = -1,
+    systemName: String? = null,
+    systemDescription: String? = null,
+    exportFilePath: Path,
+    exportFormat: ExportFormat? = null,
+    block: BlockCallback,
+) = track(
+    measures = measures,
+    pollIntervalMillis = pollIntervalMillis,
+    systemName = systemName,
+    systemDescription = systemDescription,
+    exportFilePath = exportFilePath.toFile(),
+    exportFormat = exportFormat,
+    block = block,
+)
