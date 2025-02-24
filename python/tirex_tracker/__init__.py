@@ -13,8 +13,9 @@ from ctypes import (
     Array,
     CFUNCTYPE,
 )
-from functools import wraps
+from dataclasses import dataclass
 from enum import IntEnum, auto, Enum
+from functools import wraps
 from importlib_metadata import distributions, version
 from importlib_resources import files
 from io import BytesIO
@@ -49,7 +50,7 @@ from typing import (
 )
 
 from IPython import get_ipython
-from typing_extensions import ParamSpec  # type: ignore
+from typing_extensions import ParamSpec, Self  # type: ignore
 from ruamel.yaml import YAML
 
 
@@ -236,10 +237,10 @@ def _noop_log_callback(level: LogLevel, component: str, message: str):
 
 
 def _to_native_log_callback(log_callback: LogCallback) -> CFunctionType:
-    @CFUNCTYPE(None, c_int, c_char_p, c_char_p)
-    def _log_callback(level: c_int, component: c_char_p, message: c_char_p) -> None:
+    @CFUNCTYPE(c_void_p, c_int, c_char_p, c_char_p)
+    def _log_callback(level: c_int, component: c_char_p, message: c_char_p) -> c_void_p:
         if log_callback is _noop_log_callback:
-            return  # Do nothing.
+            return c_void_p()  # Do nothing.
 
         component_bytes = component.value
         if component_bytes is None:
@@ -253,6 +254,8 @@ def _to_native_log_callback(log_callback: LogCallback) -> CFunctionType:
             component_bytes.decode(_ENCODING),
             message_bytes.decode(_ENCODING),
         )
+
+        return c_void_p()
 
     return _log_callback
 
@@ -471,7 +474,6 @@ def _get_python_info(
     )
 
     if ipython is not None:
-        # TODO: Add IPython-specific metadata to `ir_metadata`.
         with TemporaryDirectory(delete=False) as temp_dir:
             tmp_dir_path = Path(temp_dir)
 
@@ -638,7 +640,6 @@ def _load_library() -> _TirexTrackerLibrary:
         POINTER(POINTER(_Result)),
     ]
     library.msrStopMeasure.restype = c_int
-    # FIXME:
     library.msrSetLogCallback.argtypes = [c_void_p]
     library.msrSetLogCallback.restype = c_void_p
     library.msrDataProviderGetAll.argtypes = [Array[_ProviderInfo], c_size_t]
@@ -666,9 +667,7 @@ def _handle_error(error_int: int) -> None:
 
 
 def set_log_callback(log_callback: LogCallback = _noop_log_callback) -> None:
-    # FIXME
-    # _LIBRARY.msrSetLogCallback(_to_native_log_callback(log_callback))
-    return
+    _LIBRARY.msrSetLogCallback(_to_native_log_callback(log_callback))
 
 
 def provider_infos() -> Collection[ProviderInfo]:
@@ -733,10 +732,10 @@ def fetch_info(
     measures: Iterable[Measure] = ALL_MEASURES,
 ) -> Mapping[Measure, ResultEntry]:
     # Get Python info first, and then strip Python measures from the list.
-    python_info, measures = _get_python_info(measures=measures)
+    python_info, remaining_measures = _get_python_info(measures)
 
     # Prepare the measure configurations.
-    configs_array = _prepare_measure_configurations(measures)
+    configs_array = _prepare_measure_configurations(remaining_measures)
 
     result_pointer = pointer(pointer(_Result()))
     error_int = _LIBRARY.msrFetchInfo(configs_array, result_pointer)
@@ -748,27 +747,30 @@ def fetch_info(
     }
 
 
+@dataclass(frozen=True)
 class TrackingHandle(
     AbstractContextManager["TrackingHandle", None], Mapping[Measure, ResultEntry]
 ):
     _fetch_info_result: Pointer[_Result]
-    _handle: Pointer[_TrackingHandle]
+    _tracking_handle: Pointer[_TrackingHandle]
     _python_info: Mapping[Measure, ResultEntry]
-    _results: MutableMapping[Measure, ResultEntry] = {}
     _system_name: Optional[str]
     _system_description: Optional[str]
     _export_file_path: Optional[PathLike[str]]
     _export_format: Optional[ExportFormat]
+    results: MutableMapping[Measure, ResultEntry]
 
-    def __init__(
-        self,
+    # TODO: Add aggregation(s) (mapping) parameter.
+    @classmethod
+    def start(
+        cls,
         measures: Iterable[Measure] = ALL_MEASURES,
         poll_intervall_ms: int = -1,
         system_name: Optional[str] = None,
         system_description: Optional[str] = None,
         export_file_path: Optional[PathLike[str]] = None,
         export_format: Optional[ExportFormat] = None,
-    ) -> None:
+    ) -> Self:
         # Get Python info first, and then strip Python measures from the list.
         python_info, measures = _get_python_info(measures=measures)
 
@@ -779,54 +781,50 @@ class TrackingHandle(
         result_pointer = pointer(pointer(_Result()))
         error_int = _LIBRARY.msrFetchInfo(configs_array, result_pointer)
         _handle_error(error_int)
-        self._fetch_info_result = result_pointer.contents
+        fetch_info_result = result_pointer.contents
 
+        # Start the tracking.
         tracking_handle_pointer = pointer(pointer(_TrackingHandle()))
         error_int = _LIBRARY.msrStartMeasure(
             configs_array, poll_intervall_ms, tracking_handle_pointer
         )
         _handle_error(error_int)
+        tracking_handle = tracking_handle_pointer.contents
 
-        self._handle = tracking_handle_pointer.contents
-        self._python_info = python_info
-
-        self._system_name = system_name
-        self._system_description = system_description
-        self._export_file_path = export_file_path
-        self._export_format = export_format
+        return cls(
+            _fetch_info_result=fetch_info_result,
+            _tracking_handle=tracking_handle,
+            _python_info=python_info,
+            _system_name=system_name,
+            _system_description=system_description,
+            _export_file_path=export_file_path,
+            _export_format=export_format,
+            results={},
+        )
 
     def stop(self) -> Mapping[Measure, ResultEntry]:
         result_pointer = pointer(pointer(_Result()))
-        error_int = _LIBRARY.msrStopMeasure(self._handle, result_pointer)
+        error_int = _LIBRARY.msrStopMeasure(self._tracking_handle, result_pointer)
         _handle_error(error_int)
 
         self._export(result_pointer.contents)
 
-        self._results.clear()
-        self._results.update(
-            {
-                **_parse_results(self._fetch_info_result),
-                **_parse_results(result_pointer.contents),
-                **self._python_info,
-            }
-        )
-        return self._results
+        self.results.update(_parse_results(self._fetch_info_result))
+        self.results.update(self._python_info)
+        self.results.update(_parse_results(result_pointer.contents))
+        return self.results
 
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         self.stop()
 
-    @property
-    def results(self) -> Mapping[Measure, ResultEntry]:
-        return self._results
-
     def __len__(self) -> int:
-        return len(self._results)
+        return len(self.results)
 
     def __iter__(self) -> Iterator[Measure]:
-        return iter(self._results)
+        return iter(self.results)
 
     def __getitem__(self, key) -> ResultEntry:
-        return self._results[key]
+        return self.results[key]
 
     @overload
     def get(self, key: Measure) -> Optional[ResultEntry]: ...
@@ -836,19 +834,19 @@ class TrackingHandle(
     def get(
         self, key: Measure, default: Optional[T] = None
     ) -> Optional[Union[ResultEntry, T]]:
-        return self._results.get(key, default)
+        return self.results.get(key, default)
 
     def __contains__(self, key) -> bool:
-        return key in self._results
+        return key in self.results
 
     def keys(self) -> KeysView[Measure]:
-        return self._results.keys()
+        return self.results.keys()
 
     def items(self) -> ItemsView[Measure, ResultEntry]:
-        return self._results.items()
+        return self.results.items()
 
     def values(self) -> ValuesView[ResultEntry]:
-        return self._results.values()
+        return self.results.values()
 
     def __eq__(self, other) -> bool:
         return NotImplemented
@@ -856,7 +854,7 @@ class TrackingHandle(
     def _export(self, result: Pointer[_Result]) -> None:
         if self._export_file_path is None:
             return
-        elif self._export_file_path is None:
+        elif self._export_format is None:
             return
         elif self._export_format == ExportFormat.IR_METADATA:
             self._export_ir_metadata(result)
@@ -869,9 +867,9 @@ class TrackingHandle(
 
         export_file_path = Path(self._export_file_path)
         if export_file_path.exists():
-            raise ValueError("Metadata file already exists in the output directory.")
+            raise ValueError("Metadata file already exists.")
 
-        # Run the C-internal ir_metadata export from the `tracking_handle` to `output_file_path`.
+        # Run the C-internal ir_metadata export.
         _LIBRARY.msrResultExportIrMetadata(
             self._fetch_info_result,
             result,
@@ -958,7 +956,7 @@ def start_tracking(
     export_file_path: Optional[PathLike[str]] = None,
     export_format: Optional[ExportFormat] = None,
 ) -> TrackingHandle:
-    return TrackingHandle(
+    return TrackingHandle.start(
         measures=measures,
         poll_intervall_ms=poll_intervall_ms,
         system_name=system_name,
@@ -983,7 +981,7 @@ def tracking(
     export_file_path: Optional[PathLike[str]] = None,
     export_format: Optional[ExportFormat] = None,
 ) -> TrackingHandle:
-    return start_tracking(
+    return TrackingHandle.start(
         measures=measures,
         poll_intervall_ms=poll_intervall_ms,
         system_name=system_name,
@@ -991,6 +989,28 @@ def tracking(
         export_file_path=export_file_path,
         export_format=export_format,
     )
+
+
+# TODO: Add aggregation(s) (mapping) parameter.
+def track(
+    block: Callable[[], None],
+    measures: Iterable[Measure] = ALL_MEASURES,
+    poll_intervall_ms: int = -1,
+    system_name: Optional[str] = None,
+    system_description: Optional[str] = None,
+    export_file_path: Optional[PathLike[str]] = None,
+    export_format: Optional[ExportFormat] = None,
+) -> Mapping[Measure, ResultEntry]:
+    with tracking(
+        measures=measures,
+        poll_intervall_ms=poll_intervall_ms,
+        system_name=system_name,
+        system_description=system_description,
+        export_file_path=export_file_path,
+        export_format=export_format,
+    ) as handle:
+        block()
+        return handle.results
 
 
 @overload
@@ -1030,7 +1050,7 @@ def tracked(
         @wraps(f)
         def wrapper(*args, **kwds):
             nonlocal results
-            handle = TrackingHandle()
+            handle = TrackingHandle.start()
             try:
                 return f(*args, **kwds)
             finally:
@@ -1051,7 +1071,7 @@ def tracked(
             @wraps(f)
             def wrapper(*args, **kwds):
                 nonlocal results
-                handle = TrackingHandle(
+                handle = TrackingHandle.start(
                     measures=measures,
                     poll_intervall_ms=poll_intervall_ms,
                     system_name=system_name,
