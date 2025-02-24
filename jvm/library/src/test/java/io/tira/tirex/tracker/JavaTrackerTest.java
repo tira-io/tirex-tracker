@@ -1,8 +1,10 @@
 package io.tira.tirex.tracker;
 
-import com.sun.jna.Pointer;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 
 import static io.tira.tirex.tracker.Tracker.*;
@@ -10,8 +12,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class JavaTrackerTest {
     @Test
-    void testProviderInfos() {
-         Collection< ProviderInfo> actual = getProviderInfos();
+    public void testProviderInfos() {
+        Collection<ProviderInfo> actual = getProviderInfos();
 
         assertNotNull(actual);
         assertInstanceOf(Collection.class, actual);
@@ -19,7 +21,7 @@ public class JavaTrackerTest {
     }
 
     @Test
-    void testMeasureInfos() {
+    public void testMeasureInfos() {
         Map<Measure, MeasureInfo> actual = getMeasureInfos();
 
         assertNotNull(actual);
@@ -31,8 +33,8 @@ public class JavaTrackerTest {
     }
 
     @Test
-    void testFetchInfo() {
-        Map< Measure,  ResultEntry> actual = fetchInfo(Collections.singleton(Measure.OS_NAME));
+    public void testFetchInfo() {
+        Map<Measure, ResultEntry> actual = fetchInfo(Collections.singleton(Measure.OS_NAME));
 
         assertNotNull(actual);
         assertInstanceOf(Map.class, actual);
@@ -55,9 +57,9 @@ public class JavaTrackerTest {
     }
 
     @Test
-    void testMeasureStartAndStop() {
-        Pointer ref = startTracking(Collections.singleton(Measure.TIME_ELAPSED_WALL_CLOCK_MS));
-        Map< Measure,  ResultEntry>  actual;
+    public void testMeasureStartAndStop() {
+        TrackingHandle handle = startTracking(Collections.singleton(Measure.TIME_ELAPSED_WALL_CLOCK_MS));
+        Map<Measure, ResultEntry> actual;
         try {
             try {
                 Thread.sleep(100);
@@ -65,7 +67,7 @@ public class JavaTrackerTest {
                 throw new RuntimeException(e);
             }
         } finally {
-            actual = stopTracking(ref);
+            actual = stopTracking(handle);
         }
 
         assertNotNull(actual);
@@ -92,8 +94,42 @@ public class JavaTrackerTest {
     }
 
     @Test
-    void testMeasureUsingBlock() {
-        Map< Measure,  ResultEntry> actual = track(Collections.singleton(Measure.TIME_ELAPSED_WALL_CLOCK_MS), () -> {
+    public void testMeasureUsingTryWithResources() {
+        TrackingHandle tracked = TrackingHandle.start(Collections.singleton(Measure.TIME_ELAPSED_WALL_CLOCK_MS));
+        try (tracked) {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        Map<Measure, ResultEntry> actual = tracked.getResults();
+
+        assertNotNull(actual);
+        assertInstanceOf(Map.class, actual);
+        assertFalse(actual.isEmpty());
+        for (Measure key : actual.keySet()) {
+            assertInstanceOf(Measure.class, key);
+        }
+        for (ResultEntry value : actual.values()) {
+            assertInstanceOf(ResultEntry.class, value);
+        }
+        assertTrue(actual.containsKey(Measure.TIME_ELAPSED_WALL_CLOCK_MS));
+        ResultEntry resultEntry = actual.get(Measure.TIME_ELAPSED_WALL_CLOCK_MS);
+        assertNotNull(resultEntry);
+        assertNotNull(resultEntry.getSource());
+        assertEquals(Measure.TIME_ELAPSED_WALL_CLOCK_MS, resultEntry.getSource());
+        assertNotNull(resultEntry.getType());
+        //FIXME:
+        //assertEquals(ResultType.FLOATING, resultEntry.getType());
+        assertNotNull(resultEntry.getValue());
+        assertFalse(resultEntry.getValue().isEmpty());
+        float timeElapsed = Float.parseFloat(resultEntry.getValue());
+        assertTrue(timeElapsed > 0.0);
+    }
+
+    @Test
+    public void testMeasureUsingBlock() {
+        Map<Measure, ResultEntry> actual = track(Collections.singleton(Measure.TIME_ELAPSED_WALL_CLOCK_MS), () -> {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -125,15 +161,36 @@ public class JavaTrackerTest {
     }
 
     @Test
-    void testMeasureUsingTryWithResources() {
-        Tracked tracked = new Tracked(Collections.singleton(Measure.TIME_ELAPSED_WALL_CLOCK_MS));
-        try (tracked) {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
+    public void testMeasureExportIrMetadata() {
+
+        File tmpDir;
+        try {
+            tmpDir = Files.createTempDirectory(null).toFile();
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        Map< Measure,  ResultEntry> actual = tracked.getResults();
+        assertTrue(tmpDir.exists());
+        assertTrue(tmpDir.isDirectory());
+
+        File exportFilePath = new File(tmpDir, ".ir_metadata");
+        assertFalse(exportFilePath.exists());
+
+        Map<Measure, ResultEntry> actual = track(
+                ALL_MEASURES,
+                100L,
+                "Test",
+                "A description of Test.",
+                exportFilePath,
+                ExportFormat.IR_METADATA,
+                () -> {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+        );
 
         assertNotNull(actual);
         assertInstanceOf(Map.class, actual);
@@ -156,5 +213,14 @@ public class JavaTrackerTest {
         assertFalse(resultEntry.getValue().isEmpty());
         float timeElapsed = Float.parseFloat(resultEntry.getValue());
         assertTrue(timeElapsed > 0.0);
+
+        assertTrue(exportFilePath.exists());
+        assertTrue(exportFilePath.isFile());
+        assertTrue(exportFilePath.length() > 0L);
+
+        //noinspection ResultOfMethodCallIgnored
+        exportFilePath.delete();
+        //noinspection ResultOfMethodCallIgnored
+        tmpDir.delete();
     }
 }
