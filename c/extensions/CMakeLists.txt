@@ -13,4 +13,4 @@ target_include_directories(measure_full PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${CMAKE
 # following line:
 # target_link_libraries(measure_full PRIVATE "-Wl,--whole-archive" measureapi_static "-Wl,--no-whole-archive")
 target_link_libraries(measure_full PRIVATE "$<LINK_LIBRARY:WHOLE_ARCHIVE,measureapi_static>")
-target_compile_definitions(measureapi_static PUBLIC MEASUREAPI_LIB_EXPORT)
+target_compile_definitions(measure_full PRIVATE MEASUREAPI_LIB_EXPORT)

@@ -10,7 +10,7 @@ concurrency:
 jobs:
   c-build-linux-library:
     name: 🏗️ Build Linux library
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
@@ -35,7 +35,7 @@ jobs:
           path: c/build/extensions/libmeasure_full.so
   c-build-linux-cli:
     name: 🏗️ Build Linux CLI
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
@@ -60,7 +60,7 @@ jobs:
           path: c/build/examples/03_measure_command/measure
   c-build-debian-package:
     name: 🏗️ Build Debian package
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
