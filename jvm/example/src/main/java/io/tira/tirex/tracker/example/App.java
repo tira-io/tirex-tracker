@@ -15,9 +15,11 @@ class App {
     }
 
     public static void main(String[] args) {
+        Tracker.setLogCallback(App::logCallback);
+
         System.out.println(Tracker.getProviderInfos());
         Set<Measure> measures = Set.of(Measure.TIME_ELAPSED_WALL_CLOCK_MS);
-        Map<Measure, ResultEntry> result = Tracker.track(measures, 100L, App::logCallback, () -> {
+        Map<Measure, ResultEntry> result = Tracker.track(measures, 100L, () -> {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
