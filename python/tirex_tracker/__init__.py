@@ -14,7 +14,7 @@ from ctypes import (
     CFUNCTYPE,
 )
 from functools import wraps
-from enum import IntEnum, auto
+from enum import IntEnum, auto, Enum
 from importlib.metadata import distributions, version
 from io import BytesIO
 from json import dumps, loads
@@ -49,7 +49,7 @@ from typing import (
 
 from IPython import get_ipython
 from typing_extensions import ParamSpec  # type: ignore
-from yaml import safe_load, dump
+from ruamel.yaml import YAML
 
 
 if TYPE_CHECKING:
@@ -283,9 +283,16 @@ class _ProviderInfo(Structure):
         )
 
 
+_PYTHON_PROVIDER = ProviderInfo(
+    name="Python",
+    description="Python-specific measures.",
+    version=version("tirex-tracker"),
+)
+
+
 class MeasureInfo(NamedTuple):
     description: str
-    result_type: ResultType
+    data_type: ResultType
     example: str
 
 
@@ -303,69 +310,62 @@ class _MeasureInfo(Structure):
     def to_measure_info(self) -> MeasureInfo:
         return MeasureInfo(
             description=self.description.decode(_ENCODING),
-            result_type=ResultType(self.result_type),
+            data_type=ResultType(self.result_type),
             example=self.example.decode(_ENCODING),
         )
-
-
-_PYTHON_PROVIDER = ProviderInfo(
-    name="Python",
-    description="Python-specific measures.",
-    version=version("tirex-tracker"),
-)
 
 
 _PYTHON_MEASURES: Mapping[Measure, MeasureInfo] = {
     Measure.PYTHON_VERSION: MeasureInfo(
         description="Python version used to run the tracked program.",
-        result_type=ResultType.STRING,
+        data_type=ResultType.STRING,
         example=dumps("3.12.0"),
     ),
     Measure.PYTHON_EXECUTABLE: MeasureInfo(
         description="Python executable used to run the program.",
-        result_type=ResultType.STRING,
+        data_type=ResultType.STRING,
         example=dumps("/usr/bin/python3"),
     ),
     Measure.PYTHON_ARGUMENTS: MeasureInfo(
         description="Arguments passed to the Python executable.",
-        result_type=ResultType.STRING_LIST,
+        data_type=ResultType.STRING_LIST,
         example=dumps(["-m", "tirex_tracker"]),
     ),
     Measure.PYTHON_MODULES: MeasureInfo(
         description="Python modules visible in the current environment.",
-        result_type=ResultType.STRING_LIST,
+        data_type=ResultType.STRING_LIST,
         example=dumps(["os", "sys", "json"]),
     ),
     Measure.PYTHON_INSTALLED_PACKAGES: MeasureInfo(
         description="Python packages installed in the current environment.",
-        result_type=ResultType.STRING_LIST,
+        data_type=ResultType.STRING_LIST,
         example=dumps(["tirex-tracker==0.1.0", "numpy==1.21.2"]),
     ),
     Measure.PYTHON_IS_INTERACTIVE: MeasureInfo(
         description="True if the Python interpreter is run interactively.",
-        result_type=ResultType.BOOLEAN,
+        data_type=ResultType.BOOLEAN,
         example=dumps(True),
     ),
     Measure.PYTHON_SCRIPT_FILE_PATH: MeasureInfo(
         description="Path to the Python script file.",
-        result_type=ResultType.STRING,
+        data_type=ResultType.STRING,
         example=dumps("/path/to/script.py"),
     ),
     Measure.PYTHON_SCRIPT_FILE_CONTENTS: MeasureInfo(
         description="Contents of the Python script file.",
-        result_type=ResultType.STRING,
+        data_type=ResultType.STRING,
         example=dumps("""
 print("Hello, World!")
 """),
     ),
     Measure.PYTHON_NOTEBOOK_FILE_PATH: MeasureInfo(
         description="Path to the Jupyter notebook file.",
-        result_type=ResultType.STRING,
+        data_type=ResultType.STRING,
         example=dumps("/path/to/notebook.ipynb"),
     ),
     Measure.PYTHON_NOTEBOOK_FILE_CONTENTS: MeasureInfo(
         description="Contents of the Jupyter notebook file.",
-        result_type=ResultType.STRING,
+        data_type=ResultType.STRING,
         example=dumps("""
 {
  "cells": [
@@ -396,7 +396,7 @@ def _python_result_entry(measure: Measure, value: Any) -> ResultEntry:
     return ResultEntry(
         source=measure,
         value=dumps(value),
-        type=_PYTHON_MEASURES[measure].result_type,
+        type=_PYTHON_MEASURES[measure].data_type,
     )
 
 
@@ -411,7 +411,7 @@ def _add_python_result_entry(
     results[measure] = _python_result_entry(measure, value)
 
 
-def get_python_info(
+def _get_python_info(
     measures: Iterable[Measure],
 ) -> Tuple[Mapping[Measure, ResultEntry], Iterable[Measure]]:
     results: MutableMapping[Measure, ResultEntry] = {}
@@ -479,7 +479,7 @@ def get_python_info(
                 results=results,
                 measure=Measure.PYTHON_SCRIPT_FILE_PATH,
                 measures=measures,
-                value=script_file_path,
+                value=str(script_file_path),
             )
 
             with redirect_stdout(None):
@@ -499,7 +499,7 @@ def get_python_info(
                 results=results,
                 measure=Measure.PYTHON_NOTEBOOK_FILE_PATH,
                 measures=measures,
-                value=notebook_file_path,
+                value=str(notebook_file_path),
             )
 
             with redirect_stdout(None):
@@ -519,7 +519,7 @@ def get_python_info(
             results=results,
             measure=Measure.PYTHON_SCRIPT_FILE_PATH,
             measures=measures,
-            value=script_file_path,
+            value=str(script_file_path),
         )
 
         with script_file_path.open("rt") as file:
@@ -568,97 +568,17 @@ def _recursive_defaultdict() -> dict:
     return defaultdict(_recursive_defaultdict)
 
 
-def _export_ir_metadata(
-    tracking_handle: Pointer[_TrackingHandle],
-    python_info: Mapping[Measure, ResultEntry],
-    output_directory: PathLike = Path.cwd(),
-    system_name: Optional[str] = None,
-    system_description: Optional[str] = None,
-    system_is_indexing: bool = False,
-) -> None:
-    output_directory_path = Path(output_directory)
-    if output_directory_path.exists() and not output_directory_path.is_dir():
-        raise ValueError("The output directory must be a directory.")
-    if not output_directory_path.exists():
-        output_directory_path.mkdir(parents=True, exist_ok=True)
-    output_file_path = output_directory_path / ".ir-metadata"
-    if output_file_path.exists():
-        raise ValueError("Metadata file already exists in the output directory.")
+def _recursive_undefaultdict(dict: dict) -> dict:
+    return {
+        key: _recursive_undefaultdict(value)
+        if isinstance(value, defaultdict)
+        else value
+        for key, value in dict.items()
+    }
 
-    # TODO: Run the C-internal ir_metadata export from the `tracking_handle` to `output_file_path`.
-    tracking_handle
 
-    # Parse the initial ir_metadata.
-    with output_file_path.open("rb") as file:
-        buffer = file.read()
-        buffer.removeprefix(b"ir_metadata.start\n")
-        buffer.removesuffix(b"ir_metadata.end\n")
-        with BytesIO(buffer) as yaml_file:
-            tmp_ir_metadata = safe_load(yaml_file)
-
-    ir_metadata = _recursive_defaultdict()
-    ir_metadata = _deep_merge(ir_metadata, tmp_ir_metadata)
-
-    # Add user-provided metadata.
-    if system_name is not None or system_description is not None:
-        method: dict = {}
-        if system_name is not None:
-            method["name"] = system_name
-        if system_description is not None:
-            method["description"] = system_description
-
-        if system_is_indexing:
-            ir_metadata["method"]["indexing"] = method
-        else:
-            if "retrieval" not in ir_metadata["method"]:
-                ir_metadata["method"]["retrieval"] = [method]
-            else:
-                ir_metadata["method"]["retrieval"] += [method]
-    if system_name is not None:
-        # TODO: Where should the system_name be stored in the ir_metadata?
-        pass
-
-    if system_description is not None:
-        # TODO: Where should the system_description be stored in the ir_metadata?
-        pass
-
-    # Add Python-specific metadata.
-    ir_metadata["implementation"]["executable"]["cmd"] = loads(
-        python_info[Measure.PYTHON_EXECUTABLE].value
-    )
-    ir_metadata["implementation"]["executable"]["args"] = loads(
-        python_info[Measure.PYTHON_ARGUMENTS].value
-    )
-    ir_metadata["implementation"]["executable"]["version"] = loads(
-        python_info[Measure.PYTHON_VERSION].value
-    )
-    ir_metadata["implementation"]["python"]["modules"] = loads(
-        python_info[Measure.PYTHON_VERSION].value
-    )
-    ir_metadata["implementation"]["python"]["packages"] = loads(
-        python_info[Measure.PYTHON_INSTALLED_PACKAGES].value
-    )
-    ir_metadata["implementation"]["python"]["interactive"] = loads(
-        python_info[Measure.PYTHON_IS_INTERACTIVE].value
-    )
-    ir_metadata["implementation"]["script"]["path"] = loads(
-        python_info[Measure.PYTHON_SCRIPT_FILE_PATH].value
-    )
-    ir_metadata["implementation"]["script"]["contents"] = loads(
-        python_info[Measure.PYTHON_SCRIPT_FILE_CONTENTS].value
-    )
-    ir_metadata["implementation"]["notebook"]["path"] = loads(
-        python_info[Measure.PYTHON_NOTEBOOK_FILE_PATH].value
-    )
-    ir_metadata["implementation"]["notebook"]["contents"] = loads(
-        python_info[Measure.PYTHON_NOTEBOOK_FILE_CONTENTS].value
-    )
-
-    # Serialize the updated ir_metadata.
-    with output_file_path.open("wb") as file:
-        file.write(b"ir_metadata.start\n")
-        dump(ir_metadata, file)
-        file.write(b"ir_metadata.end\n")
+class ExportFormat(Enum):
+    IR_METADATA = "ir_metadata"
 
 
 class _TirexTrackerLibrary(CDLL):
@@ -674,10 +594,12 @@ class _TirexTrackerLibrary(CDLL):
         [Array[_MeasureConfiguration], int, Pointer[Pointer[_TrackingHandle]]], int
     ]
     msrStopMeasure: Callable[[Pointer[_TrackingHandle], Pointer[Pointer[_Result]]], int]
-    # FIXME:
-    # msrSetLogCallback: Callable[[CFunctionType], None]
+    msrSetLogCallback: Callable[[CFunctionType], None]
     msrDataProviderGetAll: Callable[[Array[_ProviderInfo], int], int]
     msrMeasureInfoGet: Callable[[int, Pointer[Pointer[_MeasureInfo]]], int]
+    msrResultExportIrMetadata: Callable[
+        [Pointer[_Result], Pointer[_Result], c_char_p], int
+    ]
 
 
 def _find_library() -> Path:
@@ -687,7 +609,6 @@ def _find_library() -> Path:
 
 def _load_library() -> _TirexTrackerLibrary:
     library = cdll.LoadLibrary(str(_find_library()))
-    # Note: Not defining the function argument and return types can cause issues with down-casted addresses for the handle in the past.
     library.msrResultEntryGetByIndex.argtypes = [
         POINTER(_Result),
         c_size_t,
@@ -715,13 +636,18 @@ def _load_library() -> _TirexTrackerLibrary:
     ]
     library.msrStopMeasure.restype = c_int
     # FIXME:
-    # library.msrSetLogCallback.argtypes = [c_void_p]
-    # library.msrSetLogCallback.restype = c_void_p
+    library.msrSetLogCallback.argtypes = [c_void_p]
+    library.msrSetLogCallback.restype = c_void_p
     library.msrDataProviderGetAll.argtypes = [Array[_ProviderInfo], c_size_t]
     library.msrDataProviderGetAll.restype = c_size_t
     library.msrMeasureInfoGet.argtypes = [c_int, POINTER(POINTER(_MeasureInfo))]
     library.msrMeasureInfoGet.restype = c_int
-
+    library.msrResultExportIrMetadata.argtypes = [
+        POINTER(_Result),
+        POINTER(_Result),
+        c_char_p,
+    ]
+    library.msrResultExportIrMetadata.restype = c_int
     return cast(_TirexTrackerLibrary, library)
 
 
@@ -800,12 +726,11 @@ def _prepare_measure_configurations(
 
 
 # TODO: Add aggregation(s) (mapping) parameter.
-# TODO: Maybe rename this function.
 def fetch_info(
     measures: Iterable[Measure] = ALL_MEASURES,
 ) -> Mapping[Measure, ResultEntry]:
     # Get Python info first, and then strip Python measures from the list.
-    python_info, measures = get_python_info(measures=measures)
+    python_info, measures = _get_python_info(measures=measures)
 
     # Prepare the measure configurations.
     configs_array = _prepare_measure_configurations(measures)
@@ -823,20 +748,35 @@ def fetch_info(
 class TrackingHandle(
     AbstractContextManager["TrackingHandle", None], Mapping[Measure, ResultEntry]
 ):
+    _fetch_info_result: Pointer[_Result]
     _handle: Pointer[_TrackingHandle]
     _python_info: Mapping[Measure, ResultEntry]
     _results: MutableMapping[Measure, ResultEntry] = {}
+    _system_name: Optional[str]
+    _system_description: Optional[str]
+    _export_file_path: Optional[PathLike[str]]
+    _export_format: Optional[ExportFormat]
 
     def __init__(
         self,
         measures: Iterable[Measure] = ALL_MEASURES,
         poll_intervall_ms: int = -1,
+        system_name: Optional[str] = None,
+        system_description: Optional[str] = None,
+        export_file_path: Optional[PathLike[str]] = None,
+        export_format: Optional[ExportFormat] = None,
     ) -> None:
         # Get Python info first, and then strip Python measures from the list.
-        python_info, measures = get_python_info(measures=measures)
+        python_info, measures = _get_python_info(measures=measures)
 
         # Prepare the measure configurations.
         configs_array = _prepare_measure_configurations(measures)
+
+        # Get other info, first, before starting the tracking.
+        result_pointer = pointer(pointer(_Result()))
+        error_int = _LIBRARY.msrFetchInfo(configs_array, result_pointer)
+        _handle_error(error_int)
+        self._fetch_info_result = result_pointer.contents
 
         tracking_handle_pointer = pointer(pointer(_TrackingHandle()))
         error_int = _LIBRARY.msrStartMeasure(
@@ -847,14 +787,22 @@ class TrackingHandle(
         self._handle = tracking_handle_pointer.contents
         self._python_info = python_info
 
+        self._system_name = system_name
+        self._system_description = system_description
+        self._export_file_path = export_file_path
+        self._export_format = export_format
+
     def stop(self) -> Mapping[Measure, ResultEntry]:
         result_pointer = pointer(pointer(_Result()))
         error_int = _LIBRARY.msrStopMeasure(self._handle, result_pointer)
         _handle_error(error_int)
 
+        self._export(result_pointer.contents)
+
         self._results.clear()
         self._results.update(
             {
+                **_parse_results(self._fetch_info_result),
                 **_parse_results(result_pointer.contents),
                 **self._python_info,
             }
@@ -902,15 +850,118 @@ class TrackingHandle(
     def __eq__(self, other) -> bool:
         return NotImplemented
 
+    def _export(self, result: Pointer[_Result]) -> None:
+        if self._export_file_path is None:
+            return
+        elif self._export_file_path is None:
+            return
+        elif self._export_format == ExportFormat.IR_METADATA:
+            self._export_ir_metadata(result)
+        else:
+            raise ValueError("Invalid export format.")
+
+    def _export_ir_metadata(self, result: Pointer[_Result]) -> None:
+        if self._export_file_path is None:
+            return
+
+        export_file_path = Path(self._export_file_path)
+        if export_file_path.exists():
+            raise ValueError("Metadata file already exists in the output directory.")
+
+        # Run the C-internal ir_metadata export from the `tracking_handle` to `output_file_path`.
+        _LIBRARY.msrResultExportIrMetadata(
+            self._fetch_info_result,
+            result,
+            c_char_p(str(export_file_path.resolve()).encode(_ENCODING)),
+        )
+
+        # Parse the initial ir_metadata.
+        with export_file_path.open("rb") as file:
+            buffer = file.read()
+            buffer = buffer.removeprefix(b"ir_metadata.start\n")
+            buffer = buffer.removesuffix(b"ir_metadata.end\n")
+
+            # FIXME: There's a bug in the YAML output format that we work arounf here:
+            from re import sub
+
+            buffer = sub(rb"caches: (.*),", rb"caches: {\1}", buffer)
+
+            with BytesIO(buffer) as yaml_file:
+                yaml = YAML(typ="safe")
+                tmp_ir_metadata = yaml.load(yaml_file)
+
+        ir_metadata = _recursive_defaultdict()
+
+        # Add user-provided metadata.
+        if self._system_name is not None:
+            ir_metadata["method"]["name"] = self._system_name
+        if self._system_description is not None:
+            ir_metadata["method"]["description"] = self._system_description
+
+        # Add Python-specific metadata.
+        ir_metadata["implementation"]["executable"]["cmd"] = loads(
+            self._python_info[Measure.PYTHON_EXECUTABLE].value
+        )
+        ir_metadata["implementation"]["executable"]["args"] = loads(
+            self._python_info[Measure.PYTHON_ARGUMENTS].value
+        )
+        ir_metadata["implementation"]["executable"]["version"] = loads(
+            self._python_info[Measure.PYTHON_VERSION].value
+        )
+        ir_metadata["implementation"]["python"]["modules"] = loads(
+            self._python_info[Measure.PYTHON_VERSION].value
+        )
+        ir_metadata["implementation"]["python"]["packages"] = loads(
+            self._python_info[Measure.PYTHON_INSTALLED_PACKAGES].value
+        )
+        ir_metadata["implementation"]["python"]["interactive"] = loads(
+            self._python_info[Measure.PYTHON_IS_INTERACTIVE].value
+        )
+        ir_metadata["implementation"]["script"]["path"] = loads(
+            self._python_info[Measure.PYTHON_SCRIPT_FILE_PATH].value
+        )
+        ir_metadata["implementation"]["script"]["contents"] = loads(
+            self._python_info[Measure.PYTHON_SCRIPT_FILE_CONTENTS].value
+        )
+        ir_metadata["implementation"]["notebook"]["path"] = loads(
+            self._python_info[Measure.PYTHON_NOTEBOOK_FILE_PATH].value
+        )
+        ir_metadata["implementation"]["notebook"]["contents"] = loads(
+            self._python_info[Measure.PYTHON_NOTEBOOK_FILE_CONTENTS].value
+        )
+
+        ir_metadata = _deep_merge(ir_metadata, tmp_ir_metadata)
+        ir_metadata = _recursive_undefaultdict(ir_metadata)
+
+        # Serialize the updated ir_metadata.
+        with export_file_path.open("wt") as file:
+            file.write("ir_metadata.start\n")
+
+            yaml = YAML(typ="safe", pure=True)
+            yaml.width = 10_000
+            yaml.dump(
+                data=ir_metadata,
+                stream=file,
+            )
+            file.write("ir_metadata.end\n")
+
 
 # TODO: Add aggregation(s) (mapping) parameter.
 def start_tracking(
     measures: Iterable[Measure] = ALL_MEASURES,
     poll_intervall_ms: int = -1,
+    system_name: Optional[str] = None,
+    system_description: Optional[str] = None,
+    export_file_path: Optional[PathLike[str]] = None,
+    export_format: Optional[ExportFormat] = None,
 ) -> TrackingHandle:
     return TrackingHandle(
         measures=measures,
         poll_intervall_ms=poll_intervall_ms,
+        system_name=system_name,
+        system_description=system_description,
+        export_file_path=export_file_path,
+        export_format=export_format,
     )
 
 
@@ -924,10 +975,18 @@ def stop_tracking(
 def tracking(
     measures: Iterable[Measure] = ALL_MEASURES,
     poll_intervall_ms: int = -1,
+    system_name: Optional[str] = None,
+    system_description: Optional[str] = None,
+    export_file_path: Optional[PathLike[str]] = None,
+    export_format: Optional[ExportFormat] = None,
 ) -> TrackingHandle:
     return start_tracking(
         measures=measures,
         poll_intervall_ms=poll_intervall_ms,
+        system_name=system_name,
+        system_description=system_description,
+        export_file_path=export_file_path,
+        export_format=export_format,
     )
 
 
@@ -940,6 +999,10 @@ def tracked(f_or_measures: Callable[P, T]) -> Union[Callable[P, T], ResultsAcces
 def tracked(
     f_or_measures: Iterable[Measure] = ALL_MEASURES,
     poll_intervall_ms: int = ...,
+    system_name: Optional[str] = ...,
+    system_description: Optional[str] = ...,
+    export_file_path: Optional[PathLike[str]] = ...,
+    export_format: Optional[ExportFormat] = ...,
 ) -> Callable[[Callable[P, T]], Union[Callable[P, T], ResultsAccessor]]:
     pass
 
@@ -948,6 +1011,10 @@ def tracked(
 def tracked(
     f_or_measures: Union[Callable[P, T], Iterable[Measure]] = ALL_MEASURES,
     poll_intervall_ms: int = -1,
+    system_name: Optional[str] = None,
+    system_description: Optional[str] = None,
+    export_file_path: Optional[PathLike[str]] = None,
+    export_format: Optional[ExportFormat] = None,
 ) -> Union[
     Union[Callable[P, T], ResultsAccessor],
     Callable[[Callable[P, T]], Union[Callable[P, T], ResultsAccessor]],
@@ -960,12 +1027,12 @@ def tracked(
         @wraps(f)
         def wrapper(*args, **kwds):
             nonlocal results
-            handle = start_tracking()
+            handle = TrackingHandle()
             try:
                 return f(*args, **kwds)
             finally:
+                tmp_results = handle.stop()
                 results.clear()
-                tmp_results = stop_tracking(handle)
                 results.update(tmp_results)
 
         results_wrapper = cast(Union[Callable[P, T], ResultsAccessor], wrapper)
@@ -981,15 +1048,19 @@ def tracked(
             @wraps(f)
             def wrapper(*args, **kwds):
                 nonlocal results
-                handle = start_tracking(
+                handle = TrackingHandle(
                     measures=measures,
                     poll_intervall_ms=poll_intervall_ms,
+                    system_name=system_name,
+                    system_description=system_description,
+                    export_file_path=export_file_path,
+                    export_format=export_format,
                 )
                 try:
                     return f(*args, **kwds)
                 finally:
+                    tmp_results = handle.stop()
                     results.clear()
-                    tmp_results = stop_tracking(handle)
                     results.update(tmp_results)
 
             results_wrapper = cast(Union[Callable[P, T], ResultsAccessor], wrapper)

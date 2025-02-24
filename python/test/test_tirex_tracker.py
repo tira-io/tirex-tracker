@@ -1,3 +1,5 @@
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from time import sleep
 from typing import Collection, Mapping
 
@@ -15,6 +17,7 @@ from tirex_tracker import (
     ResultEntry,
     ResultType,
     ALL_MEASURES,
+    ExportFormat,
 )
 
 import faulthandler
@@ -137,9 +140,44 @@ def test_measure_using_function_decorator() -> None:
     assert time_elapsed > 0.0
 
 
+def test_tracking_export_ir_metadata() -> None:
+    with TemporaryDirectory() as tmp_dir:
+        tmp_dir_path = Path(tmp_dir)
+        assert tmp_dir_path.exists()
+        assert tmp_dir_path.is_dir()
+
+        export_file_path = tmp_dir_path / ".ir_metadata"
+        assert not export_file_path.exists()
+
+        with tracking(
+            export_file_path=export_file_path,
+            export_format=ExportFormat.IR_METADATA,
+        ) as actual:
+            sleep(0.1)
+        for key in actual.keys():
+            assert isinstance(key, Measure)
+        for value in actual.values():
+            assert isinstance(value, ResultEntry)
+        assert Measure.TIME_ELAPSED_WALL_CLOCK_MS in actual.keys()
+        result_entry = actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS]
+        assert result_entry is not None
+        assert result_entry.source is not None
+        assert result_entry.source is Measure.TIME_ELAPSED_WALL_CLOCK_MS
+        assert result_entry.type is not None
+        # FIXME:
+        # assert result_entry.type is ResultType.FLOATING
+        assert result_entry.value is not None
+        time_elapsed = float(result_entry.value)
+        assert time_elapsed > 0.0
+
+        assert export_file_path.exists()
+        assert export_file_path.is_file()
+        assert export_file_path.stat().st_size > 0
+
+
 @fixture(params=list(ALL_MEASURES))
-def measure() -> Measure:
-    return Measure.TIME_ELAPSED_WALL_CLOCK_MS
+def measure(request) -> Measure:
+    return request.param
 
 
 # FIXME:
