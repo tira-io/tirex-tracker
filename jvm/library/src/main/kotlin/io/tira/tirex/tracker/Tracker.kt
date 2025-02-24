@@ -59,6 +59,7 @@ enum class Measure(val value: Int) {
 
 private const val INVALID_MEASURE = -1
 
+@JvmField
 val ALL_MEASURES = Measure.entries.toSet()
 
 enum class Aggregation(val value: Int) {
@@ -76,6 +77,7 @@ enum class Aggregation(val value: Int) {
 
 private const val INVALID_AGGREGATION = -1
 
+@JvmField
 val ALL_AGGREGATIONS = Aggregation.entries.toSet()
 
 class MeasurementHandle : Structure()
@@ -266,7 +268,7 @@ private val LIBRARY = Native.load(
 private inline fun <R> usePointer(block: (Pointer) -> R): R = Memory(Native.POINTER_SIZE.toLong()).use(block)
 
 
-private inline fun <T: Structure, R> T.use(block: (T) -> R): R {
+private inline fun <T : Structure, R> T.use(block: (T) -> R): R {
     try {
         return block(this)
     } finally {
@@ -306,6 +308,7 @@ val measureInfos: Map<Measure, MeasureInfo> by lazy {
 
 // TODO: Add aggregation(s) (mapping) parameter.
 // TODO: Maybe rename this function.
+@JvmOverloads
 fun fetchInfo(
     measures: Iterable<Measure> = ALL_MEASURES,
     logCallback: ((level: LogLevel, component: String, message: String) -> Unit) = ::noopLogCallback,
@@ -356,6 +359,7 @@ fun fetchInfo(
 }
 
 // TODO: Add aggregation(s) (mapping) parameter.
+@JvmOverloads
 fun startTracking(
     measures: Iterable<Measure> = ALL_MEASURES,
     pollIntervalMillis: Long = -1,
@@ -416,13 +420,14 @@ fun stopTracking(measureHandle: Pointer): Map<Measure, ResultEntry> {
     }
 }
 
+@JvmOverloads
 inline fun track(
     measures: Iterable<Measure> = ALL_MEASURES,
     pollIntervalMillis: Long = -1,
     noinline logCallback: (level: LogLevel, component: String, message: String) -> Unit = ::noopLogCallback,
     crossinline block: () -> Unit,
 ): Map<Measure, ResultEntry> {
-    val measurement = startMeasurement(
+    val measurement = startTracking(
         measures = measures,
         pollIntervalMillis = pollIntervalMillis,
         logCallback = logCallback,
@@ -441,6 +446,7 @@ interface BlockCallback {
     fun invoke()
 }
 
+@JvmOverloads
 fun track(
     measures: Iterable<Measure> = ALL_MEASURES,
     pollIntervalMillis: Long = -1,
@@ -463,35 +469,49 @@ fun track(
     )
 }
 
-fun track(
-    measures: Iterable<Measure> = ALL_MEASURES,
-    pollIntervalMillis: Long = -1,
-    block: BlockCallback,
-): Map<Measure, ResultEntry> {
-    return track(
+class Tracked : AutoCloseable {
+    var results: Map<Measure, ResultEntry> = emptyMap()
+
+    private var handle: Pointer? = null
+
+    constructor(
+        measures: Iterable<Measure> = ALL_MEASURES,
+        pollIntervalMillis: Long = -1,
+        logCallback: LogCallback = NoopLogCallback,
+    ) {
+        val previousHandle = handle
+        if (previousHandle != null) {
+            // Ensure that we do not leak any previously started tracking thread, but discard it.
+            stopTracking(previousHandle)
+        }
+        handle = startTracking()
+    }
+
+    constructor(
+        measures: Iterable<Measure> = ALL_MEASURES,
+        pollIntervalMillis: Long = -1,
+    ) : this(
         measures = measures,
         pollIntervalMillis = pollIntervalMillis,
         logCallback = NoopLogCallback,
-        block = block,
     )
-}
 
-fun track(
-    measures: Iterable<Measure> = ALL_MEASURES,
-    block: BlockCallback,
-): Map<Measure, ResultEntry> {
-    return track(
+    constructor(
+        measures: Iterable<Measure> = ALL_MEASURES,
+    ) : this(
         measures = measures,
         pollIntervalMillis = -1,
-        block = block,
     )
-}
 
-fun track(
-    block: BlockCallback,
-): Map<Measure, ResultEntry> {
-    return track(
+    constructor() : this(
         measures = ALL_MEASURES,
-        block = block,
     )
+
+    fun stopTracking(): Map<Measure, ResultEntry> {
+        return stopTracking(requireNotNull(handle))
+    }
+
+    override fun close() {
+        results = stopTracking()
+    }
 }
