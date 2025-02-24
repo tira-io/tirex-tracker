@@ -681,7 +681,8 @@ class _TirexTrackerLibrary(CDLL):
 
 
 def _find_library() -> Path:
-    return Path(__file__).parent / "libmeasureapi.so"
+    # TODO: Decide between the libraries for the different platforms.
+    return Path(__file__).parent / "libmeasure_full.so"
 
 
 def _load_library() -> _TirexTrackerLibrary:
