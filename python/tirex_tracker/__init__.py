@@ -882,7 +882,7 @@ class TrackingHandle(
             buffer = buffer.removeprefix(b"ir_metadata.start\n")
             buffer = buffer.removesuffix(b"ir_metadata.end\n")
 
-            # FIXME: There's a bug in the YAML output format that we work arounf here:
+            # FIXME: There's a bug in the YAML output format that we work around here:
             from re import sub
 
             buffer = sub(rb"caches: (.*),", rb"caches: {\1}", buffer)
