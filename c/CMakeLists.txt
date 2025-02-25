@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
 
-option(TIREX_TRACKER_BUILD_DEB "Build debian package" ON)
+option(TIREX_TRACKER_BUILD_DEB "Build debian package" OFF)
 option(TIREX_TRACKER_ONLY_DOCS "Build only documentation -- this disables tests and others" OFF)
 option(TIREX_TRACKER_BUILD_EXAMPLES "Build the examples" OFF)
 option(TIREX_TRACKER_BUILD_DOCS "Build the documentation" OFF)
@@ -64,4 +64,28 @@ if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND TIREX_TRACKER_BUILD_DOCS)
 		${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/README.md ${CMAKE_CURRENT_SOURCE_DIR}/docs
 		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	)
+endif()
+
+
+##########################################################################################
+# Debian Package
+##########################################################################################
+# Debian Packaging only available if this is the main app
+if(NOT TIREX_TRACKER_ONLY_DOCS AND (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND TIREX_TRACKER_BUILD_DEB)
+	install(TARGETS tirex_tracker ARCHIVE DESTINATION lib COMPONENT tirex_tracker)
+	install(DIRECTORY include DESTINATION include COMPONENT tirex_tracker)
+
+	SET(CPACK_GENERATOR "DEB")
+	SET(CPACK_PACKAGE_NAME "tirex-tracker")
+	SET(CPACK_SET_DESTDIR TRUE)
+	SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "not-set")
+	SET(CPACK_PACKAGE_VERSION "0.0.1rc")
+	include(GNUInstallDirs)
+	SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "TODO")
+	SET(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/../README.md")
+	SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE")
+	SET(CPACK_DEBIAN_PACKAGE_DEPENDS "")
+	SET(CPACK_PACKAGE_VENDOR "")
+	include(CPack)
+	cpack_add_component(tirex_tracker)
 endif()

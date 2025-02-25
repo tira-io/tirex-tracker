@@ -8,6 +8,8 @@ add_executable(measure
 target_compile_features(measure PUBLIC cxx_std_20)
 target_link_libraries(measure tirex_tracker_static)
 
+option(TIREX_TRACKER_BUILD_CMD_DEB "Build the debian package for the measure command" OFF)
+
 
 ##########################################################################################
 # Libraries
@@ -29,7 +31,7 @@ target_link_libraries(measure CLI11::CLI11)
 # Debian Package
 ##########################################################################################
 # Debian Packaging only available if this is the main app
-if(NOT TIREX_TRACKER_ONLY_DOCS AND (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND TIREX_TRACKER_BUILD_DEB)
+if(NOT TIREX_TRACKER_ONLY_DOCS AND (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND TIREX_TRACKER_BUILD_CMD_DEB)
 	install(TARGETS measure RUNTIME DESTINATION bin COMPONENT measurecmd)
 
 	SET(CPACK_GENERATOR "DEB")
