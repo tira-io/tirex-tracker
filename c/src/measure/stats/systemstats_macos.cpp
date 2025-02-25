@@ -20,8 +20,8 @@
 using namespace std::string_literals;
 using std::chrono::steady_clock;
 
-using msr::Stats;
-using msr::SystemStats;
+using tirex::Stats;
+using tirex::SystemStats;
 
 static std::string getOSDesc() { return _fmt::format("MacOS {}", getSysctl<std::string>("kern.osproductversion")); }
 
@@ -44,19 +44,22 @@ uint8_t SystemStats::getProcCPUUtilization() {
 
 uint8_t SystemStats::getCPUUtilization() {
 	static thread_local host_cpu_load_info cpuLoad;
-    auto count = HOST_CPU_LOAD_INFO_COUNT;
-    if (kern_return_t err; (err = host_statistics64(mach_host_self(), HOST_CPU_LOAD_INFO, (host_info64_t)&cpuLoad, &count)) != KERN_SUCCESS) {
-		msr::log::error("macosstats", "Failed to fetch VM statistics with error code {}", err);
+	auto count = HOST_CPU_LOAD_INFO_COUNT;
+	if (kern_return_t err;
+		(err = host_statistics64(mach_host_self(), HOST_CPU_LOAD_INFO, (host_info64_t)&cpuLoad, &count)) !=
+		KERN_SUCCESS) {
+		tirex::log::error("macosstats", "Failed to fetch VM statistics with error code {}", err);
 		return 0;
-    }
-	size_t total = (size_t)cpuLoad.cpu_ticks[CPU_STATE_USER] + (size_t)cpuLoad.cpu_ticks[CPU_STATE_SYSTEM] + (size_t)cpuLoad.cpu_ticks[CPU_STATE_IDLE] + (size_t)cpuLoad.cpu_ticks[CPU_STATE_NICE];
+	}
+	size_t total = (size_t)cpuLoad.cpu_ticks[CPU_STATE_USER] + (size_t)cpuLoad.cpu_ticks[CPU_STATE_SYSTEM] +
+				   (size_t)cpuLoad.cpu_ticks[CPU_STATE_IDLE] + (size_t)cpuLoad.cpu_ticks[CPU_STATE_NICE];
 	uint8_t util = 0;
 	if ((total - lastTotal) > 0) { // Otherwise not enough time has passed yet
 		util = 100 - (((cpuLoad.cpu_ticks[CPU_STATE_IDLE] - lastIdle) * 100) / (total - lastTotal));
 		lastIdle = cpuLoad.cpu_ticks[CPU_STATE_IDLE];
 		lastTotal = total;
 	} else {
-		msr::log::warn("macosstats", "Called too quickly apart ({} ticks)", total - lastTotal);
+		tirex::log::warn("macosstats", "Called too quickly apart ({} ticks)", total - lastTotal);
 	}
 	auto tmp = sysconf(_SC_CLK_TCK);
 	return util;
@@ -65,12 +68,12 @@ uint8_t SystemStats::getCPUUtilization() {
 std::tuple<size_t, size_t> SystemStats::getSysAndUserTime() const {
 	auto pid = getpid(); /** \todo store in member **/
 	proc_taskinfo taskInfo;
-    if (int err; (err = proc_pidinfo(pid, PROC_PIDTASKINFO, 0, &taskInfo, PROC_PIDTASKINFO_SIZE)) != 0) {
+	if (int err; (err = proc_pidinfo(pid, PROC_PIDTASKINFO, 0, &taskInfo, PROC_PIDTASKINFO_SIZE)) != 0) {
 		return {taskInfo.pti_total_system, taskInfo.pti_total_user};
-    } else {
-		msr::log::error("macosstats", "Failed to get task info for PID {} with error code {}", pid, err);
-		return {0,0};
-    }
+	} else {
+		tirex::log::error("macosstats", "Failed to get task info for PID {} with error code {}", pid, err);
+		return {0, 0};
+	}
 }
 
 size_t SystemStats::tickToMs(size_t tick) {
@@ -80,23 +83,27 @@ size_t SystemStats::tickToMs(size_t tick) {
 
 static unsigned getRAMUsageKB(pid_t pid) {
 	proc_taskinfo taskInfo;
-    if (int err; (err = proc_pidinfo(pid, PROC_PIDTASKINFO, 0, &taskInfo, PROC_PIDTASKINFO_SIZE)) != 0) {
-	    return taskInfo.pti_resident_size / 1000;
-    } else {
-        msr::log::error("macosstats", "Failed to get task info for PID {} with error code {}", pid, err);
-        return 0;
-    }
+	if (int err; (err = proc_pidinfo(pid, PROC_PIDTASKINFO, 0, &taskInfo, PROC_PIDTASKINFO_SIZE)) != 0) {
+		return taskInfo.pti_resident_size / 1000;
+	} else {
+		tirex::log::error("macosstats", "Failed to get task info for PID {} with error code {}", pid, err);
+		return 0;
+	}
 }
 
 static unsigned getSystemRAMUsageMB() {
-    uint64_t page_size = sysconf(_SC_PAGE_SIZE);
+	uint64_t page_size = sysconf(_SC_PAGE_SIZE);
 	mach_msg_type_number_t count = HOST_VM_INFO64_COUNT;
-    vm_statistics64 vmstat;
-    if (kern_return_t err; (err = host_statistics64(mach_host_self(), HOST_VM_INFO64, (host_info_t)&vmstat, &count)) != KERN_SUCCESS) {
-        msr::log::error("macosstats", "Failed to fetch VM statistics with error code {}", err);
-        return 0;
-    }
-    return ((uint64_t)vmstat.active_count + (uint64_t)vmstat.inactive_count + (uint64_t)vmstat.wire_count + (uint64_t)vmstat.speculative_count + (uint64_t)vmstat.compressor_page_count - (uint64_t)vmstat.purgeable_count - (uint64_t)vmstat.external_page_count) * page_size / 1000'000u;
+	vm_statistics64 vmstat;
+	if (kern_return_t err;
+		(err = host_statistics64(mach_host_self(), HOST_VM_INFO64, (host_info_t)&vmstat, &count)) != KERN_SUCCESS) {
+		tirex::log::error("macosstats", "Failed to fetch VM statistics with error code {}", err);
+		return 0;
+	}
+	return ((uint64_t)vmstat.active_count + (uint64_t)vmstat.inactive_count + (uint64_t)vmstat.wire_count +
+			(uint64_t)vmstat.speculative_count + (uint64_t)vmstat.compressor_page_count -
+			(uint64_t)vmstat.purgeable_count - (uint64_t)vmstat.external_page_count) *
+		   page_size / 1000'000u;
 }
 
 SystemStats::Utilization SystemStats::getUtilization() {
@@ -118,11 +125,11 @@ SystemStats::SysInfo SystemStats::getSysInfo() {
 #include <dlfcn.h>
 
 void SystemStats::start() {
-	msr::log::info("macosstats", "Collecting resources for Process {}", getpid());
+	tirex::log::info("macosstats", "Collecting resources for Process {}", getpid());
 	starttime = steady_clock::now();
 	std::tie(startSysTime, startUTime) = getSysAndUserTime();
-	msr::log::debug("macosstats", "Start systime {} ms, utime {} ms", tickToMs(startSysTime), tickToMs(startUTime));
-	
+	tirex::log::debug("macosstats", "Start systime {} ms, utime {} ms", tickToMs(startSysTime), tickToMs(startUTime));
+
 	lastTotal = lastIdle = lastProcActiveMs = 0;
 	getUtilization(); // Call getUtilization once to init CPU Utilization tracking
 

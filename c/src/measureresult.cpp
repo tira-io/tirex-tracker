@@ -1,4 +1,4 @@
-#include <measure.h>
+#include <tirex_tracker.h>
 
 #include "measure/stats/provider.hpp"
 #include "measure/utils/rangeutils.hpp"
@@ -13,59 +13,61 @@ namespace _fmt = fmt;
 
 #include <iostream>
 
-struct msrResult_st {
+struct tirexResult_st {
 public:
-	std::vector<std::pair<msrMeasure, std::string>> value;
+	std::vector<std::pair<tirexMeasure, std::string>> value;
 
 public:
-	explicit msrResult_st(std::vector<std::pair<msrMeasure, std::string>>&& val) : value(std::move(val)) {}
+	explicit tirexResult_st(std::vector<std::pair<tirexMeasure, std::string>>&& val) : value(std::move(val)) {}
 };
 
-msrError msrResultEntryGetByIndex(const msrResult* result, size_t index, msrResultEntry* entry) {
+tirexError tirexResultEntryGetByIndex(const tirexResult* result, size_t index, tirexResultEntry* entry) {
 	if (result == nullptr || index >= result->value.size())
-		return msrError::MSR_INVALID_ARGUMENT;
+		return tirexError::TIREX_INVALID_ARGUMENT;
 	const auto& [source, value] = result->value.at(index);
-	*entry = {.source = source, .value = value.c_str(), .type = msrResultType::MSR_STRING};
-	return msrError::MSR_SUCCESS;
+	*entry = {.source = source, .value = value.c_str(), .type = tirexResultType::TIREX_STRING};
+	return tirexError::TIREX_SUCCESS;
 }
 
-msrError msrResultEntryNum(const msrResult* result, size_t* num) {
+tirexError tirexResultEntryNum(const tirexResult* result, size_t* num) {
 	if (result == nullptr)
-		return msrError::MSR_INVALID_ARGUMENT;
+		return tirexError::TIREX_INVALID_ARGUMENT;
 	*num = result->value.size();
-	return msrError::MSR_SUCCESS;
+	return tirexError::TIREX_SUCCESS;
 }
 
-void msrResultFree(msrResult* result) { delete result; }
+void tirexResultFree(tirexResult* result) { delete result; }
 
-template<class... Ts>
-struct overloaded : Ts... { using Ts::operator()...; };
+template <class... Ts>
+struct overloaded : Ts... {
+	using Ts::operator()...;
+};
 
-template <class ... Ts>
+template <class... Ts>
 overloaded(Ts...) -> overloaded<Ts...>;
 
 template <typename T>
-static std::string toYAML(const msr::TimeSeries<T>& timeseries) {
+static std::string toYAML(const tirex::TimeSeries<T>& timeseries) {
 	const auto& [timestamps, values] = timeseries.timeseries();
 	return _fmt::format(
 			"{{max: {}, min: {}, avg: {}, timeseries: {{timestamps: [{}], values: [{}]}}}}", timeseries.maxValue(),
-			timeseries.minValue(), timeseries.avgValue(), msr::utils::join(timestamps, ','),
-			msr::utils::join(values, ',')
+			timeseries.minValue(), timeseries.avgValue(), tirex::utils::join(timestamps, ','),
+			tirex::utils::join(values, ',')
 	);
 }
 
-extern msrResult_st* msr::createMsrResultFromStats(msr::Stats&& stats) {
-	std::vector<std::pair<msrMeasure, std::string>> result;
+extern tirexResult_st* tirex::createMsrResultFromStats(tirex::Stats&& stats) {
+	std::vector<std::pair<tirexMeasure, std::string>> result;
 	for (auto&& [key, value] : stats) {
 		std::visit(
 				overloaded{
 						[key, &result](std::string& str) { result.emplace_back(key, std::move(str)); },
-						[key, &result](const msr::TimeSeries<unsigned>& timeseries) {
+						[key, &result](const tirex::TimeSeries<unsigned>& timeseries) {
 							result.emplace_back(key, toYAML(timeseries));
 						}
 				},
 				value
 		);
 	}
-	return new msrResult_st(std::move(result));
+	return new tirexResult_st(std::move(result));
 }

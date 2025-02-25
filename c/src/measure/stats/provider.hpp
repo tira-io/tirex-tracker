@@ -1,7 +1,7 @@
 #ifndef STATS_PROVIDER_HPP
 #define STATS_PROVIDER_HPP
 
-#include <measure.h>
+#include <tirex_tracker.h>
 
 #include "../measure.hpp"
 
@@ -12,11 +12,11 @@
 #include <string>
 #include <variant>
 
-namespace msr {
-	using StatVal = std::variant<std::string, msr::TimeSeries<unsigned>>;
-	using Stats = std::map<msrMeasure, StatVal>;
+namespace tirex {
+	using StatVal = std::variant<std::string, tirex::TimeSeries<unsigned>>;
+	using Stats = std::map<tirexMeasure, StatVal>;
 
-	msrResult_st* createMsrResultFromStats(Stats&& stats);
+	tirexResult_st* createMsrResultFromStats(Stats&& stats);
 
 	class StatsProvider {
 	public:
@@ -55,14 +55,14 @@ namespace msr {
 	using ProviderConstructor = std::function<std::unique_ptr<StatsProvider>(void)>;
 	struct ProviderEntry final {
 		ProviderConstructor constructor;
-		const std::set<msrMeasure>& measures; /**< The set of measures that the provider is responsible for */
+		const std::set<tirexMeasure>& measures; /**< The set of measures that the provider is responsible for */
 		const char* version;
 		const char* description;
 	};
 	extern const std::map<std::string, ProviderEntry> providers;
 
-	std::set<msrMeasure>
-	initProviders(std::set<msrMeasure> measures, std::vector<std::unique_ptr<StatsProvider>>& providers);
-} // namespace msr
+	std::set<tirexMeasure>
+	initProviders(std::set<tirexMeasure> measures, std::vector<std::unique_ptr<StatsProvider>>& providers);
+} // namespace tirex
 
 #endif

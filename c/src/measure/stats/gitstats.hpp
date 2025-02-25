@@ -5,7 +5,7 @@
 
 struct git_repository;
 
-namespace msr {
+namespace tirex {
 	class GitStats final : public StatsProvider {
 	private:
 		git_repository* repo;
@@ -20,8 +20,8 @@ namespace msr {
 
 		static constexpr const char* description = "Collects git related metrics.";
 		static const char* version;
-		static const std::set<msrMeasure> measures;
+		static const std::set<tirexMeasure> measures;
 	};
-} // namespace msr
+} // namespace tirex
 
 #endif

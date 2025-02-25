@@ -20,8 +20,8 @@
 
 using std::chrono::steady_clock;
 
-using msr::Stats;
-using msr::SystemStats;
+using tirex::Stats;
+using tirex::SystemStats;
 
 std::string readDistro();
 
@@ -36,15 +36,12 @@ uint8_t SystemStats::getProcCPUUtilization() {
 	auto timeActiveMs = tickToMs(systime + utime);
 	auto totTime = std::chrono::duration_cast<std::chrono::milliseconds>(time - lastProcTime).count();
 	if (totTime != 0) {
-		auto percent = static_cast<uint8_t>(
-				(timeActiveMs - lastProcActiveMs) * 100 /
-				totTime
-		);
+		auto percent = static_cast<uint8_t>((timeActiveMs - lastProcActiveMs) * 100 / totTime);
 		lastProcTime = time;
 		lastProcActiveMs = timeActiveMs;
 		return percent;
 	} else {
-		msr::log::warn("linuxstats", "Called too quickly apart ({} ms)", totTime);
+		tirex::log::warn("linuxstats", "Called too quickly apart ({} ms)", totTime);
 	}
 	return 0;
 }
@@ -82,10 +79,10 @@ SystemStats::SysInfo SystemStats::getSysInfo() {
 }
 
 void SystemStats::start() {
-	msr::log::info("linuxstats", "Collecting resources for Process {}", getpid());
+	tirex::log::info("linuxstats", "Collecting resources for Process {}", getpid());
 	starttime = steady_clock::now();
 	std::tie(startSysTime, startUTime) = getSysAndUserTime();
-	msr::log::debug("linuxstats", "Start systime {} ms, utime {} ms", tickToMs(startSysTime), tickToMs(startUTime));
+	tirex::log::debug("linuxstats", "Start systime {} ms, utime {} ms", tickToMs(startSysTime), tickToMs(startUTime));
 	getUtilization(); // Call getUtilization once to init CPU Utilization tracking
 }
 void SystemStats::stop() {
@@ -105,7 +102,7 @@ void SystemStats::step() {
 std::optional<std::string> readDistroFromLSB() {
 	std::ifstream stream("/etc/lsb-release");
 	if (!stream) {
-		msr::log::error("linux", "Could not open /etc/lsb-release");
+		tirex::log::error("linux", "Could not open /etc/lsb-release");
 		return std::nullopt;
 	}
 	for (std::string line; std::getline(stream, line);) {
@@ -114,14 +111,14 @@ std::optional<std::string> readDistroFromLSB() {
 			return line.substr(21, line.length() - 21 - 1);
 		}
 	}
-	msr::log::error("linux", "/etc/lsb-release did not contain DISTRIB_DESCRIPTION");
+	tirex::log::error("linux", "/etc/lsb-release did not contain DISTRIB_DESCRIPTION");
 	return std::nullopt;
 }
 
 std::optional<std::string> readDistroFromOS() {
 	std::ifstream stream("/etc/os-release");
 	if (!stream) {
-		msr::log::error("linux", "Could not open /etc/os-release");
+		tirex::log::error("linux", "Could not open /etc/os-release");
 		return std::nullopt;
 	}
 	for (std::string line; std::getline(stream, line);) {
@@ -130,7 +127,7 @@ std::optional<std::string> readDistroFromOS() {
 			return line.substr(13, line.length() - 13 - 1);
 		}
 	}
-	msr::log::error("linux", "/etc/os-release did not contain PRETTY_NAME");
+	tirex::log::error("linux", "/etc/os-release did not contain PRETTY_NAME");
 	return std::nullopt;
 }
 

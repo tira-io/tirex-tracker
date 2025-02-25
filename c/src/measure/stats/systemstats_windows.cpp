@@ -21,8 +21,8 @@
 using namespace std::string_literals;
 using std::chrono::steady_clock;
 
-using msr::Stats;
-using msr::SystemStats;
+using tirex::Stats;
+using tirex::SystemStats;
 static std::string getOSDesc() {
 	if (IsWindows10OrGreater())
 		return "Windows 10+";
@@ -84,7 +84,7 @@ static uint32_t getTotalRAM_MB() {
 	if (GlobalMemoryStatusEx(&statex)) {
 		return static_cast<uint32_t>(statex.ullTotalPhys / 1000 / 1000);
 	} else {
-		msr::log::error("windowsstats", "Could not fetch memory status");
+		tirex::log::error("windowsstats", "Could not fetch memory status");
 		return 0;
 	}
 }
@@ -121,7 +121,7 @@ std::tuple<size_t, size_t> SystemStats::getSysAndUserTime() const {
 	if (GetProcessTimes(pid, &creationTime, &exitTime, &kernelTime, &userTime)) {
 		return {fileTimeToUint64(kernelTime), fileTimeToUint64(userTime)};
 	} else {
-		msr::log::error("windowstats", "Failed to get process times");
+		tirex::log::error("windowstats", "Failed to get process times");
 		return {0, 0};
 	}
 }
@@ -136,7 +136,7 @@ static unsigned getRAMUsageKB(HANDLE pid) {
 	if (GetProcessMemoryInfo(pid, &pmc, sizeof(pmc))) {
 		return pmc.WorkingSetSize / 1000;
 	} else {
-		msr::log::error("windowsstats", "Failed to get process memory info");
+		tirex::log::error("windowsstats", "Failed to get process memory info");
 		return 0;
 	}
 }
@@ -149,7 +149,7 @@ static unsigned getSystemRAMUsageMB() {
 		SIZE_T availableMemory = stat.ullAvailPhys;
 		return (totalMemory - availableMemory) / 1000 / 1000;
 	} else {
-		msr::log::error("windowsstats", "Failed to get system memory info");
+		tirex::log::error("windowsstats", "Failed to get system memory info");
 		return 0;
 	}
 }
@@ -157,7 +157,7 @@ static unsigned getSystemRAMUsageMB() {
 uint8_t SystemStats::getCPUUtilization() {
 	FILETIME sysIdle, sysKernel, sysUser;
 	if (GetSystemTimes(&sysIdle, &sysKernel, &sysUser) == 0) {
-		msr::log::error("windowsstats", "Failed to get system times");
+		tirex::log::error("windowsstats", "Failed to get system times");
 		return 0;
 	}
 	uint8_t util = 1;
@@ -221,7 +221,7 @@ SystemStats::SysInfo SystemStats::getSysInfo() {
 void SystemStats::start() {
 	starttime = steady_clock::now();
 	std::tie(startSysTime, startUTime) = getSysAndUserTime();
-	msr::log::debug("windowsstats", "Start systime {} ms, utime {} ms", tickToMs(startSysTime), tickToMs(startUTime));
+	tirex::log::debug("windowsstats", "Start systime {} ms, utime {} ms", tickToMs(startSysTime), tickToMs(startUTime));
 	getUtilization(); // Call getUtilization once to init CPU Utilization tracking
 	//
 	SYSTEM_INFO sysInfo;

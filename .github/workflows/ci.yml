@@ -23,9 +23,9 @@ jobs:
           -D CMAKE_C_COMPILER=gcc-13 \
           -D CMAKE_CXX_COMPILER=g++-13 \
           -D BUILD_SHARED_LIBS=NO \
-          -D MEASURECMD_BUILD_DOCS=NO \
-          -D MEASURECMD_BUILD_DEB=NO \
-          -D MEASURECMD_BUILD_EXAMPLES=NO
+          -D TIREX_TRACKER_BUILD_DOCS=NO \
+          -D TIREX_TRACKER_BUILD_DEB=NO \
+          -D TIREX_TRACKER_BUILD_EXAMPLES=NO
       - name: 🏗️ Build Linux binary
         run: cmake --build c/build/ --config Release --target measure_full
       - name: 📤 Upload Linux library
@@ -48,9 +48,9 @@ jobs:
           -D CMAKE_C_COMPILER=gcc-13 \
           -D CMAKE_CXX_COMPILER=g++-13 \
           -D BUILD_SHARED_LIBS=NO \
-          -D MEASURECMD_BUILD_DOCS=NO \
-          -D MEASURECMD_BUILD_DEB=NO \
-          -D MEASURECMD_BUILD_EXAMPLES=YES
+          -D TIREX_TRACKER_BUILD_DOCS=NO \
+          -D TIREX_TRACKER_BUILD_DEB=NO \
+          -D TIREX_TRACKER_BUILD_EXAMPLES=YES
       - name: 🏗️ Build Linux binary
         run: cmake --build c/build/ --config Release --target measure
       - name: 📤 Upload Linux CLI
@@ -73,16 +73,16 @@ jobs:
           -D CMAKE_C_COMPILER=gcc-13 \
           -D CMAKE_CXX_COMPILER=g++-13 \
           -D BUILD_SHARED_LIBS=NO \
-          -D MEASURECMD_BUILD_DOCS=NO \
-          -D MEASURECMD_BUILD_DEB=YES \
-          -D MEASURECMD_BUILD_EXAMPLES=NO
+          -D TIREX_TRACKER_BUILD_DOCS=NO \
+          -D TIREX_TRACKER_BUILD_DEB=YES \
+          -D TIREX_TRACKER_BUILD_EXAMPLES=NO
       - name: 🏗️ Build Debian package
         run: cmake --build c/build/ --config Release --target package
       - name: 📤 Upload Debian package
         uses: actions/upload-artifact@v4
         with:
           name: c-debian-package
-          path: c/build/measure-*-Linux.deb
+          path: c/build/tirex-tracker-*-Linux.deb
   jvm-build:
     name: 🏗️ Build JVM library
     runs-on: ubuntu-latest
@@ -367,7 +367,7 @@ jobs:
           files: |
             tmp/c/measure_full.so
             tmp/c/measure
-            tmp/c/measure-*-Linux.deb
+            tmp/c/tirex-tracker-*-Linux.deb
             tmp/python/dist/*
             tmp/jvm/*/*.jar
           fail_on_unmatched_files: true
