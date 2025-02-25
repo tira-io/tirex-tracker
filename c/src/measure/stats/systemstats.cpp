@@ -147,7 +147,7 @@ static const std::pair<const char*, bool (*)(void)> flags[]{
 		{"rdpid", cpuinfo_has_x86_rdpid},
 		//{"sysenter", cpuinfo_has_x86_sysenter},
 		//{"syscall", cpuinfo_has_x86_syscall},
-		//{"msr", cpuinfo_has_x86_msr},
+		//{"tirex", cpuinfo_has_x86_msr},
 		{"clzero", cpuinfo_has_x86_clzero},
 		//{"clflush", cpuinfo_has_x86_clflush},
 		//{"clflushopt", cpuinfo_has_x86_clflushopt},

@@ -65,6 +65,7 @@ if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND TIREX_TRACKER_BUILD_DOCS)
 		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	)
 endif()
+<<<<<<< HEAD
 
 
 ##########################################################################################
@@ -89,3 +90,5 @@ if(NOT TIREX_TRACKER_ONLY_DOCS AND (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AN
 	include(CPack)
 	cpack_add_component(tirex_tracker)
 endif()
+=======
+>>>>>>> 4c59927 (renamed C api from measure to tirex tracker)
