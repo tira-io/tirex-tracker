@@ -7,7 +7,7 @@ plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
     id("com.palantir.git-version")
-    id("org.cthing.build-constants")
+    id("com.github.gmazzo.buildconfig")
 }
 
 val gitVersion: Closure<String> by extra
@@ -58,17 +58,15 @@ tasks {
         }
     }
 
-    generateBuildConstants {
-        classname = "io.tira.tirex.tracker.Build"
-
-        projectGroup = "io.tira"
-        projectName = "tirex-tracker"
-        projectVersion = gitVersion()
-    }
-
     withType<KotlinCompile>().configureEach {
-        dependsOn(generateBuildConstants)
+//        dependsOn(generateBuildConstants)
     }
+}
+
+buildConfig {
+    className("Build")   // forces the class name. Defaults to 'BuildConfig'
+    packageName("io.tira.tirex.tracker")  // forces the package. Defaults to '${project.group}'
+    buildConfigField("VERSION", provider(gitVersion))
 }
 
 publishing {

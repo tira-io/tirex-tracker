@@ -3,8 +3,6 @@ from tempfile import TemporaryDirectory
 from time import sleep
 from typing import Collection, Mapping
 
-from pytest import fixture
-
 from tirex_tracker import (
     provider_infos,
     measure_infos,

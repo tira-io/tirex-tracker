@@ -240,7 +240,7 @@ internal open class NativeProviderInfo(pointer: Pointer? = null) : Structure(poi
 private val JAVA_PROVIDER = ProviderInfo(
     name = "Python",
     description = "Python-specific measures.",
-    version = Build.PROJECT_VERSION,
+    version = Build.VERSION,
 )
 
 
