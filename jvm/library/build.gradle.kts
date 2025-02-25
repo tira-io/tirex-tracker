@@ -22,7 +22,7 @@ dependencies {
     implementation("net.java.dev.jna:jna-platform:5.16.0")
     api("net.java.dev.jna:jna:5.16.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
-    implementation("com.charleskorn.kaml:kaml:0.72.0")
+    implementation("org.yaml:snakeyaml:2.4")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
