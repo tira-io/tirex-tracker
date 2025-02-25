@@ -116,7 +116,6 @@ static uint64_t fileTimeToUint64(const FILETIME& ft) {
 }
 
 std::tuple<size_t, size_t> SystemStats::getSysAndUserTime() const {
-	HANDLE pid = GetCurrentProcess(); /** \todo move this into a member variable **/
 	FILETIME creationTime, exitTime, kernelTime, userTime;
 	if (GetProcessTimes(pid, &creationTime, &exitTime, &kernelTime, &userTime)) {
 		return {fileTimeToUint64(kernelTime), fileTimeToUint64(userTime)};
@@ -181,7 +180,6 @@ uint8_t SystemStats::getCPUUtilization() {
 }
 
 uint8_t SystemStats::getProcCPUUtilization() {
-	HANDLE pid = GetCurrentProcess(); /** \todo store in member **/
 	FILETIME ftime, fsys, fuser;
 	ULARGE_INTEGER now, sys, user;
 	size_t percent;
@@ -203,7 +201,6 @@ uint8_t SystemStats::getProcCPUUtilization() {
 }
 
 SystemStats::Utilization SystemStats::getUtilization() {
-	HANDLE pid = GetCurrentProcess(); /** \todo store in member **/
 	return Utilization{
 			.ramUsedKB = getRAMUsageKB(pid),
 			.cpuUtilization = getProcCPUUtilization(pid),

@@ -66,7 +66,6 @@ uint8_t SystemStats::getCPUUtilization() {
 }
 
 std::tuple<size_t, size_t> SystemStats::getSysAndUserTime() const {
-	auto pid = getpid(); /** \todo store in member **/
 	proc_taskinfo taskInfo;
 	if (int err; (err = proc_pidinfo(pid, PROC_PIDTASKINFO, 0, &taskInfo, PROC_PIDTASKINFO_SIZE)) != 0) {
 		return {taskInfo.pti_total_system, taskInfo.pti_total_user};
@@ -107,7 +106,6 @@ static unsigned getSystemRAMUsageMB() {
 }
 
 SystemStats::Utilization SystemStats::getUtilization() {
-	auto pid = getpid(); /** \todo store in member **/
 	return Utilization{
 			.ramUsedKB = getRAMUsageKB(pid),
 			.cpuUtilization = getProcCPUUtilization(),
@@ -125,7 +123,7 @@ SystemStats::SysInfo SystemStats::getSysInfo() {
 #include <dlfcn.h>
 
 void SystemStats::start() {
-	tirex::log::info("macosstats", "Collecting resources for Process {}", getpid());
+	tirex::log::info("macosstats", "Collecting resources for Process {}", pid);
 	starttime = steady_clock::now();
 	std::tie(startSysTime, startUTime) = getSysAndUserTime();
 	tirex::log::debug("macosstats", "Start systime {} ms, utime {} ms", tickToMs(startSysTime), tickToMs(startUTime));

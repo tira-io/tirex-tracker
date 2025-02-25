@@ -2,6 +2,7 @@
 
 #include "logging.hpp"
 #include "measure/stats/provider.hpp"
+#include "measure/utils/rangeutils.hpp"
 
 #include <cassert>
 #include <cstring>
@@ -74,8 +75,8 @@ initProviders(const tirexMeasureConf* measures, std::vector<std::unique_ptr<tire
 	auto unmatched = tirex::initProviders(tirexset, providers);
 	if (!unmatched.empty()) {
 		/** \todo if pedantic abort here **/
-		/** \todo log which are not associated **/
 		tirex::log::warn("measure", "Not all requested measures are associated with a data provider");
+		tirex::log::warn("measure", "Unmatched: {}", tirex::utils::join(unmatched));
 	}
 	return TIREX_SUCCESS;
 }
