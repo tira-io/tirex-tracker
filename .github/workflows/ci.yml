@@ -113,7 +113,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jvm-jar
-          path: ~/.m2/repository/io/tira/tirex-tracker/*/measure-*.jar
+          path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*.jar
   jvm-test:
     name: 🧪 Test JVM library
     runs-on: ubuntu-latest
