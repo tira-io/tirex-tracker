@@ -278,7 +278,7 @@ The Debian package is built by running:
 cmake --build c/build/ --config Release --target package
 ```
 
-You will find the compiled Debian package file at `c/build/measure-*-Linux.deb` (where `*` is the version).
+You will find the compiled Debian package file at `c/build/tirex-tracker-*-Linux.deb` (where `*` is the version).
 
 <!-- TODO: C test instructions. -->
 

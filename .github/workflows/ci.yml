@@ -82,7 +82,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: c-debian-package
-          path: c/build/measure-*-Linux.deb
+          path: c/build/tirex-tracker-*-Linux.deb
   jvm-build:
     name: 🏗️ Build JVM library
     runs-on: ubuntu-latest
@@ -367,7 +367,7 @@ jobs:
           files: |
             tmp/c/measure_full.so
             tmp/c/measure
-            tmp/c/measure-*-Linux.deb
+            tmp/c/tirex-tracker-*-Linux.deb
             tmp/python/dist/*
             tmp/jvm/*/*.jar
           fail_on_unmatched_files: true
