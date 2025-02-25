@@ -1,4 +1,4 @@
-#include <measure.h>
+#include <tirex_tracker.h>
 
 #include "logging.hpp"
 #include "measure/stats/provider.hpp"
@@ -12,27 +12,27 @@
 #include <thread>
 #include <vector>
 
-struct msrMeasureHandle_st final {
+struct tirexMeasureHandle_st final {
 	size_t pollIntervalMs;
-	const std::vector<std::unique_ptr<msr::StatsProvider>> providers;
+	const std::vector<std::unique_ptr<tirex::StatsProvider>> providers;
 	std::thread monitorthread;
 	std::promise<void> signal;
 
-	msrMeasureHandle_st(msrMeasureHandle_st& other) = delete;
+	tirexMeasureHandle_st(tirexMeasureHandle_st& other) = delete;
 
-	explicit msrMeasureHandle_st(
-			std::vector<std::unique_ptr<msr::StatsProvider>>&& _providers, size_t pollIntervalMs
+	explicit tirexMeasureHandle_st(
+			std::vector<std::unique_ptr<tirex::StatsProvider>>&& _providers, size_t pollIntervalMs
 	) noexcept
 			: pollIntervalMs(pollIntervalMs), providers(std::move(_providers)) {
 		// Start measuring
-		msr::log::info("measure", "Start Measuring");
+		tirex::log::info("measure", "Start Measuring");
 		for (auto& provider : providers)
 			provider->start();
 
-		monitorthread = std::thread(msrMeasureHandle_st::monitorThread, this);
+		monitorthread = std::thread(tirexMeasureHandle_st::monitorThread, this);
 	}
 
-	msr::Stats stop() {
+	tirex::Stats stop() {
 		signal.set_value();
 		monitorthread.join();
 
@@ -41,7 +41,7 @@ struct msrMeasureHandle_st final {
 			provider->stop();
 
 		// Collect statistics and print them
-		msr::Stats stats{}; /** \todo ranges **/
+		tirex::Stats stats{}; /** \todo ranges **/
 		for (auto& provider : providers) {
 			auto tmp = provider->getStats();
 			stats.insert(tmp.begin(), tmp.end());
@@ -49,7 +49,7 @@ struct msrMeasureHandle_st final {
 		return stats;
 	}
 
-	static void monitorThread(msrMeasureHandle_st* self) {
+	static void monitorThread(tirexMeasureHandle_st* self) {
 		auto future = self->signal.get_future();
 		auto intervall = std::chrono::milliseconds{self->pollIntervalMs};
 		while (future.wait_for(intervall) != std::future_status::ready) {
@@ -59,51 +59,53 @@ struct msrMeasureHandle_st final {
 	}
 };
 
-static msrError
-initProviders(const msrMeasureConf* measures, std::vector<std::unique_ptr<msr::StatsProvider>>& providers) {
-	std::set<msrMeasure> msrset;
-	for (auto conf = measures; conf->source != msrMeasure::MSR_MEASURE_INVALID; ++conf) {
-		auto [it, inserted] = msrset.insert(conf->source); /** \todo implement **/
+static tirexError
+initProviders(const tirexMeasureConf* measures, std::vector<std::unique_ptr<tirex::StatsProvider>>& providers) {
+	std::set<tirexMeasure> tirexset;
+	for (auto conf = measures; conf->source != tirexMeasure::TIREX_MEASURE_INVALID; ++conf) {
+		auto [it, inserted] = tirexset.insert(conf->source); /** \todo implement **/
 		if (!inserted) {
 			/** \todo if pedantic abort here **/
-			msr::log::warn("measure", "The measure {} was requested more than once", static_cast<signed>(conf->source));
+			tirex::log::warn(
+					"measure", "The measure {} was requested more than once", static_cast<signed>(conf->source)
+			);
 		}
 	}
-	auto unmatched = msr::initProviders(msrset, providers);
+	auto unmatched = tirex::initProviders(tirexset, providers);
 	if (!unmatched.empty()) {
 		/** \todo if pedantic abort here **/
 		/** \todo log which are not associated **/
-		msr::log::warn("measure", "Not all requested measures are associated with a data provider");
+		tirex::log::warn("measure", "Not all requested measures are associated with a data provider");
 	}
-	return MSR_SUCCESS;
+	return TIREX_SUCCESS;
 }
 
-msrError msrFetchInfo(const msrMeasureConf* measures, msrResult** result) {
-	std::vector<std::unique_ptr<msr::StatsProvider>> providers;
-	if (msrError err; (err = initProviders(measures, providers)) != MSR_SUCCESS)
+tirexError tirexFetchInfo(const tirexMeasureConf* measures, tirexResult** result) {
+	std::vector<std::unique_ptr<tirex::StatsProvider>> providers;
+	if (tirexError err; (err = initProviders(measures, providers)) != TIREX_SUCCESS)
 		return err;
-	msr::Stats stats{}; /** \todo ranges **/
+	tirex::Stats stats{}; /** \todo ranges **/
 	for (auto& provider : providers) {
 		auto tmp = provider->getInfo();
 		stats.insert(tmp.begin(), tmp.end());
 	}
 	*result = createMsrResultFromStats(std::move(stats));
-	return MSR_SUCCESS;
+	return TIREX_SUCCESS;
 }
 
-msrError msrStartMeasure(const msrMeasureConf* measures, size_t pollIntervalMs, msrMeasureHandle** handle) {
-	std::vector<std::unique_ptr<msr::StatsProvider>> providers;
-	if (msrError err; (err = initProviders(measures, providers)) != MSR_SUCCESS)
+tirexError tirexStartTracking(const tirexMeasureConf* measures, size_t pollIntervalMs, tirexMeasureHandle** handle) {
+	std::vector<std::unique_ptr<tirex::StatsProvider>> providers;
+	if (tirexError err; (err = initProviders(measures, providers)) != TIREX_SUCCESS)
 		return err;
-	*handle = new msrMeasureHandle{std::move(providers), pollIntervalMs};
-	return MSR_SUCCESS;
+	*handle = new tirexMeasureHandle{std::move(providers), pollIntervalMs};
+	return TIREX_SUCCESS;
 }
 
-msrError msrStopMeasure(msrMeasureHandle* measure, msrResult** result) {
+tirexError tirexStopTracking(tirexMeasureHandle* measure, tirexResult** result) {
 	if (measure == nullptr)
-		return MSR_INVALID_ARGUMENT;
+		return TIREX_INVALID_ARGUMENT;
 	auto res = measure->stop();
 	delete measure;
 	*result = createMsrResultFromStats(std::move(res));
-	return MSR_SUCCESS;
+	return TIREX_SUCCESS;
 }

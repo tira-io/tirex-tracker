@@ -1,16 +1,16 @@
 #ifndef STATFORMATTER_HPP
 #define STATFORMATTER_HPP
 
-#include <measure.h>
+#include <tirex_tracker.h>
 
 #include <functional>
 #include <ostream>
 
-namespace msr {
-	using ResultFormatter = std::function<void(std::ostream& stream, const msrResult* result)>;
+namespace tirex {
+	using ResultFormatter = std::function<void(std::ostream& stream, const tirexResult* result)>;
 
-	extern void simpleFormatter(std::ostream& stream, const msrResult* result) noexcept;
-	extern void jsonFormatter(std::ostream& stream, const msrResult* result) noexcept;
-} // namespace msr
+	extern void simpleFormatter(std::ostream& stream, const tirexResult* result) noexcept;
+	extern void jsonFormatter(std::ostream& stream, const tirexResult* result) noexcept;
+} // namespace tirex
 
 #endif

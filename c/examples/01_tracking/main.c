@@ -1,4 +1,3 @@
-#include <irtracker.h>
 #include <tirex_tracker.h>
 
 #include <assert.h>
@@ -6,6 +5,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WINDOWS
+#include <synchapi.h>
+#include <time.h>
+#include <windows.h>
+
+static int thrd_sleep(const struct timespec* duration, struct timespec* remaining) {
+	Sleep(duration->tv_sec * 1000);
+	return 0;
+}
+#else
 #if defined(__has_include)
 #if !__has_include(<threads.h>)
 // Under MacOS this is not set properly :(
@@ -21,6 +30,7 @@
 static int thrd_sleep(const struct timespec* duration, struct timespec* remaining) {
 	return nanosleep(duration, remaining);
 }
+#endif
 #endif
 
 static void logcallback(tirexLogLevel level, const char* component, const char* message) {
@@ -49,7 +59,7 @@ static const char* measureToName[] = {
 		[TIREX_CPU_MODEL_NAME] = "cpu model name",
 		[TIREX_CPU_CORES_PER_SOCKET] = "cpu cores per socket",
 		[TIREX_CPU_THREADS_PER_CORE] = "cpu threads per core",
-		[TIREX_CPU_CACHES] = "cpu caches kb",
+		[TIREX_CPU_CACHES] = "cpu caches",
 		[TIREX_CPU_VIRTUALIZATION] = "cpu virtualization",
 		[TIREX_RAM_USED_PROCESS_KB] = "ram used process kb",
 		[TIREX_RAM_USED_SYSTEM_MB] = "ram used system mb",
@@ -76,9 +86,28 @@ static const char* measureToName[] = {
 		[TIREX_GIT_UNCHECKED_FILES] = "git unchecked files"
 };
 
+static void printResult(const tirexResult* result, const char* prefix) {
+	size_t num;
+	tirexResultEntry entry;
+	int err = tirexResultEntryNum(result, &num);
+	assert(err == TIREX_SUCCESS);
+	for (size_t i = 0; i < num; ++i) {
+		if (tirexResultEntryGetByIndex(result, i, &entry) != TIREX_SUCCESS)
+			abort();
+		assert(entry.source >= 0 && entry.source < TIREX_MEASURE_COUNT);
+		printf("[%s] %s\n", measureToName[entry.source], (const char*)entry.value);
+	}
+}
+
+int fib(int n) {
+	if (n <= 1)
+		return n;
+	return fib(n - 1) + fib(n - 2);
+}
+
 int main(int argc, char* argv[]) {
 	tirexMeasureHandle* measure;
-	tirexResult *info, *result;
+	tirexResult* result;
 
 	const tirexMeasureConf providers[] = {
 			{TIREX_OS_NAME, TIREX_AGG_NO},
@@ -128,26 +157,26 @@ int main(int argc, char* argv[]) {
 	tirexSetLogCallback(logcallback);
 
 	// Print information about the system (e.g., OS Information, HW Specs, ...)
-	if (tirexFetchInfo(providers, &info) != TIREX_SUCCESS)
+	if (tirexFetchInfo(providers, &result) != TIREX_SUCCESS)
 		abort();
+	printResult(result, NULL);
+	tirexResultFree(result);
 
 	// Track metadata
 	if (tirexStartTracking(providers, 100, &measure) != TIREX_SUCCESS)
 		abort();
 	{
+		thrd_sleep(&(struct timespec){.tv_sec = 1}, NULL);
 		char* data = calloc(24 * 1000 * 1000, 1);	  // allocate 24 MB
 		for (size_t i = 0; i < 24 * 1000 * 1000; ++i) // Access the data so it is not optimized away
 			data[i] = 1;
 		thrd_sleep(&(struct timespec){.tv_sec = 1}, NULL);
 		free(data);
-		//fib(45);
+		fib(45);
 	}
 	if (tirexStopTracking(measure, &result) != TIREX_SUCCESS)
 		abort();
-	printf("Writing results to ./test.ir_metadata\n");
-	if (tirexResultExportIrMetadata(info, result, "./test.ir_metadata") != TIREX_SUCCESS)
-		abort();
-	tirexResultFree(info);
+	printResult(result, NULL);
 	tirexResultFree(result);
 	return 0;
 }

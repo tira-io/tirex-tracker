@@ -14,7 +14,7 @@
 #undef ERROR //  Make problems with logging.h otherwise
 #endif
 
-namespace msr {
+namespace tirex {
 	class SystemStats final : public StatsProvider {
 	public:
 		struct SysInfo {
@@ -49,11 +49,11 @@ namespace msr {
 		std::chrono::steady_clock::time_point starttime;
 		std::chrono::steady_clock::time_point stoptime;
 
-		msr::TimeSeries<unsigned> ram{true};
-		msr::TimeSeries<unsigned> sysRam{true};
-		msr::TimeSeries<unsigned> cpuUtil{true};
-		msr::TimeSeries<unsigned> sysCpuUtil{true};
-		msr::TimeSeries<uint32_t> frequency{true};
+		tirex::TimeSeries<unsigned> ram{true};
+		tirex::TimeSeries<unsigned> sysRam{true};
+		tirex::TimeSeries<unsigned> cpuUtil{true};
+		tirex::TimeSeries<unsigned> sysCpuUtil{true};
+		tirex::TimeSeries<uint32_t> frequency{true};
 
 		size_t startUTime, stopUTime;
 		size_t startSysTime, stopSysTime;
@@ -106,12 +106,12 @@ namespace msr {
 
 		static constexpr const char* description = "Collects system components and utilization metrics.";
 		static const char* version;
-		static const std::set<msrMeasure> measures;
+		static const std::set<tirexMeasure> measures;
 
 	private:
 		static SysInfo getSysInfo();
 		static CPUInfo getCPUInfo();
 	};
-} // namespace msr
+} // namespace tirex
 
 #endif

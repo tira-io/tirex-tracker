@@ -5,7 +5,7 @@
 #include <utility>
 #include <vector>
 
-namespace msr {
+namespace tirex {
 	template <typename T>
 	struct TimeSeries final {
 		using clock = std::chrono::high_resolution_clock;
@@ -46,6 +46,6 @@ namespace msr {
 			return {timepoints, values};
 		}
 	};
-}; // namespace msr
+}; // namespace tirex
 
 #endif

@@ -11,7 +11,7 @@
 #error "Unsupported OS"
 #endif
 
-namespace msr::utils {
+namespace tirex::utils {
 
 	namespace details {
 #if defined(__linux__) || defined(__APPLE__)
@@ -26,7 +26,7 @@ namespace msr::utils {
 		using libhandle = HINSTANCE;
 		inline libhandle openlib(const std::filesystem::path& path) { return LoadLibrary((LPCSTR)path.c_str()); }
 		inline void closelib(libhandle handle) noexcept { /** Not possible */ }
-		template<typename T>
+		template <typename T>
 		inline T loadfromlib(libhandle handle, const std::string& name) noexcept {
 			return reinterpret_cast<T>(GetProcAddress(handle, name.c_str()));
 		}
@@ -74,6 +74,6 @@ namespace msr::utils {
 		operator bool() const noexcept { return good(); }
 	};
 
-} // namespace msr::utils
+} // namespace tirex::utils
 
 #endif

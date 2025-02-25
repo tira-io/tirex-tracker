@@ -6,7 +6,7 @@ add_executable(measure
 )
 
 target_compile_features(measure PUBLIC cxx_std_20)
-target_link_libraries(measure measureapi_static)
+target_link_libraries(measure tirex_tracker_static)
 
 
 ##########################################################################################
@@ -23,3 +23,26 @@ target_link_libraries(measure spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 FetchContent_Declare(cli11 GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git GIT_TAG v2.4.2)
 FetchContent_MakeAvailable(cli11)
 target_link_libraries(measure CLI11::CLI11)
+
+
+##########################################################################################
+# Debian Package
+##########################################################################################
+# Debian Packaging only available if this is the main app
+if(NOT TIREX_TRACKER_ONLY_DOCS AND (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND TIREX_TRACKER_BUILD_DEB)
+	install(TARGETS measure RUNTIME DESTINATION bin COMPONENT measurecmd)
+
+	SET(CPACK_GENERATOR "DEB")
+	SET(CPACK_PACKAGE_NAME "tirex-tracker")
+	SET(CPACK_SET_DESTDIR TRUE)
+	SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "not-set")
+	SET(CPACK_PACKAGE_VERSION "0.0.1rc")
+	include(GNUInstallDirs)
+	SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "TODO")
+	SET(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/../../../README.md")
+	SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../../../LICENSE")
+	SET(CPACK_DEBIAN_PACKAGE_DEPENDS "")
+	SET(CPACK_PACKAGE_VENDOR "")
+	include(CPack)
+	cpack_add_component(measurecmd)
+endif()

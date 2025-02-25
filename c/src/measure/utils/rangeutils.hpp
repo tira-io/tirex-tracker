@@ -5,7 +5,7 @@
 #include <sstream>
 #include <string>
 
-namespace msr::utils {
+namespace tirex::utils {
 	inline std::string join(const std::ranges::range auto& range, char delimiter = ',') {
 #ifdef __cpp_lib_ranges_join_with
 		return range | std::join_with(delimiter);
@@ -21,6 +21,6 @@ namespace msr::utils {
 		return stream.str();
 #endif
 	}
-} // namespace msr::utils
+} // namespace tirex::utils
 
 #endif

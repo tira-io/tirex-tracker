@@ -14,20 +14,20 @@
 
 using namespace std::string_literals;
 
-using msr::GitStats;
-using msr::Stats;
+using tirex::GitStats;
+using tirex::Stats;
 
 const char* GitStats::version = "libgit v." LIBGIT2_VERSION;
-const std::set<msrMeasure> GitStats::measures{MSR_GIT_IS_REPO,			MSR_GIT_HASH,
-											  MSR_GIT_LAST_COMMIT_HASH, MSR_GIT_BRANCH,
-											  MSR_GIT_BRANCH_UPSTREAM,	MSR_GIT_TAGS,
-											  MSR_GIT_REMOTE_ORIGIN,	MSR_GIT_UNCOMMITTED_CHANGES,
-											  MSR_GIT_UNPUSHED_CHANGES, MSR_GIT_UNCHECKED_FILES};
+const std::set<tirexMeasure> GitStats::measures{TIREX_GIT_IS_REPO,			TIREX_GIT_HASH,
+												TIREX_GIT_LAST_COMMIT_HASH, TIREX_GIT_BRANCH,
+												TIREX_GIT_BRANCH_UPSTREAM,	TIREX_GIT_TAGS,
+												TIREX_GIT_REMOTE_ORIGIN,	TIREX_GIT_UNCOMMITTED_CHANGES,
+												TIREX_GIT_UNPUSHED_CHANGES, TIREX_GIT_UNCHECKED_FILES};
 
 static std::string getLastCommitHash(git_repository* repo) {
 	git_oid id;
 	if (int err; err = git_reference_name_to_id(&id, repo, "HEAD")) {
-		msr::log::error("gitstats", "Failed to lookup HEAD: {}", git_error_last()->message);
+		tirex::log::error("gitstats", "Failed to lookup HEAD: {}", git_error_last()->message);
 		return "";
 	}
 	char buf[GIT_OID_SHA1_HEXSIZE + 1];
@@ -38,13 +38,13 @@ static std::string getLastCommitHash(git_repository* repo) {
 static std::tuple<std::string, std::string> getBranchName(git_repository* repo) {
 	git_reference* head;
 	if (int err; err = git_repository_head(&head, repo)) {
-		msr::log::error("gitstats", "Failed to fetch repository head: {}", git_error_last()->message);
+		tirex::log::error("gitstats", "Failed to fetch repository head: {}", git_error_last()->message);
 		return {"(failed to fetch)", ""};
 	}
 	// Local Branch Name
 	const char* local;
 	if (int err; err = git_branch_name(&local, head)) {
-		msr::log::error("gitstats", "Failed to get branch name: {}", git_error_last()->message);
+		tirex::log::error("gitstats", "Failed to get branch name: {}", git_error_last()->message);
 		return {"(failed to fetch)", ""};
 	}
 	// Upstream Branch Name
@@ -53,11 +53,11 @@ static std::tuple<std::string, std::string> getBranchName(git_repository* repo) 
 		/** success **/
 	} else if (err == GIT_ENOTFOUND) {
 		git_buf_dispose(&buf);
-		msr::log::warn("gitstats", "Branch is unknown to upstream");
+		tirex::log::warn("gitstats", "Branch is unknown to upstream");
 		return {{local}, {""}};
 	} else {
 		git_buf_dispose(&buf);
-		msr::log::error("gitstats", "Failed to get upstream branch name: {}", git_error_last()->message);
+		tirex::log::error("gitstats", "Failed to get upstream branch name: {}", git_error_last()->message);
 		return {{local}, {""}};
 	}
 	std::string remote = buf.ptr;
@@ -69,7 +69,7 @@ static std::string getRemoteOrigin(git_repository* repo) {
 	git_remote* remote;
 	if (int err; err = git_remote_lookup(&remote, repo, "origin")) {
 		/** No remote called origin is set **/
-		msr::log::warn("gitstats", "Failed to lookup remote/origin: {}", git_error_last()->message);
+		tirex::log::warn("gitstats", "Failed to lookup remote/origin: {}", git_error_last()->message);
 		return "";
 	}
 	std::string url = git_remote_url(remote);
@@ -87,20 +87,20 @@ static std::vector<std::string> getTags(git_repository* repo) {
 	std::vector<std::string> tagNames;
 	git_oid head;
 	if (int err; err = git_reference_name_to_id(&head, repo, "HEAD")) {
-		msr::log::error("gitstats", "Failed to lookup HEAD: {}", git_error_last()->message);
+		tirex::log::error("gitstats", "Failed to lookup HEAD: {}", git_error_last()->message);
 		return {};
 	}
 	auto callback = [head, &repo, &tagNames](const char* name, git_oid* oid) {
 		git_object* object = nullptr;
 		const git_oid* target = nullptr;
 		if (int err; err = git_object_lookup(&object, repo, oid, GIT_OBJECT_ANY)) {
-			msr::log::error("gitstats", "Failed to lookup object: {}", git_error_last()->message);
+			tirex::log::error("gitstats", "Failed to lookup object: {}", git_error_last()->message);
 			return 0; // Return 0 to stop processing this tag but don't abort the iteration
 		}
 		if (git_object_type(object) == GIT_OBJECT_TAG) { // Annotated tag
 			git_tag* tag;
 			if (int err; err = git_tag_lookup(&tag, repo, oid)) {
-				msr::log::error("gitstats", "Failed to lookup tag: {}", git_error_last()->message);
+				tirex::log::error("gitstats", "Failed to lookup tag: {}", git_error_last()->message);
 				return 0; // Return 0 to stop processing this tag but don't abort the iteration
 			}
 			target = git_tag_target_id(tag);
@@ -130,7 +130,7 @@ static std::string hashAllFiles(git_repository* repo) {
 		auto entry = git_status_byindex(list, i);
 		std::ifstream is(root / entry->index_to_workdir->new_file.path, std::ios::binary);
 		if (!is) {
-			msr::log::error("gitstats", "Error opening file: {}", entry->index_to_workdir->new_file.path);
+			tirex::log::error("gitstats", "Error opening file: {}", entry->index_to_workdir->new_file.path);
 			continue;
 		}
 		for (char buffer[8192]; is; is.read(buffer, sizeof(buffer)))
@@ -171,11 +171,11 @@ static GitStatusStats getStatusStats(git_repository* repo) {
 		git_reference* upstream;
 		git_reference* head;
 		if (int err; err = git_repository_head(&head, repo)) {
-			msr::log::error("gitstats", "Failed to fetch repository head: {}", git_error_last()->message);
+			tirex::log::error("gitstats", "Failed to fetch repository head: {}", git_error_last()->message);
 			return stats;
 		}
 		if (int err; err = git_branch_upstream(&upstream, head)) {
-			msr::log::error("gitstats", "Failed to get upstream branch: {}", git_error_last()->message);
+			tirex::log::error("gitstats", "Failed to get upstream branch: {}", git_error_last()->message);
 			return stats;
 		}
 		auto local = git_reference_target(head);
@@ -188,7 +188,7 @@ static GitStatusStats getStatusStats(git_repository* repo) {
 GitStats::GitStats() : repo(nullptr) {
 	git_libgit2_init();
 	if (int err; git_repository_open_ext(&repo, "./", 0, nullptr) < 0)
-		msr::log::error("gitstats", "Failed to open git repository: {}", git_error_last()->message);
+		tirex::log::error("gitstats", "Failed to open git repository: {}", git_error_last()->message);
 }
 GitStats::~GitStats() { git_libgit2_shutdown(); }
 
@@ -198,23 +198,23 @@ Stats GitStats::getInfo() {
 	/** \todo: filter by requested metrics */
 	if (isRepository()) {
 		auto status = getStatusStats(repo);
-		msr::log::info(
+		tirex::log::info(
 				"gitstats", "I counted {} tracked files that were changed and {} untracked files", status.numModified,
 				status.numNew
 		);
-		msr::log::info("gitstats", "Local is {} commits ahead and {} behind upstream", status.ahead, status.behind);
+		tirex::log::info("gitstats", "Local is {} commits ahead and {} behind upstream", status.ahead, status.behind);
 		auto [local, remote] = getBranchName(repo);
-		return {{MSR_GIT_IS_REPO, "1"s},
-				{MSR_GIT_HASH, hashAllFiles(repo)},
-				{MSR_GIT_LAST_COMMIT_HASH, getLastCommitHash(repo)},
-				{MSR_GIT_BRANCH, local},
-				{MSR_GIT_BRANCH_UPSTREAM, remote},
-				{MSR_GIT_TAGS, "["s + msr::utils::join(getTags(repo), ',') + "]"s},
-				{MSR_GIT_REMOTE_ORIGIN, getRemoteOrigin(repo)},
-				{MSR_GIT_UNCOMMITTED_CHANGES, (status.numModified != 0) ? "1"s : "0"s},
-				{MSR_GIT_UNPUSHED_CHANGES, ((status.ahead != 0) || remote.empty()) ? "1"s : "0"s},
-				{MSR_GIT_UNCHECKED_FILES, (status.numNew != 0) ? "1"s : "0"s}};
+		return {{TIREX_GIT_IS_REPO, "1"s},
+				{TIREX_GIT_HASH, hashAllFiles(repo)},
+				{TIREX_GIT_LAST_COMMIT_HASH, getLastCommitHash(repo)},
+				{TIREX_GIT_BRANCH, local},
+				{TIREX_GIT_BRANCH_UPSTREAM, remote},
+				{TIREX_GIT_TAGS, "["s + tirex::utils::join(getTags(repo), ',') + "]"s},
+				{TIREX_GIT_REMOTE_ORIGIN, getRemoteOrigin(repo)},
+				{TIREX_GIT_UNCOMMITTED_CHANGES, (status.numModified != 0) ? "1"s : "0"s},
+				{TIREX_GIT_UNPUSHED_CHANGES, ((status.ahead != 0) || remote.empty()) ? "1"s : "0"s},
+				{TIREX_GIT_UNCHECKED_FILES, (status.numNew != 0) ? "1"s : "0"s}};
 	} else {
-		return {{MSR_GIT_IS_REPO, "0"s}};
+		return {{TIREX_GIT_IS_REPO, "0"s}};
 	}
 }

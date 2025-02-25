@@ -43,7 +43,7 @@ include(FetchContent)
 # Use GIT_TAG to request the tag (or branch) you would like
 FetchContent_Declare(tirex_tracker GIT_REPOSITORY https://github.com/tira-io/tirex-tracker.git GIT_TAG 0.0.11)
 FetchContent_MakeAvailable(tirex_tracker)
-target_link_libraries(<yourtarget> tirex_tracker::measureapi)
+target_link_libraries(<yourtarget> tirex_tracker::tirex_tracker)
 ```
 
 This will link the TIREx tracker C API to your binaries.
@@ -254,12 +254,12 @@ cmake -S c/ -B c/build/ \
   -D CMAKE_C_COMPILER=gcc-13 \
   -D CMAKE_CXX_COMPILER=g++-13 \
   -D BUILD_SHARED_LIBS=YES \
-  -D MEASURECMD_BUILD_DOCS=YES \
-  -D MEASURECMD_BUILD_DEB=YES \
-  -D MEASURECMD_BUILD_EXAMPLES=YES
+  -D TIREX_TRACKER_BUILD_DOCS=YES \
+  -D TIREX_TRACKER_BUILD_DEB=YES \
+  -D TIREX_TRACKER_BUILD_EXAMPLES=YES
 ```
 
-(Hint: If you do not want to generate the documentation and have not installed Doxygen, you can disable it by setting `MEASURECMD_BUILD_DOCS=NO`.)
+(Hint: If you do not want to generate the documentation and have not installed Doxygen, you can disable it by setting `TIREX_TRACKER_BUILD_DOCS=NO`.)
 
 You can then build the library (and examples) like this:
 

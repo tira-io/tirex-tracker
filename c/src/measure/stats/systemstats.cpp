@@ -23,8 +23,8 @@ namespace _fmt = fmt;
 
 using namespace std::string_literals;
 
-using msr::Stats;
-using msr::SystemStats;
+using tirex::Stats;
+using tirex::SystemStats;
 
 #ifdef __linux__
 extern "C" {
@@ -68,33 +68,33 @@ std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
 #endif
 
 const char* SystemStats::version = nullptr;
-const std::set<msrMeasure> SystemStats::measures{
-		MSR_OS_NAME,
-		MSR_OS_KERNEL,
+const std::set<tirexMeasure> SystemStats::measures{
+		TIREX_OS_NAME,
+		TIREX_OS_KERNEL,
 
-		MSR_TIME_ELAPSED_WALL_CLOCK_MS,
-		MSR_TIME_ELAPSED_USER_MS,
-		MSR_TIME_ELAPSED_SYSTEM_MS,
+		TIREX_TIME_ELAPSED_WALL_CLOCK_MS,
+		TIREX_TIME_ELAPSED_USER_MS,
+		TIREX_TIME_ELAPSED_SYSTEM_MS,
 
-		MSR_CPU_USED_PROCESS_PERCENT,
-		MSR_CPU_USED_SYSTEM_PERCENT,
-		MSR_CPU_AVAILABLE_SYSTEM_CORES,
-		MSR_CPU_FEATURES,
-		MSR_CPU_FREQUENCY_MHZ,
-		MSR_CPU_FREQUENCY_MIN_MHZ,
-		MSR_CPU_FREQUENCY_MAX_MHZ,
-		MSR_CPU_VENDOR_ID,
-		MSR_CPU_BYTE_ORDER,
-		MSR_CPU_ARCHITECTURE,
-		MSR_CPU_MODEL_NAME,
-		MSR_CPU_CORES_PER_SOCKET,
-		MSR_CPU_THREADS_PER_CORE,
-		MSR_CPU_CACHES,
-		MSR_CPU_VIRTUALIZATION,
+		TIREX_CPU_USED_PROCESS_PERCENT,
+		TIREX_CPU_USED_SYSTEM_PERCENT,
+		TIREX_CPU_AVAILABLE_SYSTEM_CORES,
+		TIREX_CPU_FEATURES,
+		TIREX_CPU_FREQUENCY_MHZ,
+		TIREX_CPU_FREQUENCY_MIN_MHZ,
+		TIREX_CPU_FREQUENCY_MAX_MHZ,
+		TIREX_CPU_VENDOR_ID,
+		TIREX_CPU_BYTE_ORDER,
+		TIREX_CPU_ARCHITECTURE,
+		TIREX_CPU_MODEL_NAME,
+		TIREX_CPU_CORES_PER_SOCKET,
+		TIREX_CPU_THREADS_PER_CORE,
+		TIREX_CPU_CACHES,
+		TIREX_CPU_VIRTUALIZATION,
 
-		MSR_RAM_USED_PROCESS_KB,
-		MSR_RAM_USED_SYSTEM_MB,
-		MSR_RAM_AVAILABLE_SYSTEM_MB
+		TIREX_RAM_USED_PROCESS_KB,
+		TIREX_RAM_USED_SYSTEM_MB,
+		TIREX_RAM_AVAILABLE_SYSTEM_MB
 };
 
 std::map<cpuinfo_vendor, const char*> vendorToStr{
@@ -147,7 +147,7 @@ static const std::pair<const char*, bool (*)(void)> flags[]{
 		{"rdpid", cpuinfo_has_x86_rdpid},
 		//{"sysenter", cpuinfo_has_x86_sysenter},
 		//{"syscall", cpuinfo_has_x86_syscall},
-		//{"msr", cpuinfo_has_x86_msr},
+		//{"tirex", cpuinfo_has_x86_msr},
 		{"clzero", cpuinfo_has_x86_clzero},
 		//{"clflush", cpuinfo_has_x86_clflush},
 		//{"clflushopt", cpuinfo_has_x86_clflushopt},
@@ -363,12 +363,12 @@ SystemStats::CPUInfo SystemStats::getCPUInfo() {
 	auto numCores = cpuinfo_get_cores_count();
 	auto numClusters = cpuinfo_get_clusters_count();
 
-	msr::log::info(
+	tirex::log::info(
 			"system", "Found {} physical and {} logical processors with a total of {} cores clustered into {} clusters",
 			numPackages, numProcessors, numCores, numClusters
 	);
 	if (numClusters > 1) {
-		msr::log::warn(
+		tirex::log::warn(
 				"system", "I found that {} CPU clusters are installed and will only output statistics for the first",
 				numClusters
 		);
@@ -426,22 +426,22 @@ Stats SystemStats::getInfo() {
 		++cacheIdx;
 	}
 
-	return {{MSR_OS_NAME, info.osname},
-			{MSR_OS_KERNEL, info.kerneldesc},
-			{MSR_CPU_AVAILABLE_SYSTEM_CORES, std::to_string(cpuInfo.numCores)},
-			{MSR_CPU_FEATURES, cpuInfo.flags},
-			{MSR_CPU_FREQUENCY_MIN_MHZ, std::to_string(cpuInfo.frequency_min)},
-			{MSR_CPU_FREQUENCY_MAX_MHZ, std::to_string(cpuInfo.frequency_max)},
-			{MSR_CPU_VENDOR_ID, cpuInfo.vendorId},
-			{MSR_CPU_BYTE_ORDER, cpuInfo.endianness},
-			{MSR_CPU_ARCHITECTURE, info.architecture},
-			{MSR_CPU_MODEL_NAME, cpuInfo.modelname},
-			{MSR_CPU_CORES_PER_SOCKET, std::to_string(cpuInfo.coresPerSocket)},
-			{MSR_CPU_THREADS_PER_CORE, std::to_string(cpuInfo.threadsPerCore)},
-			{MSR_CPU_CACHES, caches},
-			{MSR_CPU_VIRTUALIZATION,
+	return {{TIREX_OS_NAME, info.osname},
+			{TIREX_OS_KERNEL, info.kerneldesc},
+			{TIREX_CPU_AVAILABLE_SYSTEM_CORES, std::to_string(cpuInfo.numCores)},
+			{TIREX_CPU_FEATURES, cpuInfo.flags},
+			{TIREX_CPU_FREQUENCY_MIN_MHZ, std::to_string(cpuInfo.frequency_min)},
+			{TIREX_CPU_FREQUENCY_MAX_MHZ, std::to_string(cpuInfo.frequency_max)},
+			{TIREX_CPU_VENDOR_ID, cpuInfo.vendorId},
+			{TIREX_CPU_BYTE_ORDER, cpuInfo.endianness},
+			{TIREX_CPU_ARCHITECTURE, info.architecture},
+			{TIREX_CPU_MODEL_NAME, cpuInfo.modelname},
+			{TIREX_CPU_CORES_PER_SOCKET, std::to_string(cpuInfo.coresPerSocket)},
+			{TIREX_CPU_THREADS_PER_CORE, std::to_string(cpuInfo.threadsPerCore)},
+			{TIREX_CPU_CACHES, caches},
+			{TIREX_CPU_VIRTUALIZATION,
 			 (cpuInfo.virtualization.svm ? "AMD-V "s : ""s) + (cpuInfo.virtualization.vmx ? "VT-x"s : ""s)},
-			{MSR_RAM_AVAILABLE_SYSTEM_MB, std::to_string(info.totalRamMB)}};
+			{TIREX_RAM_AVAILABLE_SYSTEM_MB, std::to_string(info.totalRamMB)}};
 }
 
 Stats SystemStats::getStats() {
@@ -450,13 +450,13 @@ Stats SystemStats::getStats() {
 			std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(stoptime - starttime).count());
 
 	return {
-			{{MSR_TIME_ELAPSED_WALL_CLOCK_MS, wallclocktime},
-			 {MSR_TIME_ELAPSED_USER_MS, std::to_string(tickToMs(stopUTime - startUTime))},
-			 {MSR_TIME_ELAPSED_SYSTEM_MS, std::to_string(tickToMs(stopSysTime - startSysTime))},
-			 {MSR_CPU_USED_PROCESS_PERCENT, cpuUtil},
-			 {MSR_CPU_USED_SYSTEM_PERCENT, sysCpuUtil},
-			 {MSR_CPU_FREQUENCY_MHZ, frequency},
-			 {MSR_RAM_USED_PROCESS_KB, ram},
-			 {MSR_RAM_USED_SYSTEM_MB, sysRam}}
+			{{TIREX_TIME_ELAPSED_WALL_CLOCK_MS, wallclocktime},
+			 {TIREX_TIME_ELAPSED_USER_MS, std::to_string(tickToMs(stopUTime - startUTime))},
+			 {TIREX_TIME_ELAPSED_SYSTEM_MS, std::to_string(tickToMs(stopSysTime - startSysTime))},
+			 {TIREX_CPU_USED_PROCESS_PERCENT, cpuUtil},
+			 {TIREX_CPU_USED_SYSTEM_PERCENT, sysCpuUtil},
+			 {TIREX_CPU_FREQUENCY_MHZ, frequency},
+			 {TIREX_RAM_USED_PROCESS_KB, ram},
+			 {TIREX_RAM_USED_SYSTEM_MB, sysRam}}
 	};
 }
