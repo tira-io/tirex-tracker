@@ -35,8 +35,8 @@ jobs:
         with:
           name: c-windows-library
           path: |
-            c/build/extensions/libmeasure_full.dll
-            c/build/examples/03_measure_command/measure.exe
+            c\build\extensions\Release\measure_full.dll
+            c\build\examples\03_measure_command\Release\measure.exe
       
   c-build-linux-library:
     name: 🏗️ Build Linux library
