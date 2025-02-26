@@ -18,20 +18,25 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🔧 Configure CMake
-        run: |
-          cmake -S c/ -B c/build/ \
-          -D CMAKE_BUILD_TYPE=Release \
-          -D BUILD_SHARED_LIBS=NO \
-          -D TIREX_TRACKER_BUILD_DOCS=NO \
-          -D TIREX_TRACKER_BUILD_DEB=NO \
-          -D TIREX_TRACKER_BUILD_EXAMPLES=YES
+        run: cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=YES
       - name: 🏗️ Build binary
         run: cmake --build c/build/ --config Release --target measure_full measure
-      - name: 📤 Upload Linux library
+      - if: runner.os == 'macOS'
+        name: 📤 Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: c-macos-library
-          path: c/build/extensions/libmeasure_full.dylib
+          path: |
+            c/build/extensions/libmeasure_full.dylib
+            c/build/examples/03_measure_command/measure
+      - if: runner.os == 'Windows'
+        name: 📤 Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: c-windows-library
+          path: |
+            c/build/extensions/libmeasure_full.dll
+            c/build/examples/03_measure_command/measure.exe
       
   c-build-linux-library:
     name: 🏗️ Build Linux library
@@ -42,17 +47,22 @@ jobs:
       - name: 🧰 Install compiler
         run: sudo apt-get install -y g++-13
       - name: 🔧 Configure CMake
-        run: cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=gcc-13 -D CMAKE_CXX_COMPILER=g++-13 -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=NO
+        run: |
+          cmake -S c/ -B c/build/ \
+          -D CMAKE_BUILD_TYPE=Release \
+          -D CMAKE_C_COMPILER=gcc-13 \
+          -D CMAKE_CXX_COMPILER=g++-13 \
+          -D BUILD_SHARED_LIBS=NO \
+          -D TIREX_TRACKER_BUILD_DOCS=NO \
+          -D TIREX_TRACKER_BUILD_DEB=NO \
+          -D TIREX_TRACKER_BUILD_EXAMPLES=NO
       - name: 🏗️ Build Linux binary
         run: cmake --build c/build/ --config Release --target measure_full
-      - if: runner.os == 'macOS'
-        name: 📤 Upload Linux library
+      - name: 📤 Upload Linux library
         uses: actions/upload-artifact@v4
         with:
           name: c-linux-library
-          path: |
-            c/build/extensions/libmeasure_full.so
-            c/build/examples/03_measure_command/measure
+          path: c/build/extensions/libmeasure_full.so
   c-build-linux-cli:
     name: 🏗️ Build Linux CLI
     runs-on: ubuntu-latest
