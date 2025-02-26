@@ -1,7 +1,6 @@
 /**
  * @file tirex_tracker.h
  * @brief Contains tirex tracker's external C API
- * 
  */
 
 #ifndef TIREX_TRACKER_H
@@ -267,9 +266,10 @@ typedef void (*tirexLogCallback)(tirexLogLevel level, const char* component, con
 
 /**
  * @brief Set a callback that should be used for all future logs.
- * @details The default logger does not do anything.
+ * @details Per default, nothing is logged and passing NULL for \p callback disables logging.
  * 
- * @param callback Points to a function that takes in a log level, component, and message which should be logged. 
+ * @param callback Points to a function that takes in a log level, component, and message which should be logged. Pass
+ * NULL to disable logging.
  */
 TIREX_EXPORT void tirexSetLogCallback(tirexLogCallback callback);
 /** @} */ // end of logging

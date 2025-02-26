@@ -72,6 +72,7 @@ namespace tirex {
 
 		uint8_t getProcCPUUtilization();
 #if __linux__
+		pid_t pid; /**< The process identifier of the tracked process. */
 		size_t lastIdle = 0;
 		size_t lastTotal = 0;
 		size_t lastProcActiveMs = 0;
@@ -81,12 +82,14 @@ namespace tirex {
 		void parseStat(Utilization& utilization);
 		void parseStatm(pid_t pid, Utilization& utilization);
 #elif _WINDOWS
+		HANDLE pid; /**< The process identifier of the tracked process. */
 		FILETIME prevSysIdle, prevSysKernel, prevSysUser;
 		ULARGE_INTEGER lastCPU, lastSysCPU, lastUserCPU;
 		unsigned numProcessors;
 
 		uint8_t getCPUUtilization();
 #elif __APPLE__
+		pid_t pid; /**< The process identifier of the tracked process. */
 		size_t lastIdle = 0;
 		size_t lastTotal = 0;
 		size_t lastProcActiveMs = 0;
