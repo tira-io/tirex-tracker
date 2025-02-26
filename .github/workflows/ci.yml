@@ -45,17 +45,7 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Install Dependencies
-        run: |
-          apt-get update;
-          apt install -y software-properties-common lsb-release;
-          apt clean all;
-          wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null;
-          apt-add-repository "deb https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main";
-          apt update;
-          apt install kitware-archive-keyring;
-          rm /etc/apt/trusted.gpg.d/kitware.gpg;
-          apt-get update;
-          apt-get install -y cmake
+        run: pip install --upgrade cmake
       - name: 🔧 Configure CMake
         run: cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=YES -D TIREX_TRACKER_BUILD_EXAMPLES=YES
       - name: 🏗️ Build binary
