@@ -47,7 +47,7 @@ jobs:
       - name: 🧰 Install Dependencies
         run: |
           apt-get update;
-          apt-get install -y python3-pip git;
+          apt-get install -y python3-pip git clang-18;
           pip3 install --upgrade cmake
       - name: 🔧 Configure CMake
         run: cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=YES -D TIREX_TRACKER_BUILD_EXAMPLES=YES
