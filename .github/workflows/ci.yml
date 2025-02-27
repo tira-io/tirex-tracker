@@ -8,6 +8,63 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  c-build:
+    name: 🏗️ Build Library and Command
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+      - name: 🔧 Configure CMake
+        run: cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=YES
+      - name: 🏗️ Build binary
+        run: cmake --build c/build/ --config Release --target measure_full measure
+      - if: runner.os == 'macOS'
+        name: 📤 Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: c-binaries-${{ matrix.os }}
+          path: |
+            c/build/extensions/libmeasure_full.dylib
+            c/build/examples/03_measure_command/measure
+      - if: runner.os == 'Windows'
+        name: 📤 Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: c-binaries-${{ matrix.os }}
+          path: |
+            c\build\extensions\Release\measure_full.dll
+            c\build\examples\03_measure_command\Release\measure.exe
+  c-build-on-docker:
+    name: 🏗️ Build Library and Command using Docker
+    runs-on: ubuntu-latest
+    container: ubuntu:20.04
+    env:
+      TZ: Europe/Berlin
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+      - name: 🧰 Install Dependencies
+        run: |
+          apt-get update;
+          apt-get install -y python3-pip git clang-18;
+          pip3 install --upgrade cmake
+      - name: 🔧 Configure CMake
+        run: cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=clang-18 -D CMAKE_CXX_COMPILER=clang++-18 -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=YES -D TIREX_TRACKER_BUILD_EXAMPLES=YES
+      - name: 🏗️ Build binary
+        run: cmake --build c/build/ --config Release --target measure_full measure package
+      - name: 📤 Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: c-binaries-linux
+          path: |
+            c/build/extensions/libmeasure_full.so
+            c/build/examples/03_measure_command/measure
+            c/build/tirex-tracker-*-Linux.deb
+      
   c-build-linux-library:
     name: 🏗️ Build Linux library
     runs-on: ubuntu-latest
