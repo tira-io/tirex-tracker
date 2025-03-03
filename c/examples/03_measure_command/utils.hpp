@@ -5,7 +5,6 @@
 
 #include <tirex_tracker.h>
 
-#include <format>
 #include <string>
 #include <vector>
 
@@ -25,7 +24,10 @@ static constexpr const char* compiler = "unknown compiler";
 #endif
 
 static std::string buildVersionString() {
-	auto versionString = std::format("{}\nBuilt with {} for C++ {}", tirex::getVersionStr(), compiler, __cplusplus);
+	// Uncomment and use std::format once we can assume enough adoption
+	// auto versionString = std::format("{}\nBuilt with {} for C++ {}", tirex::getVersionStr(), compiler, __cplusplus);
+	auto versionString = std::string(tirex::getVersionStr()) + "\nBuilt with " + compiler + " for C++ " +
+						 std::to_string(__cplusplus);
 	auto numProviders = tirexDataProviderGetAll(nullptr, 0);
 	std::vector<tirexDataProvider> buf{numProviders};
 	tirexDataProviderGetAll(buf.data(), buf.size());

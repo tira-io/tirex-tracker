@@ -7,7 +7,10 @@
 using LoggerPtr = tirex::LoggerPtr;
 
 const char* tirex::getVersionStr() noexcept {
-	static auto version = std::format("spdlog v.{}.{}.{}", SPDLOG_VER_MAJOR, SPDLOG_VER_MINOR, SPDLOG_VER_PATCH);
+	// Uncomment and use std::format once we can assume enough adoption
+	// static auto version = std::format("spdlog v.{}.{}.{}", SPDLOG_VER_MAJOR, SPDLOG_VER_MINOR, SPDLOG_VER_PATCH);
+	static auto version = std::string("spdlog v.") + std::to_string(SPDLOG_VER_MAJOR) + "." +
+						  std::to_string(SPDLOG_VER_MINOR) + "." + std::to_string(SPDLOG_VER_PATCH);
 	return version.c_str();
 }
 
