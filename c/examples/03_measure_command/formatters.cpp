@@ -53,9 +53,11 @@ static const char* measureToName[] = {
 void tirex::simpleFormatter(std::ostream& stream, const tirexResult* result) noexcept {
 	size_t num;
 	tirexResultEntry entry;
-	assert(tirexResultEntryNum(result, &num) == TIREX_SUCCESS);
+	auto err = tirexResultEntryNum(result, &num);
+	assert(err == TIREX_SUCCESS);
 	for (size_t i = 0; i < num; ++i) {
-		assert(tirexResultEntryGetByIndex(result, i, &entry) == TIREX_SUCCESS);
+		auto err = tirexResultEntryGetByIndex(result, i, &entry);
+		assert(err == TIREX_SUCCESS);
 		stream << '[' << measureToName[entry.source] << "] " << reinterpret_cast<const char*>(entry.value) << std::endl;
 	}
 }

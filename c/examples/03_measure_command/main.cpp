@@ -100,14 +100,16 @@ static void runMeasureCmd(const MeasureCmdArgs& args) {
 	measures.emplace_back(tirexNullConf);
 
 	tirexMeasureHandle* handle;
-	assert(tirexStartTracking(measures.data(), args.pollIntervalMs, &handle) == TIREX_SUCCESS);
+	tirexError err = tirexStartTracking(measures.data(), args.pollIntervalMs, &handle);
+	assert(err == TIREX_SUCCESS);
 
 	// Run the command
 	auto exitcode = std::system(args.command.c_str());
 
 	// Stop measuring
 	tirexResult* result;
-	assert(tirexStopTracking(handle, &result) == TIREX_SUCCESS);
+	err = tirexStopTracking(handle, &result);
+	assert(err == TIREX_SUCCESS);
 
 	/** \todo Maybe add the exit code as a stat. **/
 	std::cout << "\n== RESULTS ==" << std::endl;

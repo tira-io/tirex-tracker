@@ -138,7 +138,7 @@ JavaScriptWrapImports: true
 KeepEmptyLinesAtTheStartOfBlocks: true
 LambdaBodyIndentation: Signature
 Language: Cpp
-LineEnding: CRLF
+LineEnding: DeriveLF
 MacroBlockBegin: ""
 MacroBlockEnd: ""
 MaxEmptyLinesToKeep: 1
