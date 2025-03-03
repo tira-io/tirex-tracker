@@ -3,6 +3,9 @@ name: CI
 on:
   push:
 
+permissions:
+  contents: {}
+
 concurrency:
   group: ${{ github.actor }}-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
@@ -143,17 +146,17 @@ jobs:
   c-linter:
     name: 🔍 Check C Code
     runs-on: ubuntu-latest
-  steps:
-    - name: 📥 Check-out
-      uses: actions/checkout@v4
-    - name: 🧰 Install Dependencies
-      run: |
-        sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-        sudo apt-get update
-        sudo apt-get -y install clang-format
-    - name: 🔍 Check Codestyle
-      working-dir: ${{github.workspace}}/c/
-      run: find src/ include/ -type f -iregex '^.*\.\(c\|h\|cpp\|hpp\|cc\|hh\)$' | xargs clang-format --dry-run --Werror --Wno-error=unknown
+    steps:
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+      - name: 🧰 Install Dependencies
+        run: |
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+          sudo apt-get update
+          sudo apt-get -y install clang-format
+      - name: 🔍 Check Codestyle
+        working-dir: ${{github.workspace}}/c/
+        run: find src/ include/ -type f -iregex '^.*\.\(c\|h\|cpp\|hpp\|cc\|hh\)$' | xargs clang-format --dry-run --Werror --Wno-error=unknown
   jvm-build:
     name: 🏗️ Build JVM library
     runs-on: ubuntu-latest
