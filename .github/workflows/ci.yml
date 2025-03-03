@@ -154,7 +154,7 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install clang-format
       - name: 🔍 Check Codestyle
-        working-dir: ${{github.workspace}}/c/
+        working-directory: ${{github.workspace}}/c/
         run: find src/ include/ -type f -iregex '^.*\.\(c\|h\|cpp\|hpp\|cc\|hh\)$' | xargs clang-format --dry-run --Werror --Wno-error=unknown
   jvm-build:
     name: 🏗️ Build JVM library
