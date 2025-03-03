@@ -6,6 +6,7 @@
 #include <string>
 
 #if !__cpp_lib_format
+#include <fmt/chrono.h>
 #include <fmt/core.h>
 
 template <typename _CharT, typename _Traits, typename _Rep, typename _Period>
