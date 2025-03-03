@@ -19,6 +19,7 @@ namespace _fmt = fmt;
 
 #include <fstream>
 #include <map>
+#include <sstream>
 #include <tuple>
 
 using namespace std::string_literals;
