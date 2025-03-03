@@ -2,8 +2,6 @@
 
 #include <spdlog/sinks/stdout_color_sinks.h>
 
-#include <format>
-
 using LoggerPtr = tirex::LoggerPtr;
 
 const char* tirex::getVersionStr() noexcept {
