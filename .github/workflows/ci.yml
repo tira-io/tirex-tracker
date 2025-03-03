@@ -3,8 +3,7 @@ name: CI
 on:
   push:
 
-permissions:
-  contents: {}
+permissions: {}
 
 concurrency:
   group: ${{ github.actor }}-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
