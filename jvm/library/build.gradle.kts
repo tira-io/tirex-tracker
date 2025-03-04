@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     `java-library`
     `maven-publish`
+    signing
     kotlin("jvm")
     kotlin("plugin.serialization")
     id("com.palantir.git-version")
