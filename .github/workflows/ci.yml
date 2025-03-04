@@ -51,7 +51,7 @@ jobs:
           -D TIREX_TRACKER_BUILD_DEB=NO \
           -D TIREX_TRACKER_BUILD_EXAMPLES=NO
       - name: 🏗️ Build library
-        run: cmake --build c/build/ --config Release --target measure measure_full
+        run: cmake --build c/build/ --config Release --target measure_full
       - name: 📤 Upload library
         uses: actions/upload-artifact@v4
         with:
@@ -116,7 +116,7 @@ jobs:
           -D TIREX_TRACKER_BUILD_DEB=NO \
           -D TIREX_TRACKER_BUILD_EXAMPLES=YES
       - name: 🏗️ Build Linux binary
-        run: cmake --build c/build/ --config Release --target measure measure_full
+        run: cmake --build c/build/ --config Release --target measure
       - name: 📤 Upload Linux CLI
         uses: actions/upload-artifact@v4
         with:
