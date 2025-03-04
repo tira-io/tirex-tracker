@@ -19,12 +19,18 @@ jobs:
           - macos-latest
           - windows-latest
         compiler:
-          # - name: gcc-14.2
-          #   c: gcc-14
-          #   cxx: g++-14
+          - name: gcc-14.2
+            c: gcc-14
+            cxx: g++-14
           - name: clang-19.1.0
             c: clang-19
             cxx: clang++-19
+        exclude:
+          - runs-on: macos-latest
+            compiler:
+              name: clang-19.1.0
+              c: clang-19
+              cxx: clang++-19
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
@@ -84,12 +90,18 @@ jobs:
           - macos-latest
           - windows-latest
         compiler:
-          # - name: gcc-14.2
-          #   c: gcc-14
-          #   cxx: g++-14
-        - name: clang-19.1.0
-          c: clang-19
-          cxx: clang++-19
+          - name: gcc-14.2
+            c: gcc-14
+            cxx: g++-14
+          - name: clang-19.1.0
+            c: clang-19
+            cxx: clang++-19
+        exclude:
+          - runs-on: macos-latest
+            compiler:
+              name: clang-19.1.0
+              c: clang-19
+              cxx: clang++-19
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
