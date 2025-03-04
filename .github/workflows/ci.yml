@@ -323,6 +323,7 @@ jobs:
         - "3.10"
         - "3.11"
         - "3.12"
+        - "3.13"
     runs-on: ubuntu-latest
     needs: 
       - c-build-library
@@ -355,7 +356,7 @@ jobs:
       - name: 🧪 Check package bundles
         run: twine check python/dist/*
       - name: 📤 Upload Python wheels
-        if: matrix.python == '3.12'
+        if: matrix.python == '3.13'
         uses: actions/upload-artifact@v4
         with:
           name: python-wheels
@@ -370,6 +371,7 @@ jobs:
         - "3.10"
         - "3.11"
         - "3.12"
+        - "3.13"
     runs-on: ubuntu-latest
     needs: 
       - c-build-library
@@ -411,6 +413,7 @@ jobs:
         - "3.10"
         - "3.11"
         - "3.12"
+        - "3.13"
     runs-on: ubuntu-latest
     needs: 
       - c-build-library
@@ -452,6 +455,7 @@ jobs:
         - "3.10"
         - "3.11"
         - "3.12"
+        - "3.13"
     runs-on: ubuntu-latest
     needs: 
       - c-build-library
@@ -493,6 +497,7 @@ jobs:
         - "3.10"
         - "3.11"
         - "3.12"
+        - "3.13"
     runs-on: ubuntu-latest
     needs: 
       - c-build-library
@@ -525,7 +530,7 @@ jobs:
       - name: 🧪 Test Python code
         run: pytest --cov --cov-report xml python
       - name: 📤 Upload coverage to Codecov
-        if: matrix.python == '3.12'
+        if: matrix.python == '3.13'
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
