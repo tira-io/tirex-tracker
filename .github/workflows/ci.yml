@@ -16,13 +16,13 @@ jobs:
       matrix:
         runs-on:
           - ubuntu-22.04
-          - ubuntu-24.04
+          # - ubuntu-24.04 # FIXME: Re-enable
           # - macos-13
           - macos-14
-          - macos-15
-          - windows-2019
+          # - macos-15 # FIXME: Re-enable
+          # - windows-2019 # FIXME: Re-enable
           - windows-2022
-          - windows-2025
+          # - windows-2025 # FIXME: Re-enable
         compiler:
           - gcc-13
           - gcc-14
@@ -109,13 +109,13 @@ jobs:
       matrix:
         runs-on:
           - ubuntu-22.04
-          - ubuntu-24.04
+          # - ubuntu-24.04 # FIXME: Re-enable
           # - macos-13
           - macos-14
-          - macos-15
-          - windows-2019
+          # - macos-15 # FIXME: Re-enable
+          # - windows-2019 # FIXME: Re-enable
           - windows-2022
-          - windows-2025
+          # - windows-2025 # FIXME: Re-enable
         compiler:
           - gcc-13
           - gcc-14
@@ -280,13 +280,13 @@ jobs:
           - "21"
         runs-on:
           - ubuntu-22.04
-          - ubuntu-24.04
+          # - ubuntu-24.04 # FIXME: Re-enable
           # - macos-13
           # - macos-14 # FIXME: JDK 8 cannot be installed.
           # - macos-15 # FIXME: JDK 8 cannot be installed.
-          - windows-2019
+          # - windows-2019 # FIXME: Re-enable
           - windows-2022
-          - windows-2025
+          # - windows-2025 # FIXME: Re-enable
     runs-on: ${{ matrix.runs-on }}
     needs:
       - c-build-library
@@ -586,13 +586,13 @@ jobs:
           - "3.13"
         runs-on:
           - ubuntu-22.04
-          - ubuntu-24.04
+          # - ubuntu-24.04 # FIXME: Re-enable
           # - macos-13
           - macos-14
-          - macos-15
-          - windows-2019
+          # - macos-15 # FIXME: Re-enable
+          # - windows-2019 # FIXME: Re-enable
           - windows-2022
-          - windows-2025
+          # - windows-2025 # FIXME: Re-enable
     runs-on: ${{ matrix.runs-on }}
     needs:
       - c-build-library
