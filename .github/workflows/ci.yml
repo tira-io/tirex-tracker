@@ -14,16 +14,10 @@ jobs:
     name: 🏗️ Build C library
     strategy:
       matrix:
-        configuration:
-          - os: linux
-            runs-on: ubuntu-20.04
-            artifact: c/build/extensions/libmeasure_full.so
-          # - os: macos
-          #   runs-on: macos-latest
-          #   artifact: c/build/extensions/libmeasure_full.dylib
-          - os: windows
-            runs-on: windows-latest
-            artifact: c/build/extensions/Release/measure_full.dll
+        runs-on:
+          - ubuntu-20.04
+          # - macos-latest
+          - windows-latest
         compiler:
           # - name: gcc-13
           #   c: gcc-13
@@ -31,7 +25,7 @@ jobs:
           - name: clang-18
             c: clang-18
             cxx: clang++-18
-    runs-on: ${{ matrix.configuration.runs-on }}
+    runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
@@ -39,24 +33,37 @@ jobs:
         uses: aminya/setup-cpp@v1
         with:
           compiler: ${{ matrix.compiler.name }}
-          cmake: true
+          cmake: "3.31"
+          setup-cpp: false
+      - run: whereis cmake
+        if: runner.os == 'Linux' || runner.os == 'macOS'
+      - run: where cmake
+        if: runner.os == 'Windows'
       - name: 🔧 Configure CMake
-        run: cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=${{ matrix.compiler.c }} -DCMAKE_CXX_COMPILER=${{ matrix.compiler.cxx }} -DBUILD_SHARED_LIBS=NO -DTIREX_TRACKER_BUILD_DOCS=NO -DTIREX_TRACKER_BUILD_DEB=NO -DTIREX_TRACKER_BUILD_EXAMPLES=NO
+        run: cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=${{ matrix.compiler.c }} -D CMAKE_CXX_COMPILER=${{ matrix.compiler.cxx }} -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=NO
       - name: 🏗️ Build library
         run: cmake --build c/build/ --config Release --target measure_full
-      - name: 📤 Upload library
+      - name: 📤 Upload Linux library
+        if: matrix.runs-on == 'ubuntu-20.04'
         uses: actions/upload-artifact@v4
         with:
-          name: c-library-${{ matrix.configuration.os }}
-          path: ${{ matrix.configuration.artifact }}
+          name: c-library-linux
+          path: c/build/extensions/libmeasure_full.so
+      - name: 📤 Upload macOS library
+        if: matrix.runs-on == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: c-library-macos
+          path: c/build/extensions/libmeasure_full.dylib
+      - name: 📤 Upload Windows library
+        if: matrix.runs-on == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: c-library-windows
+          path: c/build/extensions/Release/measure_full.dll
   c-check-format:
     name: 🔍 Check C code format
-    strategy:
-      matrix:
-        configuration:
-          - os: linux
-            runs-on: ubuntu-20.04
-    runs-on: ${{ matrix.configuration.runs-on }}
+    runs-on: ubuntu-20.04
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
@@ -64,6 +71,7 @@ jobs:
         uses: aminya/setup-cpp@v1
         with:
           clang-format: 19
+          setup-cpp: false
       - name: 🔍 Check Codestyle
         working-directory: ${{github.workspace}}/c/
         run: find src/ include/ -type f -iregex '^.*\.\(c\|h\|cpp\|hpp\|cc\|hh\)$' | xargs clang-format-19 --dry-run --Werror --Wno-error=unknown
@@ -71,16 +79,10 @@ jobs:
     name: 🏗️ Build C CLI
     strategy:
       matrix:
-        configuration:
-          - os: linux
-            runs-on: ubuntu-20.04
-            artifact: c/build/examples/03_measure_command/measure
-          - os: macos
-            # runs-on: macos-latest
-            # artifact: c/build/examples/03_measure_command/measure
-          - os: windows
-            runs-on: windows-latest
-            artifact: c/build/examples/03_measure_command/Release/measure.exe
+        runs-on:
+          - ubuntu-20.04
+          # - macos-latest
+          - windows-latest
         compiler:
           # - name: gcc-13
           #   c: gcc-13
@@ -88,7 +90,7 @@ jobs:
           - name: clang-18
             c: clang-18
             cxx: clang++-18
-    runs-on: ${{ matrix.configuration.runs-on }}
+    runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
@@ -96,24 +98,37 @@ jobs:
         uses: aminya/setup-cpp@v1
         with:
           compiler: ${{ matrix.compiler.name }}
-          cmake: true
+          cmake: "3.31"
+          setup-cpp: false
       - name: 🔧 Configure CMake
         run: |
-          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=${{ matrix.compiler.c }} -DCMAKE_CXX_COMPILER=${{ matrix.compiler.cxx }} -DBUILD_SHARED_LIBS=NO -DTIREX_TRACKER_BUILD_DOCS=NO -DTIREX_TRACKER_BUILD_DEB=NO -DTIREX_TRACKER_BUILD_EXAMPLES=YES
+          cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=${{ matrix.compiler.c }} -D CMAKE_CXX_COMPILER=${{ matrix.compiler.cxx }} -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=YES
       - name: 🏗️ Build Linux binary
         run: cmake --build c/build/ --config Release --target measure
       - name: 📤 Upload Linux CLI
+        if: matrix.runs-on == 'ubuntu-20.04'
         uses: actions/upload-artifact@v4
         with:
-          name: c-cli-${{ matrix.configuration.os }}
-          path: ${{ matrix.configuration.artifact }}
+          name: c-cli-linux
+          path: c/build/examples/03_measure_command/measure
+      - name: 📤 Upload macOS CLI
+        if: matrix.runs-on == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: c-cli-macos
+          path: c/build/examples/03_measure_command/measure
+      - name: 📤 Upload Windows CLI
+        if: matrix.runs-on == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: c-cli-windows
+          path: c/build/examples/03_measure_command/Release/measure.exe
   c-build-debian-package:
     name: 🏗️ Build Debian package
     strategy:
       matrix:
         configuration:
-          - os: linux
-            runs-on: ubuntu-20.04
+          - runs-on: ubuntu-20.04
             artifact: c/build/tirex-tracker-*-Linux.deb
         compiler:
           - name: gcc-13
@@ -133,11 +148,11 @@ jobs:
           cmake: true
       - name: 🔧 Configure CMake
         run: |
-          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=${{ matrix.compiler.c }} -DCMAKE_CXX_COMPILER=${{ matrix.compiler.cxx }} -DBUILD_SHARED_LIBS=NO -DTIREX_TRACKER_BUILD_DOCS=NO -DTIREX_TRACKER_BUILD_DEB=YES -DTIREX_TRACKER_BUILD_EXAMPLES=NO
+          cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=${{ matrix.compiler.c }} -D CMAKE_CXX_COMPILER=${{ matrix.compiler.cxx }} -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=YES -D TIREX_TRACKER_BUILD_EXAMPLES=NO
       - name: 🏗️ Build Debian package
         run: cmake --build c/build/ --config Release --target package
       - name: 📤 Upload Debian package
-        if: matrix.configuration.os == 'linux' && matrix.compiler.name == 'clang-18'
+        if: matrix.configuration.runs-on == 'ubuntu-20.04' && matrix.compiler.name == 'clang-18'
         uses: actions/upload-artifact@v4
         with:
           name: c-debian-package
@@ -147,12 +162,12 @@ jobs:
     strategy:
       matrix:
         java: # Java LTS versions
-        - "8"
-        - "11"
-        - "17"
-        - "21"
+          - "8"
+          - "11"
+          - "17"
+          - "21"
     runs-on: ubuntu-latest
-    needs: 
+    needs:
       - c-build-library
       - c-check-format
     steps:
@@ -189,12 +204,12 @@ jobs:
     strategy:
       matrix:
         java: # Java LTS versions
-        - "8"
-        - "11"
-        - "17"
-        - "21"
+          - "8"
+          - "11"
+          - "17"
+          - "21"
     runs-on: ubuntu-latest
-    needs: 
+    needs:
       - c-build-library
       - c-check-format
     steps:
@@ -231,13 +246,13 @@ jobs:
     strategy:
       matrix:
         java: # Java LTS versions
-        - "8"
-        - "11"
-        - "17"
-        - "21"
+          - "8"
+          - "11"
+          - "17"
+          - "21"
     if: github.event_name == 'push' && endsWith(github.event.base_ref, 'master') && startsWith(github.ref, 'refs/tags')
     runs-on: ubuntu-latest
-    needs: 
+    needs:
       - c-build-library
       - c-check-format
       - jvm-build
@@ -288,14 +303,14 @@ jobs:
     strategy:
       matrix:
         python:
-        - "3.8"
-        - "3.9"
-        - "3.10"
-        - "3.11"
-        - "3.12"
-        - "3.13"
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
     runs-on: ubuntu-latest
-    needs: 
+    needs:
       - c-build-library
       - c-check-format
     steps:
@@ -337,14 +352,14 @@ jobs:
     strategy:
       matrix:
         python:
-        - "3.8"
-        - "3.9"
-        - "3.10"
-        - "3.11"
-        - "3.12"
-        - "3.13"
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
     runs-on: ubuntu-latest
-    needs: 
+    needs:
       - c-build-library
       - c-check-format
     steps:
@@ -380,14 +395,14 @@ jobs:
     strategy:
       matrix:
         python:
-        - "3.8"
-        - "3.9"
-        - "3.10"
-        - "3.11"
-        - "3.12"
-        - "3.13"
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
     runs-on: ubuntu-latest
-    needs: 
+    needs:
       - c-build-library
       - c-check-format
     steps:
@@ -423,14 +438,14 @@ jobs:
     strategy:
       matrix:
         python:
-        - "3.8"
-        - "3.9"
-        - "3.10"
-        - "3.11"
-        - "3.12"
-        - "3.13"
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
     runs-on: ubuntu-latest
-    needs: 
+    needs:
       - c-build-library
       - c-check-format
     steps:
@@ -466,14 +481,14 @@ jobs:
     strategy:
       matrix:
         python:
-        - "3.8"
-        - "3.9"
-        - "3.10"
-        - "3.11"
-        - "3.12"
-        - "3.13"
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
     runs-on: ubuntu-latest
-    needs: 
+    needs:
       - c-build-library
       - c-check-format
     steps:
@@ -514,26 +529,26 @@ jobs:
     name: 🚀 Publish Python wheels to PyPI
     if: github.event_name == 'push' && endsWith(github.event.base_ref, 'master') && startsWith(github.ref, 'refs/tags')
     needs:
-    - c-build-library
-    - c-check-format
-    - python-build
-    - python-check
-    - python-typing
-    - python-security
-    - python-test
+      - c-build-library
+      - c-check-format
+      - python-build
+      - python-check
+      - python-typing
+      - python-security
+      - python-test
     runs-on: ubuntu-latest
     permissions:
       id-token: write
     steps:
-    - name: 📥 Check-out
-      uses: actions/checkout@v4
-    - name: 📥 Download Python wheels
-      uses: actions/download-artifact@v4
-      with:
-        name: python-wheels
-        path: dist
-    - name: 🚀 Publish Python wheels to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+      - name: 📥 Download Python wheels
+        uses: actions/download-artifact@v4
+        with:
+          name: python-wheels
+          path: dist
+      - name: 🚀 Publish Python wheels to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
   github-release:
     name: 🚀 Create GitHub release
     if: github.event_name == 'push' && endsWith(github.event.base_ref, 'master') && startsWith(github.ref, 'refs/tags')
