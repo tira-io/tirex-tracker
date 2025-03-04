@@ -19,8 +19,10 @@ jobs:
           - ubuntu-24.04
           # - macos-13
           - macos-14
+          - macos-15
           - windows-2019
           - windows-2022
+          - windows-2025
         compiler:
           - gcc-13
           - gcc-14
@@ -103,8 +105,10 @@ jobs:
           - ubuntu-24.04
           # - macos-13
           - macos-14
+          - macos-15
           - windows-2019
           - windows-2022
+          - windows-2025
         compiler:
           - gcc-13
           - gcc-14
@@ -255,8 +259,10 @@ jobs:
           - ubuntu-24.04
           # - macos-13
           - macos-14
+          - macos-15
           - windows-2019
           - windows-2022
+          - windows-2025
     runs-on: ${{ matrix.runs-on }}
     needs:
       - c-build-library
@@ -541,8 +547,10 @@ jobs:
           - ubuntu-24.04
           # - macos-13
           - macos-14
+          - macos-15
           - windows-2019
           - windows-2022
+          - windows-2025
     runs-on: ${{ matrix.runs-on }}
     needs:
       - c-build-library
