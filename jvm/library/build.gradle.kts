@@ -30,12 +30,13 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.12.0")
 }
 
-val javaLanguageVersion = JavaLanguageVersion.of(8)
-val javaLanguageVersionTest = JavaLanguageVersion.of(17)
+val javaLanguageVersionCompile = JavaLanguageVersion.of(8)
+@Suppress("UnstableApiUsage")
+val javaLanguageVersionTest = JavaLanguageVersion.current().also { maxOf(it, javaLanguageVersionCompile) }
 
 kotlin {
     jvmToolchain {
-        languageVersion = javaLanguageVersion
+        languageVersion = javaLanguageVersionCompile
     }
 }
 
