@@ -21,9 +21,7 @@ jobs:
             env:
               TZ: Europe/Berlin
               DEBIAN_FRONTEND: noninteractive
-            install: |
-              sudo apt-get update
-              sudo apt-get install -y git clang-18 clang-format-19 cmake g++-13
+            install: apt-get update && apt-get install -y git clang-18 clang-format-19 cmake g++-13
             artifact: c/build/extensions/libmeasure_full.so
           - os: macos
             runs-on: macos-latest
@@ -72,9 +70,7 @@ jobs:
             env:
               TZ: Europe/Berlin
               DEBIAN_FRONTEND: noninteractive
-            install: |
-              sudo apt-get update
-              sudo apt-get install -y git clang-18 clang-format-19 cmake g++-13
+            install: apt-get update && apt-get install -y git clang-18 clang-format-19 cmake g++-13
     runs-on: ${{ matrix.configuration.runs-on }}
     container: ${{ matrix.configuration.container }}
     steps:
@@ -96,9 +92,7 @@ jobs:
             env:
               TZ: Europe/Berlin
               DEBIAN_FRONTEND: noninteractive
-            install: |
-              sudo apt-get update
-              sudo apt-get install -y git clang-18 clang-format-19 cmake g++-13
+            install: apt-get update && apt-get install -y git clang-18 clang-format-19 cmake g++-13
             artifact: c/build/examples/03_measure_command/measure
           - os: macos
             runs-on: macos-latest
@@ -147,9 +141,7 @@ jobs:
             env:
               TZ: Europe/Berlin
               DEBIAN_FRONTEND: noninteractive
-            install: |
-              sudo apt-get update
-              sudo apt-get install -y git clang-18 clang-format-19 cmake g++-13
+            install: apt-get update && apt-get install -y git clang-18 clang-format-19 cmake g++-13
             artifact: c/build/tirex-tracker-*-Linux.deb
     runs-on: ${{ matrix.configuration.runs-on }}
     container: ${{ matrix.configuration.container }}
