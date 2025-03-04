@@ -18,9 +18,9 @@ jobs:
           - os: linux
             runs-on: ubuntu-20.04
             artifact: c/build/extensions/libmeasure_full.so
-          - os: macos
-            runs-on: macos-latest
-            artifact: c/build/extensions/libmeasure_full.dylib
+          # - os: macos
+          #   runs-on: macos-latest
+          #   artifact: c/build/extensions/libmeasure_full.dylib
           - os: windows
             runs-on: windows-latest
             artifact: c\build\extensions\Release\measure_full.dll
@@ -84,8 +84,8 @@ jobs:
             runs-on: ubuntu-20.04
             artifact: c/build/examples/03_measure_command/measure
           - os: macos
-            runs-on: macos-latest
-            artifact: c/build/examples/03_measure_command/measure
+            # runs-on: macos-latest
+            # artifact: c/build/examples/03_measure_command/measure
           - os: windows
             runs-on: windows-latest
             artifact: c\build\examples\03_measure_command\Release\measure.exe
