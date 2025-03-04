@@ -34,14 +34,14 @@ jobs:
             compiler: gcc-13 # Fails at: /Users/runner/work/tirex-tracker/tirex-tracker/c/build/_deps/cpuinfo-src/src/api.c:6
           - runs-on: macos-13
             compiler: gcc-14 # Fails at: /Users/runner/work/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats_macos.cpp:11
-          - runs-on: macos-13
-            compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
+          # - runs-on: macos-13
+          #   compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
           - runs-on: macos-14
             compiler: gcc-13 # Fails at: /Users/runner/work/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats_macos.cpp:8
-          - runs-on: macos-14
-            compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
-          - runs-on: macos-15
-            compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
+          # - runs-on: macos-14
+          #   compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
+          # - runs-on: macos-15
+          #   compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
           - runs-on: windows-2019
             compiler: gcc-13 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
           - runs-on: windows-2019
@@ -67,7 +67,7 @@ jobs:
           cmake: "3.31.6"
           setup-cpp: false
       - name: 🔧 Configure CMake
-        run: cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=${{ env.CC }} -D CMAKE_CXX_COMPILER=${{ env.CXX }} -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=NO
+        run: cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=${{ env.CC }} -D CMAKE_CXX_COMPILER=${{ env.CXX }} -D LLVM_ENABLE_ZLIB=OFF -D LLVM_ENABLE_ZSTD=OFF -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=NO
       - name: 🏗️ Build library
         run: cmake --build c/build/ --config Release --target tirex_tracker_full
       - name: 📤 Upload Linux library
@@ -126,14 +126,14 @@ jobs:
             compiler: gcc-13 # Fails at: /Users/runner/work/tirex-tracker/tirex-tracker/c/build/_deps/cpuinfo-src/src/api.c:6
           - runs-on: macos-13
             compiler: gcc-14 # Fails at: /Users/runner/work/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats_macos.cpp:11
-          - runs-on: macos-13
-            compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
+          # - runs-on: macos-13
+          #   compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
           - runs-on: macos-14
             compiler: gcc-13 # Fails at: /Users/runner/work/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats_macos.cpp:8
-          - runs-on: macos-14
-            compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
-          - runs-on: macos-15
-            compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
+          # - runs-on: macos-14
+          #   compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
+          # - runs-on: macos-15
+          #   compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
           - runs-on: windows-2019
             compiler: gcc-13 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
           - runs-on: windows-2019
@@ -160,7 +160,7 @@ jobs:
           setup-cpp: false
       - name: 🔧 Configure CMake
         run: |
-          cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=${{ env.CC }} -D CMAKE_CXX_COMPILER=${{ env.CXX }} -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=YES
+          cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=${{ env.CC }} -D CMAKE_CXX_COMPILER=${{ env.CXX }}  -D LLVM_ENABLE_ZLIB=OFF -D LLVM_ENABLE_ZSTD=OFF-D LLVM_ENABLE_ZLIB=OFF -D LLVM_ENABLE_ZSTD=OFF -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=YES
       - name: 🏗️ Build Linux binary
         run: cmake --build c/build/ --config Release --target measure
       - name: 📤 Upload Linux CLI
@@ -206,7 +206,7 @@ jobs:
           cmake: true
       - name: 🔧 Configure CMake
         run: |
-          cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=${{ env.CC }} -D CMAKE_CXX_COMPILER=${{ env.CXX }} -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=YES -D TIREX_TRACKER_BUILD_EXAMPLES=NO
+          cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=${{ env.CC }} -D CMAKE_CXX_COMPILER=${{ env.CXX }} -D LLVM_ENABLE_ZLIB=OFF -D LLVM_ENABLE_ZSTD=OFF -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=YES -D TIREX_TRACKER_BUILD_EXAMPLES=NO
       - name: 🏗️ Build Debian package
         run: cmake --build c/build/ --config Release --target package
       - name: 📤 Upload Debian package
