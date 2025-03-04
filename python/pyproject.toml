@@ -22,11 +22,11 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-    "typing-extensions~=4.12",
-    "importlib-metadata~=8.6",
-    "importlib-resources~=6.5",
-    "ipython~=8.32",
-    "ruamel.yaml~=0.18.10",
+    "typing-extensions~=4.0",
+    "importlib-metadata~=8.0",
+    "importlib-resources~=6.0",
+    "ipython~=8.0",
+    "ruamel.yaml~=0.18.0",
 ]
 dynamic = ["version"]
 
