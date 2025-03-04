@@ -11,7 +11,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#if defined(_WINDOWS)
+#if defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
 #if !defined(TIREX_TRACKER_STATIC_IMPORT)
 #if defined(TIREX_TRACKER_LIB_EXPORT)
 #define TIREX_EXPORT __declspec(dllexport)
