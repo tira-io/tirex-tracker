@@ -38,6 +38,11 @@ kotlin {
     }
 }
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 tasks {
     test {
         javaLauncher = project.javaToolchains.launcherFor {
