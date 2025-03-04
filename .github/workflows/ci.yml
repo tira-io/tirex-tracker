@@ -23,7 +23,7 @@ jobs:
           #   artifact: c/build/extensions/libmeasure_full.dylib
           - os: windows
             runs-on: windows-latest
-            artifact: c\build\extensions\Release\measure_full.dll
+            artifact: c/build/extensions/Release/measure_full.dll
         compiler:
           - name: gcc-13
             c: gcc-13
@@ -41,15 +41,7 @@ jobs:
           compiler: ${{ matrix.compiler.name }}
           cmake: true
       - name: 🔧 Configure CMake
-        run: |
-          cmake -S c/ -B c/build/ \
-          -D CMAKE_BUILD_TYPE=Release \
-          -D CMAKE_C_COMPILER=${{ matrix.compiler.c }} \
-          -D CMAKE_CXX_COMPILER=${{ matrix.compiler.cxx }} \
-          -D BUILD_SHARED_LIBS=NO \
-          -D TIREX_TRACKER_BUILD_DOCS=NO \
-          -D TIREX_TRACKER_BUILD_DEB=NO \
-          -D TIREX_TRACKER_BUILD_EXAMPLES=NO
+        run: cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=${{ matrix.compiler.c }} -D CMAKE_CXX_COMPILER=${{ matrix.compiler.cxx }} -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=NO
       - name: 🏗️ Build library
         run: cmake --build c/build/ --config Release --target measure_full
       - name: 📤 Upload library
@@ -88,7 +80,7 @@ jobs:
             # artifact: c/build/examples/03_measure_command/measure
           - os: windows
             runs-on: windows-latest
-            artifact: c\build\examples\03_measure_command\Release\measure.exe
+            artifact: c/build/examples/03_measure_command/Release/measure.exe
         compiler:
           - name: gcc-13
             c: gcc-13
@@ -107,14 +99,7 @@ jobs:
           cmake: true
       - name: 🔧 Configure CMake
         run: |
-          cmake -S c/ -B c/build/ \
-          -D CMAKE_BUILD_TYPE=Release \
-          -D CMAKE_C_COMPILER=${{ matrix.compiler.c }} \
-          -D CMAKE_CXX_COMPILER=${{ matrix.compiler.cxx }} \
-          -D BUILD_SHARED_LIBS=NO \
-          -D TIREX_TRACKER_BUILD_DOCS=NO \
-          -D TIREX_TRACKER_BUILD_DEB=NO \
-          -D TIREX_TRACKER_BUILD_EXAMPLES=YES
+          cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=${{ matrix.compiler.c }} -D CMAKE_CXX_COMPILER=${{ matrix.compiler.cxx }} -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=YES
       - name: 🏗️ Build Linux binary
         run: cmake --build c/build/ --config Release --target measure
       - name: 📤 Upload Linux CLI
@@ -148,14 +133,7 @@ jobs:
           cmake: true
       - name: 🔧 Configure CMake
         run: |
-          cmake -S c/ -B c/build/ \
-          -D CMAKE_BUILD_TYPE=Release \
-          -D CMAKE_C_COMPILER=${{ matrix.compiler.c }} \
-          -D CMAKE_CXX_COMPILER=${{ matrix.compiler.cxx }} \
-          -D BUILD_SHARED_LIBS=NO \
-          -D TIREX_TRACKER_BUILD_DOCS=NO \
-          -D TIREX_TRACKER_BUILD_DEB=YES \
-          -D TIREX_TRACKER_BUILD_EXAMPLES=NO
+          cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=${{ matrix.compiler.c }} -D CMAKE_CXX_COMPILER=${{ matrix.compiler.cxx }} -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=YES -D TIREX_TRACKER_BUILD_EXAMPLES=NO
       - name: 🏗️ Build Debian package
         run: cmake --build c/build/ --config Release --target package
       - name: 📤 Upload Debian package
@@ -176,6 +154,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: 
       - c-build-library
+      - c-check-format
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
@@ -217,6 +196,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: 
       - c-build-library
+      - c-check-format
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
@@ -259,6 +239,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: 
       - c-build-library
+      - c-check-format
       - jvm-build
       - jvm-test
     steps:
@@ -316,6 +297,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: 
       - c-build-library
+      - c-check-format
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
@@ -364,6 +346,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: 
       - c-build-library
+      - c-check-format
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
@@ -406,6 +389,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: 
       - c-build-library
+      - c-check-format
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
@@ -448,6 +432,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: 
       - c-build-library
+      - c-check-format
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
@@ -490,6 +475,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: 
       - c-build-library
+      - c-check-format
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
@@ -528,6 +514,8 @@ jobs:
     name: 🚀 Publish Python wheels to PyPI
     if: github.event_name == 'push' && endsWith(github.event.base_ref, 'master') && startsWith(github.ref, 'refs/tags')
     needs:
+    - c-build-library
+    - c-check-format
     - python-build
     - python-check
     - python-typing
