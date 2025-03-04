@@ -15,16 +15,19 @@ jobs:
     strategy:
       matrix:
         runs-on:
-          - ubuntu-latest
-          - macos-latest
-          - windows-latest
+          - ubuntu-22.04
+          - ubuntu-24.04
+          - macos-13
+          - macos-14
+          - windows-2019
+          - windows-2022
         compiler:
           - gcc-14
           - clang-19.1.0
         exclude:
-          - runs-on: macos-latest
+          - runs-on: macos-14
             compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
-          - runs-on: windows-latest
+          - runs-on: windows-2022
             compiler: gcc-14 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
     runs-on: ${{ matrix.runs-on }}
     steps:
@@ -41,26 +44,26 @@ jobs:
       - name: 🏗️ Build library
         run: cmake --build c/build/ --config Release --target tirex_tracker_full
       - name: 📤 Upload Linux library
-        if: matrix.runs-on == 'ubuntu-latest' && matrix.compiler == 'clang-19.1.0'
+        if: matrix.runs-on == 'ubuntu-22.04' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-linux
           path: c/build/extensions/libtirex_tracker_full.so
       - name: 📤 Upload macOS library
-        if: matrix.runs-on == 'macos-latest' && matrix.compiler == 'gcc-14'
+        if: matrix.runs-on == 'macos-13' && matrix.compiler == 'gcc-14'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-macos
           path: c/build/extensions/libtirex_tracker_full.dylib
       - name: 📤 Upload Windows library
-        if: matrix.runs-on == 'windows-latest' && matrix.compiler == 'clang-19.1.0'
+        if: matrix.runs-on == 'windows-2019' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-windows
           path: c/build/extensions/Release/tirex_tracker_full.dll
   c-check-format:
     name: 🔍 Check C code format
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
@@ -77,16 +80,19 @@ jobs:
     strategy:
       matrix:
         runs-on:
-          - ubuntu-latest
-          - macos-latest
-          - windows-latest
+          - ubuntu-22.04
+          - ubuntu-24.04
+          - macos-13
+          - macos-14
+          - windows-2019
+          - windows-2022
         compiler:
           - gcc-14
           - clang-19.1.0
         exclude:
-          - runs-on: macos-latest
+          - runs-on: macos-14
             compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
-          - runs-on: windows-latest
+          - runs-on: windows-2022
             compiler: gcc-14 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
     runs-on: ${{ matrix.runs-on }}
     steps:
@@ -104,19 +110,19 @@ jobs:
       - name: 🏗️ Build Linux binary
         run: cmake --build c/build/ --config Release --target measure
       - name: 📤 Upload Linux CLI
-        if: matrix.runs-on == 'ubuntu-latest' && matrix.compiler == 'clang-19.1.0'
+        if: matrix.runs-on == 'ubuntu-22.04' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-linux
           path: c/build/examples/03_measure_command/measure
       - name: 📤 Upload macOS CLI
-        if: matrix.runs-on == 'macos-latest' && matrix.compiler == 'gcc-14'
+        if: matrix.runs-on == 'macos-13' && matrix.compiler == 'gcc-14'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-macos
           path: c/build/examples/03_measure_command/measure
       - name: 📤 Upload Windows CLI
-        if: matrix.runs-on == 'windows-latest' && matrix.compiler == 'clang-19.1.0'
+        if: matrix.runs-on == 'windows-2019' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-windows
@@ -126,7 +132,7 @@ jobs:
     strategy:
       matrix:
         configuration:
-          - runs-on: ubuntu-latest
+          - runs-on: ubuntu-22.04
             artifact: c/build/tirex-tracker-*-Linux.deb
         compiler:
           - gcc-14
@@ -146,7 +152,7 @@ jobs:
       - name: 🏗️ Build Debian package
         run: cmake --build c/build/ --config Release --target package
       - name: 📤 Upload Debian package
-        if: matrix.configuration.runs-on == 'ubuntu-latest' && matrix.compiler == 'clang-19.1.0'
+        if: matrix.configuration.runs-on == 'ubuntu-22.04' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-debian-package
@@ -160,7 +166,7 @@ jobs:
           - "11"
           - "17"
           - "21"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs:
       - c-build-library
       - c-check-format
@@ -202,7 +208,7 @@ jobs:
           - "11"
           - "17"
           - "21"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs:
       - c-build-library
       - c-check-format
@@ -245,7 +251,7 @@ jobs:
           - "17"
           - "21"
     if: github.event_name == 'push' && endsWith(github.event.base_ref, 'master') && startsWith(github.ref, 'refs/tags')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs:
       - c-build-library
       - c-check-format
@@ -303,7 +309,7 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs:
       - c-build-library
       - c-check-format
@@ -352,7 +358,7 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs:
       - c-build-library
       - c-check-format
@@ -395,7 +401,7 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs:
       - c-build-library
       - c-check-format
@@ -438,7 +444,7 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs:
       - c-build-library
       - c-check-format
@@ -481,7 +487,7 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs:
       - c-build-library
       - c-check-format
@@ -530,7 +536,7 @@ jobs:
       - python-typing
       - python-security
       - python-test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     permissions:
       id-token: write
     steps:
