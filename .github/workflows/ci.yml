@@ -33,7 +33,7 @@ jobs:
         uses: aminya/setup-cpp@v1
         with:
           compiler: ${{ matrix.compiler.name }}
-          cmake: "3.31"
+          cmake: "3.31.6"
           setup-cpp: false
       - run: whereis cmake
         if: runner.os == 'Linux' || runner.os == 'macOS'
@@ -98,7 +98,7 @@ jobs:
         uses: aminya/setup-cpp@v1
         with:
           compiler: ${{ matrix.compiler.name }}
-          cmake: "3.31"
+          cmake: "3.31.6"
           setup-cpp: false
       - name: 🔧 Configure CMake
         run: |
