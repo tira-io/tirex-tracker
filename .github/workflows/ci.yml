@@ -341,7 +341,7 @@ jobs:
       - c-build-library
       - c-check-format
       - jvm-build
-      - jvm-test
+      - jvm-check
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
@@ -661,12 +661,14 @@ jobs:
       - c-build-cli
       - c-build-debian-package
       - jvm-build
-      - jvm-test
+      - jvm-check
+      - jvm-publish
       - python-build
       - python-check
       - python-typing
       - python-security
       - python-test
+      - python-publish
     permissions:
       contents: write
     runs-on: ubuntu-latest
