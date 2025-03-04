@@ -231,7 +231,16 @@ jobs:
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
-      - name: 🧰 Install JDK
+      - name: 🧰 Install JDK 8 (for compiling)
+        uses: actions/setup-java@v4
+        with:
+          java-version: 8
+          distribution: temurin
+          cache: gradle
+          cache-dependency-path: |
+            jvm/example/build.gradle.kts
+            jvm/library/build.gradle.kts
+      - name: 🧰 Install JDK (for checks)
         uses: actions/setup-java@v4
         with:
           java-version: ${{ matrix.java }}
@@ -327,7 +336,16 @@ jobs:
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
-      - name: 🧰 Install JDK
+      - name: 🧰 Install JDK 8 (for compiling)
+        uses: actions/setup-java@v4
+        with:
+          java-version: 8
+          distribution: temurin
+          cache: gradle
+          cache-dependency-path: |
+            jvm/example/build.gradle.kts
+            jvm/library/build.gradle.kts
+      - name: 🧰 Install JDK (for checks)
         uses: actions/setup-java@v4
         with:
           java-version: ${{ matrix.java }}
