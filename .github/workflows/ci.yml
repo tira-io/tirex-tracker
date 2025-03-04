@@ -266,8 +266,8 @@ jobs:
           path: jvm/library/src/main/resources/
       - name: 🏗️ Build project
         run: jvm/gradlew --project-dir jvm/ build
-  jvm-test:
-    name: 🧪 Test JVM library
+  jvm-check:
+    name: 🧪 Test and check JVM library
     strategy:
       matrix:
         java: # Java LTS versions
@@ -291,7 +291,16 @@ jobs:
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
-      - name: 🧰 Install JDK
+      - name: 🧰 Install JDK 8 (for compiling)
+        uses: actions/setup-java@v4
+        with:
+          java-version: 8
+          distribution: temurin
+          cache: gradle
+          cache-dependency-path: |
+            jvm/example/build.gradle.kts
+            jvm/library/build.gradle.kts
+      - name: 🧰 Install JDK (for checks)
         uses: actions/setup-java@v4
         with:
           java-version: ${{ matrix.java }}
@@ -315,8 +324,8 @@ jobs:
         with:
           name: c-library-windows
           path: jvm/library/src/main/resources/
-      - name: 🧪 Test with Gradle
-        run: jvm/gradlew --project-dir jvm/ test
+      - name: 🧪 Test and check with Gradle
+        run: jvm/gradlew --project-dir jvm/ check
   jvm-publish:
     name: 🚀 Publish JVM library to GitHub Packages
     strategy:
