@@ -696,7 +696,7 @@ def provider_infos() -> Collection[ProviderInfo]:
 
 
 def measure_infos() -> Mapping[Measure, MeasureInfo]:
-    measure_infos: dict[Measure, MeasureInfo] = {}
+    measure_infos: MutableMapping[Measure, MeasureInfo] = {}
     for measure in ALL_MEASURES:
         if measure in _PYTHON_MEASURES:
             measure_infos[measure] = _PYTHON_MEASURES[measure]
@@ -890,8 +890,10 @@ class TrackingHandle(
         # Parse the initial ir_metadata.
         with export_file_path.open("rb") as file:
             buffer = file.read()
-            buffer = buffer.removeprefix(b"ir_metadata.start\n")
-            buffer = buffer.removesuffix(b"ir_metadata.end\n")
+            if buffer.startswith(b"ir_metadata.start\n"):
+                buffer = buffer[len(b"ir_metadata.start\n"):]
+            if buffer.endswith(b"ir_metadata.end\n"):
+                buffer = buffer[:-len(b"ir_metadata.end\n")]
 
             # FIXME: There's a bug in the YAML output format that we work around here:
             from re import sub
