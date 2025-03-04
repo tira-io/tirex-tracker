@@ -85,6 +85,13 @@ jobs:
           path: c/build/measure-*-Linux.deb
   jvm-build:
     name: 🏗️ Build JVM library
+    strategy:
+      matrix:
+        java: # Java LTS versions
+        - "8"
+        - "11"
+        - "17"
+        - "21"
     runs-on: ubuntu-latest
     needs: 
       - c-build-linux-library
@@ -94,7 +101,7 @@ jobs:
       - name: 🧰 Install JDK
         uses: actions/setup-java@v4
         with:
-          java-version: 8
+          java-version: ${{ matrix.java }}
           distribution: temurin
           cache: gradle
           cache-dependency-path: |
@@ -107,15 +114,15 @@ jobs:
           path: jvm/library/src/main/resources/
       - name: 🏗️ Build project
         run: jvm/gradlew --project-dir jvm/ build
-      - name: 🏗️ Build JAR
-        run: jvm/gradlew --project-dir jvm/ publishToMavenLocal
-      - name: 📤 Upload JAR
-        uses: actions/upload-artifact@v4
-        with:
-          name: jvm-jar
-          path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*.jar
   jvm-test:
     name: 🧪 Test JVM library
+    strategy:
+      matrix:
+        java: # Java LTS versions
+        - "8"
+        - "11"
+        - "17"
+        - "21"
     runs-on: ubuntu-latest
     needs: 
       - c-build-linux-library
@@ -125,7 +132,7 @@ jobs:
       - name: 🧰 Install JDK
         uses: actions/setup-java@v4
         with:
-          java-version: 8
+          java-version: ${{ matrix.java }}
           distribution: temurin
           cache: gradle
           cache-dependency-path: |
@@ -140,6 +147,13 @@ jobs:
         run: jvm/gradlew --project-dir jvm/ test
   jvm-publish:
     name: 🚀 Publish JVM library to GitHub Packages
+    strategy:
+      matrix:
+        java: # Java LTS versions
+        - "8"
+        - "11"
+        - "17"
+        - "21"
     if: github.event_name == 'push' && endsWith(github.event.base_ref, 'master') && startsWith(github.ref, 'refs/tags')
     runs-on: ubuntu-latest
     needs: 
@@ -152,7 +166,7 @@ jobs:
       - name: 🧰 Install JDK
         uses: actions/setup-java@v4
         with:
-          java-version: 8
+          java-version: ${{ matrix.java }}
           distribution: temurin
           cache: gradle
           cache-dependency-path: |
@@ -163,13 +177,30 @@ jobs:
         with:
           name: c-linux-library
           path: jvm/library/src/main/resources/
+      - name: 🚀 Publish JVM library to Maven Local
+        run: jvm/gradlew --project-dir jvm/ publishToMavenLocal
+      - name: 📤 Upload JVM JAR
+        if: matrix.java == '21'
+        uses: actions/upload-artifact@v4
+        with:
+          name: jvm-jar
+          path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*.jar
       - name: 🚀 Publish JVM library to GitHub Packages
+        if: matrix.java == '21'
         env:
           USERNAME: ${{ github.actor }}
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: jvm/gradlew --project-dir jvm/ publishAllPublicationsToGitHubPackagesRepository
   python-build:
     name: 🏗️ Build Python wheels
+    strategy:
+      matrix:
+        python:
+        - "3.8"
+        - "3.9"
+        - "3.10"
+        - "3.11"
+        - "3.12"
     runs-on: ubuntu-latest
     needs: 
       - c-build-linux-library
@@ -179,7 +210,7 @@ jobs:
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python }}
       - name: 📥 Download Linux library
         uses: actions/download-artifact@v4
         with:
@@ -192,12 +223,21 @@ jobs:
       - name: 🧪 Check package bundles
         run: twine check python/dist/*
       - name: 📤 Upload Python wheels
+        if: matrix.python == '3.12'
         uses: actions/upload-artifact@v4
         with:
           name: python-wheels
           path: python/dist/
   python-check:
     name: 🔍 Check Python code
+    strategy:
+      matrix:
+        python:
+        - "3.8"
+        - "3.9"
+        - "3.10"
+        - "3.11"
+        - "3.12"
     runs-on: ubuntu-latest
     needs: 
       - c-build-linux-library
@@ -207,7 +247,7 @@ jobs:
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python }}
           cache: pip
           cache-dependency-path: python/pyproject.toml
       - name: 📥 Download Linux library
@@ -221,6 +261,14 @@ jobs:
         run: ruff check python
   python-typing:
     name: 🔍 Check Python static typing
+    strategy:
+      matrix:
+        python:
+        - "3.8"
+        - "3.9"
+        - "3.10"
+        - "3.11"
+        - "3.12"
     runs-on: ubuntu-latest
     needs: 
       - c-build-linux-library
@@ -230,7 +278,7 @@ jobs:
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python }}
           cache: pip
           cache-dependency-path: python/pyproject.toml
       - name: 📥 Download Linux library
@@ -244,6 +292,14 @@ jobs:
         run: mypy python
   python-security:
     name: 🔍 Check Python code security
+    strategy:
+      matrix:
+        python:
+        - "3.8"
+        - "3.9"
+        - "3.10"
+        - "3.11"
+        - "3.12"
     runs-on: ubuntu-latest
     needs: 
       - c-build-linux-library
@@ -253,7 +309,7 @@ jobs:
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python }}
           cache: pip
           cache-dependency-path: python/pyproject.toml
       - name: 📥 Download Linux library
@@ -267,6 +323,14 @@ jobs:
         run: bandit -c python/pyproject.toml -r python
   python-test:
     name: 🧪 Test Python code
+    strategy:
+      matrix:
+        python:
+        - "3.8"
+        - "3.9"
+        - "3.10"
+        - "3.11"
+        - "3.12"
     runs-on: ubuntu-latest
     needs: 
       - c-build-linux-library
@@ -276,7 +340,7 @@ jobs:
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python }}
           cache: pip
           cache-dependency-path: python/pyproject.toml
       - name: 📥 Download Linux library
@@ -289,6 +353,7 @@ jobs:
       - name: 🧪 Test Python code
         run: pytest --cov --cov-report xml python
       - name: 📤 Upload coverage to Codecov
+        if: matrix.python == '3.12'
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
