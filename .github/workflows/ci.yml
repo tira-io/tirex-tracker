@@ -52,6 +52,10 @@ jobs:
             compiler: gcc-13 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
           - runs-on: windows-2022
             compiler: gcc-14 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
+          - runs-on: windows-2025
+            compiler: gcc-13 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
+          - runs-on: windows-2025
+            compiler: gcc-14 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
@@ -139,6 +143,10 @@ jobs:
           - runs-on: windows-2022
             compiler: gcc-13 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
           - runs-on: windows-2022
+            compiler: gcc-14 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
+          - runs-on: windows-2025
+            compiler: gcc-13 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
+          - runs-on: windows-2025
             compiler: gcc-14 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
     runs-on: ${{ matrix.runs-on }}
     steps:
