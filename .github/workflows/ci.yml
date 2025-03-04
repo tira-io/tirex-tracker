@@ -69,7 +69,7 @@ jobs:
           name: c-library-linux
           path: c/build/extensions/libtirex_tracker_full.so
       - name: 📤 Upload macOS library
-        if: matrix.runs-on == 'macos-13' && matrix.compiler == 'gcc-14'
+        if: matrix.runs-on == 'macos-14' && matrix.compiler == 'gcc-14'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-macos
@@ -154,7 +154,7 @@ jobs:
           name: c-cli-linux
           path: c/build/examples/03_measure_command/measure
       - name: 📤 Upload macOS CLI
-        if: matrix.runs-on == 'macos-13' && matrix.compiler == 'gcc-14'
+        if: matrix.runs-on == 'macos-14' && matrix.compiler == 'gcc-14'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-macos
