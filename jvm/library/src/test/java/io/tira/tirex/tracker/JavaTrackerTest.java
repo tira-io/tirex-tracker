@@ -95,14 +95,15 @@ public class JavaTrackerTest {
 
     @Test
     public void testMeasureUsingTryWithResources() {
-        TrackingHandle tracked = TrackingHandle.start(Collections.singleton(Measure.TIME_ELAPSED_WALL_CLOCK_MS));
-        try (tracked) {
+        Map<Measure, ResultEntry> actual;
+
+        try (TrackingHandle tracked = TrackingHandle.start(Collections.singleton(Measure.TIME_ELAPSED_WALL_CLOCK_MS))) {
             Thread.sleep(100);
+
+            actual = tracked.getResults();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-
-        Map<Measure, ResultEntry> actual = tracked.getResults();
 
         assertNotNull(actual);
         assertInstanceOf(Map.class, actual);
