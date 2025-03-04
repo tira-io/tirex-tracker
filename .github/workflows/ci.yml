@@ -83,7 +83,7 @@ jobs:
           name: c-library-macos
           path: c/build/extensions/libtirex_tracker_full.dylib
       - name: 📤 Upload Windows library
-        if: matrix.runs-on == 'windows-2019' && matrix.compiler == 'clang-19.1.0'
+        if: matrix.runs-on == 'windows-2022' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-windows
@@ -176,7 +176,7 @@ jobs:
           name: c-cli-macos
           path: c/build/examples/03_measure_command/measure
       - name: 📤 Upload Windows CLI
-        if: matrix.runs-on == 'windows-2019' && matrix.compiler == 'clang-19.1.0'
+        if: matrix.runs-on == 'windows-2022' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-windows
