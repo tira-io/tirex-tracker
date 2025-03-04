@@ -129,11 +129,16 @@ public class JavaTrackerTest {
 
     @Test
     public void testMeasureUsingBlock() {
-        Map<Measure, ResultEntry> actual = track(Collections.singleton(Measure.TIME_ELAPSED_WALL_CLOCK_MS), () -> {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+        // Note: Using an anonymous class here to make it compatible with earlier Java versions.
+        //noinspection Convert2Lambda
+        Map<Measure, ResultEntry> actual = track(Collections.singleton(Measure.TIME_ELAPSED_WALL_CLOCK_MS), new BlockCallback() {
+            @Override
+            public void invoke() {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
 
