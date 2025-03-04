@@ -728,39 +728,39 @@ class TrackingHandle private constructor(
             irMetadata.getOrPut("implementation") { mutableMapOf<String, Any?>() } as MutableMap<String, Any?>
         val java: MutableMap<String, Any?> =
             implementation.getOrPut("java") { mutableMapOf<String, Any?>() } as MutableMap<String, Any?>
-        java["version"] = javaInfo.getValue(Measure.JAVA_VERSION).value?.let { json.decodeFromString<String>(it) }
-        java["version date"] = javaInfo.getValue(Measure.JAVA_VERSION_DATE).value?.let { json.decodeFromString<String>(it) }
-        java["vendor"] = javaInfo.getValue(Measure.JAVA_VENDOR).value?.let { json.decodeFromString<String>(it) }
-        java["vendor URL"] = javaInfo.getValue(Measure.JAVA_VENDOR_URL).value?.let { json.decodeFromString<String>(it) }
+        java["version"] = javaInfo.getValue(Measure.JAVA_VERSION).value?.let { json.decodeFromString<String?>(it) }
+        java["version date"] = javaInfo.getValue(Measure.JAVA_VERSION_DATE).value?.let { json.decodeFromString<String?>(it) }
+        java["vendor"] = javaInfo.getValue(Measure.JAVA_VENDOR).value?.let { json.decodeFromString<String?>(it) }
+        java["vendor URL"] = javaInfo.getValue(Measure.JAVA_VENDOR_URL).value?.let { json.decodeFromString<String?>(it) }
         java["vendor version"] = javaInfo.getValue(Measure.JAVA_VENDOR_VERSION).value?.let { json.decodeFromString<String?>(it) }
-        java["home"] = javaInfo.getValue(Measure.JAVA_HOME).value?.let { json.decodeFromString<String>(it) }
-        java["class version"] = javaInfo.getValue(Measure.JAVA_CLASS_VERSION).value?.let { json.decodeFromString<String>(it) }
-        java["class path"] = javaInfo.getValue(Measure.JAVA_CLASS_PATH).value?.let { json.decodeFromString<List<String>>(it) }
-        java["library path"] = javaInfo.getValue(Measure.JAVA_LIBRARY_PATH).value?.let { json.decodeFromString<List<String>>(it) }
-        java["temporary dir"] = javaInfo.getValue(Measure.JAVA_IO_TMPDIR).value?.let { json.decodeFromString<String>(it) }
+        java["home"] = javaInfo.getValue(Measure.JAVA_HOME).value?.let { json.decodeFromString<String?>(it) }
+        java["class version"] = javaInfo.getValue(Measure.JAVA_CLASS_VERSION).value?.let { json.decodeFromString<String?>(it) }
+        java["class path"] = javaInfo.getValue(Measure.JAVA_CLASS_PATH).value?.let { json.decodeFromString<List<String>?>(it) }
+        java["library path"] = javaInfo.getValue(Measure.JAVA_LIBRARY_PATH).value?.let { json.decodeFromString<List<String>?>(it) }
+        java["temporary dir"] = javaInfo.getValue(Measure.JAVA_IO_TMPDIR).value?.let { json.decodeFromString<String?>(it) }
         val javaVm: MutableMap<String, Any?> =
             java.getOrPut("vm") { mutableMapOf<String, Any?>() } as MutableMap<String, Any?>
-        javaVm["version"] = javaInfo.getValue(Measure.JAVA_VM_VERSION).value?.let { json.decodeFromString<String>(it) }
-        javaVm["vendor"] = javaInfo.getValue(Measure.JAVA_VM_VENDOR).value?.let { json.decodeFromString<String>(it) }
-        javaVm["name"] = javaInfo.getValue(Measure.JAVA_VM_NAME).value?.let { json.decodeFromString<String>(it) }
+        javaVm["version"] = javaInfo.getValue(Measure.JAVA_VM_VERSION).value?.let { json.decodeFromString<String?>(it) }
+        javaVm["vendor"] = javaInfo.getValue(Measure.JAVA_VM_VENDOR).value?.let { json.decodeFromString<String?>(it) }
+        javaVm["name"] = javaInfo.getValue(Measure.JAVA_VM_NAME).value?.let { json.decodeFromString<String?>(it) }
         val javaVmSpecification: MutableMap<String, Any?> =
             javaVm.getOrPut("vm") { mutableMapOf<String, Any?>() } as MutableMap<String, Any?>
         javaVmSpecification["version"] =
-            javaInfo.getValue(Measure.JAVA_VM_SPECIFICATION_VERSION).value?.let { json.decodeFromString<String>(it) }
+            javaInfo.getValue(Measure.JAVA_VM_SPECIFICATION_VERSION).value?.let { json.decodeFromString<String?>(it) }
         javaVmSpecification["vendor"] =
-            javaInfo.getValue(Measure.JAVA_VM_SPECIFICATION_VENDOR).value?.let { json.decodeFromString<String>(it) }
+            javaInfo.getValue(Measure.JAVA_VM_SPECIFICATION_VENDOR).value?.let { json.decodeFromString<String?>(it) }
         javaVmSpecification["name"] =
-            javaInfo.getValue(Measure.JAVA_VM_SPECIFICATION_NAME).value?.let { json.decodeFromString<String>(it) }
+            javaInfo.getValue(Measure.JAVA_VM_SPECIFICATION_NAME).value?.let { json.decodeFromString<String?>(it) }
         val javaSpecification: MutableMap<String, Any?> =
             java.getOrPut("vm") { mutableMapOf<String, Any?>() } as MutableMap<String, Any?>
         javaSpecification["version"] =
-            javaInfo.getValue(Measure.JAVA_SPECIFICATION_VERSION).value?.let { json.decodeFromString<String>(it) }
+            javaInfo.getValue(Measure.JAVA_SPECIFICATION_VERSION).value?.let { json.decodeFromString<String?>(it) }
         javaSpecification["maintenance version"] =
             javaInfo.getValue(Measure.JAVA_SPECIFICATION_MAINTENANCE_VERSION).value?.let { json.decodeFromString<String?>(it) }
         javaSpecification["vendor"] =
-            javaInfo.getValue(Measure.JAVA_SPECIFICATION_VENDOR).value?.let { json.decodeFromString<String>(it) }
+            javaInfo.getValue(Measure.JAVA_SPECIFICATION_VENDOR).value?.let { json.decodeFromString<String?>(it) }
         javaSpecification["name"] =
-            javaInfo.getValue(Measure.JAVA_SPECIFICATION_NAME).value?.let { json.decodeFromString<String>(it) }
+            javaInfo.getValue(Measure.JAVA_SPECIFICATION_NAME).value?.let { json.decodeFromString<String?>(it) }
 
         // Serialize the updated ir_metadata.
         exportFilePath.outputStream().bufferedWriter().use { writer ->
