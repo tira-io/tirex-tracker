@@ -328,6 +328,8 @@ jobs:
           name: c-library-windows
           path: jvm/library/src/main/resources/
       - name: 🧪 Test and check with Gradle
+        env:
+          JAVA_TEST_VERSION: ${{ matrix.java }}
         run: jvm/gradlew --project-dir jvm/ check
   jvm-publish:
     name: 🚀 Publish JVM library to GitHub Packages

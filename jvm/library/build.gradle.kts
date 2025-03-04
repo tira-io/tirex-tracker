@@ -31,8 +31,10 @@ dependencies {
 }
 
 val javaLanguageVersionCompile = JavaLanguageVersion.of(8)
+
 @Suppress("UnstableApiUsage")
-val javaLanguageVersionTest = JavaLanguageVersion.current().also { maxOf(it, javaLanguageVersionCompile) }
+val javaLanguageVersionTest = (System.getenv("JAVA_TEST_VERSION")?.toInt()?.let(JavaLanguageVersion::of)
+    ?: JavaLanguageVersion.current()).also { maxOf(it, javaLanguageVersionCompile) }
 
 kotlin {
     jvmToolchain {
