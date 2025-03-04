@@ -22,7 +22,7 @@ from io import BytesIO
 from json import dumps, loads
 from os import PathLike
 from pathlib import Path
-from sys import modules as sys_modules, executable, argv, version_info
+from sys import modules as sys_modules, executable, argv, platform, version_info
 from tempfile import TemporaryDirectory
 from traceback import extract_stack
 from typing import (
@@ -596,7 +596,9 @@ class _TirexTrackerLibrary(CDLL):
     tirexStartTracking: Callable[
         [Array[_MeasureConfiguration], int, Pointer[Pointer[_TrackingHandle]]], int
     ]
-    tirexStopTracking: Callable[[Pointer[_TrackingHandle], Pointer[Pointer[_Result]]], int]
+    tirexStopTracking: Callable[
+        [Pointer[_TrackingHandle], Pointer[Pointer[_Result]]], int
+    ]
     tirexSetLogCallback: Callable[[CFunctionType], None]
     tirexDataProviderGetAll: Callable[[Array[_ProviderInfo], int], int]
     tirexMeasureInfoGet: Callable[[int, Pointer[Pointer[_MeasureInfo]]], int]
@@ -606,10 +608,19 @@ class _TirexTrackerLibrary(CDLL):
 
 
 def _find_library() -> Path:
+    path: str
+    if platform == "linux":
+        path = "libtirex_tracker_full.so"
+    elif platform == "darwin":
+        path = "libtirex_tracker_full.dylib"
+    elif platform == "win32":
+        path = "tirex_tracker_full.dll"
+    else:
+        raise ValueError("Unsupported platform.")
+
     import tirex_tracker
 
-    # TODO: Decide between the libraries for the different platforms.
-    return files(tirex_tracker) / "libmeasure_full.so"
+    return files(tirex_tracker) / path
 
 
 def _load_library() -> _TirexTrackerLibrary:

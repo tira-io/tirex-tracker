@@ -264,10 +264,10 @@ cmake -S c/ -B c/build/ \
 You can then build the library (and examples) like this:
 
 ```shell
-cmake --build c/build/ --config Release --target measure_full
+cmake --build c/build/ --config Release --target tirex_tracker_full
 ```
 
-This will compile the C API into a statically linked library at `c/build/extensions/libmeasure_full.so`.
+This will compile the C API into a statically linked library at `c/build/extensions/libtirex_tracker_full.so`.
 
 <!-- TODO: How to build the macOS or Windows library and where to find it? -->
 <!-- TODO: How to build the "minimal" library without the `ir_metadata` export? -->
