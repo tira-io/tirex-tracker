@@ -22,11 +22,11 @@ jobs:
         compiler:
           - gcc-14
           - clang-19.1.0
-        exclude:
-          - runs-on: macos-latest
-            compiler: clang-19.1.0
-          - runs-on: windows-latest
-            compiler: clang-19.1.0
+        # exclude:
+        #   - runs-on: macos-latest
+        #     compiler: clang-19.1.0
+        #   - runs-on: windows-latest
+        #     compiler: clang-19.1.0
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
@@ -42,19 +42,19 @@ jobs:
       - name: 🏗️ Build library
         run: cmake --build c/build/ --config Release --target measure_full
       - name: 📤 Upload Linux library
-        if: matrix.runs-on == 'ubuntu-latest'
+        if: matrix.runs-on == 'ubuntu-latest' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-linux
           path: c/build/extensions/libmeasure_full.so
       - name: 📤 Upload macOS library
-        if: matrix.runs-on == 'macos-latest'
+        if: matrix.runs-on == 'macos-latest' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-macos
           path: c/build/extensions/libmeasure_full.dylib
       - name: 📤 Upload Windows library
-        if: matrix.runs-on == 'windows-latest'
+        if: matrix.runs-on == 'windows-latest' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-windows
@@ -85,11 +85,11 @@ jobs:
         compiler:
           - gcc-14
           - clang-19.1.0
-        exclude:
-          - runs-on: macos-latest
-            compiler: clang-19.1.0
-          - runs-on: windows-latest
-            compiler: clang-19.1.0
+        # exclude:
+        #   - runs-on: macos-latest
+        #     compiler: clang-19.1.0
+        #   - runs-on: windows-latest
+        #     compiler: clang-19.1.0
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
@@ -106,19 +106,19 @@ jobs:
       - name: 🏗️ Build Linux binary
         run: cmake --build c/build/ --config Release --target measure
       - name: 📤 Upload Linux CLI
-        if: matrix.runs-on == 'ubuntu-latest'
+        if: matrix.runs-on == 'ubuntu-latest' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-linux
           path: c/build/examples/03_measure_command/measure
       - name: 📤 Upload macOS CLI
-        if: matrix.runs-on == 'macos-latest'
+        if: matrix.runs-on == 'macos-latest' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-macos
           path: c/build/examples/03_measure_command/measure
       - name: 📤 Upload Windows CLI
-        if: matrix.runs-on == 'windows-latest'
+        if: matrix.runs-on == 'windows-latest' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-windows
