@@ -28,6 +28,7 @@ jobs:
           - gcc-14
           - clang-19.1.0
         exclude:
+          # FIXME: Fix these exclusions if possible, and re-include them.
           - runs-on: ubuntu-22.04
             compiler: gcc-14 # Cannot be installed.
           - runs-on: macos-13
@@ -120,6 +121,7 @@ jobs:
           - gcc-14
           - clang-19.1.0
         exclude:
+          # FIXME: Fix these exclusions if possible, and re-include them.
           - runs-on: ubuntu-22.04
             compiler: gcc-14 # Cannot be installed.
           - runs-on: macos-13
@@ -193,6 +195,7 @@ jobs:
           - gcc-14
           - clang-19.1.0
         exclude:
+          # FIXME: Fix these exclusions if possible, and re-include them.
           - runs-on: ubuntu-22.04
             compiler: gcc-14 # Cannot be installed.
     runs-on: ${{ matrix.runs-on }}
