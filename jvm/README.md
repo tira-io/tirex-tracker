@@ -2,7 +2,7 @@
 
 [![CI](https://img.shields.io/github/actions/workflow/status/tira-io/tirex-tracker/ci.yml?branch=master&style=flat-square)](https://github.com/tira-io/tirex-tracker/actions/workflows/ci.yml)
 [![Maintenance](https://img.shields.io/maintenance/yes/2025?style=flat-square)](https://github.com/tira-io/tirex-tracker/graphs/contributors) <!-- [![Code coverage](https://img.shields.io/codecov/c/github/tira-io/tirex-tracker?style=flat-square)](https://codecov.io/github/tira-io/tirex-tracker/) --> \
-[![Maven](https://img.shields.io/github/v/tag/tira-io/tirex-tracker?style=flat-square&label=maven)](https://github.com/tira-io/tirex-tracker/packages/) [![Java](https://img.shields.io/badge/java-%E2%89%A5_8-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/packages/) \
+[![Maven](https://img.shields.io/github/v/tag/tira-io/tirex-tracker?style=flat-square&label=maven)](https://github.com/tira-io/tirex-tracker/packages/) [![Java](https://img.shields.io/badge/java-8_|_11_|_17_|_21-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/packages/) \
 [![Issues](https://img.shields.io/github/issues/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/issues) [![Commit activity](https://img.shields.io/github/commit-activity/m/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/commits) [![License](https://img.shields.io/github/license/tira-io/tirex-tracker?style=flat-square)](LICENSE)
 
 The TIREx tracker is a command line tool and API to automatically track resource usage, hardware specifications, and other metadata when running information retrieval experiments.
