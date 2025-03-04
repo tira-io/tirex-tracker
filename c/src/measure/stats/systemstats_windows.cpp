@@ -206,7 +206,7 @@ SystemStats::Utilization SystemStats::getUtilization() {
 	HANDLE pid = GetCurrentProcess(); /** \todo store in member **/
 	return Utilization{
 			.ramUsedKB = getRAMUsageKB(pid),
-			.cpuUtilization = getProcCPUUtilization(pid),
+			.cpuUtilization = getProcCPUUtilization(),
 			.system = {.ramUsedMB = getSystemRAMUsageMB(), .cpuUtilization = getCPUUtilization()}
 	};
 }

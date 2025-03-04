@@ -43,7 +43,8 @@ target_include_directories(tirex_tracker_static PUBLIC ${CMAKE_CURRENT_LIST_DIR}
 target_compile_definitions(tirex_tracker_static PUBLIC TIREX_TRACKER_STATIC_IMPORT)
 
 if (LINUX)
-	target_link_libraries(tirex_tracker PUBLIC dl)  # dlopen, dlclose, ...
+target_link_libraries(tirex_tracker PUBLIC dl)  # dlopen, dlclose, ...
+target_link_libraries(tirex_tracker_static PUBLIC dl)  # dlopen, dlclose, ...
 endif()
 
 
