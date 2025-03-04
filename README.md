@@ -2,7 +2,7 @@
 
 <img width="100%" src="assets/banner.jpeg" alt="TIREx tracker banner image">
 <h1 align="center">TIREx Tracker</h1>
-<p align="center">Automatic resource and metadata tracking for IR experiments.</p>
+<p align="center">Automatic resource and metadata tracking for information retrieval experiments.</p>
 <div align="center">
 
 [![CI](https://img.shields.io/github/actions/workflow/status/tira-io/tirex-tracker/ci.yml?branch=master&style=flat-square)](https://github.com/tira-io/tirex-tracker/actions/workflows/ci.yml)

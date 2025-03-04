@@ -90,7 +90,7 @@ publishing {
 
             pom {
                 name = "tirex-tracker"
-                description = "Automatic resource and metadata tracking for IR experiments."
+                description = "Automatic resource and metadata tracking for information retrieval experiments."
                 url = "https://github.com/tira-io/tirex-tracker"
                 licenses {
                     license {
