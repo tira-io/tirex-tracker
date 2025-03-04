@@ -159,6 +159,7 @@ jobs:
       - name: 🏗️ Build Debian package
         run: cmake --build c/build/ --config Release --target package
       - name: 📤 Upload Debian package
+        if: matrix.configuration.os == 'linux' && matrix.compiler.name == 'clang-18'
         uses: actions/upload-artifact@v4
         with:
           name: c-debian-package
