@@ -23,7 +23,7 @@ from json import dumps, loads
 from os import PathLike
 from pathlib import Path
 from sys import modules as sys_modules, executable, argv, platform, version_info
-from tempfile import TemporaryDirectory
+from tempfile import mkdtemp
 from traceback import extract_stack
 from typing import (
     ItemsView,
@@ -474,47 +474,47 @@ def _get_python_info(
     )
 
     if ipython is not None:
-        with TemporaryDirectory(delete=False) as temp_dir:
-            tmp_dir_path = Path(temp_dir)
+        tmp_dir = mkdtemp()
+        tmp_dir_path = Path(tmp_dir)
 
-            script_file_path = tmp_dir_path / "script.py"
-            _add_python_result_entry(
-                results=results,
-                measure=Measure.PYTHON_SCRIPT_FILE_PATH,
-                measures=measures,
-                value=str(script_file_path),
-            )
+        script_file_path = tmp_dir_path / "script.py"
+        _add_python_result_entry(
+            results=results,
+            measure=Measure.PYTHON_SCRIPT_FILE_PATH,
+            measures=measures,
+            value=str(script_file_path),
+        )
 
-            with redirect_stdout(None):
-                ipython.magic(f"save -f {script_file_path} 1-9999")
+        with redirect_stdout(None):
+            ipython.magic(f"save -f {script_file_path} 1-9999")
 
-            with script_file_path.open("rt") as file:
-                script_file_contents = file.read()
-            _add_python_result_entry(
-                results=results,
-                measure=Measure.PYTHON_SCRIPT_FILE_CONTENTS,
-                measures=measures,
-                value=script_file_contents,
-            )
+        with script_file_path.open("rt") as file:
+            script_file_contents = file.read()
+        _add_python_result_entry(
+            results=results,
+            measure=Measure.PYTHON_SCRIPT_FILE_CONTENTS,
+            measures=measures,
+            value=script_file_contents,
+        )
 
-            notebook_file_path = tmp_dir_path / "notebook.ipynb"
-            _add_python_result_entry(
-                results=results,
-                measure=Measure.PYTHON_NOTEBOOK_FILE_PATH,
-                measures=measures,
-                value=str(notebook_file_path),
-            )
+        notebook_file_path = tmp_dir_path / "notebook.ipynb"
+        _add_python_result_entry(
+            results=results,
+            measure=Measure.PYTHON_NOTEBOOK_FILE_PATH,
+            measures=measures,
+            value=str(notebook_file_path),
+        )
 
-            with redirect_stdout(None):
-                ipython.magic(f"notebook {notebook_file_path}")
-            with notebook_file_path.open("rt") as file:
-                notebook_file_contents = file.read()
-            _add_python_result_entry(
-                results=results,
-                measure=Measure.PYTHON_NOTEBOOK_FILE_CONTENTS,
-                measures=measures,
-                value=notebook_file_contents,
-            )
+        with redirect_stdout(None):
+            ipython.magic(f"notebook {notebook_file_path}")
+        with notebook_file_path.open("rt") as file:
+            notebook_file_contents = file.read()
+        _add_python_result_entry(
+            results=results,
+            measure=Measure.PYTHON_NOTEBOOK_FILE_CONTENTS,
+            measures=measures,
+            value=notebook_file_contents,
+        )
 
     else:
         script_file_path = Path(extract_stack()[0].filename).resolve()
