@@ -25,6 +25,8 @@ jobs:
           - gcc-14
           - clang-19.1.0
         exclude:
+          - runs-on: ubuntu-22.04
+            compiler: gcc-14 # Cannot be installed.
           - runs-on: macos-14
             compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
           - runs-on: windows-2022
@@ -90,6 +92,8 @@ jobs:
           - gcc-14
           - clang-19.1.0
         exclude:
+          - runs-on: ubuntu-22.04
+            compiler: gcc-14 # Cannot be installed.
           - runs-on: macos-14
             compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
           - runs-on: windows-2022
@@ -131,13 +135,16 @@ jobs:
     name: 🏗️ Build Debian package
     strategy:
       matrix:
-        configuration:
-          - runs-on: ubuntu-22.04
-            artifact: c/build/tirex-tracker-*-Linux.deb
+        runs-on:
+          - ubuntu-22.04
+          - ubuntu-24.04
         compiler:
           - gcc-14
           - clang-19.1.0
-    runs-on: ${{ matrix.configuration.runs-on }}
+        exclude:
+          - runs-on: ubuntu-22.04
+            compiler: gcc-14 # Cannot be installed.
+    runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
@@ -152,11 +159,11 @@ jobs:
       - name: 🏗️ Build Debian package
         run: cmake --build c/build/ --config Release --target package
       - name: 📤 Upload Debian package
-        if: matrix.configuration.runs-on == 'ubuntu-22.04' && matrix.compiler == 'clang-19.1.0'
+        if: matrix.runs-on == 'ubuntu-22.04' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-debian-package
-          path: ${{ matrix.configuration.artifact }}
+          path: c/build/tirex-tracker-*-Linux.deb
   jvm-build:
     name: 🏗️ Build JVM library
     strategy:
