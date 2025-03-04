@@ -41,10 +41,6 @@ jobs:
           compiler: ${{ matrix.compiler.name }}
           cmake: "3.31.6"
           setup-cpp: false
-      - run: whereis cmake
-        if: runner.os == 'Linux' || runner.os == 'macOS'
-      - run: where cmake
-        if: runner.os == 'Windows'
       - name: 🔧 Configure CMake
         run: cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=${{ env.CC }} -D CMAKE_CXX_COMPILER=${{ env.CXX }} -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=NO
       - name: 🏗️ Build library
