@@ -11,43 +11,41 @@ concurrency:
 
 jobs:
   c-build-library:
-    name: 🏗️ Build Linux library
+    name: 🏗️ Build C library
     strategy:
       matrix:
         configuration:
           - os: linux
-            runs-on: ubuntu-latest
-            container: ubuntu:20.04
-            env:
-              TZ: Europe/Berlin
-              DEBIAN_FRONTEND: noninteractive
-            install: apt-get update && apt-get install -y git clang-18 clang-format-19 cmake g++-13
+            runs-on: ubuntu-20.04
             artifact: c/build/extensions/libmeasure_full.so
           - os: macos
             runs-on: macos-latest
-            container: null
-            env: {}
-            install: ""
             artifact: c/build/extensions/libmeasure_full.dylib
           - os: windows
             runs-on: windows-latest
-            container: null
-            env: {}
-            install: ""
             artifact: c\build\extensions\Release\measure_full.dll
+        compiler:
+          - name: gcc-13
+            c: gcc-13
+            cxx: g++-13
+          - name: clang-18
+            c: clang-18
+            cxx: clang++-18
     runs-on: ${{ matrix.configuration.runs-on }}
-    container: ${{ matrix.configuration.container }}
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Install compiler
-        run: ${{ matrix.configuration.install }}
+        uses: aminya/setup-cpp@v1
+        with:
+          compiler: ${{ matrix.compiler.name }}
+          cmake: true
       - name: 🔧 Configure CMake
         run: |
           cmake -S c/ -B c/build/ \
           -D CMAKE_BUILD_TYPE=Release \
-          -D CMAKE_C_COMPILER=gcc-13 \
-          -D CMAKE_CXX_COMPILER=g++-13 \
+          -D CMAKE_C_COMPILER=${{ matrix.compiler.c }} \
+          -D CMAKE_CXX_COMPILER=${{ matrix.compiler.cxx }} \
           -D BUILD_SHARED_LIBS=NO \
           -D TIREX_TRACKER_BUILD_DOCS=NO \
           -D TIREX_TRACKER_BUILD_DEB=NO \
@@ -59,66 +57,60 @@ jobs:
         with:
           name: c-library-${{ matrix.configuration.os }}
           path: ${{ matrix.configuration.artifact }}
-  c-check:
-    name: 🔍 Check C Code
+  c-check-format:
+    name: 🔍 Check C code format
     strategy:
       matrix:
         configuration:
           - os: linux
-            runs-on: ubuntu-latest
-            container: ubuntu:20.04
-            env:
-              TZ: Europe/Berlin
-              DEBIAN_FRONTEND: noninteractive
-            install: apt-get update && apt-get install -y git clang-18 clang-format-19 cmake g++-13
+            runs-on: ubuntu-20.04
     runs-on: ${{ matrix.configuration.runs-on }}
-    container: ${{ matrix.configuration.container }}
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Install compiler
-        run: ${{ matrix.configuration.install }}
+        uses: aminya/setup-cpp@v1
+        with:
+          clang-format: 19
       - name: 🔍 Check Codestyle
         working-directory: ${{github.workspace}}/c/
         run: find src/ include/ -type f -iregex '^.*\.\(c\|h\|cpp\|hpp\|cc\|hh\)$' | xargs clang-format-19 --dry-run --Werror --Wno-error=unknown
   c-build-cli:
-    name: 🏗️ Build Linux CLI
+    name: 🏗️ Build C CLI
     strategy:
       matrix:
         configuration:
           - os: linux
-            runs-on: ubuntu-latest
-            container: ubuntu:20.04
-            env:
-              TZ: Europe/Berlin
-              DEBIAN_FRONTEND: noninteractive
-            install: apt-get update && apt-get install -y git clang-18 clang-format-19 cmake g++-13
+            runs-on: ubuntu-20.04
             artifact: c/build/examples/03_measure_command/measure
           - os: macos
             runs-on: macos-latest
-            container: null
-            env: {}
-            install: ""
             artifact: c/build/examples/03_measure_command/measure
           - os: windows
             runs-on: windows-latest
-            container: null
-            env: {}
-            install: ""
             artifact: c\build\examples\03_measure_command\Release\measure.exe
+        compiler:
+          - name: gcc-13
+            c: gcc-13
+            cxx: g++-13
+          - name: clang-18
+            c: clang-18
+            cxx: clang++-18
     runs-on: ${{ matrix.configuration.runs-on }}
-    container: ${{ matrix.configuration.container }}
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Install compiler
-        run: ${{ matrix.configuration.install }}
+        uses: aminya/setup-cpp@v1
+        with:
+          compiler: ${{ matrix.compiler.name }}
+          cmake: true
       - name: 🔧 Configure CMake
         run: |
           cmake -S c/ -B c/build/ \
           -D CMAKE_BUILD_TYPE=Release \
-          -D CMAKE_C_COMPILER=gcc-13 \
-          -D CMAKE_CXX_COMPILER=g++-13 \
+          -D CMAKE_C_COMPILER=${{ matrix.compiler.c }} \
+          -D CMAKE_CXX_COMPILER=${{ matrix.compiler.cxx }} \
           -D BUILD_SHARED_LIBS=NO \
           -D TIREX_TRACKER_BUILD_DOCS=NO \
           -D TIREX_TRACKER_BUILD_DEB=NO \
@@ -136,26 +128,30 @@ jobs:
       matrix:
         configuration:
           - os: linux
-            runs-on: ubuntu-latest
-            container: ubuntu:20.04
-            env:
-              TZ: Europe/Berlin
-              DEBIAN_FRONTEND: noninteractive
-            install: apt-get update && apt-get install -y git clang-18 clang-format-19 cmake g++-13
+            runs-on: ubuntu-20.04
             artifact: c/build/tirex-tracker-*-Linux.deb
+        compiler:
+          - name: gcc-13
+            c: gcc-13
+            cxx: g++-13
+          - name: clang-18
+            c: clang-18
+            cxx: clang++-18
     runs-on: ${{ matrix.configuration.runs-on }}
-    container: ${{ matrix.configuration.container }}
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Install compiler
-        run: ${{ matrix.configuration.install }}
+        uses: aminya/setup-cpp@v1
+        with:
+          compiler: ${{ matrix.compiler.name }}
+          cmake: true
       - name: 🔧 Configure CMake
         run: |
           cmake -S c/ -B c/build/ \
           -D CMAKE_BUILD_TYPE=Release \
-          -D CMAKE_C_COMPILER=gcc-13 \
-          -D CMAKE_CXX_COMPILER=g++-13 \
+          -D CMAKE_C_COMPILER=${{ matrix.compiler.c }} \
+          -D CMAKE_CXX_COMPILER=${{ matrix.compiler.cxx }} \
           -D BUILD_SHARED_LIBS=NO \
           -D TIREX_TRACKER_BUILD_DOCS=NO \
           -D TIREX_TRACKER_BUILD_DEB=YES \
@@ -554,7 +550,7 @@ jobs:
     if: github.event_name == 'push' && endsWith(github.event.base_ref, 'master') && startsWith(github.ref, 'refs/tags')
     needs:
       - c-build-library
-      - c-check
+      - c-check-format
       - c-build-cli
       - c-build-debian-package
       - jvm-build
