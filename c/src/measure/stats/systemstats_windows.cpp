@@ -203,7 +203,7 @@ uint8_t SystemStats::getProcCPUUtilization() {
 SystemStats::Utilization SystemStats::getUtilization() {
 	return Utilization{
 			.ramUsedKB = getRAMUsageKB(pid),
-			.cpuUtilization = getProcCPUUtilization(pid),
+			.cpuUtilization = getProcCPUUtilization(),
 			.system = {.ramUsedMB = getSystemRAMUsageMB(), .cpuUtilization = getCPUUtilization()}
 	};
 }
