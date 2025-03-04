@@ -16,7 +16,7 @@ jobs:
       matrix:
         runs-on:
           - ubuntu-20.04
-          # - macos-latest
+          - macos-latest
           - windows-latest
         compiler:
           # - name: gcc-14.2
@@ -81,7 +81,7 @@ jobs:
       matrix:
         runs-on:
           - ubuntu-20.04
-          # - macos-latest
+          - macos-latest
           - windows-latest
         compiler:
           # - name: gcc-14.2
