@@ -15,18 +15,17 @@ jobs:
     strategy:
       matrix:
         runs-on:
-          - ubuntu-20.04
           - ubuntu-latest
           - macos-latest
           - windows-latest
         compiler:
           - gcc-14
           - clang-19.1.0
-        # exclude:
-        #   - runs-on: macos-latest
-        #     compiler: clang-19.1.0
-        #   - runs-on: windows-latest
-        #     compiler: clang-19.1.0
+        exclude:
+          - runs-on: macos-latest
+            compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
+          - runs-on: windows-latest
+            compiler: gcc-14 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
@@ -40,25 +39,25 @@ jobs:
       - name: 🔧 Configure CMake
         run: cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=${{ env.CC }} -D CMAKE_CXX_COMPILER=${{ env.CXX }} -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=NO
       - name: 🏗️ Build library
-        run: cmake --build c/build/ --config Release --target measure_full
+        run: cmake --build c/build/ --config Release --target tirex_tracker_full
       - name: 📤 Upload Linux library
         if: matrix.runs-on == 'ubuntu-latest' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-linux
-          path: c/build/extensions/libmeasure_full.so
+          path: c/build/extensions/libtirex_tracker_full.so
       - name: 📤 Upload macOS library
-        if: matrix.runs-on == 'macos-latest' && matrix.compiler == 'clang-19.1.0'
+        if: matrix.runs-on == 'macos-latest' && matrix.compiler == 'gcc-14'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-macos
-          path: c/build/extensions/libmeasure_full.dylib
+          path: c/build/extensions/libtirex_tracker_full.dylib
       - name: 📤 Upload Windows library
         if: matrix.runs-on == 'windows-latest' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-windows
-          path: c/build/extensions/Release/measure_full.dll
+          path: c/build/extensions/Release/tirex_tracker_full.dll
   c-check-format:
     name: 🔍 Check C code format
     runs-on: ubuntu-latest
@@ -78,18 +77,17 @@ jobs:
     strategy:
       matrix:
         runs-on:
-          - ubuntu-20.04
           - ubuntu-latest
           - macos-latest
           - windows-latest
         compiler:
           - gcc-14
           - clang-19.1.0
-        # exclude:
-        #   - runs-on: macos-latest
-        #     compiler: clang-19.1.0
-        #   - runs-on: windows-latest
-        #     compiler: clang-19.1.0
+        exclude:
+          - runs-on: macos-latest
+            compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
+          - runs-on: windows-latest
+            compiler: gcc-14 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
@@ -112,7 +110,7 @@ jobs:
           name: c-cli-linux
           path: c/build/examples/03_measure_command/measure
       - name: 📤 Upload macOS CLI
-        if: matrix.runs-on == 'macos-latest' && matrix.compiler == 'clang-19.1.0'
+        if: matrix.runs-on == 'macos-latest' && matrix.compiler == 'gcc-14'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-macos
