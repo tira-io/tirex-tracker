@@ -5,7 +5,7 @@
 
 #include <spdlog/spdlog.h>
 
-namespace msr {
+namespace tirex {
 	using LoggerPtr = std::shared_ptr<spdlog::logger>;
 
 	enum class Verbosity : int { Off, Critical, Error, Warning, Info, Debug, Trace };
@@ -27,6 +27,6 @@ namespace msr {
 	 * @return A logger with the specified name.
 	 */
 	LoggerPtr getLogger(std::string name);
-} // namespace msr
+} // namespace tirex
 
 #endif

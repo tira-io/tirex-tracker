@@ -2,7 +2,7 @@
 #include "formatters.hpp"
 #include "utils.hpp"
 
-#include <measure.h>
+#include <tirex_tracker.h>
 
 #include <CLI/CLI.hpp>
 
@@ -12,72 +12,72 @@
 #include <ranges>
 #include <thread>
 
-static std::map<std::string, std::vector<msrMeasureConf>> confGroups = {
+static std::map<std::string, std::vector<tirexMeasureConf>> confGroups = {
 		{"git",
-		 {{MSR_GIT_IS_REPO, MSR_AGG_NO},
-		  {MSR_GIT_HASH, MSR_AGG_NO},
-		  {MSR_GIT_LAST_COMMIT_HASH, MSR_AGG_NO},
-		  {MSR_GIT_BRANCH, MSR_AGG_NO},
-		  {MSR_GIT_BRANCH_UPSTREAM, MSR_AGG_NO},
-		  {MSR_GIT_TAGS, MSR_AGG_NO},
-		  {MSR_GIT_REMOTE_ORIGIN, MSR_AGG_NO},
-		  {MSR_GIT_UNCOMMITTED_CHANGES, MSR_AGG_NO},
-		  {MSR_GIT_UNPUSHED_CHANGES, MSR_AGG_NO},
-		  {MSR_GIT_UNCHECKED_FILES, MSR_AGG_NO}}},
+		 {{TIREX_GIT_IS_REPO, TIREX_AGG_NO},
+		  {TIREX_GIT_HASH, TIREX_AGG_NO},
+		  {TIREX_GIT_LAST_COMMIT_HASH, TIREX_AGG_NO},
+		  {TIREX_GIT_BRANCH, TIREX_AGG_NO},
+		  {TIREX_GIT_BRANCH_UPSTREAM, TIREX_AGG_NO},
+		  {TIREX_GIT_TAGS, TIREX_AGG_NO},
+		  {TIREX_GIT_REMOTE_ORIGIN, TIREX_AGG_NO},
+		  {TIREX_GIT_UNCOMMITTED_CHANGES, TIREX_AGG_NO},
+		  {TIREX_GIT_UNPUSHED_CHANGES, TIREX_AGG_NO},
+		  {TIREX_GIT_UNCHECKED_FILES, TIREX_AGG_NO}}},
 		{"system",
-		 {{MSR_OS_NAME, MSR_AGG_NO},
-		  {MSR_OS_KERNEL, MSR_AGG_NO},
-		  {MSR_TIME_ELAPSED_WALL_CLOCK_MS, MSR_AGG_NO},
-		  {MSR_TIME_ELAPSED_USER_MS, MSR_AGG_NO},
-		  {MSR_TIME_ELAPSED_SYSTEM_MS, MSR_AGG_NO},
-		  {MSR_CPU_USED_PROCESS_PERCENT, MSR_AGG_NO},
-		  {MSR_CPU_USED_SYSTEM_PERCENT, MSR_AGG_NO},
-		  {MSR_CPU_AVAILABLE_SYSTEM_CORES, MSR_AGG_NO},
-		  {MSR_CPU_FEATURES, MSR_AGG_NO},
-		  {MSR_CPU_FREQUENCY_MHZ, MSR_AGG_NO},
-		  {MSR_CPU_FREQUENCY_MIN_MHZ, MSR_AGG_NO},
-		  {MSR_CPU_FREQUENCY_MAX_MHZ, MSR_AGG_NO},
-		  {MSR_CPU_VENDOR_ID, MSR_AGG_NO},
-		  {MSR_CPU_BYTE_ORDER, MSR_AGG_NO},
-		  {MSR_CPU_ARCHITECTURE, MSR_AGG_NO},
-		  {MSR_CPU_MODEL_NAME, MSR_AGG_NO},
-		  {MSR_CPU_CORES_PER_SOCKET, MSR_AGG_NO},
-		  {MSR_CPU_THREADS_PER_CORE, MSR_AGG_NO},
-		  {MSR_CPU_CACHES, MSR_AGG_NO},
-		  {MSR_CPU_VIRTUALIZATION, MSR_AGG_NO},
-		  {MSR_RAM_USED_PROCESS_KB, MSR_AGG_NO},
-		  {MSR_RAM_USED_SYSTEM_MB, MSR_AGG_NO},
-		  {MSR_RAM_AVAILABLE_SYSTEM_MB, MSR_AGG_NO}}},
+		 {{TIREX_OS_NAME, TIREX_AGG_NO},
+		  {TIREX_OS_KERNEL, TIREX_AGG_NO},
+		  {TIREX_TIME_ELAPSED_WALL_CLOCK_MS, TIREX_AGG_NO},
+		  {TIREX_TIME_ELAPSED_USER_MS, TIREX_AGG_NO},
+		  {TIREX_TIME_ELAPSED_SYSTEM_MS, TIREX_AGG_NO},
+		  {TIREX_CPU_USED_PROCESS_PERCENT, TIREX_AGG_NO},
+		  {TIREX_CPU_USED_SYSTEM_PERCENT, TIREX_AGG_NO},
+		  {TIREX_CPU_AVAILABLE_SYSTEM_CORES, TIREX_AGG_NO},
+		  {TIREX_CPU_FEATURES, TIREX_AGG_NO},
+		  {TIREX_CPU_FREQUENCY_MHZ, TIREX_AGG_NO},
+		  {TIREX_CPU_FREQUENCY_MIN_MHZ, TIREX_AGG_NO},
+		  {TIREX_CPU_FREQUENCY_MAX_MHZ, TIREX_AGG_NO},
+		  {TIREX_CPU_VENDOR_ID, TIREX_AGG_NO},
+		  {TIREX_CPU_BYTE_ORDER, TIREX_AGG_NO},
+		  {TIREX_CPU_ARCHITECTURE, TIREX_AGG_NO},
+		  {TIREX_CPU_MODEL_NAME, TIREX_AGG_NO},
+		  {TIREX_CPU_CORES_PER_SOCKET, TIREX_AGG_NO},
+		  {TIREX_CPU_THREADS_PER_CORE, TIREX_AGG_NO},
+		  {TIREX_CPU_CACHES, TIREX_AGG_NO},
+		  {TIREX_CPU_VIRTUALIZATION, TIREX_AGG_NO},
+		  {TIREX_RAM_USED_PROCESS_KB, TIREX_AGG_NO},
+		  {TIREX_RAM_USED_SYSTEM_MB, TIREX_AGG_NO},
+		  {TIREX_RAM_AVAILABLE_SYSTEM_MB, TIREX_AGG_NO}}},
 		{"energy",
-		 {{MSR_CPU_ENERGY_SYSTEM_JOULES, MSR_AGG_NO},
-		  {MSR_RAM_ENERGY_SYSTEM_JOULES, MSR_AGG_NO},
-		  {MSR_GPU_ENERGY_SYSTEM_JOULES, MSR_AGG_NO}}},
+		 {{TIREX_CPU_ENERGY_SYSTEM_JOULES, TIREX_AGG_NO},
+		  {TIREX_RAM_ENERGY_SYSTEM_JOULES, TIREX_AGG_NO},
+		  {TIREX_GPU_ENERGY_SYSTEM_JOULES, TIREX_AGG_NO}}},
 		{"gpu",
-		 {{MSR_GPU_SUPPORTED, MSR_AGG_NO},
-		  {MSR_GPU_MODEL_NAME, MSR_AGG_NO},
-		  {MSR_GPU_NUM_CORES, MSR_AGG_NO},
-		  {MSR_GPU_USED_PROCESS_PERCENT, MSR_AGG_NO},
-		  {MSR_GPU_USED_SYSTEM_PERCENT, MSR_AGG_NO},
-		  {MSR_GPU_VRAM_USED_PROCESS_MB, MSR_AGG_NO},
-		  {MSR_GPU_VRAM_USED_SYSTEM_MB, MSR_AGG_NO},
-		  {MSR_GPU_VRAM_AVAILABLE_SYSTEM_MB, MSR_AGG_NO}}}
+		 {{TIREX_GPU_SUPPORTED, TIREX_AGG_NO},
+		  {TIREX_GPU_MODEL_NAME, TIREX_AGG_NO},
+		  {TIREX_GPU_NUM_CORES, TIREX_AGG_NO},
+		  {TIREX_GPU_USED_PROCESS_PERCENT, TIREX_AGG_NO},
+		  {TIREX_GPU_USED_SYSTEM_PERCENT, TIREX_AGG_NO},
+		  {TIREX_GPU_VRAM_USED_PROCESS_MB, TIREX_AGG_NO},
+		  {TIREX_GPU_VRAM_USED_SYSTEM_MB, TIREX_AGG_NO},
+		  {TIREX_GPU_VRAM_AVAILABLE_SYSTEM_MB, TIREX_AGG_NO}}}
 };
 
-static void logCallback(msrLogLevel level, const char* component, const char* message) {
+static void logCallback(tirexLogLevel level, const char* component, const char* message) {
 	static constexpr spdlog::level::level_enum levels[] = {
-			/*[msrLogLevel::TRACE] =*/ spdlog::level::level_enum::trace,
-			/*[msrLogLevel::DEBUG] =*/ spdlog::level::level_enum::debug,
-			/*[msrLogLevel::INFO] =*/ spdlog::level::level_enum::info,
-			/*[msrLogLevel::WARN] =*/ spdlog::level::level_enum::warn,
-			/*[msrLogLevel::ERROR] =*/ spdlog::level::level_enum::err,
-			/*[msrLogLevel::CRITICAL] =*/ spdlog::level::level_enum::critical
+			/*[tirexLogLevel::TRACE] =*/spdlog::level::level_enum::trace,
+			/*[tirexLogLevel::DEBUG] =*/spdlog::level::level_enum::debug,
+			/*[tirexLogLevel::INFO] =*/spdlog::level::level_enum::info,
+			/*[tirexLogLevel::WARN] =*/spdlog::level::level_enum::warn,
+			/*[tirexLogLevel::ERROR] =*/spdlog::level::level_enum::err,
+			/*[tirexLogLevel::CRITICAL] =*/spdlog::level::level_enum::critical
 	};
-	msr::getLogger(component)->log(levels[level], message);
+	tirex::getLogger(component)->log(levels[level], message);
 }
 
-using msr::MeasureCmdArgs;
+using tirex::MeasureCmdArgs;
 
-static void setupLoggerArgs(CLI::App& app, msr::LoggerConf& conf) {
+static void setupLoggerArgs(CLI::App& app, tirex::LoggerConf& conf) {
 	app.add_flag(
 			"-v,--verbose", conf.verbosity,
 			"Sets the logger's verbosity. Passing it multiple times increases verbosity."
@@ -87,36 +87,38 @@ static void setupLoggerArgs(CLI::App& app, msr::LoggerConf& conf) {
 
 static void runMeasureCmd(const MeasureCmdArgs& args) {
 	// Initialization and setup
-	msr::setVerbosity(args.logConf.getVerbosity());
-	auto logger = msr::getLogger("measure");
+	tirex::setVerbosity(args.logConf.getVerbosity());
+	auto logger = tirex::getLogger("measure");
 	logger->info("Measuring command: {}", args.command);
 
 	// Start measuring
-	std::vector<msrMeasureConf> measures;
+	std::vector<tirexMeasureConf> measures;
 	for (const auto& provider : args.statproviders) {
 		const auto& elements = confGroups.at(provider);
 		measures.insert(measures.end(), elements.begin(), elements.end());
 	}
-	measures.emplace_back(msrNullConf);
+	measures.emplace_back(tirexNullConf);
 
-	msrMeasureHandle* handle;
-	assert(msrStartMeasure(measures.data(), args.pollIntervalMs, &handle) == MSR_SUCCESS);
+	tirexMeasureHandle* handle;
+	tirexError err = tirexStartTracking(measures.data(), args.pollIntervalMs, &handle);
+	assert(err == TIREX_SUCCESS);
 
 	// Run the command
 	auto exitcode = std::system(args.command.c_str());
 
 	// Stop measuring
-	msrResult* result;
-	assert(msrStopMeasure(handle, &result) == MSR_SUCCESS);
+	tirexResult* result;
+	err = tirexStopTracking(handle, &result);
+	assert(err == TIREX_SUCCESS);
 
 	/** \todo Maybe add the exit code as a stat. **/
 	std::cout << "\n== RESULTS ==" << std::endl;
 	args.getFormatter()(std::cout, result);
-	msrResultFree(result);
+	tirexResultFree(result);
 }
 
 int main(int argc, char* argv[]) {
-	msrSetLogCallback(logCallback);
+	tirexSetLogCallback(logCallback);
 	CLI::App app("Measures runtime, energy, and many other metrics of a specifed command.");
 	app.set_version_flag("-V,--version", buildVersionString());
 	app.set_help_flag("-h,--help", "Prints this help message");

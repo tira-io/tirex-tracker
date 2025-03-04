@@ -8,12 +8,12 @@
 #else
 class EnergyTracker {
 public:
-void start() {}
-void stop() {}
+	void start() {}
+	void stop() {}
 };
 #endif
 
-namespace msr {
+namespace tirex {
 	class EnergyStats final : public StatsProvider {
 	private:
 		EnergyTracker tracker;
@@ -27,8 +27,8 @@ namespace msr {
 
 		static constexpr const char* description = "Collects the energy consumption of various components.";
 		static const char* version;
-		static const std::set<msrMeasure> measures;
+		static const std::set<tirexMeasure> measures;
 	};
-} // namespace msr
+} // namespace tirex
 
 #endif

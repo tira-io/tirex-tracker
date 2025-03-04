@@ -4,14 +4,14 @@
 #include "formatters.hpp"
 #include "logging.hpp"
 
-#include <measure.h>
+#include <tirex_tracker.h>
 
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
-namespace msr {
+namespace tirex {
 	struct LoggerConf final {
 		bool quiet = false;
 		/**
@@ -23,12 +23,12 @@ namespace msr {
          */
 		int verbosity = 0;
 
-		msr::Verbosity getVerbosity() const noexcept {
+		tirex::Verbosity getVerbosity() const noexcept {
 			if (quiet)
-				return msr::Verbosity::Off;
-			auto verb = static_cast<int>(msr::Verbosity::Warning) + verbosity;
-			verb = std::min(verb, static_cast<int>(msr::Verbosity::Trace));
-			return static_cast<msr::Verbosity>(verb);
+				return tirex::Verbosity::Off;
+			auto verb = static_cast<int>(tirex::Verbosity::Warning) + verbosity;
+			verb = std::min(verb, static_cast<int>(tirex::Verbosity::Trace));
+			return static_cast<tirex::Verbosity>(verb);
 		}
 	};
 
@@ -48,6 +48,6 @@ namespace msr {
 			return formatters.at(formatter);
 		}
 	};
-} // namespace msr
+} // namespace tirex
 
 #endif

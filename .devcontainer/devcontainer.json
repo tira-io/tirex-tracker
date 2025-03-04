@@ -37,7 +37,8 @@
 					"-p ${workspaceFolder}/build/compile_commands.json"
 				],
 				"cmake.configureSettings": {
-					"MEASURECMD_BUILD_EXAMPLES": true
+					"TIREX_TRACKER_BUILD_EXAMPLES": true,
+					"TIREX_TRACKER_BUILD_DOCS": true
 				},
 				"launch": {
 					"version": "0.2.0",

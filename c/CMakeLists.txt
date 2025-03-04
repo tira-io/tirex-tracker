@@ -1,18 +1,18 @@
 cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
 
-option(MEASURECMD_BUILD_DEB "Build debian package" ON)
-option(MEASURECMD_ONLY_DOCS "Build only documentation -- this disables tests and others" OFF)
-option(MEASURECMD_BUILD_EXAMPLES "Build the examples" OFF)
-option(MEASURECMD_BUILD_DOCS "Build the documentation" OFF)
+option(TIREX_TRACKER_BUILD_DEB "Build debian package" OFF)
+option(TIREX_TRACKER_ONLY_DOCS "Build only documentation -- this disables tests and others" OFF)
+option(TIREX_TRACKER_BUILD_EXAMPLES "Build the examples" OFF)
+option(TIREX_TRACKER_BUILD_DOCS "Build the documentation" OFF)
 
-project(measure VERSION 0.0.1 LANGUAGES C CXX)
+project(tirex_tracker VERSION 0.0.1 LANGUAGES C CXX)
 
-if (NOT MEASURECMD_ONLY_DOCS)
+if (NOT TIREX_TRACKER_ONLY_DOCS)
     add_subdirectory(src)
     add_subdirectory(extensions)
 
-	if (MEASURECMD_BUILD_EXAMPLES)
+	if (TIREX_TRACKER_BUILD_EXAMPLES)
 		add_subdirectory(examples)
 	endif()
 endif()
@@ -22,7 +22,7 @@ endif()
 # Documentation
 ##########################################################################################
 # Documentation only available if this is the main app
-if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND MEASURECMD_BUILD_DOCS)
+if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND TIREX_TRACKER_BUILD_DOCS)
 	find_package(Doxygen REQUIRED)
 	include(FetchContent)
 	## Set Doxygen configuration options (THIS REPLACES THE DOXYFILE!)
@@ -43,7 +43,7 @@ if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND MEASURECMD_BUILD_DOCS)
 	set(DOXYGEN_ENABLE_PREPROCESSING "YES")
 	set(DOXYGEN_MACRO_EXPANSION "YES")
 	set(DOXYGEN_EXPAND_ONLY_PREDEF "YES")
-	set(DOXYGEN_PREDEFINED "MSR_EXPORT")
+	set(DOXYGEN_PREDEFINED "TIREX_EXPORT")
 
 	set(DOXYGEN_GENERATE_HTML "YES")
 
@@ -60,25 +60,23 @@ if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND MEASURECMD_BUILD_DOCS)
 
 	## Build Documentation
 	doxygen_add_docs(
-		measure_docs
+		tirex_tracker_docs
 		${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/README.md ${CMAKE_CURRENT_SOURCE_DIR}/docs
 		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	)
 endif()
 
+
 ##########################################################################################
 # Debian Package
 ##########################################################################################
 # Debian Packaging only available if this is the main app
-if(NOT MEASURECMD_ONLY_DOCS AND (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND MEASURECMD_BUILD_DEB)
-	if (NOT MEASURECMD_BUILD_EXAMPLES)
-		add_subdirectory(examples/03_measure_command)
-	endif()
-	
-	install(TARGETS measure RUNTIME DESTINATION bin COMPONENT command)
+if(NOT TIREX_TRACKER_ONLY_DOCS AND (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND TIREX_TRACKER_BUILD_DEB)
+	install(TARGETS tirex_tracker ARCHIVE DESTINATION lib COMPONENT tirex_tracker)
+	install(DIRECTORY include DESTINATION include COMPONENT tirex_tracker)
 
 	SET(CPACK_GENERATOR "DEB")
-	SET(CPACK_PACKAGE_NAME "measure")
+	SET(CPACK_PACKAGE_NAME "tirex-tracker")
 	SET(CPACK_SET_DESTDIR TRUE)
 	SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "not-set")
 	SET(CPACK_PACKAGE_VERSION "0.0.1rc")
@@ -89,5 +87,5 @@ if(NOT MEASURECMD_ONLY_DOCS AND (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND M
 	SET(CPACK_DEBIAN_PACKAGE_DEPENDS "")
 	SET(CPACK_PACKAGE_VENDOR "")
 	include(CPack)
-	cpack_add_component(command)
+	cpack_add_component(tirex_tracker)
 endif()

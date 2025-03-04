@@ -430,19 +430,19 @@ enum class ExportFormat(val value: String) {
 
 
 private interface TrackerLibrary : Library {
-    fun msrResultEntryGetByIndex(result: Pointer, index: LibCAPI.size_t, entry: Pointer): Int
-    fun msrResultEntryNum(result: Pointer, num: Pointer): Int
-    fun msrResultFree(result: Pointer)
-    fun msrFetchInfo(measures: Array<NativeMeasureConfiguration>, result: Pointer): Int
-    fun msrStartMeasure(
+    fun tirexResultEntryGetByIndex(result: Pointer, index: LibCAPI.size_t, entry: Pointer): Int
+    fun tirexResultEntryNum(result: Pointer, num: Pointer): Int
+    fun tirexResultFree(result: Pointer)
+    fun tirexFetchInfo(measures: Array<NativeMeasureConfiguration>, result: Pointer): Int
+    fun tirexStartTracking(
         measures: Array<NativeMeasureConfiguration>, pollIntervalMs: LibCAPI.size_t, handle: Pointer
     ): Int
 
-    fun msrStopMeasure(handle: Pointer, result: Pointer): Int
-    fun msrSetLogCallback(callback: NativeLogCallback)
-    fun msrDataProviderGetAll(buffer: Array<NativeProviderInfo>?, bufferSize: LibCAPI.size_t): LibCAPI.size_t
-    fun msrMeasureInfoGet(measure: Int, info: Pointer): Int
-    fun msrResultExportIrMetadata(info: Pointer, result: Pointer, filePath: String): Int
+    fun tirexStopTracking(handle: Pointer, result: Pointer): Int
+    fun tirexSetLogCallback(callback: NativeLogCallback)
+    fun tirexDataProviderGetAll(buffer: Array<NativeProviderInfo>?, bufferSize: LibCAPI.size_t): LibCAPI.size_t
+    fun tirexMeasureInfoGet(measure: Int, info: Pointer): Int
+    fun tirexResultExportIrMetadata(info: Pointer, result: Pointer, filePath: String): Int
 }
 
 private val LIBRARY = Native.load(
@@ -477,7 +477,7 @@ private fun handleError(error: Int) = handleError(Error.fromValue(error))
 fun setLogCallback(
     logCallback: ((level: LogLevel, component: String, message: String) -> Unit) = ::noopLogCallback,
 ) {
-    LIBRARY.msrSetLogCallback(logCallback.toNativeLogCallback())
+    LIBRARY.tirexSetLogCallback(logCallback.toNativeLogCallback())
 }
 
 @Suppress("unused")
@@ -485,16 +485,16 @@ fun setLogCallback(
 fun setLogCallback(
     logCallback: LogCallback,
 ) {
-    LIBRARY.msrSetLogCallback(logCallback.toNativeLogCallback())
+    LIBRARY.tirexSetLogCallback(logCallback.toNativeLogCallback())
 }
 
 val providerInfos: Collection<ProviderInfo> by lazy {
-    val numProviders = LIBRARY.msrDataProviderGetAll(null, LibCAPI.size_t(0)).toInt()
+    val numProviders = LIBRARY.tirexDataProviderGetAll(null, LibCAPI.size_t(0)).toInt()
     if (numProviders == 0) {
         emptyList<ProviderInfo>()
     }
     @Suppress("UNCHECKED_CAST") val buffer = NativeProviderInfo().toArray(numProviders) as Array<NativeProviderInfo>
-    LIBRARY.msrDataProviderGetAll(buffer, LibCAPI.size_t(numProviders.toLong()))
+    LIBRARY.tirexDataProviderGetAll(buffer, LibCAPI.size_t(numProviders.toLong()))
     buffer.map { it.toProvider() } + listOf(JAVA_PROVIDER)
 }
 
@@ -504,7 +504,7 @@ val measureInfos: Map<Measure, MeasureInfo> by lazy {
             JAVA_MEASURES.getValue(measure)
         } else {
             usePointer { measureInfoPointer ->
-                val errorInt = LIBRARY.msrMeasureInfoGet(measure.value, measureInfoPointer)
+                val errorInt = LIBRARY.tirexMeasureInfoGet(measure.value, measureInfoPointer)
                 handleError(errorInt)
                 NativeMeasureInfo(measureInfoPointer.getPointer(0)).toMeasureInfo()
             }
@@ -514,7 +514,7 @@ val measureInfos: Map<Measure, MeasureInfo> by lazy {
 
 private fun parseResults(result: Pointer): Map<Measure, ResultEntry> {
     val numEntries: Long = usePointer { numEntriesPointer ->
-        val errorInt = LIBRARY.msrResultEntryNum(result, numEntriesPointer)
+        val errorInt = LIBRARY.tirexResultEntryNum(result, numEntriesPointer)
         handleError(errorInt)
         LibCAPI.size_t.ByReference().also {
             it.pointer = numEntriesPointer
@@ -522,12 +522,12 @@ private fun parseResults(result: Pointer): Map<Measure, ResultEntry> {
     }
     val entries = (0 until numEntries).map { index ->
         NativeResultEntry().use { resultEntry ->
-            val errorInt = LIBRARY.msrResultEntryGetByIndex(result, LibCAPI.size_t(index), resultEntry.pointer)
+            val errorInt = LIBRARY.tirexResultEntryGetByIndex(result, LibCAPI.size_t(index), resultEntry.pointer)
             handleError(errorInt)
             resultEntry.toResultEntry()
         }
     }
-    LIBRARY.msrResultFree(result)
+    LIBRARY.tirexResultFree(result)
     return entries.associate { entry ->
         entry.source to entry
     }
@@ -562,7 +562,7 @@ fun fetchInfo(
     val configArray = prepareMeasureConfigurations(remainingMeasures)
 
     val result: Pointer = usePointer { resultPointer ->
-        val errorInt = LIBRARY.msrFetchInfo(configArray, resultPointer)
+        val errorInt = LIBRARY.tirexFetchInfo(configArray, resultPointer)
         handleError(errorInt)
         resultPointer.getPointer(0)
     }
@@ -602,7 +602,7 @@ class TrackingHandle private constructor(
 
             // Get other info, first, before starting the tracking.
             val fetchInfoResult: Pointer = usePointer { resultPointer ->
-                val errorInt = LIBRARY.msrFetchInfo(configArray, resultPointer)
+                val errorInt = LIBRARY.tirexFetchInfo(configArray, resultPointer)
                 handleError(errorInt)
                 resultPointer.getPointer(0)
             }
@@ -610,7 +610,7 @@ class TrackingHandle private constructor(
             // Start the tracking.
             val trackingHandle = usePointer { measurementHandlePointer ->
                 val errorInt =
-                    LIBRARY.msrStartMeasure(configArray, LibCAPI.size_t(pollIntervalMillis), measurementHandlePointer)
+                    LIBRARY.tirexStartTracking(configArray, LibCAPI.size_t(pollIntervalMillis), measurementHandlePointer)
                 handleError(errorInt)
                 measurementHandlePointer.getPointer(0)
             }
@@ -649,7 +649,7 @@ class TrackingHandle private constructor(
 
     fun stop(): Map<Measure, ResultEntry> {
         val result: Pointer = usePointer { resultPointer ->
-            val errorInt = LIBRARY.msrStopMeasure(trackingHandle, resultPointer)
+            val errorInt = LIBRARY.tirexStopTracking(trackingHandle, resultPointer)
             handleError(errorInt)
             resultPointer.getPointer(0)
         }
@@ -685,7 +685,7 @@ class TrackingHandle private constructor(
         }
 
         // Run the C-internal ir_metadata export.
-        LIBRARY.msrResultExportIrMetadata(
+        LIBRARY.tirexResultExportIrMetadata(
             fetchInfoResult,
             result,
             exportFilePath.toString(),

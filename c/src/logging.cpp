@@ -1,7 +1,7 @@
 #include "logging.hpp"
 
-static void nulllogger(msrLogLevel, const char*, const char*) { return; }
+static void nulllogger(tirexLogLevel, const char*, const char*) { return; }
 
-msrLogCallback msr::logCallback = nulllogger;
+tirexLogCallback tirex::logCallback = nulllogger;
 
-void msrSetLogCallback(msrLogCallback callback) { msr::logCallback = callback; }
+void tirexSetLogCallback(tirexLogCallback callback) { tirex::logCallback = callback; }

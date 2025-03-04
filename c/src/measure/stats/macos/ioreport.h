@@ -7,18 +7,20 @@
 
 #include <CoreFoundation/CoreFoundation.h>
 
-
 struct ioreportsub;
 typedef ioreportsub* IOReportSubscriptionRef;
 
-struct IOReportLib final : msr::utils::SharedLib {
+struct IOReportLib final : tirex::utils::SharedLib {
 	using COPY_ALL_CHANNELS = CFDictionaryRef (*)(uint64_t a, uint64_t b);
 	COPY_ALL_CHANNELS copyAllChannels = load<COPY_ALL_CHANNELS>({"IOReportCopyAllChannels"});
-	using COPY_CHANNELS_IN_GROUP = CFDictionaryRef (*)(CFStringRef a, CFStringRef b, uint64_t c, uint64_t d, uint64_t e);
+	using COPY_CHANNELS_IN_GROUP =
+			CFDictionaryRef (*)(CFStringRef a, CFStringRef b, uint64_t c, uint64_t d, uint64_t e);
 	COPY_CHANNELS_IN_GROUP copyChannelsInGroup = load<COPY_CHANNELS_IN_GROUP>({"IOReportCopyChannelsInGroup"});
 	using MERGE_CHANNELS = void (*)(CFDictionaryRef a, CFDictionaryRef b, CFTypeRef c);
 	MERGE_CHANNELS mergeChannels = load<MERGE_CHANNELS>({"IOReportMergeChannels"});
-	using CREATE_SUBSCRIPTION = IOReportSubscriptionRef (*)(const void* a, CFMutableDictionaryRef b, CFMutableDictionaryRef c, uint64_t d, CFTypeRef e);
+	using CREATE_SUBSCRIPTION = IOReportSubscriptionRef (*)(
+			const void* a, CFMutableDictionaryRef b, CFMutableDictionaryRef c, uint64_t d, CFTypeRef e
+	);
 	CREATE_SUBSCRIPTION createSubscription = load<CREATE_SUBSCRIPTION>({"IOReportCreateSubscription"});
 	using CREATE_SAMPLES = CFDictionaryRef (*)(IOReportSubscriptionRef a, CFMutableDictionaryRef b, CFTypeRef c);
 	CREATE_SAMPLES createSamples = load<CREATE_SAMPLES>({"IOReportCreateSamples"});
@@ -41,11 +43,11 @@ struct IOReportLib final : msr::utils::SharedLib {
 	using STATE_GET_RESIDENCY = int64_t (*)(CFDictionaryRef a, int32_t b);
 	STATE_GET_RESIDENCY stateGetResidency = load<STATE_GET_RESIDENCY>({"IOReportStateGetResidency"});
 
-	#ifdef __APPLE__
-		IOReportLib() : msr::utils::SharedLib("/usr/lib/libIOReport.dylib") {}
-	#else
-		IOReportLib() : msr::utils::SharedLib() {}
-	#endif
+#ifdef __APPLE__
+	IOReportLib() : tirex::utils::SharedLib("/usr/lib/libIOReport.dylib") {}
+#else
+	IOReportLib() : tirex::utils::SharedLib() {}
+#endif
 };
 
 #endif

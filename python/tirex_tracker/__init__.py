@@ -585,22 +585,22 @@ class ExportFormat(Enum):
 
 
 class _TirexTrackerLibrary(CDLL):
-    msrResultEntryGetByIndex: Callable[
+    tirexResultEntryGetByIndex: Callable[
         [Pointer[_Result], c_size_t, Pointer[_ResultEntry]], int
     ]
-    msrResultEntryNum: Callable[[Pointer[_Result], Pointer[c_size_t]], int]
-    msrResultFree: Callable[[Pointer[_Result]], None]
-    msrFetchInfo: Callable[
+    tirexResultEntryNum: Callable[[Pointer[_Result], Pointer[c_size_t]], int]
+    tirexResultFree: Callable[[Pointer[_Result]], None]
+    tirexFetchInfo: Callable[
         [Array[_MeasureConfiguration], Pointer[Pointer[_Result]]], int
     ]
-    msrStartMeasure: Callable[
+    tirexStartTracking: Callable[
         [Array[_MeasureConfiguration], int, Pointer[Pointer[_TrackingHandle]]], int
     ]
-    msrStopMeasure: Callable[[Pointer[_TrackingHandle], Pointer[Pointer[_Result]]], int]
-    msrSetLogCallback: Callable[[CFunctionType], None]
-    msrDataProviderGetAll: Callable[[Array[_ProviderInfo], int], int]
-    msrMeasureInfoGet: Callable[[int, Pointer[Pointer[_MeasureInfo]]], int]
-    msrResultExportIrMetadata: Callable[
+    tirexStopTracking: Callable[[Pointer[_TrackingHandle], Pointer[Pointer[_Result]]], int]
+    tirexSetLogCallback: Callable[[CFunctionType], None]
+    tirexDataProviderGetAll: Callable[[Array[_ProviderInfo], int], int]
+    tirexMeasureInfoGet: Callable[[int, Pointer[Pointer[_MeasureInfo]]], int]
+    tirexResultExportIrMetadata: Callable[
         [Pointer[_Result], Pointer[_Result], c_char_p], int
     ]
 
@@ -614,44 +614,44 @@ def _find_library() -> Path:
 
 def _load_library() -> _TirexTrackerLibrary:
     library = cdll.LoadLibrary(str(_find_library()))
-    library.msrResultEntryGetByIndex.argtypes = [
+    library.tirexResultEntryGetByIndex.argtypes = [
         POINTER(_Result),
         c_size_t,
         POINTER(_ResultEntry),
     ]
-    library.msrResultEntryGetByIndex.restype = c_int
-    library.msrResultEntryNum.argtypes = [POINTER(_Result), POINTER(c_size_t)]
-    library.msrResultEntryNum.restype = c_int
-    library.msrResultFree.argtypes = [POINTER(_Result)]
-    library.msrResultFree.restype = c_void_p
-    library.msrFetchInfo.argtypes = [
+    library.tirexResultEntryGetByIndex.restype = c_int
+    library.tirexResultEntryNum.argtypes = [POINTER(_Result), POINTER(c_size_t)]
+    library.tirexResultEntryNum.restype = c_int
+    library.tirexResultFree.argtypes = [POINTER(_Result)]
+    library.tirexResultFree.restype = c_void_p
+    library.tirexFetchInfo.argtypes = [
         Array[_MeasureConfiguration],
         POINTER(POINTER(_Result)),
     ]
-    library.msrFetchInfo.restype = c_int
-    library.msrStartMeasure.argtypes = [
+    library.tirexFetchInfo.restype = c_int
+    library.tirexStartTracking.argtypes = [
         Array[_MeasureConfiguration],
         c_size_t,
         POINTER(POINTER(_TrackingHandle)),
     ]
-    library.msrStartMeasure.restype = c_int
-    library.msrStopMeasure.argtypes = [
+    library.tirexStartTracking.restype = c_int
+    library.tirexStopTracking.argtypes = [
         POINTER(_TrackingHandle),
         POINTER(POINTER(_Result)),
     ]
-    library.msrStopMeasure.restype = c_int
-    library.msrSetLogCallback.argtypes = [c_void_p]
-    library.msrSetLogCallback.restype = c_void_p
-    library.msrDataProviderGetAll.argtypes = [Array[_ProviderInfo], c_size_t]
-    library.msrDataProviderGetAll.restype = c_size_t
-    library.msrMeasureInfoGet.argtypes = [c_int, POINTER(POINTER(_MeasureInfo))]
-    library.msrMeasureInfoGet.restype = c_int
-    library.msrResultExportIrMetadata.argtypes = [
+    library.tirexStopTracking.restype = c_int
+    library.tirexSetLogCallback.argtypes = [c_void_p]
+    library.tirexSetLogCallback.restype = c_void_p
+    library.tirexDataProviderGetAll.argtypes = [Array[_ProviderInfo], c_size_t]
+    library.tirexDataProviderGetAll.restype = c_size_t
+    library.tirexMeasureInfoGet.argtypes = [c_int, POINTER(POINTER(_MeasureInfo))]
+    library.tirexMeasureInfoGet.restype = c_int
+    library.tirexResultExportIrMetadata.argtypes = [
         POINTER(_Result),
         POINTER(_Result),
         c_char_p,
     ]
-    library.msrResultExportIrMetadata.restype = c_int
+    library.tirexResultExportIrMetadata.restype = c_int
     return cast(_TirexTrackerLibrary, library)
 
 
@@ -667,15 +667,15 @@ def _handle_error(error_int: int) -> None:
 
 
 def set_log_callback(log_callback: LogCallback = _noop_log_callback) -> None:
-    _LIBRARY.msrSetLogCallback(_to_native_log_callback(log_callback))
+    _LIBRARY.tirexSetLogCallback(_to_native_log_callback(log_callback))
 
 
 def provider_infos() -> Collection[ProviderInfo]:
-    num_providers = _LIBRARY.msrDataProviderGetAll((_ProviderInfo * 0)(), 0)
+    num_providers = _LIBRARY.tirexDataProviderGetAll((_ProviderInfo * 0)(), 0)
     if num_providers == 0:
         return []
     providers: Array[_ProviderInfo] = (_ProviderInfo * num_providers)()
-    _LIBRARY.msrDataProviderGetAll(providers, num_providers)
+    _LIBRARY.tirexDataProviderGetAll(providers, num_providers)
     providers_iterable: Iterable[_ProviderInfo] = cast(
         Iterable[_ProviderInfo], providers
     )
@@ -691,7 +691,7 @@ def measure_infos() -> Mapping[Measure, MeasureInfo]:
             measure_infos[measure] = _PYTHON_MEASURES[measure]
             continue
         measure_info_pointer = pointer(pointer(_MeasureInfo()))
-        error_int = _LIBRARY.msrMeasureInfoGet(measure.value, measure_info_pointer)
+        error_int = _LIBRARY.tirexMeasureInfoGet(measure.value, measure_info_pointer)
         _handle_error(error_int)
         measure_info = measure_info_pointer.contents.contents
         measure_infos[measure] = measure_info.to_measure_info()
@@ -700,18 +700,18 @@ def measure_infos() -> Mapping[Measure, MeasureInfo]:
 
 def _parse_results(result: Pointer[_Result]) -> Mapping[Measure, ResultEntry]:
     num_entries_pointer = pointer(c_size_t())
-    error_int = _LIBRARY.msrResultEntryNum(result, num_entries_pointer)
+    error_int = _LIBRARY.tirexResultEntryNum(result, num_entries_pointer)
     _handle_error(error_int)
     num_entries = num_entries_pointer.contents.value
     entries: List[ResultEntry] = []
     for index in range(num_entries):
         entry_pointer = pointer(_ResultEntry())
-        error_int = _LIBRARY.msrResultEntryGetByIndex(
+        error_int = _LIBRARY.tirexResultEntryGetByIndex(
             result, c_size_t(index), entry_pointer
         )
         _handle_error(error_int)
         entries.append(entry_pointer.contents.to_result_entry())
-    _LIBRARY.msrResultFree(result)
+    _LIBRARY.tirexResultFree(result)
     results = {entry.source: entry for entry in entries}
     return results
 
@@ -738,7 +738,7 @@ def fetch_info(
     configs_array = _prepare_measure_configurations(remaining_measures)
 
     result_pointer = pointer(pointer(_Result()))
-    error_int = _LIBRARY.msrFetchInfo(configs_array, result_pointer)
+    error_int = _LIBRARY.tirexFetchInfo(configs_array, result_pointer)
     _handle_error(error_int)
 
     return {
@@ -779,13 +779,13 @@ class TrackingHandle(
 
         # Get other info, first, before starting the tracking.
         result_pointer = pointer(pointer(_Result()))
-        error_int = _LIBRARY.msrFetchInfo(configs_array, result_pointer)
+        error_int = _LIBRARY.tirexFetchInfo(configs_array, result_pointer)
         _handle_error(error_int)
         fetch_info_result = result_pointer.contents
 
         # Start the tracking.
         tracking_handle_pointer = pointer(pointer(_TrackingHandle()))
-        error_int = _LIBRARY.msrStartMeasure(
+        error_int = _LIBRARY.tirexStartTracking(
             configs_array, poll_intervall_ms, tracking_handle_pointer
         )
         _handle_error(error_int)
@@ -804,7 +804,7 @@ class TrackingHandle(
 
     def stop(self) -> Mapping[Measure, ResultEntry]:
         result_pointer = pointer(pointer(_Result()))
-        error_int = _LIBRARY.msrStopMeasure(self._tracking_handle, result_pointer)
+        error_int = _LIBRARY.tirexStopTracking(self._tracking_handle, result_pointer)
         _handle_error(error_int)
 
         self._export(result_pointer.contents)
@@ -870,7 +870,7 @@ class TrackingHandle(
             raise ValueError("Metadata file already exists.")
 
         # Run the C-internal ir_metadata export.
-        _LIBRARY.msrResultExportIrMetadata(
+        _LIBRARY.tirexResultExportIrMetadata(
             self._fetch_info_result,
             result,
             c_char_p(str(export_file_path.resolve()).encode(_ENCODING)),

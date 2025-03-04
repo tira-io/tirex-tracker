@@ -5,7 +5,7 @@
 <p align="center">Automatic resource and metadata tracking for IR experiments.</p>
 <div align="center">
 
-[![CI](https://img.shields.io/github/actions/workflow/status/tira-io/tirex-tracker/ci.yml?branch=main&style=flat-square)](https://github.com/tira-io/tirex-tracker/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/tira-io/tirex-tracker/ci.yml?branch=master&style=flat-square)](https://github.com/tira-io/tirex-tracker/actions/workflows/ci.yml)
 [![Maintenance](https://img.shields.io/maintenance/yes/2025?style=flat-square)](https://github.com/tira-io/tirex-tracker/graphs/contributors) <!-- [![Code coverage](https://img.shields.io/codecov/c/github/tira-io/tirex-tracker?style=flat-square)](https://codecov.io/github/tira-io/tirex-tracker/) --> \
 [![PyPi](https://img.shields.io/pypi/v/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Python](https://img.shields.io/pypi/pyversions/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Downloads](https://img.shields.io/pypi/dm/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) \
 [![Maven](https://img.shields.io/github/v/tag/tira-io/tirex-tracker?style=flat-square&label=maven)](https://github.com/tira-io/tirex-tracker/packages/) [![Java](https://img.shields.io/badge/java-%E2%89%A5_8-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/packages/) \
@@ -43,7 +43,7 @@ include(FetchContent)
 # Use GIT_TAG to request the tag (or branch) you would like
 FetchContent_Declare(tirex_tracker GIT_REPOSITORY https://github.com/tira-io/tirex-tracker.git GIT_TAG 0.0.11)
 FetchContent_MakeAvailable(tirex_tracker)
-target_link_libraries(<yourtarget> tirex_tracker::measureapi)
+target_link_libraries(<yourtarget> tirex_tracker::tirex_tracker)
 ```
 
 This will link the TIREx tracker C API to your binaries.
@@ -254,12 +254,12 @@ cmake -S c/ -B c/build/ \
   -D CMAKE_C_COMPILER=gcc-13 \
   -D CMAKE_CXX_COMPILER=g++-13 \
   -D BUILD_SHARED_LIBS=YES \
-  -D MEASURECMD_BUILD_DOCS=YES \
-  -D MEASURECMD_BUILD_DEB=YES \
-  -D MEASURECMD_BUILD_EXAMPLES=YES
+  -D TIREX_TRACKER_BUILD_DOCS=YES \
+  -D TIREX_TRACKER_BUILD_DEB=YES \
+  -D TIREX_TRACKER_BUILD_EXAMPLES=YES
 ```
 
-(Hint: If you do not want to generate the documentation and have not installed Doxygen, you can disable it by setting `MEASURECMD_BUILD_DOCS=NO`.)
+(Hint: If you do not want to generate the documentation and have not installed Doxygen, you can disable it by setting `TIREX_TRACKER_BUILD_DOCS=NO`.)
 
 You can then build the library (and examples) like this:
 
@@ -278,7 +278,7 @@ The Debian package is built by running:
 cmake --build c/build/ --config Release --target package
 ```
 
-You will find the compiled Debian package file at `c/build/measure-*-Linux.deb` (where `*` is the version).
+You will find the compiled Debian package file at `c/build/tirex-tracker-*-Linux.deb` (where `*` is the version).
 
 <!-- TODO: C test instructions. -->
 

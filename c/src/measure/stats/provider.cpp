@@ -9,13 +9,13 @@
 
 #include <algorithm>
 
-using msr::EnergyStats;
-using msr::GitStats;
-using msr::GPUStats;
-using msr::StatsProvider;
-using msr::SystemStats;
+using tirex::EnergyStats;
+using tirex::GitStats;
+using tirex::GPUStats;
+using tirex::StatsProvider;
+using tirex::SystemStats;
 
-const std::map<std::string, msr::ProviderEntry> msr::providers{
+const std::map<std::string, tirex::ProviderEntry> tirex::providers{
 		{"system",
 		 {std::make_unique<SystemStats>, SystemStats::measures, SystemStats::version, SystemStats::description}},
 		{"energy",
@@ -24,10 +24,10 @@ const std::map<std::string, msr::ProviderEntry> msr::providers{
 		{"gpu", {std::make_unique<GPUStats>, GPUStats::measures, GPUStats::version, GPUStats::description}}
 };
 
-std::set<msrMeasure>
-msr::initProviders(std::set<msrMeasure> measures, std::vector<std::unique_ptr<StatsProvider>>& providers) {
-	for (auto& [_, info] : msr::providers) {
-		std::set<msrMeasure> diff;
+std::set<tirexMeasure>
+tirex::initProviders(std::set<tirexMeasure> measures, std::vector<std::unique_ptr<StatsProvider>>& providers) {
+	for (auto& [_, info] : tirex::providers) {
+		std::set<tirexMeasure> diff;
 		std::set_difference(
 				measures.begin(), measures.end(), info.measures.begin(), info.measures.end(),
 				std::inserter(diff, diff.begin())

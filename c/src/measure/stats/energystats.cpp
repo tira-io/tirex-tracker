@@ -2,12 +2,12 @@
 
 using namespace std::string_literals;
 
-using msr::EnergyStats;
-using msr::Stats;
+using tirex::EnergyStats;
+using tirex::Stats;
 
 const char* EnergyStats::version = nullptr;
-const std::set<msrMeasure> EnergyStats::measures{
-		MSR_CPU_ENERGY_SYSTEM_JOULES, MSR_RAM_ENERGY_SYSTEM_JOULES, MSR_GPU_ENERGY_SYSTEM_JOULES
+const std::set<tirexMeasure> EnergyStats::measures{
+		TIREX_CPU_ENERGY_SYSTEM_JOULES, TIREX_RAM_ENERGY_SYSTEM_JOULES, TIREX_GPU_ENERGY_SYSTEM_JOULES
 };
 
 EnergyStats::EnergyStats() : tracker() {}
@@ -22,7 +22,7 @@ Stats EnergyStats::getStats() {
 		stats.insertChild(device, {std::to_string(result)});
 
 	return {{"energy", stats}};*/
-	return {{MSR_CPU_ENERGY_SYSTEM_JOULES, "TODO"s},
-			{MSR_RAM_ENERGY_SYSTEM_JOULES, "TODO"s},
-			{MSR_GPU_ENERGY_SYSTEM_JOULES, "TODO"s}};
+	return {{TIREX_CPU_ENERGY_SYSTEM_JOULES, "TODO"s},
+			{TIREX_RAM_ENERGY_SYSTEM_JOULES, "TODO"s},
+			{TIREX_GPU_ENERGY_SYSTEM_JOULES, "TODO"s}};
 }
