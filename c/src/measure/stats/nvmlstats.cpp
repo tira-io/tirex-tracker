@@ -1,4 +1,4 @@
-#include "gpustats.hpp"
+#include "nvmlstats.hpp"
 
 #include "../../logging.hpp"
 #include "../utils/sharedlib.hpp"

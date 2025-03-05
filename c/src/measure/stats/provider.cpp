@@ -4,7 +4,7 @@
 
 #include "energystats.hpp"
 #include "gitstats.hpp"
-#include "gpustats.hpp"
+#include "nvmlstats.hpp"
 #include "systemstats.hpp"
 
 #include <algorithm>
