@@ -4,7 +4,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     `java-library`
     `maven-publish`
-    signing
     kotlin("jvm")
     kotlin("plugin.serialization")
     id("com.palantir.git-version")
@@ -89,46 +88,7 @@ publishing {
         }
     }
     publications {
-        register<MavenPublication>("gpr") {
-            groupId = "io.tira"
-            artifactId = "tirex-tracker"
-            version = gitVersion()
-
-            from(components["java"])
-
-            pom {
-                name = "tirex-tracker"
-                description = "Automatic resource and metadata tracking for information retrieval experiments."
-                url = "https://github.com/tira-io/tirex-tracker"
-                licenses {
-                    license {
-                        name = "MIT License"
-                        url = "https://opensource.org/license/MIT"
-                    }
-                }
-                developers {
-                    developer {
-                        name = "Jan Heinrich Merker"
-                        email = "heinrich.merker@uni-jena.de"
-                    }
-                    developer {
-                        name = "Tim Hagen"
-                        email = "tim.hagen@uni-kassel.de"
-                    }
-                    developer {
-                        name = "Maik Fröbe"
-                        email = "maik.froebe@uni-jena.de"
-                    }
-                }
-                scm {
-                    connection = "scm:git:git://github.com/tira-io/tirex-tracker.git"
-                    developerConnection = "scm:git:ssh://git@github.com:tira-io/tirex-tracker.git"
-                    url = "https://github.com/tira-io/tirex-tracker"
-                }
-            }
-        }
-
-        register<MavenPublication>("mavenCentral") {
+        register<MavenPublication>("library") {
             groupId = "io.tira"
             artifactId = "tirex-tracker"
             version = gitVersion()
@@ -168,10 +128,3 @@ publishing {
         }
     }
 }
-
-//signing {
-//    val signingKey: String? by project
-//    val signingPassword: String? by project
-//    useInMemoryPgpKeys(signingKey, signingPassword)
-//    sign(publishing.publications["mavenCentral"])
-//}
