@@ -13,7 +13,7 @@ from ctypes import (
     CFUNCTYPE,
 )
 from dataclasses import dataclass
-from enum import IntEnum, auto, Enum
+from enum import IntEnum, Enum
 from functools import wraps
 from importlib_metadata import distributions, version
 from importlib_resources import files
