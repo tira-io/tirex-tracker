@@ -10,7 +10,6 @@ from ctypes import (
     Structure,
     pointer,
     POINTER,
-    Array,
     CFUNCTYPE,
 )
 from dataclasses import dataclass
@@ -55,11 +54,14 @@ from ruamel.yaml import YAML
 
 
 if TYPE_CHECKING:
-    from ctypes import _Pointer as Pointer, _CFunctionType as CFunctionType  # type: ignore
+    from ctypes import _Pointer as Pointer, _CFunctionType as CFunctionType, Array  # type: ignore
 else:
     T = TypeVar("T")
 
     class Pointer(Generic[T]):
+        pass
+
+    class Array(Generic[T]):
         pass
 
     CFunctionType = Any
@@ -636,12 +638,12 @@ def _load_library() -> _TirexTrackerLibrary:
     library.tirexResultFree.argtypes = [POINTER(_Result)]
     library.tirexResultFree.restype = c_void_p
     library.tirexFetchInfo.argtypes = [
-        Array[_MeasureConfiguration],
+        POINTER(_MeasureConfiguration),
         POINTER(POINTER(_Result)),
     ]
     library.tirexFetchInfo.restype = c_int
     library.tirexStartTracking.argtypes = [
-        Array[_MeasureConfiguration],
+        POINTER(_MeasureConfiguration),
         c_size_t,
         POINTER(POINTER(_TrackingHandle)),
     ]
@@ -653,7 +655,7 @@ def _load_library() -> _TirexTrackerLibrary:
     library.tirexStopTracking.restype = c_int
     library.tirexSetLogCallback.argtypes = [c_void_p]
     library.tirexSetLogCallback.restype = c_void_p
-    library.tirexDataProviderGetAll.argtypes = [Array[_ProviderInfo], c_size_t]
+    library.tirexDataProviderGetAll.argtypes = [POINTER(_ProviderInfo), c_size_t]
     library.tirexDataProviderGetAll.restype = c_size_t
     library.tirexMeasureInfoGet.argtypes = [c_int, POINTER(POINTER(_MeasureInfo))]
     library.tirexMeasureInfoGet.restype = c_int
@@ -891,9 +893,9 @@ class TrackingHandle(
         with export_file_path.open("rb") as file:
             buffer = file.read()
             if buffer.startswith(b"ir_metadata.start\n"):
-                buffer = buffer[len(b"ir_metadata.start\n"):]
+                buffer = buffer[len(b"ir_metadata.start\n") :]
             if buffer.endswith(b"ir_metadata.end\n"):
-                buffer = buffer[:-len(b"ir_metadata.end\n")]
+                buffer = buffer[: -len(b"ir_metadata.end\n")]
 
             # FIXME: There's a bug in the YAML output format that we work around here:
             from re import sub
