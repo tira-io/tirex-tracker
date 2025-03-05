@@ -288,6 +288,8 @@ jobs:
           - windows-2022
           # - windows-2025 # FIXME: Re-enable
         exclude:
+          - java: "8"  # FIXME: Gradle seems to insist on loading Java 17 weirdly.
+            runs-on: windows-2022
           - java: "11"  # FIXME: Gradle seems to insist on loading Java 17 weirdly.
             runs-on: windows-2022
     runs-on: ${{ matrix.runs-on }}
