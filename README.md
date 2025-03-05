@@ -2,13 +2,14 @@
 
 <img width="100%" src="assets/banner.jpeg" alt="TIREx tracker banner image">
 <h1 align="center">TIREx Tracker</h1>
-<p align="center">Automatic resource and metadata tracking for IR experiments.</p>
+<p align="center">Automatic resource and metadata tracking for information retrieval experiments.</p>
 <div align="center">
 
 [![CI](https://img.shields.io/github/actions/workflow/status/tira-io/tirex-tracker/ci.yml?branch=master&style=flat-square)](https://github.com/tira-io/tirex-tracker/actions/workflows/ci.yml)
 [![Maintenance](https://img.shields.io/maintenance/yes/2025?style=flat-square)](https://github.com/tira-io/tirex-tracker/graphs/contributors) <!-- [![Code coverage](https://img.shields.io/codecov/c/github/tira-io/tirex-tracker?style=flat-square)](https://codecov.io/github/tira-io/tirex-tracker/) --> \
+[![Release](https://img.shields.io/github/v/tag/tira-io/tirex-tracker?style=flat-square&label=library)](https://github.com/tira-io/tirex-tracker/releases/) [![Ubuntu](https://img.shields.io/badge/ubuntu-22.04_%7C_24.04-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/) [![macOS](https://img.shields.io/badge/macos-13_%7C_14-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/) [![Windows](https://img.shields.io/badge/windows-2019_%7C_2022-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/) \
 [![PyPi](https://img.shields.io/pypi/v/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Python](https://img.shields.io/pypi/pyversions/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Downloads](https://img.shields.io/pypi/dm/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) \
-[![Maven](https://img.shields.io/github/v/tag/tira-io/tirex-tracker?style=flat-square&label=maven)](https://github.com/tira-io/tirex-tracker/packages/) [![Java](https://img.shields.io/badge/java-%E2%89%A5_8-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/packages/) \
+[![Maven](https://img.shields.io/github/v/tag/tira-io/tirex-tracker?style=flat-square&label=maven)](https://github.com/tira-io/tirex-tracker/packages/) [![Java](https://img.shields.io/badge/java-8_%7C_11_%7C_17_%7C_21-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/packages/) \
 [![Issues](https://img.shields.io/github/issues/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/issues) [![Commit activity](https://img.shields.io/github/commit-activity/m/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/commits) [![License](https://img.shields.io/github/license/tira-io/tirex-tracker?style=flat-square)](LICENSE)
 
 [CLI](#command-line-tool) • [C/C++ API](#cc-api) • [Python API](#python-api) • [Java/Kotlin API](#javakotlinjvm-api) • [Citation](#citation)
@@ -264,10 +265,10 @@ cmake -S c/ -B c/build/ \
 You can then build the library (and examples) like this:
 
 ```shell
-cmake --build c/build/ --config Release --target measure_full
+cmake --build c/build/ --config Release --target tirex_tracker_full
 ```
 
-This will compile the C API into a statically linked library at `c/build/extensions/libmeasure_full.so`.
+This will compile the C API into a statically linked library at `c/build/extensions/libtirex_tracker_full.so`.
 
 <!-- TODO: How to build the macOS or Windows library and where to find it? -->
 <!-- TODO: How to build the "minimal" library without the `ir_metadata` export? -->
@@ -313,10 +314,10 @@ To build the classes, run:
 jvm/gradlew --project-dir jvm/ build
 ```
 
-Tests for Java and Kotlin usage can be run by:
+Tests and checks for Java and Kotlin usage can be run by:
 
 ```shell
-jvm/gradlew --project-dir jvm/ test
+jvm/gradlew --project-dir jvm/ check
 ```
 
 <!-- TODO: How to build the Javadoc? -->

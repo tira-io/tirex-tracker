@@ -1,5 +1,5 @@
 from collections import defaultdict
-from contextlib import redirect_stdout, AbstractContextManager
+from contextlib import redirect_stdout
 from ctypes import (
     cdll,
     CDLL,
@@ -10,11 +10,10 @@ from ctypes import (
     Structure,
     pointer,
     POINTER,
-    Array,
     CFUNCTYPE,
 )
 from dataclasses import dataclass
-from enum import IntEnum, auto, Enum
+from enum import IntEnum, Enum
 from functools import wraps
 from importlib_metadata import distributions, version
 from importlib_resources import files
@@ -22,8 +21,8 @@ from io import BytesIO
 from json import dumps, loads
 from os import PathLike
 from pathlib import Path
-from sys import modules as sys_modules, executable, argv, version_info
-from tempfile import TemporaryDirectory
+from sys import modules as sys_modules, executable, argv, platform, version_info
+from tempfile import mkdtemp
 from traceback import extract_stack
 from typing import (
     ItemsView,
@@ -40,13 +39,13 @@ from typing import (
     Mapping,
     Any,
     TYPE_CHECKING,
-    Generic,
     TypeVar,
     List,
     overload,
     Union,
     MutableMapping,
     Tuple,
+    ContextManager,
 )
 
 from IPython import get_ipython
@@ -55,14 +54,7 @@ from ruamel.yaml import YAML
 
 
 if TYPE_CHECKING:
-    from ctypes import _Pointer as Pointer, _CFunctionType as CFunctionType  # type: ignore
-else:
-    T = TypeVar("T")
-
-    class Pointer(Generic[T]):
-        pass
-
-    CFunctionType = Any
+    from ctypes import _Pointer as Pointer, _CFunctionType as CFunctionType, Array  # type: ignore
 
 P = ParamSpec("P")
 T = TypeVar("T")
@@ -77,51 +69,50 @@ class Error(IntEnum):
 
 
 class Measure(IntEnum):
-    # TODO: Specify the enum values explicitly.
     OS_NAME = 0
-    OS_KERNEL = auto()
-    TIME_ELAPSED_WALL_CLOCK_MS = auto()
-    TIME_ELAPSED_USER_MS = auto()
-    TIME_ELAPSED_SYSTEM_MS = auto()
-    CPU_USED_PROCESS_PERCENT = auto()
-    CPU_USED_SYSTEM_PERCENT = auto()
-    CPU_AVAILABLE_SYSTEM_CORES = auto()
-    CPU_ENERGY_SYSTEM_JOULES = auto()
-    CPU_FEATURES = auto()
-    CPU_FREQUENCY_MHZ = auto()
-    CPU_FREQUENCY_MIN_MHZ = auto()
-    CPU_FREQUENCY_MAX_MHZ = auto()
-    CPU_VENDOR_ID = auto()
-    CPU_BYTE_ORDER = auto()
-    CPU_ARCHITECTURE = auto()
-    CPU_MODEL_NAME = auto()
-    CPU_CORES_PER_SOCKET = auto()
-    CPU_THREADS_PER_CORE = auto()
-    CPU_CACHES = auto()
-    CPU_VIRTUALIZATION = auto()
-    RAM_USED_PROCESS_KB = auto()
-    RAM_USED_SYSTEM_MB = auto()
-    RAM_AVAILABLE_SYSTEM_MB = auto()
-    RAM_ENERGY_SYSTEM_JOULES = auto()
-    GPU_SUPPORTED = auto()
-    GPU_MODEL_NAME = auto()
-    GPU_AVAILABLE_SYSTEM_CORES = auto()  # aka. GPU_NUM_CORES
-    GPU_USED_PROCESS_PERCENT = auto()
-    GPU_USED_SYSTEM_PERCENT = auto()
-    GPU_VRAM_USED_PROCESS_MB = auto()
-    GPU_VRAM_USED_SYSTEM_MB = auto()
-    GPU_VRAM_AVAILABLE_SYSTEM_MB = auto()
-    GPU_ENERGY_SYSTEM_JOULES = auto()
-    GIT_IS_REPO = auto()
-    GIT_HASH = auto()
-    GIT_LAST_COMMIT_HASH = auto()
-    GIT_BRANCH = auto()
-    GIT_BRANCH_UPSTREAM = auto()
-    GIT_TAGS = auto()
-    GIT_REMOTE_ORIGIN = auto()
-    GIT_UNCOMMITTED_CHANGES = auto()
-    GIT_UNPUSHED_CHANGES = auto()
-    GIT_UNCHECKED_FILES = auto()
+    OS_KERNEL = 1
+    TIME_ELAPSED_WALL_CLOCK_MS = 2
+    TIME_ELAPSED_USER_MS = 3
+    TIME_ELAPSED_SYSTEM_MS = 4
+    CPU_USED_PROCESS_PERCENT = 5
+    CPU_USED_SYSTEM_PERCENT = 6
+    CPU_AVAILABLE_SYSTEM_CORES = 7
+    CPU_ENERGY_SYSTEM_JOULES = 8
+    CPU_FEATURES = 9
+    CPU_FREQUENCY_MHZ = 10
+    CPU_FREQUENCY_MIN_MHZ = 11
+    CPU_FREQUENCY_MAX_MHZ = 12
+    CPU_VENDOR_ID = 13
+    CPU_BYTE_ORDER = 14
+    CPU_ARCHITECTURE = 15
+    CPU_MODEL_NAME = 16
+    CPU_CORES_PER_SOCKET = 17
+    CPU_THREADS_PER_CORE = 18
+    CPU_CACHES = 19
+    CPU_VIRTUALIZATION = 20
+    RAM_USED_PROCESS_KB = 21
+    RAM_USED_SYSTEM_MB = 22
+    RAM_AVAILABLE_SYSTEM_MB = 23
+    RAM_ENERGY_SYSTEM_JOULES = 24
+    GPU_SUPPORTED = 25
+    GPU_MODEL_NAME = 26
+    GPU_AVAILABLE_SYSTEM_CORES = 27  # aka. GPU_NUM_CORES
+    GPU_USED_PROCESS_PERCENT = 28
+    GPU_USED_SYSTEM_PERCENT = 29
+    GPU_VRAM_USED_PROCESS_MB = 30
+    GPU_VRAM_USED_SYSTEM_MB = 31
+    GPU_VRAM_AVAILABLE_SYSTEM_MB = 32
+    GPU_ENERGY_SYSTEM_JOULES = 33
+    GIT_IS_REPO = 34
+    GIT_HASH = 35
+    GIT_LAST_COMMIT_HASH = 36
+    GIT_BRANCH = 37
+    GIT_BRANCH_UPSTREAM = 38
+    GIT_TAGS = 39
+    GIT_REMOTE_ORIGIN = 40
+    GIT_UNCOMMITTED_CHANGES = 41
+    GIT_UNPUSHED_CHANGES = 42
+    GIT_UNCHECKED_FILES = 43
     PYTHON_VERSION = 1000
     PYTHON_EXECUTABLE = 1001
     PYTHON_ARGUMENTS = 1002
@@ -236,7 +227,7 @@ def _noop_log_callback(level: LogLevel, component: str, message: str):
     return None
 
 
-def _to_native_log_callback(log_callback: LogCallback) -> CFunctionType:
+def _to_native_log_callback(log_callback: LogCallback) -> "CFunctionType":
     @CFUNCTYPE(c_void_p, c_int, c_char_p, c_char_p)
     def _log_callback(level: c_int, component: c_char_p, message: c_char_p) -> c_void_p:
         if log_callback is _noop_log_callback:
@@ -474,47 +465,40 @@ def _get_python_info(
     )
 
     if ipython is not None:
-        with TemporaryDirectory(delete=False) as temp_dir:
-            tmp_dir_path = Path(temp_dir)
-
-            script_file_path = tmp_dir_path / "script.py"
-            _add_python_result_entry(
-                results=results,
-                measure=Measure.PYTHON_SCRIPT_FILE_PATH,
-                measures=measures,
-                value=str(script_file_path),
-            )
-
-            with redirect_stdout(None):
-                ipython.magic(f"save -f {script_file_path} 1-9999")
-
-            with script_file_path.open("rt") as file:
-                script_file_contents = file.read()
-            _add_python_result_entry(
-                results=results,
-                measure=Measure.PYTHON_SCRIPT_FILE_CONTENTS,
-                measures=measures,
-                value=script_file_contents,
-            )
-
-            notebook_file_path = tmp_dir_path / "notebook.ipynb"
-            _add_python_result_entry(
-                results=results,
-                measure=Measure.PYTHON_NOTEBOOK_FILE_PATH,
-                measures=measures,
-                value=str(notebook_file_path),
-            )
-
-            with redirect_stdout(None):
-                ipython.magic(f"notebook {notebook_file_path}")
-            with notebook_file_path.open("rt") as file:
-                notebook_file_contents = file.read()
-            _add_python_result_entry(
-                results=results,
-                measure=Measure.PYTHON_NOTEBOOK_FILE_CONTENTS,
-                measures=measures,
-                value=notebook_file_contents,
-            )
+        tmp_dir = mkdtemp()
+        tmp_dir_path = Path(tmp_dir)
+        script_file_path = tmp_dir_path / "script.py"
+        _add_python_result_entry(
+            results=results,
+            measure=Measure.PYTHON_SCRIPT_FILE_PATH,
+            measures=measures,
+            value=str(script_file_path),
+        )
+        with redirect_stdout(None):
+            ipython.magic(f"save -f {script_file_path} 1-9999")
+        script_file_contents = script_file_path.read_text()
+        _add_python_result_entry(
+            results=results,
+            measure=Measure.PYTHON_SCRIPT_FILE_CONTENTS,
+            measures=measures,
+            value=script_file_contents,
+        )
+        notebook_file_path = tmp_dir_path / "notebook.ipynb"
+        _add_python_result_entry(
+            results=results,
+            measure=Measure.PYTHON_NOTEBOOK_FILE_PATH,
+            measures=measures,
+            value=str(notebook_file_path),
+        )
+        with redirect_stdout(None):
+            ipython.magic(f"notebook {notebook_file_path}")
+        notebook_file_contents = notebook_file_path.read_text()
+        _add_python_result_entry(
+            results=results,
+            measure=Measure.PYTHON_NOTEBOOK_FILE_CONTENTS,
+            measures=measures,
+            value=notebook_file_contents,
+        )
 
     else:
         script_file_path = Path(extract_stack()[0].filename).resolve()
@@ -524,16 +508,13 @@ def _get_python_info(
             measures=measures,
             value=str(script_file_path),
         )
-
-        with script_file_path.open("rt") as file:
-            script_file_contents = file.read()
+        script_file_contents = script_file_path.read_text()
         _add_python_result_entry(
             results=results,
             measure=Measure.PYTHON_SCRIPT_FILE_CONTENTS,
             measures=measures,
             value=script_file_contents,
         )
-
         _add_python_result_entry(
             results=results,
             measure=Measure.PYTHON_NOTEBOOK_FILE_PATH,
@@ -586,30 +567,38 @@ class ExportFormat(Enum):
 
 class _TirexTrackerLibrary(CDLL):
     tirexResultEntryGetByIndex: Callable[
-        [Pointer[_Result], c_size_t, Pointer[_ResultEntry]], int
+        ["Pointer[_Result]", c_size_t, "Pointer[_ResultEntry]"], int
     ]
-    tirexResultEntryNum: Callable[[Pointer[_Result], Pointer[c_size_t]], int]
-    tirexResultFree: Callable[[Pointer[_Result]], None]
+    tirexResultEntryNum: Callable[["Pointer[_Result]", "Pointer[c_size_t]"], int]
+    tirexResultFree: Callable[["Pointer[_Result]"], None]
     tirexFetchInfo: Callable[
-        [Array[_MeasureConfiguration], Pointer[Pointer[_Result]]], int
+        ["Array[_MeasureConfiguration]", "Pointer[Pointer[_Result]]"], int
     ]
     tirexStartTracking: Callable[
-        [Array[_MeasureConfiguration], int, Pointer[Pointer[_TrackingHandle]]], int
+        ["Array[_MeasureConfiguration]", int, "Pointer[Pointer[_TrackingHandle]]"], int
     ]
-    tirexStopTracking: Callable[[Pointer[_TrackingHandle], Pointer[Pointer[_Result]]], int]
-    tirexSetLogCallback: Callable[[CFunctionType], None]
-    tirexDataProviderGetAll: Callable[[Array[_ProviderInfo], int], int]
-    tirexMeasureInfoGet: Callable[[int, Pointer[Pointer[_MeasureInfo]]], int]
+    tirexStopTracking: Callable[
+        ["Pointer[_TrackingHandle]", "Pointer[Pointer[_Result]]"], int
+    ]
+    tirexSetLogCallback: Callable[["CFunctionType"], None]
+    tirexDataProviderGetAll: Callable[["Array[_ProviderInfo]", int], int]
+    tirexMeasureInfoGet: Callable[[int, "Pointer[Pointer[_MeasureInfo]]"], int]
     tirexResultExportIrMetadata: Callable[
-        [Pointer[_Result], Pointer[_Result], c_char_p], int
+        ["Pointer[_Result]", "Pointer[_Result]", c_char_p], int
     ]
 
 
 def _find_library() -> Path:
-    import tirex_tracker
-
-    # TODO: Decide between the libraries for the different platforms.
-    return files(tirex_tracker) / "libmeasure_full.so"
+    path: str
+    if platform == "linux":
+        path = "libtirex_tracker_full.so"
+    elif platform == "darwin":
+        path = "libtirex_tracker_full.dylib"
+    elif platform == "win32":
+        path = "tirex_tracker_full.dll"
+    else:
+        raise RuntimeError("Unsupported platform.")
+    return files(__name__) / path
 
 
 def _load_library() -> _TirexTrackerLibrary:
@@ -625,12 +614,12 @@ def _load_library() -> _TirexTrackerLibrary:
     library.tirexResultFree.argtypes = [POINTER(_Result)]
     library.tirexResultFree.restype = c_void_p
     library.tirexFetchInfo.argtypes = [
-        Array[_MeasureConfiguration],
+        POINTER(_MeasureConfiguration),
         POINTER(POINTER(_Result)),
     ]
     library.tirexFetchInfo.restype = c_int
     library.tirexStartTracking.argtypes = [
-        Array[_MeasureConfiguration],
+        POINTER(_MeasureConfiguration),
         c_size_t,
         POINTER(POINTER(_TrackingHandle)),
     ]
@@ -642,7 +631,7 @@ def _load_library() -> _TirexTrackerLibrary:
     library.tirexStopTracking.restype = c_int
     library.tirexSetLogCallback.argtypes = [c_void_p]
     library.tirexSetLogCallback.restype = c_void_p
-    library.tirexDataProviderGetAll.argtypes = [Array[_ProviderInfo], c_size_t]
+    library.tirexDataProviderGetAll.argtypes = [POINTER(_ProviderInfo), c_size_t]
     library.tirexDataProviderGetAll.restype = c_size_t
     library.tirexMeasureInfoGet.argtypes = [c_int, POINTER(POINTER(_MeasureInfo))]
     library.tirexMeasureInfoGet.restype = c_int
@@ -674,7 +663,7 @@ def provider_infos() -> Collection[ProviderInfo]:
     num_providers = _LIBRARY.tirexDataProviderGetAll((_ProviderInfo * 0)(), 0)
     if num_providers == 0:
         return []
-    providers: Array[_ProviderInfo] = (_ProviderInfo * num_providers)()
+    providers: "Array[_ProviderInfo]" = (_ProviderInfo * num_providers)()
     _LIBRARY.tirexDataProviderGetAll(providers, num_providers)
     providers_iterable: Iterable[_ProviderInfo] = cast(
         Iterable[_ProviderInfo], providers
@@ -685,7 +674,7 @@ def provider_infos() -> Collection[ProviderInfo]:
 
 
 def measure_infos() -> Mapping[Measure, MeasureInfo]:
-    measure_infos: dict[Measure, MeasureInfo] = {}
+    measure_infos: MutableMapping[Measure, MeasureInfo] = {}
     for measure in ALL_MEASURES:
         if measure in _PYTHON_MEASURES:
             measure_infos[measure] = _PYTHON_MEASURES[measure]
@@ -698,7 +687,7 @@ def measure_infos() -> Mapping[Measure, MeasureInfo]:
     return measure_infos
 
 
-def _parse_results(result: Pointer[_Result]) -> Mapping[Measure, ResultEntry]:
+def _parse_results(result: "Pointer[_Result]") -> Mapping[Measure, ResultEntry]:
     num_entries_pointer = pointer(c_size_t())
     error_int = _LIBRARY.tirexResultEntryNum(result, num_entries_pointer)
     _handle_error(error_int)
@@ -718,7 +707,7 @@ def _parse_results(result: Pointer[_Result]) -> Mapping[Measure, ResultEntry]:
 
 def _prepare_measure_configurations(
     measures: Iterable[Measure],
-) -> Array[_MeasureConfiguration]:
+) -> "Array[_MeasureConfiguration]":
     configs = [
         _MeasureConfiguration(measure.value, Aggregation.NO.value)
         for measure in measures
@@ -748,15 +737,13 @@ def fetch_info(
 
 
 @dataclass(frozen=True)
-class TrackingHandle(
-    AbstractContextManager["TrackingHandle", None], Mapping[Measure, ResultEntry]
-):
-    _fetch_info_result: Pointer[_Result]
-    _tracking_handle: Pointer[_TrackingHandle]
+class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEntry]):
+    _fetch_info_result: "Pointer[_Result]"
+    _tracking_handle: "Pointer[_TrackingHandle]"
     _python_info: Mapping[Measure, ResultEntry]
     _system_name: Optional[str]
     _system_description: Optional[str]
-    _export_file_path: Optional[PathLike[str]]
+    _export_file_path: Optional[PathLike]
     _export_format: Optional[ExportFormat]
     results: MutableMapping[Measure, ResultEntry]
 
@@ -768,7 +755,7 @@ class TrackingHandle(
         poll_intervall_ms: int = -1,
         system_name: Optional[str] = None,
         system_description: Optional[str] = None,
-        export_file_path: Optional[PathLike[str]] = None,
+        export_file_path: Optional[PathLike] = None,
         export_format: Optional[ExportFormat] = None,
     ) -> Self:
         # Get Python info first, and then strip Python measures from the list.
@@ -851,7 +838,7 @@ class TrackingHandle(
     def __eq__(self, other) -> bool:
         return NotImplemented
 
-    def _export(self, result: Pointer[_Result]) -> None:
+    def _export(self, result: "Pointer[_Result]") -> None:
         if self._export_file_path is None:
             return
         elif self._export_format is None:
@@ -861,7 +848,7 @@ class TrackingHandle(
         else:
             raise ValueError("Invalid export format.")
 
-    def _export_ir_metadata(self, result: Pointer[_Result]) -> None:
+    def _export_ir_metadata(self, result: "Pointer[_Result]") -> None:
         if self._export_file_path is None:
             return
 
@@ -877,19 +864,20 @@ class TrackingHandle(
         )
 
         # Parse the initial ir_metadata.
-        with export_file_path.open("rb") as file:
-            buffer = file.read()
-            buffer = buffer.removeprefix(b"ir_metadata.start\n")
-            buffer = buffer.removesuffix(b"ir_metadata.end\n")
+        buffer = Path(export_file_path).read_bytes()
+        if buffer.startswith(b"ir_metadata.start\n"):
+            buffer = buffer[len(b"ir_metadata.start\n") :]
+        if buffer.endswith(b"ir_metadata.end\n"):
+            buffer = buffer[: -len(b"ir_metadata.end\n")]
 
-            # FIXME: There's a bug in the YAML output format that we work around here:
-            from re import sub
+        # FIXME: There's a bug in the YAML output format that we work around here:
+        from re import sub
 
-            buffer = sub(rb"caches: (.*),", rb"caches: {\1}", buffer)
+        buffer = sub(rb"caches: (.*),", rb"caches: {\1}", buffer)
 
-            with BytesIO(buffer) as yaml_file:
-                yaml = YAML(typ="safe")
-                tmp_ir_metadata = yaml.load(yaml_file)
+        with BytesIO(buffer) as yaml_file:
+            yaml = YAML(typ="safe")
+            tmp_ir_metadata = yaml.load(yaml_file)
 
         ir_metadata = _recursive_defaultdict()
 
@@ -953,7 +941,7 @@ def start_tracking(
     poll_intervall_ms: int = -1,
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
-    export_file_path: Optional[PathLike[str]] = None,
+    export_file_path: Optional[PathLike] = None,
     export_format: Optional[ExportFormat] = None,
 ) -> TrackingHandle:
     return TrackingHandle.start(
@@ -978,7 +966,7 @@ def tracking(
     poll_intervall_ms: int = -1,
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
-    export_file_path: Optional[PathLike[str]] = None,
+    export_file_path: Optional[PathLike] = None,
     export_format: Optional[ExportFormat] = None,
 ) -> TrackingHandle:
     return TrackingHandle.start(
@@ -998,7 +986,7 @@ def track(
     poll_intervall_ms: int = -1,
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
-    export_file_path: Optional[PathLike[str]] = None,
+    export_file_path: Optional[PathLike] = None,
     export_format: Optional[ExportFormat] = None,
 ) -> Mapping[Measure, ResultEntry]:
     with tracking(
@@ -1024,7 +1012,7 @@ def tracked(
     poll_intervall_ms: int = ...,
     system_name: Optional[str] = ...,
     system_description: Optional[str] = ...,
-    export_file_path: Optional[PathLike[str]] = ...,
+    export_file_path: Optional[PathLike] = ...,
     export_format: Optional[ExportFormat] = ...,
 ) -> Callable[[Callable[P, T]], Union[Callable[P, T], ResultsAccessor]]:
     pass
@@ -1036,7 +1024,7 @@ def tracked(
     poll_intervall_ms: int = -1,
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
-    export_file_path: Optional[PathLike[str]] = None,
+    export_file_path: Optional[PathLike] = None,
     export_format: Optional[ExportFormat] = None,
 ) -> Union[
     Union[Callable[P, T], ResultsAccessor],

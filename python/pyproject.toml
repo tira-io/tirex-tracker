@@ -5,7 +5,7 @@ authors = [
     { name = "Jan Heinrich Merker", email = "heinrich.merker@uni-jena.de" },
     { name = "Tim Hagen", email = "tim.hagen@uni-kassel.de" },
 ]
-description = "Automatic resource and metadata tracking for IR experiments."
+description = "Automatic resource and metadata tracking for information retrieval experiments."
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
@@ -16,16 +16,17 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Operating System :: OS Independent",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-    "typing-extensions~=4.12",
-    "importlib-metadata~=8.6",
-    "importlib-resources~=6.5",
-    "ipython~=8.32",
-    "ruamel.yaml~=0.18.10",
+    "typing-extensions~=4.0",
+    "importlib-metadata~=8.0",
+    "importlib-resources~=6.0",
+    "ipython~=8.0",
+    "ruamel.yaml~=0.18.0",
 ]
 dynamic = ["version"]
 
@@ -34,8 +35,8 @@ tests = [
     "bandit[toml]~=1.7",
     "mypy~=1.5",
     "pytest~=8.0",
-    "pytest-cov~=6.0",
-    "ruff~=0.9.7",
+    "pytest-cov>=5.0,<7.0",
+    "ruff~=0.9.0",
 ]
 docs = [
     "sphinx~=8.1",
@@ -47,7 +48,7 @@ docs = [
 "Bug Tracker" = "https://github.com/tira-io/tirex-tracker/issues"
 
 [build-system]
-requires = ["setuptools~=75.8", "setuptools-scm~=8.0"]
+requires = ["setuptools~=75.0", "setuptools-scm~=8.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]

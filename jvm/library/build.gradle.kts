@@ -29,13 +29,20 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.12.0")
 }
 
-val javaLanguageVersion = JavaLanguageVersion.of(8)
-val javaLanguageVersionTest = JavaLanguageVersion.of(17)
+val javaLanguageVersionCompile = JavaLanguageVersion.of(8)
+
+@Suppress("UnstableApiUsage")
+val javaLanguageVersionTest = JavaLanguageVersion.current().also { maxOf(it, javaLanguageVersionCompile) }
 
 kotlin {
     jvmToolchain {
-        languageVersion = javaLanguageVersion
+        languageVersion = javaLanguageVersionCompile
     }
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
 }
 
 tasks {
@@ -81,7 +88,7 @@ publishing {
         }
     }
     publications {
-        register<MavenPublication>("gpr") {
+        register<MavenPublication>("library") {
             groupId = "io.tira"
             artifactId = "tirex-tracker"
             version = gitVersion()
@@ -90,7 +97,7 @@ publishing {
 
             pom {
                 name = "tirex-tracker"
-                description = "Automatic resource and metadata tracking for IR experiments."
+                description = "Automatic resource and metadata tracking for information retrieval experiments."
                 url = "https://github.com/tira-io/tirex-tracker"
                 licenses {
                     license {
