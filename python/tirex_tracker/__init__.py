@@ -39,7 +39,6 @@ from typing import (
     Mapping,
     Any,
     TYPE_CHECKING,
-    Generic,
     TypeVar,
     List,
     overload,
@@ -56,16 +55,6 @@ from ruamel.yaml import YAML
 
 if TYPE_CHECKING:
     from ctypes import _Pointer as Pointer, _CFunctionType as CFunctionType, Array  # type: ignore
-else:
-    T = TypeVar("T")
-
-    class Pointer(Generic[T]):
-        pass
-
-    class Array(Generic[T]):
-        pass
-
-    CFunctionType = Any
 
 P = ParamSpec("P")
 T = TypeVar("T")
@@ -239,7 +228,7 @@ def _noop_log_callback(level: LogLevel, component: str, message: str):
     return None
 
 
-def _to_native_log_callback(log_callback: LogCallback) -> CFunctionType:
+def _to_native_log_callback(log_callback: LogCallback) -> "CFunctionType":
     @CFUNCTYPE(c_void_p, c_int, c_char_p, c_char_p)
     def _log_callback(level: c_int, component: c_char_p, message: c_char_p) -> c_void_p:
         if log_callback is _noop_log_callback:
@@ -579,24 +568,24 @@ class ExportFormat(Enum):
 
 class _TirexTrackerLibrary(CDLL):
     tirexResultEntryGetByIndex: Callable[
-        [Pointer[_Result], c_size_t, Pointer[_ResultEntry]], int
+        ["Pointer[_Result]", c_size_t, "Pointer[_ResultEntry]"], int
     ]
-    tirexResultEntryNum: Callable[[Pointer[_Result], Pointer[c_size_t]], int]
-    tirexResultFree: Callable[[Pointer[_Result]], None]
+    tirexResultEntryNum: Callable[["Pointer[_Result]", "Pointer[c_size_t]"], int]
+    tirexResultFree: Callable[["Pointer[_Result]"], None]
     tirexFetchInfo: Callable[
-        [Array[_MeasureConfiguration], Pointer[Pointer[_Result]]], int
+        ["Array[_MeasureConfiguration]", "Pointer[Pointer[_Result]]"], int
     ]
     tirexStartTracking: Callable[
-        [Array[_MeasureConfiguration], int, Pointer[Pointer[_TrackingHandle]]], int
+        ["Array[_MeasureConfiguration]", int, "Pointer[Pointer[_TrackingHandle]]"], int
     ]
     tirexStopTracking: Callable[
-        [Pointer[_TrackingHandle], Pointer[Pointer[_Result]]], int
+        ["Pointer[_TrackingHandle]", "Pointer[Pointer[_Result]]"], int
     ]
-    tirexSetLogCallback: Callable[[CFunctionType], None]
-    tirexDataProviderGetAll: Callable[[Array[_ProviderInfo], int], int]
-    tirexMeasureInfoGet: Callable[[int, Pointer[Pointer[_MeasureInfo]]], int]
+    tirexSetLogCallback: Callable[["CFunctionType"], None]
+    tirexDataProviderGetAll: Callable[["Array[_ProviderInfo]", int], int]
+    tirexMeasureInfoGet: Callable[[int, "Pointer[Pointer[_MeasureInfo]]"], int]
     tirexResultExportIrMetadata: Callable[
-        [Pointer[_Result], Pointer[_Result], c_char_p], int
+        ["Pointer[_Result]", "Pointer[_Result]", c_char_p], int
     ]
 
 
@@ -678,7 +667,7 @@ def provider_infos() -> Collection[ProviderInfo]:
     num_providers = _LIBRARY.tirexDataProviderGetAll((_ProviderInfo * 0)(), 0)
     if num_providers == 0:
         return []
-    providers: Array[_ProviderInfo] = (_ProviderInfo * num_providers)()
+    providers: "Array[_ProviderInfo]" = (_ProviderInfo * num_providers)()
     _LIBRARY.tirexDataProviderGetAll(providers, num_providers)
     providers_iterable: Iterable[_ProviderInfo] = cast(
         Iterable[_ProviderInfo], providers
@@ -702,7 +691,7 @@ def measure_infos() -> Mapping[Measure, MeasureInfo]:
     return measure_infos
 
 
-def _parse_results(result: Pointer[_Result]) -> Mapping[Measure, ResultEntry]:
+def _parse_results(result: "Pointer[_Result]") -> Mapping[Measure, ResultEntry]:
     num_entries_pointer = pointer(c_size_t())
     error_int = _LIBRARY.tirexResultEntryNum(result, num_entries_pointer)
     _handle_error(error_int)
@@ -722,7 +711,7 @@ def _parse_results(result: Pointer[_Result]) -> Mapping[Measure, ResultEntry]:
 
 def _prepare_measure_configurations(
     measures: Iterable[Measure],
-) -> Array[_MeasureConfiguration]:
+) -> "Array[_MeasureConfiguration]":
     configs = [
         _MeasureConfiguration(measure.value, Aggregation.NO.value)
         for measure in measures
@@ -753,8 +742,8 @@ def fetch_info(
 
 @dataclass(frozen=True)
 class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEntry]):
-    _fetch_info_result: Pointer[_Result]
-    _tracking_handle: Pointer[_TrackingHandle]
+    _fetch_info_result: "Pointer[_Result]"
+    _tracking_handle: "Pointer[_TrackingHandle]"
     _python_info: Mapping[Measure, ResultEntry]
     _system_name: Optional[str]
     _system_description: Optional[str]
@@ -853,7 +842,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
     def __eq__(self, other) -> bool:
         return NotImplemented
 
-    def _export(self, result: Pointer[_Result]) -> None:
+    def _export(self, result: "Pointer[_Result]") -> None:
         if self._export_file_path is None:
             return
         elif self._export_format is None:
@@ -863,7 +852,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         else:
             raise ValueError("Invalid export format.")
 
-    def _export_ir_metadata(self, result: Pointer[_Result]) -> None:
+    def _export_ir_metadata(self, result: "Pointer[_Result]") -> None:
         if self._export_file_path is None:
             return
 
