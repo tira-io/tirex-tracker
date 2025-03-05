@@ -11,6 +11,7 @@ plugins {
     id("com.palantir.git-version")
     id("com.github.gmazzo.buildconfig")
     id("org.jetbrains.dokka")
+    id("org.jreleaser")
 }
 
 val gitVersion: Closure<String> by extra
@@ -103,6 +104,41 @@ buildConfig {
     className("Build")   // forces the class name. Defaults to 'BuildConfig'
     packageName("io.tira.tirex.tracker")  // forces the package. Defaults to '${project.group}'
     buildConfigField("VERSION", provider(gitVersion))
+}
+
+jreleaser {
+    project {
+        name = "tirex-tracker"
+        description = "Automatic resource and metadata tracking for information retrieval experiments."
+        version = gitVersion()
+        author("Jan Heinrich Merker")
+        author("Tim Hagen")
+        author("Maik Fröbe")
+        license = "MIT License"
+        links {
+            homepage = "https://github.com/tira-io/tirex-tracker"
+            bugTracker = "https://github.com/tira-io/tirex-tracker/issues"
+            contact = "https://webis.de"
+            license = "https://opensource.org/license/MIT"
+        }
+        inceptionYear = "2025"
+    }
+
+    release {
+        github {
+            repoOwner = "tira-io"
+            overwrite = true
+        }
+    }
+
+    distributions {
+        register("app") {
+            artifact {
+                // TODO
+                // setPath("build/distributions/{{distributionName}}-{{projectVersion}}.zip")
+            }
+        }
+    }
 }
 
 publishing {
