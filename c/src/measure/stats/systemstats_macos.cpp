@@ -8,8 +8,8 @@
 #include "systemstats.hpp"
 
 #include "../../logging.hpp"
-#include "./macos/ioreport.h"
-#include "./macos/sysctl.hpp"
+#include "./details/macos/ioreport.h"
+#include "./details/macos/sysctl.hpp"
 
 #include <string>
 

@@ -7,14 +7,14 @@
 
 using namespace std::literals;
 
-using tirex::GPUStats;
+using tirex::NVMLStats;
 using tirex::Stats;
 
-const char* GPUStats::version = "nvml v." NVML_API_VERSION_STR;
-const std::set<tirexMeasure> GPUStats::measures{TIREX_GPU_SUPPORTED,		   TIREX_GPU_MODEL_NAME,
-												TIREX_GPU_NUM_CORES,		   TIREX_GPU_USED_PROCESS_PERCENT,
-												TIREX_GPU_USED_SYSTEM_PERCENT, TIREX_GPU_VRAM_USED_PROCESS_MB,
-												TIREX_GPU_VRAM_USED_SYSTEM_MB, TIREX_GPU_VRAM_AVAILABLE_SYSTEM_MB};
+const char* NVMLStats::version = "nvml v." NVML_API_VERSION_STR;
+const std::set<tirexMeasure> NVMLStats::measures{TIREX_GPU_SUPPORTED,			TIREX_GPU_MODEL_NAME,
+												 TIREX_GPU_NUM_CORES,			TIREX_GPU_USED_PROCESS_PERCENT,
+												 TIREX_GPU_USED_SYSTEM_PERCENT, TIREX_GPU_VRAM_USED_PROCESS_MB,
+												 TIREX_GPU_VRAM_USED_SYSTEM_MB, TIREX_GPU_VRAM_AVAILABLE_SYSTEM_MB};
 
 struct NVMLLib final : tirex::utils::SharedLib {
 public:
@@ -100,7 +100,7 @@ static bool initNVML() {
 	return false;
 }
 
-GPUStats::GPUStats() : nvml({.supported = initNVML(), .devices = {}}) {
+NVMLStats::NVMLStats() : nvml({.supported = initNVML(), .devices = {}}) {
 	if (!nvml.supported)
 		return;
 	unsigned int count;
@@ -128,7 +128,7 @@ GPUStats::GPUStats() : nvml({.supported = initNVML(), .devices = {}}) {
 	}
 }
 
-void GPUStats::step() {
+void NVMLStats::step() {
 	if (!nvml.supported)
 		return;
 	nvmlMemory_t memory;
@@ -150,7 +150,7 @@ void GPUStats::step() {
 	}
 }
 
-Stats GPUStats::getStats() {
+Stats NVMLStats::getStats() {
 	/** \todo: filter by requested metrics */
 	if (nvml.supported) {
 		return {
@@ -163,7 +163,7 @@ Stats GPUStats::getStats() {
 		return {};
 	}
 }
-Stats GPUStats::getInfo() {
+Stats NVMLStats::getInfo() {
 	/** \todo: filter by requested metrics */
 	if (nvml.supported) {
 		std::string modelName;
