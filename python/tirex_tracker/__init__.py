@@ -598,10 +598,7 @@ def _find_library() -> Path:
         path = "tirex_tracker_full.dll"
     else:
         raise ValueError("Unsupported platform.")
-
-    import tirex_tracker
-
-    return files(tirex_tracker) / path
+    return files(__name__) / path
 
 
 def _load_library() -> _TirexTrackerLibrary:
