@@ -1,13 +1,16 @@
 import groovy.lang.Closure
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `java-library`
     `maven-publish`
+    jacoco
     kotlin("jvm")
     kotlin("plugin.serialization")
     id("com.palantir.git-version")
     id("com.github.gmazzo.buildconfig")
+    id("org.jetbrains.dokka")
 }
 
 val gitVersion: Closure<String> by extra
@@ -29,19 +32,44 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.12.0")
 }
 
-val javaLanguageVersion = JavaLanguageVersion.of(8)
-val javaLanguageVersionTest = JavaLanguageVersion.of(17)
+val javaLanguageVersionCompile = JavaLanguageVersion.of(8)
+
+@Suppress("UnstableApiUsage")
+val javaLanguageVersionTest = JavaLanguageVersion.current().also { maxOf(it, javaLanguageVersionCompile) }
 
 kotlin {
     jvmToolchain {
-        languageVersion = javaLanguageVersion
+        languageVersion = javaLanguageVersionCompile
     }
 }
 
+java {
+    withSourcesJar()
+}
+
+jacoco {
+    toolVersion = "0.8.10"
+}
+
 tasks {
+    jacocoTestReport {
+        reports {
+            xml.required = true
+            csv.required = true
+            html.required = true
+        }
+    }
+
     test {
         javaLauncher = project.javaToolchains.launcherFor {
             languageVersion = javaLanguageVersionTest
+        }
+
+        finalizedBy(jacocoTestReport)
+
+        testLogging {
+            exceptionFormat = TestExceptionFormat.FULL
+            events("passed", "failed", "skipped")
         }
     }
 
@@ -58,8 +86,16 @@ tasks {
         }
     }
 
-    withType<KotlinCompile>().configureEach {
-//        dependsOn(generateBuildConstants)
+    register<Jar>("htmlDocsJar") {
+        dependsOn(dokkaHtml)
+        from(dokkaHtml.flatMap { it.outputDirectory })
+        archiveClassifier.set("html-docs")
+    }
+
+    register<Jar>("javadocJar") {
+        dependsOn(dokkaJavadoc)
+        from(dokkaJavadoc.flatMap { it.outputDirectory })
+        archiveClassifier.set("javadoc")
     }
 }
 
@@ -80,17 +116,21 @@ publishing {
             }
         }
     }
+
     publications {
-        register<MavenPublication>("gpr") {
+        withType<MavenPublication> {
             groupId = "io.tira"
             artifactId = "tirex-tracker"
             version = gitVersion()
 
             from(components["java"])
 
+            artifact(tasks["htmlDocsJar"])
+            artifact(tasks["javadocJar"])
+
             pom {
                 name = "tirex-tracker"
-                description = "Automatic resource and metadata tracking for IR experiments."
+                description = "Automatic resource and metadata tracking for information retrieval experiments."
                 url = "https://github.com/tira-io/tirex-tracker"
                 licenses {
                     license {
@@ -119,5 +159,7 @@ publishing {
                 }
             }
         }
+
+        register<MavenPublication>("library")
     }
 }

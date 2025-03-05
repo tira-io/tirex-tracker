@@ -3,7 +3,7 @@
  * @brief Implements macos specific code of the systemstats.hpp header.
  */
 
-#if defined(_WINDOWS)
+#if defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
 
 #include "systemstats.hpp"
 
