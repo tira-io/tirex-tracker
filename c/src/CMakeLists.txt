@@ -66,6 +66,7 @@ if (NOT (UNIX AND APPLE)) # CPPJouls does not support macos right now
 endif()
 
 # LibGit
+set(USE_REGEX "builtin")
 option(USE_HTTPS OFF)
 option(BUILD_CLI OFF) # Do not build the Git CLI
 option(BUILD_TESTS OFF)
