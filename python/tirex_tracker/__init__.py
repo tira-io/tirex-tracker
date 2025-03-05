@@ -891,8 +891,7 @@ class TrackingHandle(
         )
 
         # Parse the initial ir_metadata.
-        with export_file_path.open("rb") as file:
-            buffer = file.read()
+        buffer = Path(export_file_path).read_text()
             if buffer.startswith(b"ir_metadata.start\n"):
                 buffer = buffer[len(b"ir_metadata.start\n") :]
             if buffer.endswith(b"ir_metadata.end\n"):
