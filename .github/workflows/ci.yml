@@ -404,6 +404,24 @@ jobs:
         with:
           name: jvm-jar
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*.jar
+      - name: 📤 Upload JVM sources JAR
+        if: matrix.java == '21'
+        uses: actions/upload-artifact@v4
+        with:
+          name: jvm-sources-jar
+          path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*-sources.jar
+      - name: 📤 Upload JVM Javadoc JAR
+        if: matrix.java == '21'
+        uses: actions/upload-artifact@v4
+        with:
+          name: jvm-javadoc-jar
+          path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*-javadoc.jar
+      - name: 📤 Upload JVM HTML docs JAR
+        if: matrix.java == '21'
+        uses: actions/upload-artifact@v4
+        with:
+          name: jvm-html-docs-jar
+          path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*-html-docs.jar
       - name: 🚀 Publish JVM library to GitHub Packages
         if: matrix.java == '21'
         env:
@@ -761,6 +779,21 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: jvm-jar
+          path: tmp/jvm/
+      - name: 📥 Download JVM sources JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: jvm-sources-jar
+          path: tmp/jvm/
+      - name: 📥 Download JVM Javadoc JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: jvm-javadoc-jar
+          path: tmp/jvm/
+      - name: 📥 Download JVM HTML docs JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: jvm-html-docs-jar
           path: tmp/jvm/
       - name: 🚀 Create GitHub release
         uses: softprops/action-gh-release@v2
