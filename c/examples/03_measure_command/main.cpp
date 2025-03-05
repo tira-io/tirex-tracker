@@ -7,6 +7,7 @@
 #include <CLI/CLI.hpp>
 
 #include <cstdlib>
+#include <fstream>
 #include <future>
 #include <iostream>
 #include <ranges>
@@ -99,8 +100,13 @@ static void runMeasureCmd(const MeasureCmdArgs& args) {
 	}
 	measures.emplace_back(tirexNullConf);
 
+	// Fetch info
+	tirexResult* info;
+	tirexError err = tirexFetchInfo(measures.data(), &info);
+	assert(err == TIREX_SUCCESS);
+
 	tirexMeasureHandle* handle;
-	tirexError err = tirexStartTracking(measures.data(), args.pollIntervalMs, &handle);
+	err = tirexStartTracking(measures.data(), args.pollIntervalMs, &handle);
 	assert(err == TIREX_SUCCESS);
 
 	// Run the command
@@ -112,8 +118,11 @@ static void runMeasureCmd(const MeasureCmdArgs& args) {
 	assert(err == TIREX_SUCCESS);
 
 	/** \todo Maybe add the exit code as a stat. **/
-	std::cout << "\n== RESULTS ==" << std::endl;
-	args.getFormatter()(std::cout, result);
+	if (args.outfile) {
+		std::ofstream stream{*args.outfile};
+		args.getFormatter()(stream, info, result);
+	} else
+		args.getFormatter()(std::cout, info, result);
 	tirexResultFree(result);
 }
 
@@ -138,6 +147,7 @@ int main(int argc, char* argv[]) {
 			->default_val(100);
 	app.add_flag("--pedantic", measureArgs.pedantic, "If set, measure will stop execution on errors")
 			->default_val(false); /** \todo support pedantic **/
+	app.add_option("-o", measureArgs.outfile)->description("Sets the file to write the result measurements into.");
 
 	app.callback([&measureArgs]() { runMeasureCmd(measureArgs); });
 

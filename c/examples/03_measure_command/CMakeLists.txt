@@ -6,7 +6,7 @@ add_executable(measure
 )
 
 target_compile_features(measure PUBLIC cxx_std_20)
-target_link_libraries(measure tirex_tracker_static)
+target_link_libraries(measure tirex_tracker_full_static)
 
 option(TIREX_TRACKER_BUILD_CMD_DEB "Build the debian package for the measure command" OFF)
 

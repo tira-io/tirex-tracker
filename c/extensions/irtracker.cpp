@@ -226,15 +226,15 @@ static void writeResources(const ResultMap& results, std::ostream& stream) {
 		stream << "    used system: " << it->second << '\n';
 }
 
-tirexError tirexResultExportIrMetadata(const tirexResult* info, const tirexResult* result, const char* filepath) {
+// Not static because internally the measurecommand calls this. Not pretty :(
+tirexError writeIrMetadata(const tirexResult* info, const tirexResult* result, std::ostream& stream) {
 	std::string version = "0.2";
 	ResultMap map;
-	asMap(map, info, versionFilter(version));
-	asMap(map, result, versionFilter(version));
+	if (info != nullptr)
+		asMap(map, info, versionFilter(version));
+	if (result != nullptr)
+		asMap(map, result, versionFilter(version));
 
-	std::ofstream stream(filepath);
-	if (!stream)
-		return tirexError::TIREX_INVALID_ARGUMENT;
 	stream << "ir_metadata.start\n";
 	stream << "schema version: " << version << '\n';
 	writePlatform(map, stream);
@@ -242,4 +242,11 @@ tirexError tirexResultExportIrMetadata(const tirexResult* info, const tirexResul
 	writeResources(map, stream);
 	stream << "ir_metadata.end\n";
 	return tirexError::TIREX_SUCCESS;
+}
+
+tirexError tirexResultExportIrMetadata(const tirexResult* info, const tirexResult* result, const char* filepath) {
+	std::ofstream stream(filepath);
+	if (!stream)
+		return tirexError::TIREX_INVALID_ARGUMENT;
+	return writeIrMetadata(info, result, stream);
 }

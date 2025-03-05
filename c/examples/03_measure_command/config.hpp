@@ -8,6 +8,7 @@
 
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -39,11 +40,13 @@ namespace tirex {
 		std::vector<std::string> statproviders;
 		size_t pollIntervalMs;
 		bool pedantic;
+		std::optional<std::string> outfile;
 
 		const ResultFormatter& getFormatter() const {
 			static const std::map<std::string, ResultFormatter> formatters{
 					{"simple", simpleFormatter},
 					{"json", jsonFormatter},
+					{"irmetadata", irmetadataFormatter},
 			};
 			return formatters.at(formatter);
 		}
