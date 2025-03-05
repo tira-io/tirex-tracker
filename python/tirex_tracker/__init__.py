@@ -1,5 +1,5 @@
 from collections import defaultdict
-from contextlib import redirect_stdout, AbstractContextManager
+from contextlib import redirect_stdout
 from ctypes import (
     cdll,
     CDLL,
@@ -46,6 +46,7 @@ from typing import (
     Union,
     MutableMapping,
     Tuple,
+    ContextManager,
 )
 
 from IPython import get_ipython
@@ -762,7 +763,7 @@ def fetch_info(
 
 @dataclass(frozen=True)
 class TrackingHandle(
-    AbstractContextManager["TrackingHandle", None], Mapping[Measure, ResultEntry]
+    ContextManager["TrackingHandle"], Mapping[Measure, ResultEntry]
 ):
     _fetch_info_result: Pointer[_Result]
     _tracking_handle: Pointer[_TrackingHandle]
