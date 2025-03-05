@@ -343,8 +343,16 @@ jobs:
           path: jvm/library/src/main/resources/
       - name: 🧪 Test and check with Gradle
         run: jvm/gradlew --project-dir jvm/ check
+      - name: 📤 Upload coverage to Codecov
+        if: matrix.java == '21'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: jvm/library/build/reports/jacoco/test/jacocoTestReport.xml
   jvm-publish:
-    name: 🚀 Publish JVM library to GitHub Packages
+    name: 🚀 Publish JVM library
+    permissions:
+      packages: write
     strategy:
       fail-fast: false
       matrix:
@@ -425,9 +433,18 @@ jobs:
       - name: 🚀 Publish JVM library to GitHub Packages
         if: matrix.java == '21'
         env:
-          USERNAME: ${{ github.actor }}
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_USERNAME: ${{ github.actor }}
+          GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         run: jvm/gradlew --project-dir jvm/ publishAllPublicationsToGitHubPackagesRepository
+      - name: 🚀 Publish JVM library to Maven Central
+        if: matrix.java == '21'
+        env:
+          JRELEASER_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.GPG_PUBLIC_KEY }}
+          JRELEASER_GPG_SECRET_KEY: ${{ secrets.GPG_SECRET_KEY }}
+          JRELEASER_MAVENCENTRAL_USERNAME: ${{ secrets.MAVENCENTRAL_USERNAME }}
+          JRELEASER_MAVENCENTRAL_PASSWORD: ${{ secrets.MAVENCENTRAL_PASSWORD }}
+        run: jvm/gradlew --project-dir jvm/ jreleaserDeploy
   python-build:
     name: 🏗️ Build Python wheels
     strategy:
@@ -683,7 +700,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage.xml
   python-publish:
-    name: 🚀 Publish Python wheels to PyPI
+    name: 🚀 Publish Python wheels
     if: github.event_name == 'push' && endsWith(github.event.base_ref, 'master') && startsWith(github.ref, 'refs/tags')
     needs:
       - c-build-library
