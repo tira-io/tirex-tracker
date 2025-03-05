@@ -1,9 +1,11 @@
 import groovy.lang.Closure
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `java-library`
     `maven-publish`
+    jacoco
     kotlin("jvm")
     kotlin("plugin.serialization")
     id("com.palantir.git-version")
@@ -45,10 +47,29 @@ java {
     withSourcesJar()
 }
 
+jacoco {
+    toolVersion = "0.8.10"
+}
+
 tasks {
+    jacocoTestReport {
+        reports {
+            xml.required = true
+            csv.required = true
+            html.required = true
+        }
+    }
+
     test {
         javaLauncher = project.javaToolchains.launcherFor {
             languageVersion = javaLanguageVersionTest
+        }
+
+        finalizedBy(jacocoTestReport)
+
+        testLogging {
+            exceptionFormat = TestExceptionFormat.FULL
+            events("passed", "failed", "skipped")
         }
     }
 
@@ -63,10 +84,6 @@ tasks {
         javaCompiler = project.javaToolchains.compilerFor {
             languageVersion = javaLanguageVersionTest
         }
-    }
-
-    withType<KotlinCompile>().configureEach {
-//        dependsOn(generateBuildConstants)
     }
 
     register<Jar>("htmlDocsJar") {
