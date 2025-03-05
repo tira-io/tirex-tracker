@@ -43,7 +43,6 @@ kotlin {
 
 java {
     withSourcesJar()
-    withJavadocJar()
 }
 
 tasks {
@@ -70,13 +69,13 @@ tasks {
 //        dependsOn(generateBuildConstants)
     }
 
-    register<Jar>("dokkaHtmlJar") {
+    register<Jar>("htmlDocsJar") {
         dependsOn(dokkaHtml)
         from(dokkaHtml.flatMap { it.outputDirectory })
         archiveClassifier.set("html-docs")
     }
 
-    register<Jar>("dokkaJavadocJar") {
+    register<Jar>("javadocJar") {
         dependsOn(dokkaJavadoc)
         from(dokkaJavadoc.flatMap { it.outputDirectory })
         archiveClassifier.set("javadoc")
@@ -109,8 +108,8 @@ publishing {
 
             from(components["java"])
 
-            artifact(tasks["dokkaHtmlJar"])
-            artifact(tasks["dokkaJavadocJar"])
+            artifact(tasks["htmlDocsJar"])
+            artifact(tasks["javadocJar"])
 
             pom {
                 name = "tirex-tracker"
