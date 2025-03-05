@@ -351,6 +351,8 @@ jobs:
           files: jvm/library/build/reports/jacoco/test/jacocoTestReport.xml
   jvm-publish:
     name: 🚀 Publish JVM library
+    permissions:
+      packages: write
     strategy:
       fail-fast: false
       matrix:
@@ -428,6 +430,12 @@ jobs:
         with:
           name: jvm-html-docs-jar
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*-html-docs.jar
+      - name: 🚀 Publish JVM library to GitHub Packages
+        if: matrix.java == '21'
+        env:
+          GITHUB_USERNAME: ${{ github.actor }}
+          GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        run: jvm/gradlew --project-dir jvm/ publishAllPublicationsToGitHubPackagesRepository
       - name: 🚀 Publish JVM library to Maven Central
         if: matrix.java == '21'
         env:
