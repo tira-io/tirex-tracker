@@ -226,6 +226,10 @@ jreleaser {
                     url = "https://central.sonatype.com/api/v1/publisher"
                     stagingRepository("build/staging-deploy")
                     applyMavenCentralRules = true
+
+                    // Wait up to 60 * 30s = 30min for Maven Central to finalize the uploaded package.
+                    maxRetries = 60
+                    retryDelay = 30
                 }
             }
         }
