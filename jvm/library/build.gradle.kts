@@ -8,6 +8,7 @@ plugins {
     kotlin("plugin.serialization")
     id("com.palantir.git-version")
     id("com.github.gmazzo.buildconfig")
+    id("org.jetbrains.dokka")
 }
 
 val gitVersion: Closure<String> by extra
@@ -68,6 +69,18 @@ tasks {
     withType<KotlinCompile>().configureEach {
 //        dependsOn(generateBuildConstants)
     }
+
+    register<Jar>("dokkaHtmlJar") {
+        dependsOn(dokkaHtml)
+        from(dokkaHtml.flatMap { it.outputDirectory })
+        archiveClassifier.set("html-docs")
+    }
+
+    register<Jar>("dokkaJavadocJar") {
+        dependsOn(dokkaJavadoc)
+        from(dokkaJavadoc.flatMap { it.outputDirectory })
+        archiveClassifier.set("javadoc")
+    }
 }
 
 buildConfig {
@@ -87,13 +100,17 @@ publishing {
             }
         }
     }
+
     publications {
-        register<MavenPublication>("library") {
+        withType<MavenPublication> {
             groupId = "io.tira"
             artifactId = "tirex-tracker"
             version = gitVersion()
 
             from(components["java"])
+
+            artifact(tasks["dokkaHtmlJar"])
+            artifact(tasks["dokkaJavadocJar"])
 
             pom {
                 name = "tirex-tracker"
@@ -126,5 +143,7 @@ publishing {
                 }
             }
         }
+
+        register<MavenPublication>("library")
     }
 }
