@@ -770,7 +770,7 @@ class TrackingHandle(
     _python_info: Mapping[Measure, ResultEntry]
     _system_name: Optional[str]
     _system_description: Optional[str]
-    _export_file_path: Optional[PathLike[str]]
+    _export_file_path: Optional[PathLike]
     _export_format: Optional[ExportFormat]
     results: MutableMapping[Measure, ResultEntry]
 
@@ -782,7 +782,7 @@ class TrackingHandle(
         poll_intervall_ms: int = -1,
         system_name: Optional[str] = None,
         system_description: Optional[str] = None,
-        export_file_path: Optional[PathLike[str]] = None,
+        export_file_path: Optional[PathLike] = None,
         export_format: Optional[ExportFormat] = None,
     ) -> Self:
         # Get Python info first, and then strip Python measures from the list.
@@ -969,7 +969,7 @@ def start_tracking(
     poll_intervall_ms: int = -1,
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
-    export_file_path: Optional[PathLike[str]] = None,
+    export_file_path: Optional[PathLike] = None,
     export_format: Optional[ExportFormat] = None,
 ) -> TrackingHandle:
     return TrackingHandle.start(
@@ -994,7 +994,7 @@ def tracking(
     poll_intervall_ms: int = -1,
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
-    export_file_path: Optional[PathLike[str]] = None,
+    export_file_path: Optional[PathLike] = None,
     export_format: Optional[ExportFormat] = None,
 ) -> TrackingHandle:
     return TrackingHandle.start(
@@ -1014,7 +1014,7 @@ def track(
     poll_intervall_ms: int = -1,
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
-    export_file_path: Optional[PathLike[str]] = None,
+    export_file_path: Optional[PathLike] = None,
     export_format: Optional[ExportFormat] = None,
 ) -> Mapping[Measure, ResultEntry]:
     with tracking(
@@ -1040,7 +1040,7 @@ def tracked(
     poll_intervall_ms: int = ...,
     system_name: Optional[str] = ...,
     system_description: Optional[str] = ...,
-    export_file_path: Optional[PathLike[str]] = ...,
+    export_file_path: Optional[PathLike] = ...,
     export_format: Optional[ExportFormat] = ...,
 ) -> Callable[[Callable[P, T]], Union[Callable[P, T], ResultsAccessor]]:
     pass
@@ -1052,7 +1052,7 @@ def tracked(
     poll_intervall_ms: int = -1,
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
-    export_file_path: Optional[PathLike[str]] = None,
+    export_file_path: Optional[PathLike] = None,
     export_format: Optional[ExportFormat] = None,
 ) -> Union[
     Union[Callable[P, T], ResultsAccessor],
