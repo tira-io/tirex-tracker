@@ -314,10 +314,10 @@ To build the classes, run:
 jvm/gradlew --project-dir jvm/ build
 ```
 
-Tests for Java and Kotlin usage can be run by:
+Tests and checks for Java and Kotlin usage can be run by:
 
 ```shell
-jvm/gradlew --project-dir jvm/ test
+jvm/gradlew --project-dir jvm/ check
 ```
 
 <!-- TODO: How to build the Javadoc? -->
