@@ -17,6 +17,9 @@ plugins {
 
 val gitVersion: Closure<String> by extra
 
+group = "io.tira"
+version = gitVersion()
+
 repositories {
     mavenCentral()
 }
@@ -121,9 +124,9 @@ publishing {
 
     publications {
         withType<MavenPublication> {
-            groupId = "io.tira"
+            groupId = project.group.toString()
             artifactId = "tirex-tracker"
-            version = gitVersion()
+            version = project.version.toString()
 
             from(components["java"])
 
@@ -162,44 +165,17 @@ publishing {
             }
         }
 
-        register<MavenPublication>("library")
+        register<MavenPublication>("maven")
+    }
+
+    repositories {
+        maven {
+            url = layout.buildDirectory.dir("staging-deploy").get().asFile.toURI()
+        }
     }
 }
 
 jreleaser {
-    project {
-        name = "tirex-tracker"
-        description = "Automatic resource and metadata tracking for information retrieval experiments."
-        version = gitVersion()
-        author("Jan Heinrich Merker")
-        author("Tim Hagen")
-        author("Maik Fröbe")
-        license = "MIT License"
-        links {
-            homepage = "https://github.com/tira-io/tirex-tracker"
-            bugTracker = "https://github.com/tira-io/tirex-tracker/issues"
-            contact = "https://webis.de"
-            license = "https://opensource.org/license/MIT"
-        }
-        inceptionYear = "2025"
-    }
-
-    release {
-        github {
-            repoOwner = "tira-io"
-            overwrite = true
-        }
-    }
-
-    distributions {
-        register("app") {
-            artifact {
-                // TODO
-                // setPath("build/distributions/{{distributionName}}-{{projectVersion}}.zip")
-            }
-        }
-    }
-
     signing {
         active.set(Active.ALWAYS)
         armored = true
