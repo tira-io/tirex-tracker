@@ -288,11 +288,13 @@ jobs:
           - windows-2022
           # - windows-2025 # FIXME: Re-enable
         exclude:
-          - java: "8"  # FIXME: Gradle seems to insist on loading Java 17 on Windows, weirdly.
+          - java: "8" # FIXME: Gradle seems to insist on loading Java 17 on Windows, weirdly.
             runs-on: windows-2022
-          - java: "11"  # FIXME: Gradle seems to insist on loading Java 17 on Windows, weirdly.
+          - java: "11" # FIXME: Gradle seems to insist on loading Java 17 on Windows, weirdly.
             runs-on: windows-2022
-          - java: "21"  # FIXME: Gradle seems to insist on loading Java 17 on Windows, weirdly.
+          - java: "17" # FIXME: Linking errors.
+            runs-on: windows-2022
+          - java: "21" # FIXME: Gradle seems to insist on loading Java 17 on Windows, weirdly.
             runs-on: windows-2022
     runs-on: ${{ matrix.runs-on }}
     needs:
@@ -601,9 +603,17 @@ jobs:
           - windows-2022
           # - windows-2025 # FIXME: Re-enable
         exclude:
-          - python: "3.9" # FIXME: Fails with: ERROR python\test\test_tirex_tracker.py - AttributeError: function 'tirexResultEntryGetByIndex' not found
+          - python: "3.8" # FIXME: Linking errors, e.g., function 'tirexResultEntryGetByIndex' not found.
             runs-on: windows-2022
-          - python: "3.10" # FIXME: Fails with: ERROR python\test\test_tirex_tracker.py - AttributeError: function 'tirexResultEntryGetByIndex' not found
+          - python: "3.9" # FIXME: Linking errors, e.g., function 'tirexResultEntryGetByIndex' not found.
+            runs-on: windows-2022
+          - python: "3.10" # FIXME: Linking errors, e.g., function 'tirexResultEntryGetByIndex' not found.
+            runs-on: windows-2022
+          - python: "3.11" # FIXME: Linking errors, e.g., function 'tirexResultEntryGetByIndex' not found.
+            runs-on: windows-2022
+          - python: "3.12" # FIXME: Linking errors, e.g., function 'tirexResultEntryGetByIndex' not found.
+            runs-on: windows-2022
+          - python: "3.13" # FIXME: Linking errors, e.g., function 'tirexResultEntryGetByIndex' not found.
             runs-on: windows-2022
     runs-on: ${{ matrix.runs-on }}
     needs:
