@@ -891,20 +891,20 @@ class TrackingHandle(
         )
 
         # Parse the initial ir_metadata.
-        buffer = Path(export_file_path).read_text()
-            if buffer.startswith(b"ir_metadata.start\n"):
-                buffer = buffer[len(b"ir_metadata.start\n") :]
-            if buffer.endswith(b"ir_metadata.end\n"):
-                buffer = buffer[: -len(b"ir_metadata.end\n")]
+        buffer = Path(export_file_path).read_bytes()
+        if buffer.startswith(b"ir_metadata.start\n"):
+            buffer = buffer[len(b"ir_metadata.start\n") :]
+        if buffer.endswith(b"ir_metadata.end\n"):
+            buffer = buffer[: -len(b"ir_metadata.end\n")]
 
-            # FIXME: There's a bug in the YAML output format that we work around here:
-            from re import sub
+        # FIXME: There's a bug in the YAML output format that we work around here:
+        from re import sub
 
-            buffer = sub(rb"caches: (.*),", rb"caches: {\1}", buffer)
+        buffer = sub(rb"caches: (.*),", rb"caches: {\1}", buffer)
 
-            with BytesIO(buffer) as yaml_file:
-                yaml = YAML(typ="safe")
-                tmp_ir_metadata = yaml.load(yaml_file)
+        with BytesIO(buffer) as yaml_file:
+            yaml = YAML(typ="safe")
+            tmp_ir_metadata = yaml.load(yaml_file)
 
         ir_metadata = _recursive_defaultdict()
 
