@@ -62,7 +62,7 @@ std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
 	return {0, data[processor].MaxMhz};
 }
 #elif __APPLE__
-#include "macos/sysctl.hpp"
+#include "./details/macos/sysctl.hpp"
 #include <unistd.h>
 
 std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
