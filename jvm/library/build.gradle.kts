@@ -1,6 +1,6 @@
 import groovy.lang.Closure
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jreleaser.gradle.plugin.tasks.AbstractJReleaserTask
 import org.jreleaser.model.Active
 
 plugins {
@@ -25,8 +25,7 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation(kotlin("stdlib-jdk8"))
     implementation("net.java.dev.jna:jna-platform:5.16.0")
     api("net.java.dev.jna:jna:5.16.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
@@ -94,13 +93,17 @@ tasks {
     register<Jar>("htmlDocsJar") {
         dependsOn(dokkaHtml)
         from(dokkaHtml.flatMap { it.outputDirectory })
-        archiveClassifier.set("html-docs")
+        archiveClassifier = "html-docs"
     }
 
     register<Jar>("javadocJar") {
         dependsOn(dokkaJavadoc)
         from(dokkaJavadoc.flatMap { it.outputDirectory })
-        archiveClassifier.set("javadoc")
+        archiveClassifier = "javadoc"
+    }
+
+    withType<AbstractJReleaserTask> {
+        dependsOn("publishAllPublicationsToJReleaserRepository")
     }
 }
 
@@ -119,6 +122,11 @@ publishing {
                 username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
                 password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
             }
+        }
+
+        maven {
+            name = "JReleaser"
+            url = layout.buildDirectory.dir("staging-deploy").get().asFile.toURI()
         }
     }
 
@@ -167,27 +175,57 @@ publishing {
 
         register<MavenPublication>("maven")
     }
-
-    repositories {
-        maven {
-            url = layout.buildDirectory.dir("staging-deploy").get().asFile.toURI()
-        }
-    }
 }
 
 jreleaser {
+    strict = true
+    gitRootSearch = true
+
+    project {
+        name = "tirex-tracker"
+        version = project.version.get()
+        description = "Automatic resource and metadata tracking for information retrieval experiments."
+        license = "MIT License"
+        links {
+            homepage = "https://github.com/tira-io/tirex-tracker"
+            license = "https://opensource.org/license/MIT"
+            bugTracker = "https://github.com/tira-io/tirex-tracker/issues"
+            contact = "https://webis.de/people"
+            vcsBrowser = "https://github.com/tira-io/tirex-tracker"
+            contribute = "https://github.com/tira-io/tirex-tracker"
+        }
+        languages {
+            java {
+                groupId = "io.tirex"
+                version = javaLanguageVersionCompile.asInt().toString()
+            }
+        }
+        inceptionYear = "2025"
+    }
+
+    environment {
+        variables = rootDir.resolve("jreleaser.yml")
+    }
+
     signing {
-        active.set(Active.ALWAYS)
+        active = Active.ALWAYS
         armored = true
+    }
+
+    release {
+        github {
+            enabled = false
+        }
     }
 
     deploy {
         maven {
             mavenCentral {
                 register("sonatype") {
-                    active.set(Active.ALWAYS)
-                    url.set("https://central.sonatype.com/api/v1/publisher")
-                    stagingRepository("target/staging-deploy")
+                    active = Active.ALWAYS
+                    url = "https://central.sonatype.com/api/v1/publisher"
+                    stagingRepository("build/staging-deploy")
+                    applyMavenCentralRules = true
                 }
             }
         }
