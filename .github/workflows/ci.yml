@@ -287,6 +287,9 @@ jobs:
           # - windows-2019 # FIXME: Re-enable
           - windows-2022
           # - windows-2025 # FIXME: Re-enable
+        exclude:
+          - java: "11"  # FIXME: Gradle seems to insist on loading Java 17 weirdly.
+            runs-on: windows-2022
     runs-on: ${{ matrix.runs-on }}
     needs:
       - c-build-library
@@ -328,8 +331,6 @@ jobs:
           name: c-library-windows
           path: jvm/library/src/main/resources/
       - name: 🧪 Test and check with Gradle
-        env:
-          JAVA_TEST_VERSION: ${{ matrix.java }}
         run: jvm/gradlew --project-dir jvm/ check
   jvm-publish:
     name: 🚀 Publish JVM library to GitHub Packages
