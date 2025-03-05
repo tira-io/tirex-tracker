@@ -479,7 +479,6 @@ def _get_python_info(
     if ipython is not None:
         tmp_dir = mkdtemp()
         tmp_dir_path = Path(tmp_dir)
-
         script_file_path = tmp_dir_path / "script.py"
         _add_python_result_entry(
             results=results,
@@ -487,19 +486,15 @@ def _get_python_info(
             measures=measures,
             value=str(script_file_path),
         )
-
         with redirect_stdout(None):
             ipython.magic(f"save -f {script_file_path} 1-9999")
-
-        with script_file_path.open("rt") as file:
-            script_file_contents = file.read()
+        script_file_contents = script_file_path.read_text()
         _add_python_result_entry(
             results=results,
             measure=Measure.PYTHON_SCRIPT_FILE_CONTENTS,
             measures=measures,
             value=script_file_contents,
         )
-
         notebook_file_path = tmp_dir_path / "notebook.ipynb"
         _add_python_result_entry(
             results=results,
@@ -507,11 +502,9 @@ def _get_python_info(
             measures=measures,
             value=str(notebook_file_path),
         )
-
         with redirect_stdout(None):
             ipython.magic(f"notebook {notebook_file_path}")
-        with notebook_file_path.open("rt") as file:
-            notebook_file_contents = file.read()
+        notebook_file_contents = notebook_file_path.read_text()
         _add_python_result_entry(
             results=results,
             measure=Measure.PYTHON_NOTEBOOK_FILE_CONTENTS,
@@ -527,16 +520,13 @@ def _get_python_info(
             measures=measures,
             value=str(script_file_path),
         )
-
-        with script_file_path.open("rt") as file:
-            script_file_contents = file.read()
+        script_file_contents = script_file_path.read_text()
         _add_python_result_entry(
             results=results,
             measure=Measure.PYTHON_SCRIPT_FILE_CONTENTS,
             measures=measures,
             value=script_file_contents,
         )
-
         _add_python_result_entry(
             results=results,
             measure=Measure.PYTHON_NOTEBOOK_FILE_PATH,
@@ -762,9 +752,7 @@ def fetch_info(
 
 
 @dataclass(frozen=True)
-class TrackingHandle(
-    ContextManager["TrackingHandle"], Mapping[Measure, ResultEntry]
-):
+class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEntry]):
     _fetch_info_result: Pointer[_Result]
     _tracking_handle: Pointer[_TrackingHandle]
     _python_info: Mapping[Measure, ResultEntry]
