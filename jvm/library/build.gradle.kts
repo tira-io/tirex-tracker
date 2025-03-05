@@ -1,6 +1,7 @@
 import groovy.lang.Closure
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jreleaser.model.Active
 
 plugins {
     `java-library`
@@ -106,41 +107,6 @@ buildConfig {
     buildConfigField("VERSION", provider(gitVersion))
 }
 
-jreleaser {
-    project {
-        name = "tirex-tracker"
-        description = "Automatic resource and metadata tracking for information retrieval experiments."
-        version = gitVersion()
-        author("Jan Heinrich Merker")
-        author("Tim Hagen")
-        author("Maik Fröbe")
-        license = "MIT License"
-        links {
-            homepage = "https://github.com/tira-io/tirex-tracker"
-            bugTracker = "https://github.com/tira-io/tirex-tracker/issues"
-            contact = "https://webis.de"
-            license = "https://opensource.org/license/MIT"
-        }
-        inceptionYear = "2025"
-    }
-
-    release {
-        github {
-            repoOwner = "tira-io"
-            overwrite = true
-        }
-    }
-
-    distributions {
-        register("app") {
-            artifact {
-                // TODO
-                // setPath("build/distributions/{{distributionName}}-{{projectVersion}}.zip")
-            }
-        }
-    }
-}
-
 publishing {
     repositories {
         maven {
@@ -197,5 +163,57 @@ publishing {
         }
 
         register<MavenPublication>("library")
+    }
+}
+
+jreleaser {
+    project {
+        name = "tirex-tracker"
+        description = "Automatic resource and metadata tracking for information retrieval experiments."
+        version = gitVersion()
+        author("Jan Heinrich Merker")
+        author("Tim Hagen")
+        author("Maik Fröbe")
+        license = "MIT License"
+        links {
+            homepage = "https://github.com/tira-io/tirex-tracker"
+            bugTracker = "https://github.com/tira-io/tirex-tracker/issues"
+            contact = "https://webis.de"
+            license = "https://opensource.org/license/MIT"
+        }
+        inceptionYear = "2025"
+    }
+
+    release {
+        github {
+            repoOwner = "tira-io"
+            overwrite = true
+        }
+    }
+
+    distributions {
+        register("app") {
+            artifact {
+                // TODO
+                // setPath("build/distributions/{{distributionName}}-{{projectVersion}}.zip")
+            }
+        }
+    }
+
+    signing {
+        active.set(Active.ALWAYS)
+        armored = true
+    }
+
+    deploy {
+        maven {
+            mavenCentral {
+                register("sonatype") {
+                    active.set(Active.ALWAYS)
+                    url.set("https://central.sonatype.com/api/v1/publisher")
+                    stagingRepository("target/staging-deploy")
+                }
+            }
+        }
     }
 }
