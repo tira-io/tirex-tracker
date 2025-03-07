@@ -45,6 +45,9 @@ target_compile_definitions(tirex_tracker_static PUBLIC TIREX_TRACKER_STATIC)
 if (LINUX)
 target_link_libraries(tirex_tracker PUBLIC dl)  # dlopen, dlclose, ...
 target_link_libraries(tirex_tracker_static PUBLIC dl)  # dlopen, dlclose, ...
+elseif(WIN32)
+target_link_libraries(tirex_tracker PUBLIC Powrprof)
+target_link_libraries(tirex_tracker_static PUBLIC Powrprof)
 endif()
 
 

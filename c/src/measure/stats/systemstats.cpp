@@ -40,8 +40,6 @@ std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
 #include <powrprof.h>
 #include <windows.h>
 
-#pragma comment(lib, "Powrprof.lib")
-
 std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
 	struct PROCESSOR_POWER_INFORMATION {
 		ULONG Number;
