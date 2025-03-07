@@ -173,8 +173,7 @@ You can now use the TIREx tracker JVM API in your [Java](#java-usage) or [Kotlin
 ### Java Usage
 
 > [!TIP]
-> An exhaustive documentation of the TIREx tracker's Java API can be found in its [Javadoc]( https://javadoc.io/doc/io.tira/tirex-tracker
-).
+> An exhaustive documentation of the TIREx tracker's Java API can be found in its [Javadoc](https://javadoc.io/doc/io.tira/tirex-tracker).
 
 For pure Java projects, the easiest way is to use the `track` function and pass your code to be tracked as a lambda like this:
 
