@@ -4,19 +4,21 @@
 #include "provider.hpp"
 
 #ifndef __APPLE__
-#include <cppJoules.hpp>
+#include <cppjoules/cppjoules.hpp>
 #else
-class EnergyTracker {
-public:
-	void start() {}
-	void stop() {}
-};
+namespace cppjoules {
+	class EnergyTracker {
+	public:
+		void start() {}
+		void stop() {}
+	};
+} // namespace cppjoules
 #endif
 
 namespace tirex {
 	class EnergyStats final : public StatsProvider {
 	private:
-		EnergyTracker tracker;
+		cppjoules::EnergyTracker tracker;
 
 	public:
 		EnergyStats();
