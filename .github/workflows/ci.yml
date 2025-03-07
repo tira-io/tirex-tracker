@@ -21,7 +21,7 @@ jobs:
           - ubuntu-24.04
           - macos-13
           - macos-14
-          # - macos-15 # FIXME: Re-enable
+          - macos-15
           - windows-2019
           - windows-2022
           - windows-2025
@@ -47,21 +47,7 @@ jobs:
             compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
           - runs-on: macos-15
             compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
-          - runs-on: windows-2019
-            compiler: gcc-13 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
-          - runs-on: windows-2019
-            compiler: gcc-14 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
-          - runs-on: windows-2019
-            compiler: clang-19.1.0 # Build fails.
-          - runs-on: windows-2022
-            compiler: gcc-13 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
-          - runs-on: windows-2022
-            compiler: gcc-14 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
-          - runs-on: windows-2025
-            compiler: gcc-13 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
-          - runs-on: windows-2025
-            compiler: gcc-14 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
-    runs-on: ${{ matrix.runs-on }}
+  runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
@@ -118,7 +104,7 @@ jobs:
           - ubuntu-24.04
           - macos-13
           - macos-14
-          # - macos-15 # FIXME: Re-enable
+          - macos-15
           - windows-2019
           - windows-2022
           - windows-2025
@@ -138,8 +124,8 @@ jobs:
             compiler: gcc-14 # Fails at: /Users/runner/work/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats_macos.cpp:11
           - runs-on: macos-13
             compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
-          - runs-on: macos-14
-            compiler: gcc-13 # Fails at: /Users/runner/work/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats_macos.cpp:8
+          #- runs-on: macos-14
+          #  compiler: gcc-13 # Fails at: /Users/runner/work/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats_macos.cpp:8
           - runs-on: macos-14
             compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
           - runs-on: macos-15
