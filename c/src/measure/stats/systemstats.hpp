@@ -80,7 +80,7 @@ namespace tirex {
 		void parseMemInfo(Utilization& utilization);
 		void parseStat(Utilization& utilization);
 		void parseStatm(pid_t pid, Utilization& utilization);
-#elif _WINDOWS
+#elif defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
 		FILETIME prevSysIdle, prevSysKernel, prevSysUser;
 		ULARGE_INTEGER lastCPU, lastSysCPU, lastUserCPU;
 		unsigned numProcessors;
