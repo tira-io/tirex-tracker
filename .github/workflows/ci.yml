@@ -35,17 +35,17 @@ jobs:
           - runs-on: ubuntu-22.04
             compiler: gcc-14 # Cannot be installed.
           - runs-on: macos-13
-            compiler: gcc-13 # Known issue with gcc and the GitHub macOS 13 runner
+            compiler: gcc-13 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
           - runs-on: macos-13
-            compiler: gcc-14 # Known issue with gcc and the GitHub macOS 13 runner
+            compiler: gcc-14 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
           - runs-on: macos-13
             compiler: clang-19.1.0 # setup-cpp fails to setup
           - runs-on: macos-14
-            compiler: gcc-13 # Known issue with gcc
+            compiler: gcc-13 # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
           - runs-on: macos-14
             compiler: clang-19.1.0 # setup-cpp fails to setup
           - runs-on: macos-15
-            compiler: clang-19.1.0 # Known issue with clang
+            compiler: clang-19.1.0 # Known issue with clang (https://github.com/llvm/llvm-project/issues/109549)
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
@@ -117,17 +117,17 @@ jobs:
           - runs-on: ubuntu-22.04
             compiler: gcc-14 # Cannot be installed.
           - runs-on: macos-13
-            compiler: gcc-13 # Known issue with gcc and the GitHub macOS 13 runner
+            compiler: gcc-13 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
           - runs-on: macos-13
-            compiler: gcc-14 # Known issue with gcc and the GitHub macOS 13 runner
+            compiler: gcc-14 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
           - runs-on: macos-13
             compiler: clang-19.1.0 # setup-cpp fails to setup
           - runs-on: macos-14
-            compiler: gcc-13 # Known issue with gcc
+            compiler: gcc-13 # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
           - runs-on: macos-14
             compiler: clang-19.1.0 # setup-cpp fails to setup
           - runs-on: macos-15
-            compiler: clang-19.1.0 # Known issue with clang
+            compiler: clang-19.1.0 # Known issue with clang (https://github.com/llvm/llvm-project/issues/109549)
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
@@ -248,9 +248,9 @@ jobs:
           - ubuntu-20.04
           - ubuntu-22.04
           # - ubuntu-24.04 # FIXME: Re-enable
-          # - macos-13 # FIXME: Re-enable
-          # - macos-14 # FIXME: Re-enable
-          # - macos-15 # FIXME: Re-enable
+          # - macos-13
+          # - macos-14 # FIXME: JDK 8 cannot be installed.
+          # - macos-15 # FIXME: JDK 8 cannot be installed.
           # - windows-2019 # FIXME: Re-enable
           - windows-2022
           # - windows-2025 # FIXME: Re-enable
