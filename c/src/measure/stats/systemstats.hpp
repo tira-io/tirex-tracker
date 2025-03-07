@@ -9,7 +9,7 @@
 #include <tuple>
 #include <vector>
 
-#if _WINDOWS
+#if defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
 #include <windows.h>
 #undef ERROR //  Make problems with logging.h otherwise
 #endif
