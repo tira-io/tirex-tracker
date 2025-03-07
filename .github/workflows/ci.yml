@@ -111,7 +111,7 @@ jobs:
       matrix:
         runs-on:
           - ubuntu-22.04
-          # - ubuntu-24.04 # FIXME: Re-enable
+          - ubuntu-24.04
           # - macos-13
           - macos-14
           # - macos-15 # FIXME: Re-enable
