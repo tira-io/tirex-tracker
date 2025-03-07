@@ -17,13 +17,13 @@ jobs:
       matrix:
         runs-on:
           - ubuntu-22.04
-          # - ubuntu-24.04 # FIXME: Re-enable
-          # - macos-13
+          - ubuntu-24.04
+          - macos-13
           - macos-14
           # - macos-15 # FIXME: Re-enable
           # - windows-2019 # FIXME: Re-enable
           - windows-2022
-          # - windows-2025 # FIXME: Re-enable
+          - windows-2025
         compiler:
           - gcc-13
           - gcc-14
@@ -117,7 +117,7 @@ jobs:
           # - macos-15 # FIXME: Re-enable
           # - windows-2019 # FIXME: Re-enable
           - windows-2022
-          - windows-2025 # FIXME: Re-enable
+          - windows-2025
         compiler:
           - gcc-13
           - gcc-14
@@ -126,6 +126,10 @@ jobs:
           # FIXME: Fix these exclusions if possible, and re-include them.
           - runs-on: ubuntu-22.04
             compiler: gcc-14 # Cannot be installed.
+          - runs-on: macos-13
+            compiler: gcc-13 # Fails at: /Users/runner/work/tirex-tracker/tirex-tracker/c/build/_deps/cpuinfo-src/src/api.c:6
+          - runs-on: macos-13
+            compiler: gcc-14 # Fails at: /Users/runner/work/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats_macos.cpp:11
           - runs-on: macos-13
             compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
           - runs-on: macos-14
@@ -267,13 +271,13 @@ jobs:
           - "21"
         runs-on:
           - ubuntu-22.04
-          # - ubuntu-24.04 # FIXME: Re-enable
-          # - macos-13
-          # - macos-14 # FIXME: JDK 8 cannot be installed.
-          # - macos-15 # FIXME: JDK 8 cannot be installed.
+          - ubuntu-24.04
+          - macos-13
+          - macos-14
+          # - macos-15 # FIXME: Re-enable
           # - windows-2019 # FIXME: Re-enable
           - windows-2022
-          # - windows-2025 # FIXME: Re-enable
+          - windows-2025
         exclude:
           - java: "8" # FIXME: Gradle seems to insist on loading Java 17 on Windows, weirdly.
             runs-on: windows-2022
