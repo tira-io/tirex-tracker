@@ -16,6 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         runs-on:
+          - ubuntu-16.04
           - ubuntu-22.04
           - ubuntu-24.04
           - macos-13
@@ -73,7 +74,7 @@ jobs:
       - name: 🏗️ Build library
         run: cmake --build c/build/ --config Release --target tirex_tracker_full
       - name: 📤 Upload Linux library
-        if: matrix.runs-on == 'ubuntu-22.04' && matrix.compiler == 'clang-19.1.0'
+        if: matrix.runs-on == 'ubuntu-16.04' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-linux
@@ -110,6 +111,7 @@ jobs:
       fail-fast: false
       matrix:
         runs-on:
+          - ubuntu-16.04
           - ubuntu-22.04
           - ubuntu-24.04
           - macos-13
@@ -154,7 +156,7 @@ jobs:
       - name: 🏗️ Build CLI
         run: cmake --build c/build/ --config Release --target measure
       - name: 📤 Upload Linux CLI
-        if: matrix.runs-on == 'ubuntu-22.04' && matrix.compiler == 'clang-19.1.0'
+        if: matrix.runs-on == 'ubuntu-16.04' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-linux
@@ -173,28 +175,14 @@ jobs:
           path: c/build/examples/03_measure_command/Release/measure.exe
   c-build-debian-package:
     name: 🏗️ Build Debian package
-    strategy:
-      fail-fast: false
-      matrix:
-        runs-on:
-          - ubuntu-22.04
-          - ubuntu-24.04
-        compiler:
-          - gcc-13
-          - gcc-14
-          - clang-19.1.0
-        exclude:
-          # FIXME: Fix these exclusions if possible, and re-include them.
-          - runs-on: ubuntu-22.04
-            compiler: gcc-14 # Cannot be installed.
-    runs-on: ${{ matrix.runs-on }}
+    runs-on: ubuntu-16.04
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
-          compiler: ${{ matrix.compiler }}
+          compiler: clang-19.1.0
           cmake: true
       - name: 🔧 Configure CMake
         run: |
@@ -202,7 +190,6 @@ jobs:
       - name: 🏗️ Build Debian package
         run: cmake --build c/build/ --config Release --target package
       - name: 📤 Upload Debian package
-        if: matrix.runs-on == 'ubuntu-22.04' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-debian-package
@@ -270,6 +257,7 @@ jobs:
           - "17"
           - "21"
         runs-on:
+          - ubuntu-16.04
           - ubuntu-22.04
           - ubuntu-24.04
           - macos-13
