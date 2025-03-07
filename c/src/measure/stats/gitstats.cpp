@@ -37,13 +37,13 @@ static std::string getLastCommitHash(git_repository* repo) {
 
 static std::tuple<std::string, std::string> getBranchName(git_repository* repo) {
 	git_reference* head;
-	if (int err; err = git_repository_head(&head, repo)) {
+	if (int err; (err = git_repository_head(&head, repo)) != 0) {
 		tirex::log::error("gitstats", "Failed to fetch repository head: {}", git_error_last()->message);
 		return {"(failed to fetch)", ""};
 	}
 	// Local Branch Name
 	const char* local;
-	if (int err; err = git_branch_name(&local, head)) {
+	if (int err; (err = git_branch_name(&local, head)) != 0) {
 		tirex::log::error("gitstats", "Failed to get branch name: {}", git_error_last()->message);
 		return {"(failed to fetch)", ""};
 	}
@@ -67,7 +67,7 @@ static std::tuple<std::string, std::string> getBranchName(git_repository* repo) 
 
 static std::string getRemoteOrigin(git_repository* repo) {
 	git_remote* remote;
-	if (int err; err = git_remote_lookup(&remote, repo, "origin")) {
+	if (int err; (err = git_remote_lookup(&remote, repo, "origin")) != 0) {
 		/** No remote called origin is set **/
 		tirex::log::warn("gitstats", "Failed to lookup remote/origin: {}", git_error_last()->message);
 		return "";
@@ -99,7 +99,7 @@ static std::vector<std::string> getTags(git_repository* repo) {
 		}
 		if (git_object_type(object) == GIT_OBJECT_TAG) { // Annotated tag
 			git_tag* tag;
-			if (int err; err = git_tag_lookup(&tag, repo, oid)) {
+			if (int err; (err = git_tag_lookup(&tag, repo, oid)) != 0) {
 				tirex::log::error("gitstats", "Failed to lookup tag: {}", git_error_last()->message);
 				return 0; // Return 0 to stop processing this tag but don't abort the iteration
 			}
@@ -170,11 +170,11 @@ static GitStatusStats getStatusStats(git_repository* repo) {
 	{
 		git_reference* upstream;
 		git_reference* head;
-		if (int err; err = git_repository_head(&head, repo)) {
+		if (int err; (err = git_repository_head(&head, repo)) != 0) {
 			tirex::log::error("gitstats", "Failed to fetch repository head: {}", git_error_last()->message);
 			return stats;
 		}
-		if (int err; err = git_branch_upstream(&upstream, head)) {
+		if (int err; (err = git_branch_upstream(&upstream, head)) != 0) {
 			tirex::log::error("gitstats", "Failed to get upstream branch: {}", git_error_last()->message);
 			return stats;
 		}

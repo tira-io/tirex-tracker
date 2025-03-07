@@ -96,6 +96,8 @@ static bool initNVML() {
 	case NVML_ERROR_NO_PERMISSION:
 		tirex::log::error("gpustats", "I don't have permission to talk to the driver");
 		break;
+	default:
+		break;
 	}
 	return false;
 }
