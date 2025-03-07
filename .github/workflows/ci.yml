@@ -46,6 +46,8 @@ jobs:
             compiler: clang-19.1.0 # setup-cpp fails to setup
           - runs-on: macos-15
             compiler: clang-19.1.0 # Known issue with clang
+          - windows-2019:
+            compiler: clang-19.1.0 # TODO: std::format_string not found though std::format is supported.
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
@@ -128,6 +130,8 @@ jobs:
             compiler: clang-19.1.0 # setup-cpp fails to setup
           - runs-on: macos-15
             compiler: clang-19.1.0 # Known issue with clang
+          - windows-2019:
+            compiler: clang-19.1.0 # TODO: std::format_string not found though std::format is supported.
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
