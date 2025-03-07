@@ -106,7 +106,7 @@ GPUStats::GPUStats() : nvml({.supported = initNVML(), .devices = {}}) {
 	if (!nvml.supported)
 		return;
 	unsigned int count;
-	switch (::nvml.deviceGetCount(&count)) {
+	switch (nvmlReturn_t err; err = ::nvml.deviceGetCount(&count)) {
 	case NVML_SUCCESS:
 		tirex::log::info("gpustats", "Found {} device(s):", count);
 		for (unsigned i = 0u; i < count; ++i) {
@@ -127,6 +127,9 @@ GPUStats::GPUStats() : nvml({.supported = initNVML(), .devices = {}}) {
 				break;
 			}
 		}
+	default:
+		tirex::log::error("gpustats", "Fetching devices failed with error {}", ::nvml.errorString(err));
+		break;
 	}
 }
 

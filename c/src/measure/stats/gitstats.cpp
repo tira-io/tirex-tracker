@@ -26,7 +26,7 @@ const std::set<tirexMeasure> GitStats::measures{TIREX_GIT_IS_REPO,			TIREX_GIT_H
 
 static std::string getLastCommitHash(git_repository* repo) {
 	git_oid id;
-	if (int err; err = git_reference_name_to_id(&id, repo, "HEAD")) {
+	if (int err; (err = git_reference_name_to_id(&id, repo, "HEAD")) != 0) {
 		tirex::log::error("gitstats", "Failed to lookup HEAD: {}", git_error_last()->message);
 		return "";
 	}
@@ -86,14 +86,14 @@ static int wrap(const char* name, git_oid* oid, void* payload) {
 static std::vector<std::string> getTags(git_repository* repo) {
 	std::vector<std::string> tagNames;
 	git_oid head;
-	if (int err; err = git_reference_name_to_id(&head, repo, "HEAD")) {
+	if (int err; (err = git_reference_name_to_id(&head, repo, "HEAD")) != 0) {
 		tirex::log::error("gitstats", "Failed to lookup HEAD: {}", git_error_last()->message);
 		return {};
 	}
 	auto callback = [head, &repo, &tagNames](const char* name, git_oid* oid) {
 		git_object* object = nullptr;
 		const git_oid* target = nullptr;
-		if (int err; err = git_object_lookup(&object, repo, oid, GIT_OBJECT_ANY)) {
+		if (int err; (err = git_object_lookup(&object, repo, oid, GIT_OBJECT_ANY)) != 0) {
 			tirex::log::error("gitstats", "Failed to lookup object: {}", git_error_last()->message);
 			return 0; // Return 0 to stop processing this tag but don't abort the iteration
 		}
