@@ -172,6 +172,10 @@ You can now use the TIREx tracker JVM API in your [Java](#java-usage) or [Kotlin
 
 ### Java Usage
 
+> [!TIP]
+> An exhaustive documentation of the TIREx tracker's Java API can be found in its [Javadoc]( https://javadoc.io/doc/io.tira/tirex-tracker
+).
+
 For pure Java projects, the easiest way is to use the `track` function and pass your code to be tracked as a lambda like this:
 
 ```java
@@ -265,7 +269,8 @@ cmake -S c/ -B c/build/ \
   -D TIREX_TRACKER_BUILD_EXAMPLES=YES
 ```
 
-(Hint: If you do not want to generate the documentation and have not installed Doxygen, you can disable it by setting `TIREX_TRACKER_BUILD_DOCS=NO`.)
+> [!TIP]
+> If you do not want to generate the documentation and have not installed Doxygen, you can disable it by setting `TIREX_TRACKER_BUILD_DOCS=NO`.
 
 You can then build the library (and examples) like this:
 
