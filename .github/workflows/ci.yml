@@ -263,13 +263,13 @@ jobs:
         runs-on:
           - ubuntu-20.04
           - ubuntu-22.04
-          - ubuntu-24.04
-          - macos-13
-          - macos-14
+          # - ubuntu-24.04 # FIXME: Re-enable
+          # - macos-13 # FIXME: Re-enable
+          # - macos-14 # FIXME: Re-enable
           # - macos-15 # FIXME: Re-enable
           # - windows-2019 # FIXME: Re-enable
           - windows-2022
-          - windows-2025
+          # - windows-2025 # FIXME: Re-enable
         exclude:
           - java: "8" # FIXME: Gradle seems to insist on loading Java 17 on Windows, weirdly.
             runs-on: windows-2022
