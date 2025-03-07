@@ -45,8 +45,8 @@ jobs:
             compiler: gcc-13 # Fails at: /Users/runner/work/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats_macos.cpp:8
           - runs-on: macos-14
             compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
-          - runs-on: macos-15
-            compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
+          #- runs-on: macos-15
+          #  compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
