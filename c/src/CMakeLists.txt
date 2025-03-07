@@ -40,7 +40,7 @@ add_library(tirex_tracker_static STATIC
 )
 target_compile_features(tirex_tracker_static PUBLIC cxx_std_20)
 target_include_directories(tirex_tracker_static PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../include)
-target_compile_definitions(tirex_tracker_static PUBLIC TIREX_TRACKER_STATIC_IMPORT)
+target_compile_definitions(tirex_tracker_static PUBLIC TIREX_TRACKER_STATIC)
 
 if (LINUX)
 target_link_libraries(tirex_tracker PUBLIC dl)  # dlopen, dlclose, ...

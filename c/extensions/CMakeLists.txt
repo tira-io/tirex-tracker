@@ -23,4 +23,4 @@ target_include_directories(tirex_tracker_full_static PUBLIC ${CMAKE_CURRENT_LIST
 # following line:
 # target_link_libraries(tirex_tracker_full_static PRIVATE "-Wl,--whole-archive" tirex_tracker_static "-Wl,--no-whole-archive")
 target_link_libraries(tirex_tracker_full_static PRIVATE "$<LINK_LIBRARY:WHOLE_ARCHIVE,tirex_tracker_static>")
-target_compile_definitions(tirex_tracker_full_static PRIVATE TIREX_TRACKER_LIB_EXPORT)
+target_compile_definitions(tirex_tracker_full_static PUBLIC TIREX_TRACKER_STATIC)
