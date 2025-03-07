@@ -1,0 +1,8 @@
+site_name: TIREx Tracker
+theme:
+  name: "material"
+plugins:
+  - search
+  - mkdocstrings
+nav:
+  - TIREx Tracker API Reference: index.md
