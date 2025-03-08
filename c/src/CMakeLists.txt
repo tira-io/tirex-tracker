@@ -40,11 +40,14 @@ add_library(tirex_tracker_static STATIC
 )
 target_compile_features(tirex_tracker_static PUBLIC cxx_std_20)
 target_include_directories(tirex_tracker_static PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../include)
-target_compile_definitions(tirex_tracker_static PUBLIC TIREX_TRACKER_STATIC_IMPORT)
+target_compile_definitions(tirex_tracker_static PUBLIC TIREX_TRACKER_STATIC)
 
 if (LINUX)
 target_link_libraries(tirex_tracker PUBLIC dl)  # dlopen, dlclose, ...
 target_link_libraries(tirex_tracker_static PUBLIC dl)  # dlopen, dlclose, ...
+elseif(WIN32)
+target_link_libraries(tirex_tracker PUBLIC Powrprof)
+target_link_libraries(tirex_tracker_static PUBLIC Powrprof)
 endif()
 
 
@@ -66,8 +69,9 @@ if (NOT (UNIX AND APPLE)) # CPPJouls does not support macos right now
 endif()
 
 # LibGit
-set(USE_REGEX "builtin")
+option(USE_SSH OFF)
 option(USE_HTTPS OFF)
+set(REGEX_BACKEND "builtin")
 option(BUILD_CLI OFF) # Do not build the Git CLI
 option(BUILD_TESTS OFF)
 FetchContent_Declare(libgit GIT_REPOSITORY https://github.com/libgit2/libgit2.git GIT_TAG v1.8.4)

@@ -6,10 +6,10 @@
 <div align="center">
 
 [![CI](https://img.shields.io/github/actions/workflow/status/tira-io/tirex-tracker/ci.yml?branch=master&style=flat-square)](https://github.com/tira-io/tirex-tracker/actions/workflows/ci.yml)
-[![Maintenance](https://img.shields.io/maintenance/yes/2025?style=flat-square)](https://github.com/tira-io/tirex-tracker/graphs/contributors) <!-- [![Code coverage](https://img.shields.io/codecov/c/github/tira-io/tirex-tracker?style=flat-square)](https://codecov.io/github/tira-io/tirex-tracker/) --> \
+[![Maintenance](https://img.shields.io/maintenance/yes/2025?style=flat-square)](https://github.com/tira-io/tirex-tracker/graphs/contributors) [![Code coverage](https://img.shields.io/codecov/c/github/tira-io/tirex-tracker?style=flat-square)](https://codecov.io/github/tira-io/tirex-tracker/) \
 [![Release](https://img.shields.io/github/v/tag/tira-io/tirex-tracker?style=flat-square&label=library)](https://github.com/tira-io/tirex-tracker/releases/) [![Ubuntu](https://img.shields.io/badge/ubuntu-22.04_%7C_24.04-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/) [![macOS](https://img.shields.io/badge/macos-13_%7C_14-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/) [![Windows](https://img.shields.io/badge/windows-2019_%7C_2022-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/) \
 [![PyPi](https://img.shields.io/pypi/v/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Python](https://img.shields.io/pypi/pyversions/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Downloads](https://img.shields.io/pypi/dm/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) \
-[![Maven](https://img.shields.io/github/v/tag/tira-io/tirex-tracker?style=flat-square&label=maven)](https://github.com/tira-io/tirex-tracker/packages/) [![Java](https://img.shields.io/badge/java-8_%7C_11_%7C_17_%7C_21-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/packages/) \
+[![Maven](https://img.shields.io/maven-central/v/io.tira/tirex-tracker?style=flat-square)](https://central.sonatype.com/artifact/io.tira/tirex-tracker) [![Java](https://img.shields.io/badge/java-8_%7C_11_%7C_17_%7C_21-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/packages/) \
 [![Issues](https://img.shields.io/github/issues/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/issues) [![Commit activity](https://img.shields.io/github/commit-activity/m/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/commits) [![License](https://img.shields.io/github/license/tira-io/tirex-tracker?style=flat-square)](LICENSE)
 
 [CLI](#command-line-tool) • [C/C++ API](#cc-api) • [Python API](#python-api) • [Java/Kotlin API](#javakotlinjvm-api) • [Citation](#citation)
@@ -134,9 +134,15 @@ print(results)
 
 ## Java/Kotlin/JVM API
 
-The Java/Kotlin API can be installed via Gradle or Maven from [GitHub Packages](https://github.com/tira-io/tirex-tracker/packages/).
-To use GitHub Packages, you must first authenticate ([Maven instructions](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry#authenticating-to-github-packages), [Gradle instructions](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#authenticating-to-github-packages)).
+The Java/Kotlin API can be installed via Gradle or Maven from the [Maven Central Repository](https://central.sonatype.com/artifact/io.tira/tirex-tracker).
 After installing the package, you can use the TIREx tracker JVM API in your [Java](#java-usage) or [Kotlin](#kotlin-usage) projects.
+
+<details><summary>Alternative: GitHub Packages</summary>
+
+Alternatively to the Maven Central Repository, the TIREx tracker JVM API is also published to [GitHub Packages](https://github.com/tira-io/tirex-tracker/packages/).
+To use GitHub Packages, you must first authenticate ([Maven instructions](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry#authenticating-to-github-packages), [Gradle instructions](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#authenticating-to-github-packages)).
+
+</details>
 
 ### Gradle Dependency
 
@@ -160,8 +166,7 @@ For Maven projects, add these lines to your `pom.xml` file:
 </dependency>
 ```
 
-Replace the version placeholder (`x.x.x`) with the [latest version tag](https://github.com/tira-io/tirex-tracker/releases/latest).
-
+Replace the version placeholder (`x.x.x`) with the [latest available version tag](https://central.sonatype.com/artifact/io.tira/tirex-tracker).
 
 You can now use the TIREx tracker JVM API in your [Java](#java-usage) or [Kotlin](#kotlin-usage) projects.
 

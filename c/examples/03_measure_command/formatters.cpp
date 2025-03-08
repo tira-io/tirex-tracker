@@ -50,19 +50,35 @@ static const char* measureToName[] = {
 };
 
 /* SIMPLE FORMATTER */
-void tirex::simpleFormatter(std::ostream& stream, const tirexResult* result) noexcept {
+void tirex::simpleFormatter(std::ostream& stream, const tirexResult* info, const tirexResult* result) noexcept {
+	// Info
 	size_t num;
 	tirexResultEntry entry;
-	auto err = tirexResultEntryNum(result, &num);
+	auto err = tirexResultEntryNum(info, &num);
 	assert(err == TIREX_SUCCESS);
 	for (size_t i = 0; i < num; ++i) {
-		auto err = tirexResultEntryGetByIndex(result, i, &entry);
+		err = tirexResultEntryGetByIndex(info, i, &entry);
+		assert(err == TIREX_SUCCESS);
+		stream << '[' << measureToName[entry.source] << "] " << reinterpret_cast<const char*>(entry.value) << std::endl;
+	}
+	// Result
+	err = tirexResultEntryNum(result, &num);
+	assert(err == TIREX_SUCCESS);
+	for (size_t i = 0; i < num; ++i) {
+		err = tirexResultEntryGetByIndex(result, i, &entry);
 		assert(err == TIREX_SUCCESS);
 		stream << '[' << measureToName[entry.source] << "] " << reinterpret_cast<const char*>(entry.value) << std::endl;
 	}
 }
 
 /* JSON FORMATTER */
-void tirex::jsonFormatter(std::ostream& stream, const tirexResult* result) noexcept {
-	return tirex::simpleFormatter(stream, result); /** \todo implement properly **/
+void tirex::jsonFormatter(std::ostream& stream, const tirexResult* info, const tirexResult* result) noexcept {
+	tirex::simpleFormatter(stream, info, result); /** \todo implement properly **/
+}
+
+/** IR_METADATA FORMATTER */
+extern tirexError writeIrMetadata(const tirexResult* info, const tirexResult* result, std::ostream& stream);
+
+void tirex::irmetadataFormatter(std::ostream& stream, const tirexResult* info, const tirexResult* result) noexcept {
+	writeIrMetadata(result, nullptr, stream);
 }

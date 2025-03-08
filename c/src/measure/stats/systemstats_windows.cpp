@@ -16,8 +16,6 @@
 
 #include <tuple>
 
-#pragma comment(lib, "Powrprof.lib")
-
 using namespace std::string_literals;
 using std::chrono::steady_clock;
 

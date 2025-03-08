@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef _WINDOWS
+#if defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
 #include <synchapi.h>
 #include <time.h>
 #include <windows.h>

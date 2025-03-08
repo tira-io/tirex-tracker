@@ -1,6 +1,7 @@
 import groovy.lang.Closure
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jreleaser.gradle.plugin.tasks.AbstractJReleaserTask
+import org.jreleaser.model.Active
 
 plugins {
     `java-library`
@@ -11,17 +12,20 @@ plugins {
     id("com.palantir.git-version")
     id("com.github.gmazzo.buildconfig")
     id("org.jetbrains.dokka")
+    id("org.jreleaser")
 }
 
 val gitVersion: Closure<String> by extra
+
+group = "io.tira"
+version = gitVersion()
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation(kotlin("stdlib-jdk8"))
     implementation("net.java.dev.jna:jna-platform:5.16.0")
     api("net.java.dev.jna:jna:5.16.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
@@ -89,13 +93,17 @@ tasks {
     register<Jar>("htmlDocsJar") {
         dependsOn(dokkaHtml)
         from(dokkaHtml.flatMap { it.outputDirectory })
-        archiveClassifier.set("html-docs")
+        archiveClassifier = "html-docs"
     }
 
     register<Jar>("javadocJar") {
         dependsOn(dokkaJavadoc)
         from(dokkaJavadoc.flatMap { it.outputDirectory })
-        archiveClassifier.set("javadoc")
+        archiveClassifier = "javadoc"
+    }
+
+    withType<AbstractJReleaserTask> {
+        dependsOn("publishAllPublicationsToJReleaserRepository")
     }
 }
 
@@ -111,17 +119,22 @@ publishing {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/tira-io/tirex-tracker")
             credentials {
-                username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-                password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
+                username = System.getenv("GITHUB_USERNAME")
+                password = System.getenv("GITHUB_PASSWORD")
             }
+        }
+
+        maven {
+            name = "JReleaser"
+            url = layout.buildDirectory.dir("staging-deploy").get().asFile.toURI()
         }
     }
 
     publications {
         withType<MavenPublication> {
-            groupId = "io.tira"
+            groupId = project.group.toString()
             artifactId = "tirex-tracker"
-            version = gitVersion()
+            version = project.version.toString()
 
             from(components["java"])
 
@@ -160,6 +173,65 @@ publishing {
             }
         }
 
-        register<MavenPublication>("library")
+        register<MavenPublication>("maven")
+    }
+}
+
+jreleaser {
+    strict = true
+    gitRootSearch = true
+
+    project {
+        name = "tirex-tracker"
+        version = project.version.get()
+        description = "Automatic resource and metadata tracking for information retrieval experiments."
+        license = "MIT License"
+        links {
+            homepage = "https://github.com/tira-io/tirex-tracker"
+            license = "https://opensource.org/license/MIT"
+            bugTracker = "https://github.com/tira-io/tirex-tracker/issues"
+            contact = "https://webis.de/people"
+            vcsBrowser = "https://github.com/tira-io/tirex-tracker"
+            contribute = "https://github.com/tira-io/tirex-tracker"
+        }
+        languages {
+            java {
+                groupId = "io.tirex"
+                version = javaLanguageVersionCompile.asInt().toString()
+            }
+        }
+        inceptionYear = "2025"
+    }
+
+    environment {
+        variables = rootDir.resolve("jreleaser.yml")
+    }
+
+    signing {
+        active = Active.ALWAYS
+        armored = true
+    }
+
+    release {
+        github {
+            enabled = false
+        }
+    }
+
+    deploy {
+        maven {
+            mavenCentral {
+                register("sonatype") {
+                    active = Active.ALWAYS
+                    url = "https://central.sonatype.com/api/v1/publisher"
+                    stagingRepository("build/staging-deploy")
+                    applyMavenCentralRules = true
+
+                    // Wait up to 60 * 30s = 30min for Maven Central to finalize the uploaded package.
+                    maxRetries = 60
+                    retryDelay = 30
+                }
+            }
+        }
     }
 }

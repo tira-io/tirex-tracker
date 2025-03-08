@@ -10,9 +10,15 @@ It can be used easily in [Java/Kotlin applications](#javakotlinjvm-api). For mor
 
 ## Java/Kotlin/JVM API
 
-The Java/Kotlin API can be installed via Gradle or Maven from [GitHub Packages](https://github.com/tira-io/tirex-tracker/packages/).
-To use GitHub Packages, you must first authenticate ([Maven instructions](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry#authenticating-to-github-packages), [Gradle instructions](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#authenticating-to-github-packages)).
+The Java/Kotlin API can be installed via Gradle or Maven from the [Maven Central Repository](https://central.sonatype.com/artifact/io.tira/tirex-tracker).
 After installing the package, you can use the TIREx tracker JVM API in your [Java](#java-usage) or [Kotlin](#kotlin-usage) projects.
+
+<details><summary>Alternative: GitHub Packages</summary>
+
+Alternatively to the Maven Central Repository, the TIREx tracker JVM API is also published to [GitHub Packages](https://github.com/tira-io/tirex-tracker/packages/).
+To use GitHub Packages, you must first authenticate ([Maven instructions](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry#authenticating-to-github-packages), [Gradle instructions](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#authenticating-to-github-packages)).
+
+</details>
 
 ### Gradle Dependency
 
@@ -36,8 +42,7 @@ For Maven projects, add these lines to your `pom.xml` file:
 </dependency>
 ```
 
-Replace the version placeholder (`x.x.x`) with the [latest version tag](https://github.com/tira-io/tirex-tracker/releases/latest).
-
+Replace the version placeholder (`x.x.x`) with the [latest available version tag](https://central.sonatype.com/artifact/io.tira/tirex-tracker).
 
 You can now use the TIREx tracker JVM API in your [Java](#java-usage) or [Kotlin](#kotlin-usage) projects.
 
