@@ -358,6 +358,21 @@ _PYTHON_MEASURES: Mapping[Measure, MeasureInfo] = {
         data_type=ResultType.STRING,
         example=dumps("/path/to/notebook.ipynb"),
     ),
+    Measure.PYTHON_CODE_ARCHIV: MeasureInfo(
+        description="The archive that contains a snapshot of the code.",
+        data_type=ResultType.STRING,
+        example=dumps("/path/to/code.zip"),
+    ),
+    Measure.PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE: MeasureInfo(
+        description="The script that was executed in the code archive.",
+        data_type=ResultType.STRING,
+        example=dumps("script.py"),
+    ),
+    Measure.PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE: MeasureInfo(
+        description="The notebook that was executed in the code archive.",
+        data_type=ResultType.STRING,
+        example=dumps("notebook.ipynb"),
+    ),
 }
 
 
