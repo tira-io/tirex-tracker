@@ -342,7 +342,7 @@ SystemStats::CPUInfo::VirtFlags getVirtSupport() {
 			return {.svm = line.find("svm") != std::string::npos, .vmx = line.find("vmx") != std::string::npos};
 	return {.svm = false, .vmx = false};
 }
-#elif defined(_WINDOWS)
+#elif defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
 #include <windows.h>
 
 SystemStats::CPUInfo::VirtFlags getVirtSupport() {
@@ -355,7 +355,7 @@ SystemStats::CPUInfo::VirtFlags getVirtSupport() {
 #error "getVirtSupport not supported for this OS"
 #endif
 
-#if defined(_WINDOWS)
+#if defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
 SystemStats::SystemStats() : pid(GetCurrentProcess()) {}
 #elif defined(__linux__)
 SystemStats::SystemStats() : pid(getpid()) {}

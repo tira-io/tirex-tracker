@@ -51,7 +51,7 @@ public:
 #elif defined(__APPLE__)
 	/* "MacOS is not supported to fetch NVIDIA GPU information */
 	NVMLLib() : tirex::utils::SharedLib() {}
-#elif defined(_WINDOWS)
+#elif defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
 	/** \todo add support **/
 	NVMLLib() : tirex::utils::SharedLib("nvml.dll") {}
 #else

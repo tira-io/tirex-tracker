@@ -5,7 +5,7 @@
 
 #if defined(__linux__) || defined(__APPLE__)
 #include <dlfcn.h>
-#elif defined(_WINDOWS)
+#elif defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
 #include <windows.h>
 #else
 #error "Unsupported OS"
@@ -22,7 +22,7 @@ namespace tirex::utils {
 		inline T loadfromlib(libhandle handle, const std::string& name) noexcept {
 			return reinterpret_cast<T>(dlsym(handle, name.c_str()));
 		}
-#elif defined(_WINDOWS)
+#elif defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
 		using libhandle = HINSTANCE;
 		inline libhandle openlib(const std::filesystem::path& path) { return LoadLibrary((LPCSTR)path.c_str()); }
 		inline void closelib(libhandle handle) noexcept { /** Not possible */ }
