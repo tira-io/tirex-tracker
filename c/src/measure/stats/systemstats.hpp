@@ -49,11 +49,21 @@ namespace tirex {
 		std::chrono::steady_clock::time_point starttime;
 		std::chrono::steady_clock::time_point stoptime;
 
-		tirex::TimeSeries<unsigned> ram{true};
-		tirex::TimeSeries<unsigned> sysRam{true};
-		tirex::TimeSeries<unsigned> cpuUtil{true};
-		tirex::TimeSeries<unsigned> sysCpuUtil{true};
-		tirex::TimeSeries<uint32_t> frequency{true};
+		tirex::TimeSeries<unsigned> ram{
+				std::chrono::milliseconds{10000}, TIREX_AGG_MAX
+		}; /** \todo make agg configurable */
+		tirex::TimeSeries<unsigned> sysRam{
+				std::chrono::milliseconds{10000}, TIREX_AGG_MAX
+		}; /** \todo make agg configurable */
+		tirex::TimeSeries<unsigned> cpuUtil{
+				std::chrono::milliseconds{10000}, TIREX_AGG_MEAN
+		}; /** \todo make agg configurable */
+		tirex::TimeSeries<unsigned> sysCpuUtil{
+				std::chrono::milliseconds{10000}, TIREX_AGG_MEAN
+		}; /** \todo make agg configurable */
+		tirex::TimeSeries<uint32_t> frequency{
+				std::chrono::milliseconds{10000}, TIREX_AGG_MAX
+		}; /** \todo make agg configurable */
 
 		size_t startUTime, stopUTime;
 		size_t startSysTime, stopSysTime;

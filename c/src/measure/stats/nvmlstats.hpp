@@ -12,9 +12,15 @@ namespace tirex {
 		struct {
 			const bool supported;
 			std::vector<nvmlDevice_t> devices;
-			TimeSeries<unsigned> vramUsageTotal{true};
-			TimeSeries<unsigned> vramUsageProcess{true};
-			TimeSeries<unsigned> utilizationTotal{true};
+			TimeSeries<unsigned> vramUsageTotal{
+					std::chrono::milliseconds{10000}, TIREX_AGG_MAX
+			}; /** \todo make agg configurable */
+			TimeSeries<unsigned> vramUsageProcess{
+					std::chrono::milliseconds{10000}, TIREX_AGG_MAX
+			}; /** \todo make agg configurable */
+			TimeSeries<unsigned> utilizationTotal{
+					std::chrono::milliseconds{10000}, TIREX_AGG_MAX
+			}; /** \todo make agg configurable */
 		} nvml;
 
 	public:

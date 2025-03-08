@@ -32,5 +32,5 @@ Stats EnergyStats::getStats() {
 		tirex::log::debug("cppjoules", "[{}] {}", device, result);
 	return {{TIREX_CPU_ENERGY_SYSTEM_JOULES, std::to_string(getOrDefault(results, "core-0", 0))},
 			{TIREX_RAM_ENERGY_SYSTEM_JOULES, std::to_string(getOrDefault(results, "dram-0", 0))},
-			{TIREX_GPU_ENERGY_SYSTEM_JOULES, std::to_string(getOrDefault(results, "gpu-0", 0))}};
+			{TIREX_GPU_ENERGY_SYSTEM_JOULES, std::to_string(getOrDefault(results, "nvidia_gpu_0", 0))}};
 }
