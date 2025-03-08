@@ -96,6 +96,8 @@ static bool initNVML() {
 	case NVML_ERROR_NO_PERMISSION:
 		tirex::log::error("gpustats", "I don't have permission to talk to the driver");
 		break;
+	default:
+		break;
 	}
 	return false;
 }
@@ -104,7 +106,7 @@ GPUStats::GPUStats() : nvml({.supported = initNVML(), .devices = {}}) {
 	if (!nvml.supported)
 		return;
 	unsigned int count;
-	switch (::nvml.deviceGetCount(&count)) {
+	switch (nvmlReturn_t err; err = ::nvml.deviceGetCount(&count)) {
 	case NVML_SUCCESS:
 		tirex::log::info("gpustats", "Found {} device(s):", count);
 		for (unsigned i = 0u; i < count; ++i) {
@@ -125,6 +127,9 @@ GPUStats::GPUStats() : nvml({.supported = initNVML(), .devices = {}}) {
 				break;
 			}
 		}
+	default:
+		tirex::log::error("gpustats", "Fetching devices failed with error {}", ::nvml.errorString(err));
+		break;
 	}
 }
 

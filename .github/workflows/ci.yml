@@ -16,48 +16,36 @@ jobs:
       fail-fast: false
       matrix:
         runs-on:
+          - ubuntu-20.04
           - ubuntu-22.04
-          # - ubuntu-24.04 # FIXME: Re-enable
-          # - macos-13
+          - ubuntu-24.04
+          - macos-13
           - macos-14
-          # - macos-15 # FIXME: Re-enable
-          # - windows-2019 # FIXME: Re-enable
+          - macos-15
+          - windows-2019
           - windows-2022
-          # - windows-2025 # FIXME: Re-enable
+          - windows-2025
         compiler:
           - gcc-13
           - gcc-14
           - clang-19.1.0
         exclude:
-          # FIXME: Fix these exclusions if possible, and re-include them.
+          - runs-on: ubuntu-20.04
+            compiler: gcc-14 # Cannot be installed.
           - runs-on: ubuntu-22.04
             compiler: gcc-14 # Cannot be installed.
           - runs-on: macos-13
-            compiler: gcc-13 # Fails at: /Users/runner/work/tirex-tracker/tirex-tracker/c/build/_deps/cpuinfo-src/src/api.c:6
+            compiler: gcc-13 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
           - runs-on: macos-13
-            compiler: gcc-14 # Fails at: /Users/runner/work/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats_macos.cpp:11
+            compiler: gcc-14 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
           - runs-on: macos-13
-            compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
+            compiler: clang-19.1.0 # setup-cpp fails to setup
           - runs-on: macos-14
-            compiler: gcc-13 # Fails at: /Users/runner/work/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats_macos.cpp:8
+            compiler: gcc-13 # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
           - runs-on: macos-14
-            compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
+            compiler: clang-19.1.0 # setup-cpp fails to setup
           - runs-on: macos-15
-            compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
-          - runs-on: windows-2019
-            compiler: gcc-13 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
-          - runs-on: windows-2019
-            compiler: gcc-14 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
-          - runs-on: windows-2019
-            compiler: clang-19.1.0 # Build fails.
-          - runs-on: windows-2022
-            compiler: gcc-13 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
-          - runs-on: windows-2022
-            compiler: gcc-14 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
-          - runs-on: windows-2025
-            compiler: gcc-13 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
-          - runs-on: windows-2025
-            compiler: gcc-14 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
+            compiler: clang-19.1.0 # Known issue with clang (https://github.com/llvm/llvm-project/issues/109549)
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
@@ -73,7 +61,7 @@ jobs:
       - name: 🏗️ Build library
         run: cmake --build c/build/ --config Release --target tirex_tracker_full
       - name: 📤 Upload Linux library
-        if: matrix.runs-on == 'ubuntu-22.04' && matrix.compiler == 'clang-19.1.0'
+        if: matrix.runs-on == 'ubuntu-20.04' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-linux
@@ -110,48 +98,36 @@ jobs:
       fail-fast: false
       matrix:
         runs-on:
+          - ubuntu-20.04
           - ubuntu-22.04
-          # - ubuntu-24.04 # FIXME: Re-enable
-          # - macos-13
+          - ubuntu-24.04
+          - macos-13
           - macos-14
-          # - macos-15 # FIXME: Re-enable
-          # - windows-2019 # FIXME: Re-enable
+          - macos-15
+          - windows-2019
           - windows-2022
-          # - windows-2025 # FIXME: Re-enable
+          - windows-2025
         compiler:
           - gcc-13
           - gcc-14
           - clang-19.1.0
         exclude:
-          # FIXME: Fix these exclusions if possible, and re-include them.
+          - runs-on: ubuntu-20.04
+            compiler: gcc-14 # Cannot be installed.
           - runs-on: ubuntu-22.04
             compiler: gcc-14 # Cannot be installed.
           - runs-on: macos-13
-            compiler: gcc-13 # Fails at: /Users/runner/work/tirex-tracker/tirex-tracker/c/build/_deps/cpuinfo-src/src/api.c:6
+            compiler: gcc-13 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
           - runs-on: macos-13
-            compiler: gcc-14 # Fails at: /Users/runner/work/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats_macos.cpp:11
+            compiler: gcc-14 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
           - runs-on: macos-13
-            compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
+            compiler: clang-19.1.0 # setup-cpp fails to setup
           - runs-on: macos-14
-            compiler: gcc-13 # Fails at: /Users/runner/work/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats_macos.cpp:8
+            compiler: gcc-13 # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
           - runs-on: macos-14
-            compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
+            compiler: clang-19.1.0 # setup-cpp fails to setup
           - runs-on: macos-15
-            compiler: clang-19.1.0 # Fails with: dyld[4109]: Symbol not found: __ZTVN10__cxxabiv117__class_type_infoE
-          - runs-on: windows-2019
-            compiler: gcc-13 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
-          - runs-on: windows-2019
-            compiler: gcc-14 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
-          - runs-on: windows-2019
-            compiler: clang-19.1.0 # Build fails.
-          - runs-on: windows-2022
-            compiler: gcc-13 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
-          - runs-on: windows-2022
-            compiler: gcc-14 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
-          - runs-on: windows-2025
-            compiler: gcc-13 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
-          - runs-on: windows-2025
-            compiler: gcc-14 # Fails with: Error: D:/a/tirex-tracker/tirex-tracker/c/src/measure/stats/systemstats.cpp:386:35: error: 'getProcessorMinMaxFreq' was not declared in this scope
+            compiler: clang-19.1.0 # Known issue with clang (https://github.com/llvm/llvm-project/issues/109549)
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
@@ -168,7 +144,7 @@ jobs:
       - name: 🏗️ Build CLI
         run: cmake --build c/build/ --config Release --target measure
       - name: 📤 Upload Linux CLI
-        if: matrix.runs-on == 'ubuntu-22.04' && matrix.compiler == 'clang-19.1.0'
+        if: matrix.runs-on == 'ubuntu-20.04' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-linux
@@ -187,28 +163,14 @@ jobs:
           path: c/build/examples/03_measure_command/Release/measure.exe
   c-build-debian-package:
     name: 🏗️ Build Debian package
-    strategy:
-      fail-fast: false
-      matrix:
-        runs-on:
-          - ubuntu-22.04
-          - ubuntu-24.04
-        compiler:
-          - gcc-13
-          - gcc-14
-          - clang-19.1.0
-        exclude:
-          # FIXME: Fix these exclusions if possible, and re-include them.
-          - runs-on: ubuntu-22.04
-            compiler: gcc-14 # Cannot be installed.
-    runs-on: ${{ matrix.runs-on }}
+    runs-on: ubuntu-20.04
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
-          compiler: ${{ matrix.compiler }}
+          compiler: clang-19.1.0
           cmake: true
       - name: 🔧 Configure CMake
         run: |
@@ -216,7 +178,6 @@ jobs:
       - name: 🏗️ Build Debian package
         run: cmake --build c/build/ --config Release --target package
       - name: 📤 Upload Debian package
-        if: matrix.runs-on == 'ubuntu-22.04' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-debian-package
@@ -284,6 +245,7 @@ jobs:
           - "17"
           - "21"
         runs-on:
+          - ubuntu-20.04
           - ubuntu-22.04
           # - ubuntu-24.04 # FIXME: Re-enable
           # - macos-13

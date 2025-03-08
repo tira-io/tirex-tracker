@@ -9,7 +9,7 @@
 
 #include <cpuinfo.h>
 
-#if __cpp_lib_format
+#if __cpp_lib_format and __cplusplus >= 202207L // __cplusplus >= 202207L required for std::format_string
 #include <format>
 namespace _fmt = std;
 #else
@@ -36,11 +36,9 @@ uint32_t cpuinfo_linux_get_processor_max_frequency(uint32_t processor);
 std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
 	return {cpuinfo_linux_get_processor_min_frequency(processor), cpuinfo_linux_get_processor_max_frequency(processor)};
 }
-#elif _WINDOWS
+#elif defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
 #include <powrprof.h>
 #include <windows.h>
-
-#pragma comment(lib, "Powrprof.lib")
 
 std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
 	struct PROCESSOR_POWER_INFORMATION {
