@@ -9,6 +9,7 @@ target_compile_features(measure PUBLIC cxx_std_20)
 target_link_libraries(measure tirex_tracker_full_static)
 
 option(TIREX_TRACKER_BUILD_CMD_DEB "Build the debian package for the measure command" OFF)
+set(BUILD_SHARED_LIBS OFF)
 
 
 ##########################################################################################
