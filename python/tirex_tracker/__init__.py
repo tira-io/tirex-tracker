@@ -1,5 +1,9 @@
 from collections import defaultdict
 from contextlib import redirect_stdout
+
+import tempfile
+import zipfile
+import os
 from ctypes import (
     cdll,
     CDLL,
@@ -21,6 +25,7 @@ from io import BytesIO
 from json import dumps, loads
 from os import PathLike
 from pathlib import Path
+import git
 from sys import modules as sys_modules, executable, argv, platform, version_info
 from tempfile import mkdtemp
 from traceback import extract_stack
@@ -600,8 +605,8 @@ def _find_library() -> Path:
         raise RuntimeError("Unsupported platform.")
     return files(__name__) / path
 
-
 def _load_library() -> _TirexTrackerLibrary:
+    return
     library = cdll.LoadLibrary(str(_find_library()))
     library.tirexResultEntryGetByIndex.argtypes = [
         POINTER(_Result),
@@ -716,6 +721,94 @@ def _prepare_measure_configurations(
     return configs_array
 
 
+def _git_repo(path: Path):
+    msg = f"No valid git repository found at {path}."
+
+    for i in range(4):
+        try:
+            return git.Repo(path)
+        except git.exc.InvalidGitRepositoryError:
+            path = path.parent
+    print(msg)
+    raise ValueError(msg)
+
+
+def parse_notebook_to_html(notebook_content):
+    try:
+        notebook = nbformat.reads(notebook_content, as_version=4)
+        html_exporter = HTMLExporter(template_name="classic")
+        (body, _) = html_exporter.from_notebook_node(notebook)
+        return body
+    except Exception:
+        pass
+
+
+def get_url_of_git_repo(metadata):
+    try:
+        url = [i for i in metadata["git"]["remotes"].values()][0]
+        url = url.replace(".git", "")
+        commit = metadata["git"]["commit"]
+
+        if url.startswith("git@"):
+            url = url.replace(":", "/")
+            url = url.replace("git@", "https://")
+        return f"{url}/tree/{commit}"
+    except Exception:
+        return None
+
+
+def _is_notebook() -> bool:
+    try:
+        from IPython import get_ipython
+
+        return get_ipython() is not None  # type: ignore
+    except ImportError:
+        return False
+
+
+def _notebook_contents() -> tuple[Path, Path]:
+    if not _is_notebook():
+        raise ValueError("foo")
+
+    from IPython import get_ipython
+
+    ipython = get_ipython()  # type: ignore
+
+    f = Path(tempfile.TemporaryDirectory().name + "-1234")
+    f.mkdir(parents=True, exist_ok=True)
+    python_file = Path(f) / "script.py"
+    notebook_file = Path(f) / "notebook.ipynb"
+    with redirect_stdout(None):
+        ipython.magic(f"save -f {python_file} 1-9999")
+        ipython.magic(f"notebook {notebook_file}")
+
+    return python_file, notebook_file
+
+def _archive_code():
+    if _is_notebook():
+        python_file, notebook_file = _notebook_contents()
+    
+    return zip_code(python_file.parent)
+
+def zip_code(directory_in_git_repo: Path):
+    """
+    Creates a zip archive containing all tracked files in a given Git repository.
+
+    :param directory_in_git_repo: The directory in a git repository that should be zippedGit repository.
+    """
+    repo = _git_repo(directory_in_git_repo)
+
+    directory_in_path = str(Path(directory_in_git_repo).absolute()).replace(str(Path(repo.working_tree_dir).absolute()) + "/", "")
+    tracked_files = [i.path for i in repo.commit().tree.traverse() if i.path.startswith(f"{directory_in_path}/")]
+    zip_path = Path(tempfile.TemporaryDirectory().name) / "code.zip"
+    zip_path.parent.mkdir(exist_ok=True, parents=True)
+
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
+        for file in tracked_files:
+            file_path = os.path.join(repo.working_tree_dir, file)
+            zipf.write(file_path, arcname=file)
+    return zip_path
+
 # TODO: Add aggregation(s) (mapping) parameter.
 def fetch_info(
     measures: Iterable[Measure] = ALL_MEASURES,
@@ -760,6 +853,11 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
     ) -> Self:
         # Get Python info first, and then strip Python measures from the list.
         python_info, measures = _get_python_info(measures=measures)
+        
+        if export_file_path:
+            Path(export_file_path.parent).mkdir(exist_ok=True, parents=True)
+            archived_code = _archive_code()
+            shutil.copy(archived_code, export_file_path.parent)
 
         # Prepare the measure configurations.
         configs_array = _prepare_measure_configurations(measures)
