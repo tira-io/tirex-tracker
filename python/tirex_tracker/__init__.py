@@ -125,10 +125,9 @@ class Measure(IntEnum):
     PYTHON_MODULES = 1003
     PYTHON_INSTALLED_PACKAGES = 1004
     PYTHON_IS_INTERACTIVE = 1005
-    PYTHON_SCRIPT_FILE_PATH = 1006
-    PYTHON_SCRIPT_FILE_CONTENTS = 1007
-    PYTHON_NOTEBOOK_FILE_PATH = 1008
-    PYTHON_NOTEBOOK_FILE_CONTENTS = 1009
+    PYTHON_CODE_ARCHIVE = 1006
+    PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE = 1007
+    PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE = 1008
 
 
 _INVALID_MEASURE = -1
@@ -857,11 +856,14 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
     ) -> Self:
         # Get Python info first, and then strip Python measures from the list.
         python_info, measures = _get_python_info(measures=measures)
-        
+
         if export_file_path:
             Path(export_file_path).parent.mkdir(exist_ok=True, parents=True)
             archived_code = _archive_code()
             shutil.copy(archived_code, Path(export_file_path).parent)
+            python_info[PYTHON_CODE_ARCHIVE] = archived_code.name
+            python_info[PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE] = "script.py"
+            python_info[PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE] = "notebook.ipynb"
 
         # Prepare the measure configurations.
         configs_array = _prepare_measure_configurations(measures)
