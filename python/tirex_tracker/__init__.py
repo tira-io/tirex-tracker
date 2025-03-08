@@ -787,7 +787,7 @@ def _notebook_contents() -> tuple[Path, Path]:
 def _archive_code():
     if _is_notebook():
         python_file, notebook_file = _notebook_contents()
-        return zip_code(python_file.parent, [python_file.name, notebook_file.name])
+        return _archive_to_zip_repo(python_file.parent, [python_file.name, notebook_file.name])
 
 def _archive_to_zip_repo(directory, files):
     zip_path = Path(tempfile.TemporaryDirectory().name) / "code.zip"
