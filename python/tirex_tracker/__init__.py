@@ -855,7 +855,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         python_info, measures = _get_python_info(measures=measures)
         
         if export_file_path:
-            Path(export_file_path.parent).mkdir(exist_ok=True, parents=True)
+            Path(export_file_path).parent.mkdir(exist_ok=True, parents=True)
             archived_code = _archive_code()
             shutil.copy(archived_code, export_file_path.parent)
 
