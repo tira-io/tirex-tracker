@@ -787,8 +787,18 @@ def _notebook_contents() -> tuple[Path, Path]:
 def _archive_code():
     if _is_notebook():
         python_file, notebook_file = _notebook_contents()
-    
-    return zip_code(python_file.parent)
+        return zip_code(python_file.parent, [python_file.name, notebook_file.name])
+
+def _archive_to_zip_repo(directory, files):
+    zip_path = Path(tempfile.TemporaryDirectory().name) / "code.zip"
+    zip_path.parent.mkdir(exist_ok=True, parents=True)
+
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
+        for file in files:
+            file_path = os.path.join(directory, file)
+            zipf.write(file_path, arcname=file)
+
+    return zip_path
 
 def zip_code(directory_in_git_repo: Path):
     """
@@ -800,14 +810,8 @@ def zip_code(directory_in_git_repo: Path):
 
     directory_in_path = str(Path(directory_in_git_repo).absolute()).replace(str(Path(repo.working_tree_dir).absolute()) + "/", "")
     tracked_files = [i.path for i in repo.commit().tree.traverse() if i.path.startswith(f"{directory_in_path}/")]
-    zip_path = Path(tempfile.TemporaryDirectory().name) / "code.zip"
-    zip_path.parent.mkdir(exist_ok=True, parents=True)
 
-    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
-        for file in tracked_files:
-            file_path = os.path.join(repo.working_tree_dir, file)
-            zipf.write(file_path, arcname=file)
-    return zip_path
+    return _archive_to_zip_repo(repo.working_tree_dir, tracked_files)
 
 # TODO: Add aggregation(s) (mapping) parameter.
 def fetch_info(
