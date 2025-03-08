@@ -607,7 +607,6 @@ def _find_library() -> Path:
     return files(__name__) / path
 
 def _load_library() -> _TirexTrackerLibrary:
-    return
     library = cdll.LoadLibrary(str(_find_library()))
     library.tirexResultEntryGetByIndex.argtypes = [
         POINTER(_Result),
