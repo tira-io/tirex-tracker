@@ -814,10 +814,12 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         if export_file_path:
             Path(export_file_path).parent.mkdir(exist_ok=True, parents=True)
             archived_code = _archive_code()
-            shutil.copy(archived_code, Path(export_file_path).parent)
-            python_info[Measure.PYTHON_CODE_ARCHIVE] = _python_result_entry(Measure.PYTHON_CODE_ARCHIVE, archived_code.name)
-            python_info[Measure.PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE] = _python_result_entry(Measure.PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE, "script.py")
-            python_info[Measure.PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE] = _python_result_entry(Measure.PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE, "notebook.ipynb")
+            
+            if archived_code:
+                shutil.copy(archived_code, Path(export_file_path).parent)
+                python_info[Measure.PYTHON_CODE_ARCHIVE] = _python_result_entry(Measure.PYTHON_CODE_ARCHIVE, archived_code.name)
+                python_info[Measure.PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE] = _python_result_entry(Measure.PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE, "script.py")
+                python_info[Measure.PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE] = _python_result_entry(Measure.PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE, "notebook.ipynb")
 
         # Prepare the measure configurations.
         configs_array = _prepare_measure_configurations(measures)
