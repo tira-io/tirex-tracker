@@ -128,6 +128,8 @@ class Measure(IntEnum):
     PYTHON_CODE_ARCHIVE = 1006
     PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE = 1007
     PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE = 1008
+    PYTHON_SCRIPT_FILE_PATH = 1009
+    PYTHON_NOTEBOOK_FILE_PATH = 1010
 
 
 _INVALID_MEASURE = -1
@@ -351,43 +353,10 @@ _PYTHON_MEASURES: Mapping[Measure, MeasureInfo] = {
         data_type=ResultType.STRING,
         example=dumps("/path/to/script.py"),
     ),
-    Measure.PYTHON_SCRIPT_FILE_CONTENTS: MeasureInfo(
-        description="Contents of the Python script file.",
-        data_type=ResultType.STRING,
-        example=dumps("""
-print("Hello, World!")
-"""),
-    ),
     Measure.PYTHON_NOTEBOOK_FILE_PATH: MeasureInfo(
         description="Path to the Jupyter notebook file.",
         data_type=ResultType.STRING,
         example=dumps("/path/to/notebook.ipynb"),
-    ),
-    Measure.PYTHON_NOTEBOOK_FILE_CONTENTS: MeasureInfo(
-        description="Contents of the Jupyter notebook file.",
-        data_type=ResultType.STRING,
-        example=dumps("""
-{
- "cells": [
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "print(\"Hello, World!\")"
-   ]
-  }
- ],
- "metadata": {
-  "language_info": {
-   "name": "python"
-  }
- },
- "nbformat": 4,
- "nbformat_minor": 2
-}
-"""),
     ),
 }
 
@@ -479,30 +448,12 @@ def _get_python_info(
             measures=measures,
             value=str(script_file_path),
         )
-        with redirect_stdout(None):
-            ipython.magic(f"save -f {script_file_path} 1-9999")
-        script_file_contents = script_file_path.read_text()
-        _add_python_result_entry(
-            results=results,
-            measure=Measure.PYTHON_SCRIPT_FILE_CONTENTS,
-            measures=measures,
-            value=script_file_contents,
-        )
         notebook_file_path = tmp_dir_path / "notebook.ipynb"
         _add_python_result_entry(
             results=results,
             measure=Measure.PYTHON_NOTEBOOK_FILE_PATH,
             measures=measures,
             value=str(notebook_file_path),
-        )
-        with redirect_stdout(None):
-            ipython.magic(f"notebook {notebook_file_path}")
-        notebook_file_contents = notebook_file_path.read_text()
-        _add_python_result_entry(
-            results=results,
-            measure=Measure.PYTHON_NOTEBOOK_FILE_CONTENTS,
-            measures=measures,
-            value=notebook_file_contents,
         )
 
     else:
@@ -516,19 +467,7 @@ def _get_python_info(
         script_file_contents = script_file_path.read_text()
         _add_python_result_entry(
             results=results,
-            measure=Measure.PYTHON_SCRIPT_FILE_CONTENTS,
-            measures=measures,
-            value=script_file_contents,
-        )
-        _add_python_result_entry(
-            results=results,
             measure=Measure.PYTHON_NOTEBOOK_FILE_PATH,
-            measures=measures,
-            value=None,
-        )
-        _add_python_result_entry(
-            results=results,
-            measure=Measure.PYTHON_NOTEBOOK_FILE_CONTENTS,
             measures=measures,
             value=None,
         )
@@ -1013,14 +952,8 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         ir_metadata["implementation"]["script"]["path"] = loads(
             self._python_info[Measure.PYTHON_SCRIPT_FILE_PATH].value
         )
-        ir_metadata["implementation"]["script"]["contents"] = loads(
-            self._python_info[Measure.PYTHON_SCRIPT_FILE_CONTENTS].value
-        )
         ir_metadata["implementation"]["notebook"]["path"] = loads(
             self._python_info[Measure.PYTHON_NOTEBOOK_FILE_PATH].value
-        )
-        ir_metadata["implementation"]["notebook"]["contents"] = loads(
-            self._python_info[Measure.PYTHON_NOTEBOOK_FILE_CONTENTS].value
         )
 
         ir_metadata = _deep_merge(ir_metadata, tmp_ir_metadata)
