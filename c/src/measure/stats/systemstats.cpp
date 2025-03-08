@@ -28,6 +28,7 @@ using tirex::Stats;
 using tirex::SystemStats;
 
 #ifdef __linux__
+#include <unistd.h>
 extern "C" {
 // Not part of the public API but we use them for now until there is a public API for frequency
 uint32_t cpuinfo_linux_get_processor_min_frequency(uint32_t processor);
@@ -59,7 +60,8 @@ std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
 	return {0, data[processor].MaxMhz};
 }
 #elif __APPLE__
-#include "macos/sysctl.hpp"
+#include "./details/macos/sysctl.hpp"
+#include <unistd.h>
 
 std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
 	return {0, 0}; /** Not implemented as I don't know of any way to get this information from macOS. **/
@@ -340,7 +342,7 @@ SystemStats::CPUInfo::VirtFlags getVirtSupport() {
 			return {.svm = line.find("svm") != std::string::npos, .vmx = line.find("vmx") != std::string::npos};
 	return {.svm = false, .vmx = false};
 }
-#elif defined(_WIN64)
+#elif defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
 #include <windows.h>
 
 SystemStats::CPUInfo::VirtFlags getVirtSupport() {
@@ -353,7 +355,13 @@ SystemStats::CPUInfo::VirtFlags getVirtSupport() {
 #error "getVirtSupport not supported for this OS"
 #endif
 
-SystemStats::SystemStats() {}
+#if defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
+SystemStats::SystemStats() : pid(GetCurrentProcess()) {}
+#elif defined(__linux__)
+SystemStats::SystemStats() : pid(getpid()) {}
+#elif defined(__APPLE__)
+SystemStats::SystemStats() : pid(getpid()) {}
+#endif
 
 SystemStats::CPUInfo SystemStats::getCPUInfo() {
 	cpuinfo_initialize();

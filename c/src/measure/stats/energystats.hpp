@@ -6,17 +6,27 @@
 #ifndef __APPLE__
 #include <cppJoules.hpp>
 #else
+#include <chrono>
+#include <map>
+
+//namespace cppjoules {
+struct TrackerResults {
+	std::chrono::milliseconds time;
+	std::map<std::string, long long> energy;
+};
 class EnergyTracker {
 public:
 	void start() {}
 	void stop() {}
+	TrackerResults calculate_energy() const noexcept { return TrackerResults{{}, {}}; }
 };
+//} // namespace cppjoules
 #endif
 
 namespace tirex {
 	class EnergyStats final : public StatsProvider {
 	private:
-		EnergyTracker tracker;
+		/*cppjoules::*/ EnergyTracker tracker;
 
 	public:
 		EnergyStats();

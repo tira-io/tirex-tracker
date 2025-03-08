@@ -10,7 +10,7 @@ add_library(tirex_tracker SHARED
 
 	measure/stats/energystats.cpp
 	measure/stats/gitstats.cpp
-	measure/stats/gpustats.cpp
+	measure/stats/nvmlstats.cpp
 	measure/stats/systemstats.cpp
 	measure/stats/systemstats_linux.cpp
 	measure/stats/systemstats_macos.cpp
@@ -32,7 +32,7 @@ add_library(tirex_tracker_static STATIC
 
 	measure/stats/energystats.cpp
 	measure/stats/gitstats.cpp
-	measure/stats/gpustats.cpp
+	measure/stats/nvmlstats.cpp
 	measure/stats/systemstats.cpp
 	measure/stats/systemstats_linux.cpp
 	measure/stats/systemstats_macos.cpp
