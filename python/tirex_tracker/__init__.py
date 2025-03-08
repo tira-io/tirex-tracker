@@ -862,7 +862,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         if export_file_path:
             Path(export_file_path).parent.mkdir(exist_ok=True, parents=True)
             archived_code = _archive_code()
-            shutil.copy(archived_code, export_file_path.parent)
+            shutil.copy(archived_code, Path(export_file_path).parent)
 
         # Prepare the measure configurations.
         configs_array = _prepare_measure_configurations(measures)
