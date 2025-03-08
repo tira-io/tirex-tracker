@@ -4,6 +4,7 @@ from contextlib import redirect_stdout
 import tempfile
 import zipfile
 import os
+import shutil
 from ctypes import (
     cdll,
     CDLL,
