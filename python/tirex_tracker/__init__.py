@@ -800,9 +800,9 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
             Path(export_file_path).parent.mkdir(exist_ok=True, parents=True)
             archived_code = _archive_code()
             shutil.copy(archived_code, Path(export_file_path).parent)
-            python_info[PYTHON_CODE_ARCHIVE] = archived_code.name
-            python_info[PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE] = "script.py"
-            python_info[PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE] = "notebook.ipynb"
+            python_info[Measure.PYTHON_CODE_ARCHIVE] = archived_code.name
+            python_info[Measure.PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE] = "script.py"
+            python_info[Measure.PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE] = "notebook.ipynb"
 
         # Prepare the measure configurations.
         configs_array = _prepare_measure_configurations(measures)
