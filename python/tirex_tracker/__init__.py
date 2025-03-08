@@ -970,6 +970,15 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         ir_metadata["implementation"]["notebook"]["path"] = loads(
             self._python_info[Measure.PYTHON_NOTEBOOK_FILE_PATH].value
         )
+        ir_metadata["implementation"]["code"]["archive"] = loads(
+            self._python_info[Measure.PYTHON_CODE_ARCHIVE].value
+        )
+        ir_metadata["implementation"]["code"]["script"] = loads(
+            self._python_info[Measure.PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE].value
+        )
+        ir_metadata["implementation"]["code"]["notebook"] = loads(
+            self._python_info[Measure.PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE].value
+        )
 
         ir_metadata = _deep_merge(ir_metadata, tmp_ir_metadata)
         ir_metadata = _recursive_undefaultdict(ir_metadata)
