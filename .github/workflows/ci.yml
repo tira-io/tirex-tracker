@@ -46,7 +46,9 @@ jobs:
             compiler: clang-19.1.0 # setup-cpp fails to setup
           - runs-on: macos-15
             compiler: clang-19.1.0 # Known issue with clang (https://github.com/llvm/llvm-project/issues/109549)
-    runs-on: ${{ matrix.runs-on }}
+    runs-on: ${{ (matrix.runs-on == 'ubuntu-20.04') && 'ubuntu-latest' || matrix.runs-on }}
+    container:
+      image: ${{ (matrix.runs-on == 'ubuntu-20.04') && 'ghcr.io/catthehacker/ubuntu:runner-20.04' || null }}
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
@@ -128,7 +130,9 @@ jobs:
             compiler: clang-19.1.0 # setup-cpp fails to setup
           - runs-on: macos-15
             compiler: clang-19.1.0 # Known issue with clang (https://github.com/llvm/llvm-project/issues/109549)
-    runs-on: ${{ matrix.runs-on }}
+    runs-on: ${{ (matrix.runs-on == 'ubuntu-20.04') && 'ubuntu-latest' || matrix.runs-on }}
+    container:
+      image: ${{ (matrix.runs-on == 'ubuntu-20.04') && 'ghcr.io/catthehacker/ubuntu:runner-20.04' || null }}
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
@@ -179,7 +183,9 @@ jobs:
             compiler: gcc-14 # Cannot be installed.
           - runs-on: ubuntu-22.04
             compiler: gcc-14 # Cannot be installed.
-    runs-on: ${{ matrix.runs-on }}
+    runs-on: ${{ (matrix.runs-on == 'ubuntu-20.04') && 'ubuntu-latest' || matrix.runs-on }}
+    container:
+      image: ${{ (matrix.runs-on == 'ubuntu-20.04') && 'ghcr.io/catthehacker/ubuntu:runner-20.04' || null }}
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
@@ -281,7 +287,9 @@ jobs:
             runs-on: windows-2022
           - java: "21" # FIXME: Gradle seems to insist on loading Java 17 on Windows, weirdly.
             runs-on: windows-2022
-    runs-on: ${{ matrix.runs-on }}
+    runs-on: ${{ (matrix.runs-on == 'ubuntu-20.04') && 'ubuntu-latest' || matrix.runs-on }}
+    container:
+      image: ${{ (matrix.runs-on == 'ubuntu-20.04') && 'ghcr.io/catthehacker/ubuntu:runner-20.04' || null }}
     needs:
       - c-build-library
       - c-check-format
@@ -641,7 +649,9 @@ jobs:
             runs-on: windows-2022
           - python: "3.13" # FIXME: Linking errors, e.g., function 'tirexResultEntryGetByIndex' not found.
             runs-on: windows-2022
-    runs-on: ${{ matrix.runs-on }}
+    runs-on: ${{ (matrix.runs-on == 'ubuntu-20.04') && 'ubuntu-latest' || matrix.runs-on }}
+    container:
+      image: ${{ (matrix.runs-on == 'ubuntu-20.04') && 'ghcr.io/catthehacker/ubuntu:runner-20.04' || null }}
     needs:
       - c-build-library
       - c-check-format
