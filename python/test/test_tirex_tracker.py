@@ -4,6 +4,7 @@ from time import sleep
 from typing import Collection, Mapping
 
 from tirex_tracker import (
+    _find_executable,
     provider_infos,
     measure_infos,
     fetch_info,
@@ -31,6 +32,12 @@ def test_provider_infos() -> None:
     assert isinstance(actual, Collection)
     assert len(actual) > 0
 
+
+def test_find_executable() -> None:
+    actual = _find_executable()
+
+    assert actual is not None
+    assert Path(actual).exists()
 
 def test_measure_infos() -> None:
     actual = measure_infos()

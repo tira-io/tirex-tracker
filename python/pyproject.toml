@@ -59,6 +59,9 @@ exclude = ["build", "venv"]
     "*.so",
     "*.dll",
     "*.dylib",
+    "measure-*-linux",
+    "measure-*-macos",
+    "measure-*-windows.exe",
 ]
 
 [tool.setuptools_scm]

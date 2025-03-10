@@ -24,6 +24,7 @@ from pathlib import Path
 from sys import modules as sys_modules, executable, argv, platform, version_info
 from tempfile import mkdtemp
 from traceback import extract_stack
+from glob import glob
 from typing import (
     ItemsView,
     Iterator,
@@ -599,6 +600,24 @@ def _find_library() -> Path:
     else:
         raise RuntimeError("Unsupported platform.")
     return files(__name__) / path
+
+
+def _find_executable() -> Path:
+    path: str
+    if platform == "linux":
+        path = "measure-*-linux"
+    elif platform == "darwin":
+        path = "measure-*-macos"
+    elif platform == "win32":
+        path = "measure-*-windows.exe"
+    else:
+        raise RuntimeError("Unsupported platform.")
+
+    search_path = files(__name__) / path
+    ret = glob(str(search_path))
+    if len(ret) != 1:
+        raise RuntimeError(f'Could not find binary in {search_path}. Got: {ret}')
+    return ret[0]
 
 
 def _load_library() -> _TirexTrackerLibrary:
