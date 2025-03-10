@@ -27,7 +27,7 @@ dependencies = [
     "importlib-resources~=6.0",
     "ipython~=8.0",
     "ruamel.yaml~=0.18.0",
-    "gitpython",
+    "gitpython~=3.1",
 ]
 dynamic = ["version"]
 
