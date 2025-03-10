@@ -13,7 +13,7 @@ class TestExtractionOfCode(unittest.TestCase):
         expected_code_files = ["some-directory/.gitignore", "some-directory/Dockerfile", "some-directory/script.sh"]
 
         with tempfile.TemporaryDirectory() as tmp_file:
-            with ZipFile(Path("test") / "resources" / "example-git-repositories.zip", "r") as zip_ref:
+            with ZipFile(Path(__file__).parent / "resources" / "example-git-repositories.zip", "r") as zip_ref:
                 zip_ref.extractall(tmp_file)
 
             os.chmod(str(Path(tmp_file) / "git-repo-clean" / "some-directory" / "script.sh"), 0o0766) # nosec
