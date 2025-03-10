@@ -1039,7 +1039,7 @@ def tracking(
     poll_intervall_ms: int = -1,
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
-    export_file_path: Optional[PathLike] | str = None,
+    export_file_path: Union[Optional[PathLike], str] = None,
     export_format: Optional[ExportFormat] = None,
 ) -> TrackingHandle:
     return TrackingHandle.start(
