@@ -15,6 +15,7 @@ from ctypes import (
 from dataclasses import dataclass
 from enum import IntEnum, Enum
 from functools import wraps
+from gzip import open as gzip_open
 from importlib_metadata import distributions, version
 from importlib_resources import files
 from io import BytesIO
@@ -25,6 +26,7 @@ from sys import modules as sys_modules, executable, argv, platform, version_info
 from tempfile import mkdtemp
 from traceback import extract_stack
 from typing import (
+    IO,
     ItemsView,
     Iterator,
     KeysView,
@@ -945,8 +947,28 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         ir_metadata = _recursive_undefaultdict(ir_metadata)
 
         # Serialize the updated ir_metadata.
-        with export_file_path.open("wt") as file:
-            file.write("ir_metadata.start\n")
+        file_open: Callable[[], IO[str]]
+        if export_file_path.suffix == ".gz":
+
+            def file_open() -> IO[str]:
+                return gzip_open(export_file_path, "wt")
+        else:
+
+            def file_open() -> IO[str]:
+                return export_file_path.open("wt")
+
+        write_prefix_suffix = any(
+            Path(self._export_file_path).name.endswith(extension)
+            for extension in [
+                ".ir_metadata",
+                ".ir-metadata",
+                ".ir_metadata.gz",
+                ".ir-metadata.gz",
+            ]
+        )
+        with file_open() as file:
+            if write_prefix_suffix:
+                file.write("ir_metadata.start\n")
 
             yaml = YAML(typ="safe", pure=True)
             yaml.width = 10_000
@@ -954,7 +976,8 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
                 data=ir_metadata,
                 stream=file,
             )
-            file.write("ir_metadata.end\n")
+            if write_prefix_suffix:
+                file.write("ir_metadata.end\n")
 
 
 # TODO: Add aggregation(s) (mapping) parameter.

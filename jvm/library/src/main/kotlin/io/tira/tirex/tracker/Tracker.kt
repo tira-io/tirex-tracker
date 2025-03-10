@@ -12,6 +12,7 @@ import org.yaml.snakeyaml.Yaml
 import java.io.Closeable
 import java.io.File
 import java.nio.file.Path
+import java.util.zip.GZIPOutputStream
 
 private const val ENCODING = "ascii"
 
@@ -783,8 +784,26 @@ class TrackingHandle private constructor(
             javaInfo.getValue(Measure.JAVA_SPECIFICATION_NAME).value?.let { json.decodeFromString<String?>(it) }
 
         // Serialize the updated ir_metadata.
-        exportFilePath.outputStream().bufferedWriter().use { writer ->
+        val stream = exportFilePath.outputStream().let {
+            if (exportFilePath.name.endsWith(".gz")) {
+                GZIPOutputStream(it)
+            } else it
+        }
+        val writePrefixSuffix = listOf(
+            ".ir_metadata",
+            ".ir-metadata",
+            ".ir_metadata.gz",
+            ".ir-metadata.gz",
+        ).any { exportFilePath.name.endsWith(it) }
+        stream.bufferedWriter().use { writer ->
+            if (writePrefixSuffix) {
+                writer.write("ir_metadata.start\n")
+            }
             yaml.dump(irMetadata, writer)
+            if (writePrefixSuffix) {
+                writer.write("\n")
+                writer.write("ir_metadata.end\n")
+            }
         }
     }
 }
