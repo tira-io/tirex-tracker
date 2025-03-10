@@ -5,6 +5,8 @@ import tempfile
 import zipfile
 import os
 import shutil
+import nbformat
+from nbconvert.exporters import HTMLExporter
 from ctypes import (
     cdll,
     CDLL,
@@ -479,7 +481,6 @@ def _get_python_info(
             measures=measures,
             value=str(script_file_path),
         )
-        script_file_contents = script_file_path.read_text()
         _add_python_result_entry(
             results=results,
             measure=Measure.PYTHON_NOTEBOOK_FILE_PATH,
@@ -745,7 +746,7 @@ def _archive_code(python_info):
         code_file = Path(loads(python_info[Measure.PYTHON_SCRIPT_FILE_PATH].value)).resolve().absolute()
         try:
             return zip_code(code_file.parent)
-        except:
+        except git.exc.InvalidGitRepositoryError:
             return _archive_to_zip_repo(code_file.parent, [code_file.name])
 
 def _archive_to_zip_repo(directory, files):
