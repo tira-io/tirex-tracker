@@ -842,11 +842,33 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         if self._export_file_path is None:
             return
         elif self._export_format is None:
-            return
+            self._export_guessed_format(result)
         elif self._export_format == ExportFormat.IR_METADATA:
             self._export_ir_metadata(result)
         else:
             raise ValueError("Invalid export format.")
+
+    def _export_guessed_format(self, result: "Pointer[_Result]") -> None:
+        if self._export_file_path is None:
+            return
+        elif any(
+            Path(self._export_file_path).name.endswith(extension)
+            for extension in [
+                ".ir_metadata",
+                ".ir-metadata",
+                ".ir_metadata.yml",
+                ".ir-metadata.yml",
+                ".ir_metadata.yaml",
+                ".ir-metadata.yaml",
+                ".ir_metadata.gz",
+                ".ir-metadata.gz",
+                ".ir_metadata.yml.gz",
+                ".ir-metadata.yml.gz",
+                ".ir_metadata.yaml.gz",
+                ".ir-metadata.yaml.gz",
+            ]
+        ):
+            self._export_ir_metadata(result)
 
     def _export_ir_metadata(self, result: "Pointer[_Result]") -> None:
         if self._export_file_path is None:

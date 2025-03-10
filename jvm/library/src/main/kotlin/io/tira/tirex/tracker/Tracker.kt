@@ -671,9 +671,29 @@ class TrackingHandle private constructor(
     private fun export(result: Pointer) {
         if (exportFilePath == null) return
         when (exportFormat) {
-            null -> return
+            null -> exportGuessedFormat(result)
             ExportFormat.IR_METADATA -> exportIrMetadata(result)
         }
+    }
+
+    private fun exportGuessedFormat(result: Pointer) {
+        if (exportFilePath == null) return
+        else if (
+            listOf(
+                ".ir_metadata",
+                ".ir-metadata",
+                ".ir_metadata.yml",
+                ".ir-metadata.yml",
+                ".ir_metadata.yaml",
+                ".ir-metadata.yaml",
+                ".ir_metadata.gz",
+                ".ir-metadata.gz",
+                ".ir_metadata.yml.gz",
+                ".ir-metadata.yml.gz",
+                ".ir_metadata.yaml.gz",
+                ".ir-metadata.yaml.gz",
+            ).any { exportFilePath.name.endsWith(it) }
+        ) exportIrMetadata(result)
     }
 
     @Suppress("UNCHECKED_CAST")
