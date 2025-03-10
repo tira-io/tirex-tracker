@@ -25,7 +25,7 @@ dependencies = [
     "typing-extensions~=4.0",
     "importlib-metadata~=8.0",
     "importlib-resources~=6.0",
-    "ipython~=8.0",
+    "ipython>=8,<10",
     "ruamel.yaml~=0.18.0",
 ]
 dynamic = ["version"]
