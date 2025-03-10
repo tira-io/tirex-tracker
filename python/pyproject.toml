@@ -39,6 +39,7 @@ tests = [
     "pytest-cov>=5.0,<7.0",
     "runnb",
     "ruff~=0.9.0",
+    "nbformat",
 ]
 docs = [
     "sphinx~=8.1",
