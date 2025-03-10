@@ -2,7 +2,7 @@ import unittest
 import tempfile
 import shutil
 from pathlib import Path
-from subprocess import check_output
+from subprocess import check_output # nosec
 import os
 import yaml
 from zipfile import ZipFile
@@ -21,7 +21,7 @@ class TestIntegration(unittest.TestCase):
 
             self.assertFalse((working_dir / 'irmetadata.yml').exists())
             
-            check_output(['python3', 'example.py'], cwd=str(working_dir), env=env)
+            check_output(['python3', 'example.py'], cwd=str(working_dir), env=env) # nosec
             
             self.assertTrue((working_dir / 'irmetadata.yml').exists())
             with open(working_dir / 'irmetadata.yml', 'r') as f:
@@ -54,7 +54,7 @@ class TestIntegration(unittest.TestCase):
 
             self.assertFalse((working_dir / 'irmetadata.yml').exists())
             
-            check_output(['runnb', '--allow-not-trusted', 'example-notebook.ipynb'], cwd=str(working_dir), env=env)
+            check_output(['runnb', '--allow-not-trusted', 'example-notebook.ipynb'], cwd=str(working_dir), env=env) # nosec
             
             self.assertTrue((working_dir / 'irmetadata.yml').exists())
             with open(working_dir / 'irmetadata.yml', 'r') as f:

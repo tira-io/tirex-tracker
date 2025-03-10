@@ -4,8 +4,6 @@ from contextlib import redirect_stdout
 from zipfile import ZIP_DEFLATED, ZipFile
 from os.path import join as path_join
 from shutil import copy as sh_copy
-from nbformat import reads as nbformat_reads
-from nbconvert.exporters import HTMLExporter
 from ctypes import (
     cdll,
     CDLL,
@@ -687,13 +685,12 @@ def _git_repo(path: Path):
 
 
 def parse_notebook_to_html(notebook_content):
-    try:
-        notebook = nbformat_reads(notebook_content, as_version=4)
-        html_exporter = HTMLExporter(template_name="classic")
-        (body, _) = html_exporter.from_notebook_node(notebook)
-        return body
-    except Exception:
-        pass
+    from nbformat import reads as nbformat_reads
+    from nbconvert.exporters import HTMLExporter
+    notebook = nbformat_reads(notebook_content, as_version=4)
+    html_exporter = HTMLExporter(template_name="classic")
+    (body, _) = html_exporter.from_notebook_node(notebook)
+    return body
 
 
 def get_url_of_git_repo(metadata):

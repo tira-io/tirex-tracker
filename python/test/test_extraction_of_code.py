@@ -16,7 +16,7 @@ class TestExtractionOfCode(unittest.TestCase):
             with ZipFile(Path("test") / "resources" / "example-git-repositories.zip", "r") as zip_ref:
                 zip_ref.extractall(tmp_file)
 
-            os.chmod(str(Path(tmp_file) / "git-repo-clean" / "some-directory" / "script.sh"), 0o0766)
+            os.chmod(str(Path(tmp_file) / "git-repo-clean" / "some-directory" / "script.sh"), 0o0766) # nosec
             actual = zip_code(Path(tmp_file) / "git-repo-clean" / "some-directory")
 
         zipObj = ZipFile(actual)

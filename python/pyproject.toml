@@ -28,7 +28,6 @@ dependencies = [
     "ipython~=8.0",
     "ruamel.yaml~=0.18.0",
     "gitpython",
-    "nbconvert",
 ]
 dynamic = ["version"]
 
