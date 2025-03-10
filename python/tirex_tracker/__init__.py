@@ -727,7 +727,7 @@ def _is_notebook() -> bool:
         return False
 
 
-def _notebook_contents() -> tuple[Path, Path]:
+def _notebook_contents() -> Tuple[Path, Path]:
     if not _is_notebook():
         raise ValueError("foo")
 
