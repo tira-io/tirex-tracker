@@ -52,6 +52,10 @@ jobs:
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
+      - name: 🧰 Download keys
+        run: |
+          # Work around for https://github.com/git-lfs/git-lfs/issues/3474
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6B05F25D762E3157
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
@@ -136,6 +140,10 @@ jobs:
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
+      - name: 🧰 Download keys
+        run: |
+          # Work around for https://github.com/git-lfs/git-lfs/issues/3474
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6B05F25D762E3157
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
