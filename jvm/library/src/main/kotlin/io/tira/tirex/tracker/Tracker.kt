@@ -720,16 +720,14 @@ class TrackingHandle private constructor(
                 defaultFlowStyle = DumperOptions.FlowStyle.AUTO
             },
         )
-        val irMetadataString = exportFilePath.useLines { lines ->
-            lines.dropWhile {
-                it != "ir_metadata.start"
-            }.drop(1).takeWhile {
-                it != "ir_metadata.end"
-            }.joinToString("\n")
-            // FIXME: There's a bug in the YAML output format that we work around here:
-        }.replace(Regex("""caches: (.*),"""), """caches: {\1}""")
-        val irMetadata: MutableMap<String, Any?> = yaml.load<MutableMap<String, Any?>>(irMetadataString)
-
+        val irMetadataYamlString = exportFilePath.readText()
+            .removePrefix("ir_metadata.start\n") // Remove optional ir_metadata prefix line.
+            .removeSuffix("ir_metadata.end\n") // Remove optional ir_metadata suffix line.
+            .replace(
+                Regex("""caches: (.*),"""),
+                """caches: {\1}"""
+            ) // FIXME: There's a bug in the YAML output format (https://github.com/tira-io/tirex-tracker/issues/42) that we work around here.
+        val irMetadata: MutableMap<String, Any?> = yaml.load<MutableMap<String, Any?>>(irMetadataYamlString)
 
         // Add user-provided metadata.
         val method: MutableMap<String, Any?> =
