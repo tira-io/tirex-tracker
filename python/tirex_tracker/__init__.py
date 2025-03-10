@@ -396,6 +396,7 @@ def _add_python_result_entry(
 
 def _get_python_info(
     measures: Iterable[Measure],
+    export_file_path: Optional[PathLike] = None
 ) -> Tuple[Mapping[Measure, ResultEntry], Iterable[Measure]]:
     results: MutableMapping[Measure, ResultEntry] = {}
 
@@ -484,6 +485,16 @@ def _get_python_info(
             measures=measures,
             value=None,
         )
+
+    if export_file_path and Measure.PYTHON_CODE_ARCHIVE in measures:
+        Path(export_file_path).parent.mkdir(exist_ok=True, parents=True)
+        archived_code = _archive_code(results)
+
+        if archived_code:
+            sh_copy(archived_code, Path(export_file_path).parent)
+            results[Measure.PYTHON_CODE_ARCHIVE] = _python_result_entry(Measure.PYTHON_CODE_ARCHIVE, archived_code.name)
+            results[Measure.PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE] = _python_result_entry(Measure.PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE, "script.py")
+            results[Measure.PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE] = _python_result_entry(Measure.PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE, "notebook.ipynb")
 
     measures = {
         measure for measure in measures if measure not in _PYTHON_MEASURES.keys()
@@ -812,17 +823,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         export_format: Optional[ExportFormat] = None,
     ) -> Self:
         # Get Python info first, and then strip Python measures from the list.
-        python_info, measures = _get_python_info(measures=measures)
-
-        if export_file_path:
-            Path(export_file_path).parent.mkdir(exist_ok=True, parents=True)
-            archived_code = _archive_code(python_info)
-            
-            if archived_code:
-                sh_copy(archived_code, Path(export_file_path).parent)
-                python_info[Measure.PYTHON_CODE_ARCHIVE] = _python_result_entry(Measure.PYTHON_CODE_ARCHIVE, archived_code.name)
-                python_info[Measure.PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE] = _python_result_entry(Measure.PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE, "script.py")
-                python_info[Measure.PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE] = _python_result_entry(Measure.PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE, "notebook.ipynb")
+        python_info, measures = _get_python_info(measures=measures, export_file_path=export_file_path)
 
         # Prepare the measure configurations.
         configs_array = _prepare_measure_configurations(measures)
@@ -1038,7 +1039,7 @@ def tracking(
     poll_intervall_ms: int = -1,
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
-    export_file_path: Optional[PathLike] = None,
+    export_file_path: Optional[PathLike] | str = None,
     export_format: Optional[ExportFormat] = None,
 ) -> TrackingHandle:
     return TrackingHandle.start(
@@ -1046,7 +1047,7 @@ def tracking(
         poll_intervall_ms=poll_intervall_ms,
         system_name=system_name,
         system_description=system_description,
-        export_file_path=export_file_path,
+        export_file_path=None if export_file_path is None else Path(export_file_path),
         export_format=export_format,
     )
 
