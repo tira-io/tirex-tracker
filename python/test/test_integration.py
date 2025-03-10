@@ -32,9 +32,10 @@ class TestIntegration(unittest.TestCase):
             self.assertIn('script', yaml_content['implementation'])
             self.assertIn('path', yaml_content['implementation']['script'])
             self.assertIn('example.py', yaml_content['implementation']['script']['path'])
-            self.assertIn('code', yaml_content['implementation'])
-            self.assertIn('archive', yaml_content['implementation']['code'])
-            self.assertEqual('code.zip', yaml_content['implementation']['code']['archive'])
+            self.assertIn('source', yaml_content['implementation'])
+            self.assertIn('archive', yaml_content['implementation']['source'])
+            self.assertIn('path', yaml_content['implementation']['source']["archive"])
+            self.assertEqual('code.zip', yaml_content['implementation']['source']['archive']['path'])
 
             zipObj = ZipFile(working_dir / 'code.zip')
             files_in_zip = [i.filename for i in zipObj.infolist()]
@@ -64,9 +65,10 @@ class TestIntegration(unittest.TestCase):
             self.assertIn('script', yaml_content['implementation'])
             self.assertIn('path', yaml_content['implementation']['script'])
             self.assertIn('script.py', yaml_content['implementation']['script']['path'])
-            self.assertIn('code', yaml_content['implementation'])
-            self.assertIn('archive', yaml_content['implementation']['code'])
-            self.assertEqual('code.zip', yaml_content['implementation']['code']['archive'])
+            self.assertIn('source', yaml_content['implementation'])
+            self.assertIn('archive', yaml_content['implementation']['source'])
+            self.assertIn('path', yaml_content['implementation']['source']["archive"])
+            self.assertEqual('code.zip', yaml_content['implementation']['source']['archive']['path'])
 
             zipObj = ZipFile(working_dir / 'code.zip')
             files_in_zip = [i.filename for i in zipObj.infolist()]

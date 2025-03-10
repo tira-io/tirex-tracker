@@ -684,7 +684,7 @@ def _git_repo(path: Path):
         except git.exc.InvalidGitRepositoryError:
             path = path.parent
     print(msg)
-    raise ValueError(msg)
+    raise git.exc.InvalidGitRepositoryError(msg)
 
 
 def parse_notebook_to_html(notebook_content):
@@ -981,17 +981,17 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         )
         
         if Measure.PYTHON_CODE_ARCHIVE in self._python_info:
-            ir_metadata["implementation"]["code"]["archive"] = loads(
+            ir_metadata["implementation"]["source"]["archive"]["path"] = loads(
                 self._python_info[Measure.PYTHON_CODE_ARCHIVE].value
             )
 
         if Measure.PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE in self._python_info:
-            ir_metadata["implementation"]["code"]["script"] = loads(
+            ir_metadata["implementation"]["source"]["archive"]["script path"] = loads(
                 self._python_info[Measure.PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE].value
             )
 
         if Measure.PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE in self._python_info:
-            ir_metadata["implementation"]["code"]["notebook"] = loads(
+            ir_metadata["implementation"]["source"]["archive"]["notebook path"] = loads(
                 self._python_info[Measure.PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE].value
             )
 
