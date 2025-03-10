@@ -42,6 +42,7 @@ tests = [
     "nbformat",
     "nbconvert",
     "types-PyYAML",
+    "notebook~=7.3.0",
 ]
 docs = [
     "sphinx~=8.1",
