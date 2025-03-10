@@ -752,7 +752,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
     def start(
         cls,
         measures: Iterable[Measure] = ALL_MEASURES,
-        poll_intervall_ms: int = -1,
+        poll_intervall_ms: int = 1000,
         system_name: Optional[str] = None,
         system_description: Optional[str] = None,
         export_file_path: Optional[PathLike] = None,
@@ -938,7 +938,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
 # TODO: Add aggregation(s) (mapping) parameter.
 def start_tracking(
     measures: Iterable[Measure] = ALL_MEASURES,
-    poll_intervall_ms: int = -1,
+    poll_intervall_ms: int = 1000,
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
@@ -963,7 +963,7 @@ def stop_tracking(
 # TODO: Add aggregation(s) (mapping) parameter.
 def tracking(
     measures: Iterable[Measure] = ALL_MEASURES,
-    poll_intervall_ms: int = -1,
+    poll_intervall_ms: int = 1000,
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
@@ -983,7 +983,7 @@ def tracking(
 def track(
     block: Callable[[], None],
     measures: Iterable[Measure] = ALL_MEASURES,
-    poll_intervall_ms: int = -1,
+    poll_intervall_ms: int = 1000,
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
@@ -1021,7 +1021,7 @@ def tracked(
 # TODO: Add aggregation(s) (mapping) parameter.
 def tracked(
     f_or_measures: Union[Callable[P, T], Iterable[Measure]] = ALL_MEASURES,
-    poll_intervall_ms: int = -1,
+    poll_intervall_ms: int = 1000,
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
