@@ -1,11 +1,5 @@
-from tirex_tracker import tracking, set_log_callback, LogLevel
+from tirex_tracker import tracking, ExportFormat
 
-def log_callback(level: LogLevel, component: str, message: str) -> None:
-    print(f'[{level}] [{component}] {message}')
-
-set_log_callback(log_callback)
-
-with tracking() as results:
+with tracking(export_format = ExportFormat.IR_METADATA, export_file_path="irmetadata.yml") as results:
     from time import sleep
     sleep(1)
-print(results)

@@ -737,10 +737,16 @@ def _notebook_contents() -> tuple[Path, Path]:
 
     return python_file, notebook_file
 
-def _archive_code():
+def _archive_code(python_info):
     if _is_notebook():
         python_file, notebook_file = _notebook_contents()
         return _archive_to_zip_repo(python_file.parent, [python_file.name, notebook_file.name])
+    if Measure.PYTHON_SCRIPT_FILE_PATH in python_info and python_info[Measure.PYTHON_SCRIPT_FILE_PATH].value:
+        code_file = Path(loads(python_info[Measure.PYTHON_SCRIPT_FILE_PATH].value)).resolve().absolute()
+        try:
+            return zip_code(code_file.parent)
+        except:
+            return _archive_to_zip_repo(code_file.parent, [code_file.name])
 
 def _archive_to_zip_repo(directory, files):
     zip_path = Path(tempfile.TemporaryDirectory().name) / "code.zip"
@@ -813,7 +819,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
 
         if export_file_path:
             Path(export_file_path).parent.mkdir(exist_ok=True, parents=True)
-            archived_code = _archive_code()
+            archived_code = _archive_code(python_info)
             
             if archived_code:
                 shutil.copy(archived_code, Path(export_file_path).parent)
