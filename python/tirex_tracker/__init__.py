@@ -1,11 +1,10 @@
 from collections import defaultdict
 from contextlib import redirect_stdout
 
-import tempfile
-import zipfile
-import os
-import shutil
-import nbformat
+from zipfile import ZIP_DEFLATED, ZipFile
+from os.path import join as path_join
+from shutil import copy as sh_copy
+from nbformat import reads as nbformat_reads
 from nbconvert.exporters import HTMLExporter
 from ctypes import (
     cdll,
@@ -30,7 +29,7 @@ from os import PathLike
 from pathlib import Path
 import git
 from sys import modules as sys_modules, executable, argv, platform, version_info
-from tempfile import mkdtemp
+from tempfile import mkdtemp, TemporaryDirectory
 from traceback import extract_stack
 from typing import (
     ItemsView,
@@ -689,7 +688,7 @@ def _git_repo(path: Path):
 
 def parse_notebook_to_html(notebook_content):
     try:
-        notebook = nbformat.reads(notebook_content, as_version=4)
+        notebook = nbformat_reads(notebook_content, as_version=4)
         html_exporter = HTMLExporter(template_name="classic")
         (body, _) = html_exporter.from_notebook_node(notebook)
         return body
@@ -728,7 +727,7 @@ def _notebook_contents() -> tuple[Path, Path]:
 
     ipython = get_ipython()  # type: ignore
 
-    f = Path(tempfile.TemporaryDirectory().name + "-1234")
+    f = Path(TemporaryDirectory().name + "-1234")
     f.mkdir(parents=True, exist_ok=True)
     python_file = Path(f) / "script.py"
     notebook_file = Path(f) / "notebook.ipynb"
@@ -750,12 +749,12 @@ def _archive_code(python_info):
             return _archive_to_zip_repo(code_file.parent, [code_file.name])
 
 def _archive_to_zip_repo(directory, files):
-    zip_path = Path(tempfile.TemporaryDirectory().name) / "code.zip"
+    zip_path = Path(TemporaryDirectory().name) / "code.zip"
     zip_path.parent.mkdir(exist_ok=True, parents=True)
 
-    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
+    with ZipFile(zip_path, "w", ZIP_DEFLATED) as zipf:
         for file in files:
-            file_path = os.path.join(directory, file)
+            file_path = path_join(directory, file)
             zipf.write(file_path, arcname=file)
 
     return zip_path
@@ -823,7 +822,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
             archived_code = _archive_code(python_info)
             
             if archived_code:
-                shutil.copy(archived_code, Path(export_file_path).parent)
+                sh_copy(archived_code, Path(export_file_path).parent)
                 python_info[Measure.PYTHON_CODE_ARCHIVE] = _python_result_entry(Measure.PYTHON_CODE_ARCHIVE, archived_code.name)
                 python_info[Measure.PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE] = _python_result_entry(Measure.PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE, "script.py")
                 python_info[Measure.PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE] = _python_result_entry(Measure.PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE, "notebook.ipynb")
