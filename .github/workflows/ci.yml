@@ -39,7 +39,7 @@ jobs:
       image: ${{ (matrix.environment.runs-on == 'ubuntu-18.04' && 'ghcr.io/catthehacker/ubuntu:runner-18.04') || (matrix.environment.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 🧰 Download keys
         if: matrix.environment.runs-on == 'ubuntu-20.04'
         run: |
@@ -78,7 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
@@ -116,7 +116,7 @@ jobs:
       image: ${{ (matrix.environment.runs-on == 'ubuntu-18.04' && 'ghcr.io/catthehacker/ubuntu:runner-18.04') || (matrix.environment.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 🧰 Download keys
         if: matrix.environment.runs-on == 'ubuntu-20.04'
         run: |
@@ -170,7 +170,7 @@ jobs:
       image: ${{ (matrix.environment.runs-on == 'ubuntu-18.04' && 'ghcr.io/catthehacker/ubuntu:runner-18.04') || (matrix.environment.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 🧰 Download keys
         if: matrix.environment.runs-on == 'ubuntu-20.04'
         run: |
@@ -209,7 +209,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 🧰 Install JDK 8 (for compiling)
         uses: actions/setup-java@v4
         with:
@@ -273,7 +273,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 🧰 Install JDK 8 (for compiling)
         uses: actions/setup-java@v4
         with:
@@ -336,7 +336,7 @@ jobs:
       - jvm-check
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 🧰 Install JDK 8 (for compiling)
         uses: actions/setup-java@v4
         with:
@@ -429,7 +429,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
@@ -479,7 +479,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
@@ -523,7 +523,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
@@ -567,7 +567,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
@@ -623,7 +623,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
@@ -671,7 +671,7 @@ jobs:
       id-token: write
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 📥 Download Python wheels
         uses: actions/download-artifact@v4
         with:
@@ -701,7 +701,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 📥 Download Linux library
         uses: actions/download-artifact@v4
         with:
