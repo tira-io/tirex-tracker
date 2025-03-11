@@ -69,11 +69,11 @@ if (NOT (UNIX AND APPLE)) # CPPJouls does not support macos right now
 endif()
 
 # LibGit
-option(USE_SSH OFF)
-option(USE_HTTPS OFF)
-set(REGEX_BACKEND "builtin")
-option(BUILD_CLI OFF) # Do not build the Git CLI
-option(BUILD_TESTS OFF)
+set(USE_SSH OFF CACHE BOOL "" FORCE)
+set(USE_HTTPS OFF CACHE BOOL "" FORCE)
+set(REGEX_BACKEND "builtin" CACHE STRING "" FORCE)
+set(BUILD_CLI OFF CACHE BOOL "" FORCE) # Do not build the Git CLI
+set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(libgit GIT_REPOSITORY https://github.com/libgit2/libgit2.git GIT_TAG v1.8.4)
 FetchContent_MakeAvailable(libgit)
 set_property(TARGET libgit2 PROPERTY POSITION_INDEPENDENT_CODE ON)
