@@ -71,7 +71,7 @@ jobs:
       - name: 🧰 Install compiler
         run: |
           docker run ${{ matrix.image }} \
-          apt-get update && apt-get install -y gcc-13 g++-13 cmake
+          sudo apt-get update && sudo apt-get install -y gcc-13 g++-13 cmake
       - name: 🔧 Configure CMake
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace ${{ matrix.image }} \
@@ -162,7 +162,7 @@ jobs:
       - name: 🧰 Install compiler
         run: |
           docker run ${{ matrix.image }} \
-          apt-get update && apt-get install -y gcc-13 g++-13 cmake
+          sudo apt-get update && sudo apt-get install -y gcc-13 g++-13 cmake
       - name: 🔧 Configure CMake
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace ${{ matrix.image }} \
@@ -217,7 +217,7 @@ jobs:
       - name: 🧰 Install compiler
         run: |
           docker run ${{ matrix.image }} \
-          apt-get update && apt-get install -y gcc-13 g++-13 cmake
+          sudo apt-get update && sudo apt-get install -y gcc-13 g++-13 cmake
       - name: 🔧 Configure CMake
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace ${{ matrix.image }} \
