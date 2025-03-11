@@ -70,8 +70,8 @@ jobs:
         uses: actions/checkout@v4
       - name: 🧰 Install compiler
         run: |
-          docker run ${{ matrix.image }} \
-          sudo apt-get update && sudo apt-get install -y gcc-13 g++-13 cmake
+          docker run --user root ${{ matrix.image }} \
+          apt-get update && apt-get install -y gcc-13 g++-13 cmake
       - name: 🔧 Configure CMake
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace ${{ matrix.image }} \
@@ -161,8 +161,8 @@ jobs:
         uses: actions/checkout@v4
       - name: 🧰 Install compiler
         run: |
-          docker run ${{ matrix.image }} \
-          sudo apt-get update && sudo apt-get install -y gcc-13 g++-13 cmake
+          docker run --user root ${{ matrix.image }} \
+          apt-get update && apt-get install -y gcc-13 g++-13 cmake
       - name: 🔧 Configure CMake
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace ${{ matrix.image }} \
@@ -216,8 +216,8 @@ jobs:
         uses: actions/checkout@v4
       - name: 🧰 Install compiler
         run: |
-          docker run ${{ matrix.image }} \
-          sudo apt-get update && sudo apt-get install -y gcc-13 g++-13 cmake
+          docker run --user root ${{ matrix.image }} \
+          apt-get update && apt-get install -y gcc-13 g++-13 cmake
       - name: 🔧 Configure CMake
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace ${{ matrix.image }} \
