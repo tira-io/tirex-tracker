@@ -1,25 +1,42 @@
-import os
-import tempfile
-import unittest
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 
-from tirex_tracker import zip_code
+from tirex_tracker.archive_utils import create_git_zip_archive
+
+_EXAMPLE_GIT_REPOSITORY_PATH = (
+    Path(__file__).parent / "resources" / "example-git-repositories.zip"
+)
 
 
-class TestExtractionOfCode(unittest.TestCase):
+def test_code_extraction_from_git_repository() -> None:
+    expected_code_files = [
+        "some-directory/.gitignore",
+        "some-directory/Dockerfile",
+        "some-directory/script.sh",
+    ]
 
-    def test_code_extraction_from_git_repository(self):
-        expected_code_files = ["some-directory/.gitignore", "some-directory/Dockerfile", "some-directory/script.sh"]
+    with TemporaryDirectory() as temp_working_dir:
+        working_directory_path = Path(temp_working_dir)
 
-        with tempfile.TemporaryDirectory() as tmp_file:
-            with ZipFile(Path(__file__).parent / "resources" / "example-git-repositories.zip", "r") as zip_ref:
-                zip_ref.extractall(tmp_file)
+        # Extract the example Git repository to the working directory.
+        with ZipFile(_EXAMPLE_GIT_REPOSITORY_PATH, "r") as zip_file:
+            zip_file.extractall(working_directory_path)
 
-            os.chmod(str(Path(tmp_file) / "git-repo-clean" / "some-directory" / "script.sh"), 0o0766) # nosec
-            actual = zip_code(Path(tmp_file) / "git-repo-clean" / "some-directory")
+        script_file_path = (
+            working_directory_path / "git-repo-clean" / "some-directory" / "script.sh"
+        )
+        script_file_path.chmod(0o0766)  # nosec
 
-        zipObj = ZipFile(actual)
-        files_in_zip = [i.filename for i in zipObj.infolist()]
+        with TemporaryDirectory() as tmp_metadata_dir:
+            metadata_dir_path = Path(tmp_metadata_dir)
 
-        self.assertEqual(files_in_zip, expected_code_files)
+            actual = create_git_zip_archive(
+                metadata_directory_path=metadata_dir_path,
+                script_file_path=script_file_path,
+            )
+
+            with ZipFile(actual.zip_file_path) as zip_file:
+                archive_names = zip_file.namelist()
+
+            assert archive_names == expected_code_files
