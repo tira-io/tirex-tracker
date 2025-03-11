@@ -1,9 +1,4 @@
 from collections import defaultdict
-from contextlib import redirect_stdout
-
-from zipfile import ZIP_DEFLATED, ZipFile
-from os.path import join as path_join
-from shutil import copy as sh_copy
 from ctypes import (
     cdll,
     CDLL,
@@ -25,10 +20,7 @@ from io import BytesIO
 from json import dumps, loads
 from os import PathLike
 from pathlib import Path
-import git
 from sys import modules as sys_modules, executable, argv, platform, version_info
-from tempfile import mkdtemp, TemporaryDirectory
-from traceback import extract_stack
 from typing import (
     ItemsView,
     Iterator,
@@ -56,6 +48,8 @@ from typing import (
 from IPython import get_ipython
 from typing_extensions import ParamSpec, Self  # type: ignore
 from ruamel.yaml import YAML
+
+from python.tirex_tracker.archive_utils import create_code_archive
 
 
 if TYPE_CHECKING:
@@ -124,11 +118,13 @@ class Measure(IntEnum):
     PYTHON_MODULES = 1003
     PYTHON_INSTALLED_PACKAGES = 1004
     PYTHON_IS_INTERACTIVE = 1005
-    PYTHON_CODE_ARCHIVE = 1006
-    PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE = 1007
-    PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE = 1008
-    PYTHON_SCRIPT_FILE_PATH = 1009
-    PYTHON_NOTEBOOK_FILE_PATH = 1010
+    PYTHON_SCRIPT_FILE_PATH = 1006
+    # 1007 was used in previous versions of the library.
+    PYTHON_NOTEBOOK_FILE_PATH = 1008
+    # 1009 was used in previous versions of the library.
+    PYTHON_CODE_ARCHIVE_PATH = 1010
+    PYTHON_SCRIPT_FILE_PATH_IN_CODE_ARCHIVE = 1011
+    PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE = 1012
 
 
 _INVALID_MEASURE = -1
@@ -357,17 +353,17 @@ _PYTHON_MEASURES: Mapping[Measure, MeasureInfo] = {
         data_type=ResultType.STRING,
         example=dumps("/path/to/notebook.ipynb"),
     ),
-    Measure.PYTHON_CODE_ARCHIVE: MeasureInfo(
+    Measure.PYTHON_CODE_ARCHIVE_PATH: MeasureInfo(
         description="The archive that contains a snapshot of the code.",
         data_type=ResultType.STRING,
         example=dumps("/path/to/code.zip"),
     ),
-    Measure.PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE: MeasureInfo(
+    Measure.PYTHON_SCRIPT_FILE_PATH_IN_CODE_ARCHIVE: MeasureInfo(
         description="The script that was executed in the code archive.",
         data_type=ResultType.STRING,
         example=dumps("script.py"),
     ),
-    Measure.PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE: MeasureInfo(
+    Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE: MeasureInfo(
         description="The notebook that was executed in the code archive.",
         data_type=ResultType.STRING,
         example=dumps("notebook.ipynb"),
@@ -395,8 +391,7 @@ def _add_python_result_entry(
 
 
 def _get_python_info(
-    measures: Iterable[Measure],
-    export_file_path: Optional[PathLike] = None
+    measures: Iterable[Measure], export_file_path: Optional[PathLike] = None
 ) -> Tuple[Mapping[Measure, ResultEntry], Iterable[Measure]]:
     results: MutableMapping[Measure, ResultEntry] = {}
 
@@ -453,48 +448,47 @@ def _get_python_info(
         value=is_interactive,
     )
 
-    if ipython is not None:
-        tmp_dir = mkdtemp()
-        tmp_dir_path = Path(tmp_dir)
-        script_file_path = tmp_dir_path / "script.py"
+    if export_file_path is not None:
+        # Create a utility directory as a sibling to the export file, containing the code archive.
+        metadata_directory_path = Path(export_file_path).parent / ".tirex-tracker"
+        # Remove the directory if it already exists.
+        if metadata_directory_path.exists():
+            metadata_directory_path.rmdir()
+
+        archive_paths = create_code_archive(metadata_directory_path)
+
+        _add_python_result_entry(
+            results=results,
+            measure=Measure.PYTHON_CODE_ARCHIVE_PATH,
+            measures=measures,
+            value=str(archive_paths.zip_file_path),
+        )
         _add_python_result_entry(
             results=results,
             measure=Measure.PYTHON_SCRIPT_FILE_PATH,
             measures=measures,
-            value=str(script_file_path),
+            value=str(archive_paths.script_file_path),
         )
-        notebook_file_path = tmp_dir_path / "notebook.ipynb"
+        if archive_paths.notebook_file_path is not None:
+            _add_python_result_entry(
+                results=results,
+                measure=Measure.PYTHON_NOTEBOOK_FILE_PATH,
+                measures=measures,
+                value=str(archive_paths.notebook_file_path),
+            )
         _add_python_result_entry(
             results=results,
-            measure=Measure.PYTHON_NOTEBOOK_FILE_PATH,
+            measure=Measure.PYTHON_SCRIPT_FILE_PATH_IN_CODE_ARCHIVE,
             measures=measures,
-            value=str(notebook_file_path),
+            value=str(archive_paths.script_file_path_in_zip),
         )
-
-    else:
-        script_file_path = Path(extract_stack()[0].filename).resolve()
-        _add_python_result_entry(
-            results=results,
-            measure=Measure.PYTHON_SCRIPT_FILE_PATH,
-            measures=measures,
-            value=str(script_file_path),
-        )
-        _add_python_result_entry(
-            results=results,
-            measure=Measure.PYTHON_NOTEBOOK_FILE_PATH,
-            measures=measures,
-            value=None,
-        )
-
-    if export_file_path and Measure.PYTHON_CODE_ARCHIVE in measures:
-        Path(export_file_path).parent.mkdir(exist_ok=True, parents=True)
-        archived_code = _archive_code(results)
-
-        if archived_code:
-            sh_copy(archived_code, Path(export_file_path).parent)
-            results[Measure.PYTHON_CODE_ARCHIVE] = _python_result_entry(Measure.PYTHON_CODE_ARCHIVE, archived_code.name)
-            results[Measure.PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE] = _python_result_entry(Measure.PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE, "script.py")
-            results[Measure.PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE] = _python_result_entry(Measure.PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE, "notebook.ipynb")
+        if archive_paths.notebook_file_path_in_zip is not None:
+            _add_python_result_entry(
+                results=results,
+                measure=Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE,
+                measures=measures,
+                value=str(archive_paths.notebook_file_path_in_zip),
+            )
 
     measures = {
         measure for measure in measures if measure not in _PYTHON_MEASURES.keys()
@@ -567,6 +561,7 @@ def _find_library() -> Path:
     else:
         raise RuntimeError("Unsupported platform.")
     return files(__name__) / path
+
 
 def _load_library() -> _TirexTrackerLibrary:
     library = cdll.LoadLibrary(str(_find_library()))
@@ -683,103 +678,6 @@ def _prepare_measure_configurations(
     return configs_array
 
 
-def _git_repo(path: Path):
-    msg = f"No valid git repository found at {path}."
-
-    for i in range(4):
-        try:
-            return git.Repo(path)
-        except git.exc.InvalidGitRepositoryError:
-            path = path.parent
-    print(msg)
-    raise git.exc.InvalidGitRepositoryError(msg)
-
-
-def parse_notebook_to_html(notebook_content):
-    from nbformat import reads as nbformat_reads
-    from nbconvert.exporters import HTMLExporter
-    notebook = nbformat_reads(notebook_content, as_version=4)
-    html_exporter = HTMLExporter(template_name="classic")
-    (body, _) = html_exporter.from_notebook_node(notebook)
-    return body
-
-
-def get_url_of_git_repo(metadata):
-    try:
-        url = [i for i in metadata["git"]["remotes"].values()][0]
-        url = url.replace(".git", "")
-        commit = metadata["git"]["commit"]
-
-        if url.startswith("git@"):
-            url = url.replace(":", "/")
-            url = url.replace("git@", "https://")
-        return f"{url}/tree/{commit}"
-    except Exception:
-        return None
-
-
-def _is_notebook() -> bool:
-    try:
-        from IPython import get_ipython
-
-        return get_ipython() is not None  # type: ignore
-    except ImportError:
-        return False
-
-
-def _notebook_contents() -> Tuple[Path, Path]:
-    if not _is_notebook():
-        raise ValueError("foo")
-
-    from IPython import get_ipython
-
-    ipython = get_ipython()  # type: ignore
-
-    f = Path(TemporaryDirectory().name + "-1234")
-    f.mkdir(parents=True, exist_ok=True)
-    python_file = Path(f) / "script.py"
-    notebook_file = Path(f) / "notebook.ipynb"
-    with redirect_stdout(None):
-        ipython.magic(f"save -f {python_file} 1-9999")
-        ipython.magic(f"notebook {notebook_file}")
-
-    return python_file, notebook_file
-
-def _archive_code(python_info):
-    if _is_notebook():
-        python_file, notebook_file = _notebook_contents()
-        return _archive_to_zip_repo(python_file.parent, [python_file.name, notebook_file.name])
-    if Measure.PYTHON_SCRIPT_FILE_PATH in python_info and python_info[Measure.PYTHON_SCRIPT_FILE_PATH].value:
-        code_file = Path(loads(python_info[Measure.PYTHON_SCRIPT_FILE_PATH].value)).resolve().absolute()
-        try:
-            return zip_code(code_file.parent)
-        except git.exc.InvalidGitRepositoryError:
-            return _archive_to_zip_repo(code_file.parent, [code_file.name])
-
-def _archive_to_zip_repo(directory, files):
-    zip_path = Path(TemporaryDirectory().name) / "code.zip"
-    zip_path.parent.mkdir(exist_ok=True, parents=True)
-
-    with ZipFile(zip_path, "w", ZIP_DEFLATED) as zipf:
-        for file in files:
-            file_path = path_join(directory, file)
-            zipf.write(file_path, arcname=file)
-
-    return zip_path
-
-def zip_code(directory_in_git_repo: Path):
-    """
-    Creates a zip archive containing all tracked files in a given Git repository.
-
-    :param directory_in_git_repo: The directory in a git repository that should be zippedGit repository.
-    """
-    repo = _git_repo(directory_in_git_repo)
-
-    directory_in_path = str(Path(directory_in_git_repo).absolute()).replace(str(Path(repo.working_tree_dir).absolute()) + "/", "")
-    tracked_files = [i.path for i in repo.commit().tree.traverse() if i.path.startswith(f"{directory_in_path}/")]
-
-    return _archive_to_zip_repo(repo.working_tree_dir, tracked_files)
-
 # TODO: Add aggregation(s) (mapping) parameter.
 def fetch_info(
     measures: Iterable[Measure] = ALL_MEASURES,
@@ -823,7 +721,9 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         export_format: Optional[ExportFormat] = None,
     ) -> Self:
         # Get Python info first, and then strip Python measures from the list.
-        python_info, measures = _get_python_info(measures=measures, export_file_path=export_file_path)
+        python_info, measures = _get_python_info(
+            measures=measures, export_file_path=export_file_path
+        )
 
         # Prepare the measure configurations.
         configs_array = _prepare_measure_configurations(measures)
@@ -976,20 +876,22 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         ir_metadata["implementation"]["notebook"]["path"] = loads(
             self._python_info[Measure.PYTHON_NOTEBOOK_FILE_PATH].value
         )
-        
-        if Measure.PYTHON_CODE_ARCHIVE in self._python_info:
+
+        if Measure.PYTHON_CODE_ARCHIVE_PATH in self._python_info:
             ir_metadata["implementation"]["source"]["archive"]["path"] = loads(
-                self._python_info[Measure.PYTHON_CODE_ARCHIVE].value
+                self._python_info[Measure.PYTHON_CODE_ARCHIVE_PATH].value
             )
 
-        if Measure.PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE in self._python_info:
+        if Measure.PYTHON_SCRIPT_FILE_PATH_IN_CODE_ARCHIVE in self._python_info:
             ir_metadata["implementation"]["source"]["archive"]["script path"] = loads(
-                self._python_info[Measure.PYTHON_SCRIPT_FILE_IN_CODE_ARCHIVE].value
+                self._python_info[Measure.PYTHON_SCRIPT_FILE_PATH_IN_CODE_ARCHIVE].value
             )
 
-        if Measure.PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE in self._python_info:
+        if Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE in self._python_info:
             ir_metadata["implementation"]["source"]["archive"]["notebook path"] = loads(
-                self._python_info[Measure.PYTHON_NOTEBOOK_FILE_IN_CODE_ARCHIVE].value
+                self._python_info[
+                    Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE
+                ].value
             )
 
         ir_metadata = _deep_merge(ir_metadata, tmp_ir_metadata)
@@ -1039,7 +941,7 @@ def tracking(
     poll_intervall_ms: int = -1,
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
-    export_file_path: Union[Optional[PathLike], str] = None,
+    export_file_path: Optional[PathLike] = None,
     export_format: Optional[ExportFormat] = None,
 ) -> TrackingHandle:
     return TrackingHandle.start(
