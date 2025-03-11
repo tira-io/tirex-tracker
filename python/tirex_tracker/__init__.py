@@ -464,20 +464,20 @@ def _get_python_info(
             results=results,
             measure=Measure.PYTHON_CODE_ARCHIVE_PATH,
             measures=measures,
-            value=str(archive_paths.zip_file_path),
+            value=str(archive_paths.zip_file_path.resolve()),
         )
         _add_python_result_entry(
             results=results,
             measure=Measure.PYTHON_SCRIPT_FILE_PATH,
             measures=measures,
-            value=str(archive_paths.script_file_path),
+            value=str(archive_paths.script_file_path.resolve()),
         )
         if archive_paths.notebook_file_path is not None:
             _add_python_result_entry(
                 results=results,
                 measure=Measure.PYTHON_NOTEBOOK_FILE_PATH,
                 measures=measures,
-                value=str(archive_paths.notebook_file_path),
+                value=str(archive_paths.notebook_file_path.resolve()),
             )
         _add_python_result_entry(
             results=results,
