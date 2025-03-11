@@ -1,77 +1,116 @@
-import unittest
-import tempfile
-import shutil
+from io import BytesIO
+from os import environ
 from pathlib import Path
-from subprocess import check_output # nosec
-import os
-import yaml
+from shutil import copy as shutil_copy
+from subprocess import check_output  # nosec
+from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 
-class TestIntegration(unittest.TestCase):
+from ruamel.yaml import YAML
 
-    def test_python_script(self):
-        with tempfile.TemporaryDirectory() as working_dir:
-            working_dir = Path(working_dir).resolve().absolute()
-            src_file = Path(__file__).parent.parent / 'examples' / 'example.py'
-            shutil.copy(src_file, working_dir / 'example.py')
+_EXAMPLES_DIR_PATH = Path(__file__).parent.parent / "examples"
+_EXAMPLE_SCRIPT_PATH = _EXAMPLES_DIR_PATH / "example.py"
+_EXAMPLE_NOTEBOOK_PATH = _EXAMPLES_DIR_PATH / "example-notebook.ipynb"
 
-            env = os.environ.copy()
-            if 'PYTHONPATH' in env:
-                env['PYTHONPATH'] += ':' + str(Path(__file__).parent.parent.resolve().absolute())
 
-            self.assertFalse((working_dir / 'irmetadata.yml').exists())
-            
-            check_output(['python3', 'example.py'], cwd=str(working_dir), env=env) # nosec
-            
-            self.assertTrue((working_dir / 'irmetadata.yml').exists())
-            with open(working_dir / 'irmetadata.yml', 'r') as f:
-                truncated_content = '\n'.join(f.readlines()[1:-1])
-                yaml_content = yaml.safe_load(truncated_content)
+def test_python_script() -> None:
+    with TemporaryDirectory() as temp_dir:
+        working_dir_path = Path(temp_dir)
 
-            self.assertIn('implementation', yaml_content)
-            self.assertIn('script', yaml_content['implementation'])
-            self.assertIn('path', yaml_content['implementation']['script'])
-            self.assertIn('example.py', yaml_content['implementation']['script']['path'])
-            self.assertIn('source', yaml_content['implementation'])
-            self.assertIn('archive', yaml_content['implementation']['source'])
-            self.assertIn('path', yaml_content['implementation']['source']["archive"])
-            self.assertEqual('code.zip', yaml_content['implementation']['source']['archive']['path'])
+        # Copy the example script to the working directory.
+        shutil_copy(_EXAMPLE_SCRIPT_PATH, working_dir_path / "example.py")
 
-            zipObj = ZipFile(working_dir / 'code.zip')
-            files_in_zip = [i.filename for i in zipObj.infolist()]
+        # Set the PYTHONPATH environment variable to include the parent directory of the `tirex_tracker` package.
+        env = environ.copy()
+        if "PYTHONPATH" in env:
+            env["PYTHONPATH"] += ":" + str(Path(__file__).parent.parent.resolve())
 
-            self.assertEqual(['example.py'], files_in_zip)
+        export_file_path = working_dir_path / "ir_metadata.yml"
+        assert not export_file_path.exists()
 
-    def test_jupyter_notebook(self):
-        with tempfile.TemporaryDirectory() as working_dir:
-            working_dir = Path(working_dir).resolve().absolute()
-            src_file = Path(__file__).parent.parent / 'examples' / 'example-notebook.ipynb'
-            shutil.copy(src_file, working_dir / 'example-notebook.ipynb')
+        # Run the script using the `python3` command.
+        check_output(
+            args=["python3", "example.py"],
+            cwd=working_dir_path,
+            env=env,
+        )  # nosec
 
-            env = os.environ.copy()
-            if 'PYTHONPATH' in env:
-                env['PYTHONPATH'] += ':' + str(Path(__file__).parent.parent.resolve().absolute())
+        assert export_file_path.exists()
 
-            self.assertFalse((working_dir / 'irmetadata.yml').exists())
-            
-            check_output(['runnb', '--allow-not-trusted', 'example-notebook.ipynb'], cwd=str(working_dir), env=env) # nosec
-            
-            self.assertTrue((working_dir / 'irmetadata.yml').exists())
-            with open(working_dir / 'irmetadata.yml', 'r') as f:
-                truncated_content = '\n'.join(f.readlines()[1:-1])
-                yaml_content = yaml.safe_load(truncated_content)
+        buffer = Path(export_file_path).read_bytes()
+        if buffer.startswith(b"ir_metadata.start\n"):
+            buffer = buffer[len(b"ir_metadata.start\n") :]
+        if buffer.endswith(b"ir_metadata.end\n"):
+            buffer = buffer[: -len(b"ir_metadata.end\n")]
 
-            self.assertIn('implementation', yaml_content)
-            self.assertIn('script', yaml_content['implementation'])
-            self.assertIn('path', yaml_content['implementation']['script'])
-            self.assertIn('script.py', yaml_content['implementation']['script']['path'])
-            self.assertIn('source', yaml_content['implementation'])
-            self.assertIn('archive', yaml_content['implementation']['source'])
-            self.assertIn('path', yaml_content['implementation']['source']["archive"])
-            self.assertEqual('code.zip', yaml_content['implementation']['source']['archive']['path'])
+        with BytesIO(buffer) as yaml_file:
+            yaml = YAML(typ="safe")
+            yaml_content = yaml.load(yaml_file)
 
-            zipObj = ZipFile(working_dir / 'code.zip')
-            files_in_zip = [i.filename for i in zipObj.infolist()]
+        assert "implementation" in yaml_content
+        assert "script" in yaml_content["implementation"]
+        assert "path" in yaml_content["implementation"]["script"]
+        assert "script.py" in yaml_content["implementation"]["script"]["path"]
+        assert "source" in yaml_content["implementation"]
+        assert "archive" in yaml_content["implementation"]["source"]
+        assert "path" in yaml_content["implementation"]["source"]["archive"]
 
-            self.assertEqual(['script.py', 'notebook.ipynb'], files_in_zip)
+        archive_path = Path(yaml_content["implementation"]["source"]["archive"]["path"])
+        assert archive_path.exists()
 
+        with ZipFile(archive_path) as zip_file:
+            archive_names = zip_file.namelist()
+        assert "example.py" in archive_names
+        assert len(archive_names) == 1
+
+
+def test_jupyter_notebook() -> None:
+    with TemporaryDirectory() as temp_dir:
+        working_dir_path = Path(temp_dir)
+
+        # Copy the example notebook to the working directory.
+        shutil_copy(_EXAMPLE_NOTEBOOK_PATH, working_dir_path / "example-notebook.ipynb")
+
+        # Set the PYTHONPATH environment variable to include the parent directory of the `tirex_tracker` package.
+        env = environ.copy()
+        if "PYTHONPATH" in env:
+            env["PYTHONPATH"] += ":" + str(Path(__file__).parent.parent.resolve())
+
+        export_file_path = working_dir_path / "ir_metadata.yml"
+        assert not export_file_path.exists()
+
+        # Run the notebook using the `runnb` command.
+        check_output(
+            args=["runnb", "--allow-not-trusted", "example-notebook.ipynb"],
+            cwd=working_dir_path,
+            env=env,
+        )  # nosec
+
+        assert export_file_path.exists()
+
+        buffer = Path(export_file_path).read_bytes()
+        if buffer.startswith(b"ir_metadata.start\n"):
+            buffer = buffer[len(b"ir_metadata.start\n") :]
+        if buffer.endswith(b"ir_metadata.end\n"):
+            buffer = buffer[: -len(b"ir_metadata.end\n")]
+
+        with BytesIO(buffer) as yaml_file:
+            yaml = YAML(typ="safe")
+            yaml_content = yaml.load(yaml_file)
+
+        assert "implementation" in yaml_content
+        assert "script" in yaml_content["implementation"]
+        assert "path" in yaml_content["implementation"]["script"]
+        assert "script.py" in yaml_content["implementation"]["script"]["path"]
+        assert "source" in yaml_content["implementation"]
+        assert "archive" in yaml_content["implementation"]["source"]
+        assert "path" in yaml_content["implementation"]["source"]["archive"]
+
+        archive_path = Path(yaml_content["implementation"]["source"]["archive"]["path"])
+        assert archive_path.exists()
+
+        with ZipFile(archive_path) as zip_file:
+            archive_names = zip_file.namelist()
+        assert "script.py" in archive_names
+        assert "notebook.ipynb" in archive_names
+        assert len(archive_names) == 2
