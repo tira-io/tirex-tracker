@@ -23,11 +23,11 @@ def _create_zip_archive(
     notebook_file_path: Optional[Path],
     other_paths: Iterable[Path] = tuple(),
 ) -> ZipPaths:
-    all_paths = [
+    all_paths = {
         script_file_path,
         *([notebook_file_path] if notebook_file_path else []),
         *other_paths,
-    ]
+    }
     zip_file_path = metadata_directory_path / "code.zip"
     with ZipFile(zip_file_path, "w", compression=ZIP_DEFLATED) as zip_file:
         for path in all_paths:
