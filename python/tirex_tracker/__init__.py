@@ -595,7 +595,7 @@ def _find_library() -> Path:
     elif platform == "darwin":
         path = "libtirex_tracker_full.dylib"
     elif platform == "win32":
-        path = "tirex_tracker_full.dll"
+        path = "libtirex_tracker_full.dll"
     else:
         raise RuntimeError("Unsupported platform.")
     return files(__name__) / path
