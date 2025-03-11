@@ -452,9 +452,11 @@ def _get_python_info(
     if export_file_path is not None:
         # Create a utility directory as a sibling to the export file, containing the code archive.
         metadata_directory_path = Path(export_file_path).parent / ".tirex-tracker"
-        # Remove the directory if it already exists.
+
+        # Clear and create the directory.
         if metadata_directory_path.exists():
             metadata_directory_path.rmdir()
+        metadata_directory_path.mkdir(parents=True)
 
         archive_paths = create_code_archive(metadata_directory_path)
 
