@@ -45,7 +45,7 @@ from typing import (
 )
 
 from IPython import get_ipython
-from typing_extensions import ParamSpec, Self  # type: ignore
+from typing_extensions import ParamSpec, Self, TypeAlias  # type: ignore
 from ruamel.yaml import YAML
 
 from python.tirex_tracker.archive_utils import create_code_archive
@@ -53,6 +53,8 @@ from python.tirex_tracker.archive_utils import create_code_archive
 
 if TYPE_CHECKING:
     from ctypes import _Pointer as Pointer, _CFunctionType as CFunctionType, Array  # type: ignore
+
+PathLike: TypeAlias = Optional[Union[str, Path]]
 
 P = ParamSpec("P")
 T = TypeVar("T")
