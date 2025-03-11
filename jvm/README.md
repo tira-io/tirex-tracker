@@ -1,8 +1,8 @@
 # TIREx Tracker
 
 [![CI](https://img.shields.io/github/actions/workflow/status/tira-io/tirex-tracker/ci.yml?branch=master&style=flat-square)](https://github.com/tira-io/tirex-tracker/actions/workflows/ci.yml)
-[![Maintenance](https://img.shields.io/maintenance/yes/2025?style=flat-square)](https://github.com/tira-io/tirex-tracker/graphs/contributors) <!-- [![Code coverage](https://img.shields.io/codecov/c/github/tira-io/tirex-tracker?style=flat-square)](https://codecov.io/github/tira-io/tirex-tracker/) --> \
-[![Maven](https://img.shields.io/github/v/tag/tira-io/tirex-tracker?style=flat-square&label=maven)](https://github.com/tira-io/tirex-tracker/packages/) [![Java](https://img.shields.io/badge/java-8_|_11_|_17_|_21-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/packages/) \
+[![Maintenance](https://img.shields.io/maintenance/yes/2025?style=flat-square)](https://github.com/tira-io/tirex-tracker/graphs/contributors) [![Code coverage](https://img.shields.io/codecov/c/github/tira-io/tirex-tracker?style=flat-square)](https://codecov.io/github/tira-io/tirex-tracker/) \
+[![Maven](https://img.shields.io/maven-central/v/io.tira/tirex-tracker?style=flat-square)](https://central.sonatype.com/artifact/io.tira/tirex-tracker) [![Java](https://img.shields.io/badge/java-8_%7C_11_%7C_17_%7C_21-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/packages/)  [![Javadoc](https://javadoc.io/badge2/io.tira/tirex-tracker/javadoc.svg?style=flat-square)](https://javadoc.io/doc/io.tira/tirex-tracker)  \
 [![Issues](https://img.shields.io/github/issues/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/issues) [![Commit activity](https://img.shields.io/github/commit-activity/m/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/commits) [![License](https://img.shields.io/github/license/tira-io/tirex-tracker?style=flat-square)](LICENSE)
 
 The TIREx tracker is a command line tool and API to automatically track resource usage, hardware specifications, and other metadata when running information retrieval experiments.
@@ -47,6 +47,9 @@ Replace the version placeholder (`x.x.x`) with the [latest available version tag
 You can now use the TIREx tracker JVM API in your [Java](#java-usage) or [Kotlin](#kotlin-usage) projects.
 
 ### Java Usage
+
+> [!TIP]
+> An exhaustive documentation of the TIREx tracker's Java API can be found in its [Javadoc](https://javadoc.io/doc/io.tira/tirex-tracker).
 
 For pure Java projects, the easiest way is to use the `track` function and pass your code to be tracked as a lambda like this:
 

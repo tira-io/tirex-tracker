@@ -42,8 +42,9 @@ tests = [
     "jupyter~=1.1",
 ]
 docs = [
-    "sphinx~=8.1",
-    "myst-parser~=4.0",
+    "mkdocs~=1.6",
+    "mkdocstrings[python]~=0.28.2",
+    "mkdocs-material~=9.6",
 ]
 
 [project.urls]
