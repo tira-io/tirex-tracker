@@ -48,7 +48,7 @@ from IPython import get_ipython
 from typing_extensions import ParamSpec, Self, TypeAlias  # type: ignore
 from ruamel.yaml import YAML
 
-from python.tirex_tracker.archive_utils import create_code_archive
+from tirex_tracker.archive_utils import create_code_archive
 
 
 if TYPE_CHECKING:
