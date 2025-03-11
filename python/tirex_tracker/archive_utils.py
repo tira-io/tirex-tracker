@@ -53,8 +53,8 @@ def _create_notebook_zip_archive(
     notebook_file_path = metadata_directory_path / "notebook.ipynb"
     script_file_path = metadata_directory_path / "script.py"
     with redirect_stdout(None):
-        ipython.magic(f"save -f {script_file_path} 1-9999")
-        ipython.magic(f"notebook {notebook_file_path}")
+        ipython.run_line_magic("save", f"-f {script_file_path} 1-9999")
+        ipython.run_line_magic("notebook", str(notebook_file_path))
     return _create_zip_archive(
         metadata_directory_path=metadata_directory_path,
         base_directory_path=metadata_directory_path,
