@@ -89,7 +89,7 @@ def create_git_zip_archive(
         if isinstance(item, IndexObject)
     )
     tracked_file_paths = (
-        path.relative_to(working_tree_dir_path)
+        path
         for path in tracked_paths
         if path.is_file()
     )
