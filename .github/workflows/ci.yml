@@ -53,6 +53,7 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Download keys
+        if: matrix.runs-on == 'ubuntu-20.04'
         run: |
           # Work around for https://github.com/git-lfs/git-lfs/issues/3474
           sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6B05F25D762E3157
@@ -141,6 +142,7 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Download keys
+        if: matrix.runs-on == 'ubuntu-20.04'
         run: |
           # Work around for https://github.com/git-lfs/git-lfs/issues/3474
           sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6B05F25D762E3157
@@ -198,6 +200,7 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Download keys
+        if: matrix.runs-on == 'ubuntu-20.04'
         run: |
           # Work around for https://github.com/git-lfs/git-lfs/issues/3474
           sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6B05F25D762E3157
