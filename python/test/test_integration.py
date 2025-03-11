@@ -3,6 +3,7 @@ from os import environ
 from pathlib import Path
 from shutil import copy as shutil_copy
 from subprocess import check_output  # nosec
+from sys import executable
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 
@@ -30,7 +31,7 @@ def test_python_script() -> None:
 
         # Run the script using the `python3` command.
         check_output(
-            args=["python3", "example.py"],
+            args=[executable, "example.py"],
             cwd=working_dir_path,
             env=env,
         )  # nosec
@@ -50,10 +51,12 @@ def test_python_script() -> None:
         assert "implementation" in yaml_content
         assert "script" in yaml_content["implementation"]
         assert "path" in yaml_content["implementation"]["script"]
-        assert "script.py" in yaml_content["implementation"]["script"]["path"]
+        assert "example.py" in yaml_content["implementation"]["script"]["path"]
         assert "source" in yaml_content["implementation"]
         assert "archive" in yaml_content["implementation"]["source"]
         assert "path" in yaml_content["implementation"]["source"]["archive"]
+        assert "script path" in yaml_content["implementation"]["source"]["archive"]
+        assert "example.py" in yaml_content["implementation"]["source"]["archive"]["script path"]
 
         archive_path = Path(yaml_content["implementation"]["source"]["archive"]["path"])
         assert archive_path.exists()
@@ -102,9 +105,16 @@ def test_jupyter_notebook() -> None:
         assert "script" in yaml_content["implementation"]
         assert "path" in yaml_content["implementation"]["script"]
         assert "script.py" in yaml_content["implementation"]["script"]["path"]
+        assert "notebook" in yaml_content["implementation"]
+        assert "path" in yaml_content["implementation"]["notebook"]
+        assert "notebook.ipynb" in yaml_content["implementation"]["notebook"]["path"]
         assert "source" in yaml_content["implementation"]
         assert "archive" in yaml_content["implementation"]["source"]
         assert "path" in yaml_content["implementation"]["source"]["archive"]
+        assert "script path" in yaml_content["implementation"]["source"]["archive"]
+        assert "script.py" in yaml_content["implementation"]["source"]["archive"]["script path"]
+        assert "notebook path" in yaml_content["implementation"]["source"]["archive"]
+        assert "notebook.ipynb" in yaml_content["implementation"]["source"]["archive"]["notebook path"]
 
         archive_path = Path(yaml_content["implementation"]["source"]["archive"]["path"])
         assert archive_path.exists()
