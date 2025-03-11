@@ -15,52 +15,40 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runs-on:
-          - ubuntu-20.04
-          - ubuntu-22.04
-          - ubuntu-24.04
-          - macos-13
-          - macos-14
-          - macos-15
-          - windows-2019
-          - windows-2022
-          - windows-2025
-        compiler:
-          - gcc-13
-          - gcc-14
-          - clang-20.1.0
-        exclude:
+        environment:
+          - runs-on: ubuntu-18.04
+            compiler: gcc-13
           - runs-on: ubuntu-20.04
-            compiler: gcc-14 # Cannot be installed.
+            compiler: gcc-13
           - runs-on: ubuntu-22.04
-            compiler: gcc-14 # Cannot be installed.
-          - runs-on: macos-13
-            compiler: gcc-13 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - runs-on: macos-13
-            compiler: gcc-14 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - runs-on: macos-13
-            compiler: clang-20.1.0 # setup-cpp fails to setup
+            compiler: gcc-13
+          - runs-on: ubuntu-24.04
+            compiler: gcc-14
           - runs-on: macos-14
-            compiler: gcc-13 # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
-          - runs-on: macos-14
-            compiler: clang-20.1.0 # setup-cpp fails to setup
+            compiler: gcc-14
           - runs-on: macos-15
-            compiler: clang-20.1.0 # Known issue with clang (https://github.com/llvm/llvm-project/issues/109549)
-    runs-on: ${{ (matrix.runs-on == 'ubuntu-20.04') && 'ubuntu-latest' || matrix.runs-on }}
+            compiler: gcc-14
+          - runs-on: windows-2019
+            compiler: gcc-14
+          - runs-on: windows-2022
+            compiler: gcc-14
+          - runs-on: windows-2025
+            compiler: gcc-14
+    runs-on: ${{ ((matrix.environment.runs-on == 'ubuntu-18.04' || matrix.environment.runs-on == 'ubuntu-20.04') && 'ubuntu-latest') || matrix.environment.runs-on }}
     container:
-      image: ${{ (matrix.runs-on == 'ubuntu-20.04') && 'ghcr.io/catthehacker/ubuntu:runner-20.04' || null }}
+      image: ${{ (matrix.environment.runs-on == 'ubuntu-18.04' && 'ghcr.io/catthehacker/ubuntu:runner-18.04') || (matrix.environment.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Download keys
-        if: matrix.runs-on == 'ubuntu-20.04'
+        if: matrix.environment.runs-on == 'ubuntu-20.04'
         run: |
           # Work around for https://github.com/git-lfs/git-lfs/issues/3474
           sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6B05F25D762E3157
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
-          compiler: ${{ matrix.compiler }}
+          compiler: ${{ matrix.environment.compiler }}
           cmake: "3.31.6"
           setup-cpp: false
       - name: 🔧 Configure CMake
@@ -68,19 +56,19 @@ jobs:
       - name: 🏗️ Build library
         run: cmake --build c/build/ --config Release --target tirex_tracker_full
       - name: 📤 Upload Linux library
-        if: matrix.runs-on == 'ubuntu-20.04' && matrix.compiler == 'clang-20.1.0'
+        if: matrix.environment.runs-on == 'ubuntu-20.04'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-linux
           path: c/build/extensions/libtirex_tracker_full.so
       - name: 📤 Upload macOS library
-        if: matrix.runs-on == 'macos-14' && matrix.compiler == 'gcc-14'
+        if: matrix.environment.runs-on == 'macos-14'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-macos
           path: c/build/extensions/libtirex_tracker_full.dylib
       - name: 📤 Upload Windows library
-        if: matrix.runs-on == 'windows-2022' && matrix.compiler == 'clang-20.1.0'
+        if: matrix.environment.runs-on == 'windows-2022'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-windows
@@ -98,58 +86,46 @@ jobs:
           setup-cpp: false
       - name: 🔍 Check Codestyle
         working-directory: ${{github.workspace}}/c/
-        run: find src/ include/ -type f -iregex '^.*\.\(c\|h\|cpp\|hpp\|cc\|hh\)$' | xargs clang-format-19 --dry-run --Werror --Wno-error=unknown
+        run: find src/ include/ -type f -iregex '^.*\.\(c\|h\|cpp\|hpp\|cc\|hh\)$' | xargs clang-format-20 --dry-run --Werror --Wno-error=unknown
   c-build-cli:
     name: 🏗️ Build C CLI
     strategy:
       fail-fast: false
       matrix:
-        runs-on:
-          - ubuntu-20.04
-          - ubuntu-22.04
-          - ubuntu-24.04
-          - macos-13
-          - macos-14
-          - macos-15
-          - windows-2019
-          - windows-2022
-          - windows-2025
-        compiler:
-          - gcc-13
-          - gcc-14
-          - clang-20.1.0
-        exclude:
+        environment:
+          - runs-on: ubuntu-18.04
+            compiler: gcc-13
           - runs-on: ubuntu-20.04
-            compiler: gcc-14 # Cannot be installed.
+            compiler: gcc-13
           - runs-on: ubuntu-22.04
-            compiler: gcc-14 # Cannot be installed.
-          - runs-on: macos-13
-            compiler: gcc-13 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - runs-on: macos-13
-            compiler: gcc-14 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - runs-on: macos-13
-            compiler: clang-20.1.0 # setup-cpp fails to setup
+            compiler: gcc-13
+          - runs-on: ubuntu-24.04
+            compiler: gcc-14
           - runs-on: macos-14
-            compiler: gcc-13 # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
-          - runs-on: macos-14
-            compiler: clang-20.1.0 # setup-cpp fails to setup
+            compiler: gcc-14
           - runs-on: macos-15
-            compiler: clang-20.1.0 # Known issue with clang (https://github.com/llvm/llvm-project/issues/109549)
-    runs-on: ${{ (matrix.runs-on == 'ubuntu-20.04') && 'ubuntu-latest' || matrix.runs-on }}
+            compiler: gcc-14
+          - runs-on: windows-2019
+            compiler: gcc-14
+          - runs-on: windows-2022
+            compiler: gcc-14
+          - runs-on: windows-2025
+            compiler: gcc-14
+    runs-on: ${{ ((matrix.environment.runs-on == 'ubuntu-18.04' || matrix.environment.runs-on == 'ubuntu-20.04') && 'ubuntu-latest') || matrix.environment.runs-on }}
     container:
-      image: ${{ (matrix.runs-on == 'ubuntu-20.04') && 'ghcr.io/catthehacker/ubuntu:runner-20.04' || null }}
+      image: ${{ (matrix.environment.runs-on == 'ubuntu-18.04' && 'ghcr.io/catthehacker/ubuntu:runner-18.04') || (matrix.environment.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Download keys
-        if: matrix.runs-on == 'ubuntu-20.04'
+        if: matrix.environment.runs-on == 'ubuntu-20.04'
         run: |
           # Work around for https://github.com/git-lfs/git-lfs/issues/3474
           sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6B05F25D762E3157
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
-          compiler: ${{ matrix.compiler }}
+          compiler: ${{ matrix.environment.compiler }}
           cmake: "3.31.6"
           setup-cpp: false
       - name: 🔧 Configure CMake
@@ -158,19 +134,19 @@ jobs:
       - name: 🏗️ Build CLI
         run: cmake --build c/build/ --config Release --target measure
       - name: 📤 Upload Linux CLI
-        if: matrix.runs-on == 'ubuntu-20.04' && matrix.compiler == 'clang-20.1.0'
+        if: matrix.environment.runs-on == 'ubuntu-20.04'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-linux
           path: c/build/examples/03_measure_command/measure
       - name: 📤 Upload macOS CLI
-        if: matrix.runs-on == 'macos-14' && matrix.compiler == 'gcc-14'
+        if: matrix.environment.runs-on == 'macos-14' 
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-macos
           path: c/build/examples/03_measure_command/measure
       - name: 📤 Upload Windows CLI
-        if: matrix.runs-on == 'windows-2022' && matrix.compiler == 'clang-20.1.0'
+        if: matrix.environment.runs-on == 'windows-2022' 
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-windows
@@ -180,34 +156,30 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runs-on:
-          - ubuntu-20.04
-          - ubuntu-22.04
-          - ubuntu-24.04
-        compiler:
-          - gcc-13
-          - gcc-14
-          - clang-20.1.0
-        exclude:
+        environment:
+          - runs-on: ubuntu-18.04
+            compiler: gcc-13
           - runs-on: ubuntu-20.04
-            compiler: gcc-14 # Cannot be installed.
+            compiler: gcc-13
           - runs-on: ubuntu-22.04
-            compiler: gcc-14 # Cannot be installed.
-    runs-on: ${{ (matrix.runs-on == 'ubuntu-20.04') && 'ubuntu-latest' || matrix.runs-on }}
+            compiler: gcc-13
+          - runs-on: ubuntu-24.04
+            compiler: gcc-14
+    runs-on: ${{ ((matrix.environment.runs-on == 'ubuntu-18.04' || matrix.environment.runs-on == 'ubuntu-20.04') && 'ubuntu-latest') || matrix.environment.runs-on }}
     container:
-      image: ${{ (matrix.runs-on == 'ubuntu-20.04') && 'ghcr.io/catthehacker/ubuntu:runner-20.04' || null }}
+      image: ${{ (matrix.environment.runs-on == 'ubuntu-18.04' && 'ghcr.io/catthehacker/ubuntu:runner-18.04') || (matrix.environment.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Download keys
-        if: matrix.runs-on == 'ubuntu-20.04'
+        if: matrix.environment.runs-on == 'ubuntu-20.04'
         run: |
           # Work around for https://github.com/git-lfs/git-lfs/issues/3474
           sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6B05F25D762E3157
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
-          compiler: ${{ matrix.compiler }}
+          compiler: ${{ matrix.environment.compiler }}
           cmake: "3.31.6"
           setup-cpp: false
       - name: 🔧 Configure CMake
@@ -216,7 +188,7 @@ jobs:
       - name: 🏗️ Build Debian package
         run: cmake --build c/build/ --config Release --target package
       - name: 📤 Upload Debian package
-        if: matrix.runs-on == 'ubuntu-20.04' && matrix.compiler == 'clang-20.1.0'
+        if: matrix.environment.runs-on == 'ubuntu-20.04' 
         uses: actions/upload-artifact@v4
         with:
           name: c-debian-package
@@ -283,28 +255,28 @@ jobs:
           - "11"
           - "17"
           - "21"
-        runs-on:
-          - ubuntu-20.04
-          - ubuntu-22.04
-          # - ubuntu-24.04 # FIXME: Re-enable
-          # - macos-13
-          # - macos-14 # FIXME: JDK 8 cannot be installed.
-          # - macos-15 # FIXME: JDK 8 cannot be installed.
-          # - windows-2019 # FIXME: Re-enable
-          - windows-2022
-          # - windows-2025 # FIXME: Re-enable
-        exclude:
-          - java: "8" # FIXME: Gradle seems to insist on loading Java 17 on Windows, weirdly.
-            runs-on: windows-2022
-          - java: "11" # FIXME: Gradle seems to insist on loading Java 17 on Windows, weirdly.
-            runs-on: windows-2022
-          - java: "17" # FIXME: Linking errors.
-            runs-on: windows-2022
-          - java: "21" # FIXME: Gradle seems to insist on loading Java 17 on Windows, weirdly.
-            runs-on: windows-2022
-    runs-on: ${{ (matrix.runs-on == 'ubuntu-20.04') && 'ubuntu-latest' || matrix.runs-on }}
+        environment:
+          - runs-on: ubuntu-18.04
+            compiler: gcc-13
+          - runs-on: ubuntu-20.04
+            compiler: gcc-13
+          - runs-on: ubuntu-22.04
+            compiler: gcc-13
+          - runs-on: ubuntu-24.04
+            compiler: gcc-14
+          - runs-on: macos-14
+            compiler: gcc-14
+          - runs-on: macos-15
+            compiler: gcc-14
+          - runs-on: windows-2019
+            compiler: gcc-14
+          - runs-on: windows-2022
+            compiler: gcc-14
+          - runs-on: windows-2025
+            compiler: gcc-14
+    runs-on: ${{ ((matrix.environment.runs-on == 'ubuntu-18.04' || matrix.environment.runs-on == 'ubuntu-20.04') && 'ubuntu-latest') || matrix.environment.runs-on }}
     container:
-      image: ${{ (matrix.runs-on == 'ubuntu-20.04') && 'ghcr.io/catthehacker/ubuntu:runner-20.04' || null }}
+      image: ${{ (matrix.environment.runs-on == 'ubuntu-18.04' && 'ghcr.io/catthehacker/ubuntu:runner-18.04') || (matrix.environment.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
     needs:
       - c-build-library
       - c-check-format
@@ -642,31 +614,28 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
-        runs-on:
-          - ubuntu-22.04
-          # - ubuntu-24.04 # FIXME: Re-enable
-          # - macos-13
-          - macos-14
-          # - macos-15 # FIXME: Re-enable
-          # - windows-2019 # FIXME: Re-enable
-          - windows-2022
-          # - windows-2025 # FIXME: Re-enable
-        exclude:
-          - python: "3.8" # FIXME: Linking errors, e.g., function 'tirexResultEntryGetByIndex' not found.
-            runs-on: windows-2022
-          - python: "3.9" # FIXME: Linking errors, e.g., function 'tirexResultEntryGetByIndex' not found.
-            runs-on: windows-2022
-          - python: "3.10" # FIXME: Linking errors, e.g., function 'tirexResultEntryGetByIndex' not found.
-            runs-on: windows-2022
-          - python: "3.11" # FIXME: Linking errors, e.g., function 'tirexResultEntryGetByIndex' not found.
-            runs-on: windows-2022
-          - python: "3.12" # FIXME: Linking errors, e.g., function 'tirexResultEntryGetByIndex' not found.
-            runs-on: windows-2022
-          - python: "3.13" # FIXME: Linking errors, e.g., function 'tirexResultEntryGetByIndex' not found.
-            runs-on: windows-2022
-    runs-on: ${{ (matrix.runs-on == 'ubuntu-20.04') && 'ubuntu-latest' || matrix.runs-on }}
+        environment:
+          - runs-on: ubuntu-18.04
+            compiler: gcc-13
+          - runs-on: ubuntu-20.04
+            compiler: gcc-13
+          - runs-on: ubuntu-22.04
+            compiler: gcc-13
+          - runs-on: ubuntu-24.04
+            compiler: gcc-14
+          - runs-on: macos-14
+            compiler: gcc-14
+          - runs-on: macos-15
+            compiler: gcc-14
+          - runs-on: windows-2019
+            compiler: gcc-14
+          - runs-on: windows-2022
+            compiler: gcc-14
+          - runs-on: windows-2025
+            compiler: gcc-14
+    runs-on: ${{ ((matrix.environment.runs-on == 'ubuntu-18.04' || matrix.environment.runs-on == 'ubuntu-20.04') && 'ubuntu-latest') || matrix.environment.runs-on }}
     container:
-      image: ${{ (matrix.runs-on == 'ubuntu-20.04') && 'ghcr.io/catthehacker/ubuntu:runner-20.04' || null }}
+      image: ${{ (matrix.environment.runs-on == 'ubuntu-18.04' && 'ghcr.io/catthehacker/ubuntu:runner-18.04') || (matrix.environment.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
     needs:
       - c-build-library
       - c-check-format
