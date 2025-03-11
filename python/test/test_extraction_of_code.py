@@ -10,11 +10,11 @@ _EXAMPLE_GIT_REPOSITORY_PATH = (
 
 
 def test_code_extraction_from_git_repository() -> None:
-    expected_code_files = [
+    expected_code_files = {
         "some-directory/.gitignore",
         "some-directory/Dockerfile",
         "some-directory/script.sh",
-    ]
+    }
 
     with TemporaryDirectory() as temp_working_dir:
         working_directory_path = Path(temp_working_dir)
@@ -36,7 +36,10 @@ def test_code_extraction_from_git_repository() -> None:
                 script_file_path=script_file_path,
             )
 
+            assert actual is not None
+            assert actual.zip_file_path.exists()
+
             with ZipFile(actual.zip_file_path) as zip_file:
                 archive_names = zip_file.namelist()
 
-            assert archive_names == expected_code_files
+            assert sorted(archive_names) == sorted(expected_code_files)
