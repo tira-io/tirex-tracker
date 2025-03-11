@@ -16,6 +16,8 @@ jobs:
       fail-fast: false
       matrix:
         environment:
+          - runs-on: ubuntu-18.04
+            compiler: gcc-13
           - runs-on: ubuntu-20.04
             compiler: gcc-13
           - runs-on: ubuntu-22.04
@@ -32,12 +34,12 @@ jobs:
             compiler: gcc-14
           - runs-on: windows-2025
             compiler: gcc-14
-    runs-on: ${{ ((matrix.environment.runs-on == 'ubuntu-20.04') && 'ubuntu-latest') || matrix.environment.runs-on }}
+    runs-on: ${{ ((matrix.environment.runs-on == 'ubuntu-20.04' || matrix.environment.runs-on == 'ubuntu-20.04') && 'ubuntu-latest') || matrix.environment.runs-on }}
     container:
-      image: ${{ (matrix.environment.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
+      image: ${{ (matrix.environment.runs-on == 'ubuntu-18.04' && 'ghcr.io/catthehacker/ubuntu:runner-18.04') || (matrix.environment.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
       - name: 🧰 Download keys
         if: matrix.environment.runs-on == 'ubuntu-20.04'
         run: |
@@ -76,7 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
@@ -91,6 +93,8 @@ jobs:
       fail-fast: false
       matrix:
         environment:
+          - runs-on: ubuntu-18.04
+            compiler: gcc-13
           - runs-on: ubuntu-20.04
             compiler: gcc-13
           - runs-on: ubuntu-22.04
@@ -107,12 +111,12 @@ jobs:
             compiler: gcc-14
           - runs-on: windows-2025
             compiler: gcc-14
-    runs-on: ${{ ((matrix.environment.runs-on == 'ubuntu-20.04') && 'ubuntu-latest') || matrix.environment.runs-on }}
+    runs-on: ${{ ((matrix.environment.runs-on == 'ubuntu-20.04' || matrix.environment.runs-on == 'ubuntu-20.04') && 'ubuntu-latest') || matrix.environment.runs-on }}
     container:
-      image: ${{ (matrix.environment.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
+      image: ${{ (matrix.environment.runs-on == 'ubuntu-18.04' && 'ghcr.io/catthehacker/ubuntu:runner-18.04') || (matrix.environment.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
       - name: 🧰 Download keys
         if: matrix.environment.runs-on == 'ubuntu-20.04'
         run: |
@@ -153,18 +157,20 @@ jobs:
       fail-fast: false
       matrix:
         environment:
+          - runs-on: ubuntu-18.04
+            compiler: gcc-13
           - runs-on: ubuntu-20.04
             compiler: gcc-13
           - runs-on: ubuntu-22.04
             compiler: gcc-13
           - runs-on: ubuntu-24.04
             compiler: gcc-14
-    runs-on: ${{ ((matrix.environment.runs-on == 'ubuntu-20.04') && 'ubuntu-latest') || matrix.environment.runs-on }}
+    runs-on: ${{ ((matrix.environment.runs-on == 'ubuntu-20.04' || matrix.environment.runs-on == 'ubuntu-20.04') && 'ubuntu-latest') || matrix.environment.runs-on }}
     container:
-      image: ${{ (matrix.environment.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
+      image: ${{ (matrix.environment.runs-on == 'ubuntu-18.04' && 'ghcr.io/catthehacker/ubuntu:runner-18.04') || (matrix.environment.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
       - name: 🧰 Download keys
         if: matrix.environment.runs-on == 'ubuntu-20.04'
         run: |
@@ -203,7 +209,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
       - name: 🧰 Install JDK 8 (for compiling)
         uses: actions/setup-java@v4
         with:
@@ -250,6 +256,7 @@ jobs:
           - "17"
           - "21"
         runs-on:
+          - ubuntu-18.04
           - ubuntu-20.04
           - ubuntu-22.04
           - ubuntu-24.04
@@ -265,15 +272,15 @@ jobs:
             runs-on: windows-2022
           - java: "21"
             runs-on: windows-2025
-    runs-on: ${{ ((matrix.runs-on == 'ubuntu-20.04') && 'ubuntu-latest') || matrix.runs-on }}
+    runs-on: ${{ ((matrix.runs-on == 'ubuntu-20.04' || matrix.runs-on == 'ubuntu-20.04') && 'ubuntu-latest') || matrix.runs-on }}
     container:
-      image: ${{ (matrix.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
+      image: ${{ (matrix.runs-on == 'ubuntu-18.04' && 'ghcr.io/catthehacker/ubuntu:runner-18.04') || (matrix.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
     needs:
       - c-build-library
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
       - name: 🧰 Install JDK 8 (for compiling)
         uses: actions/setup-java@v4
         with:
@@ -336,7 +343,7 @@ jobs:
       - jvm-check
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
       - name: 🧰 Install JDK 8 (for compiling)
         uses: actions/setup-java@v4
         with:
@@ -429,7 +436,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
@@ -479,7 +486,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
@@ -523,7 +530,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
@@ -567,7 +574,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
@@ -606,6 +613,7 @@ jobs:
           - "3.12"
           - "3.13"
         runs-on:
+          - ubuntu-18.04
           - ubuntu-20.04
           - ubuntu-22.04
           - ubuntu-24.04
@@ -614,15 +622,15 @@ jobs:
           - windows-2019
           - windows-2022
           - windows-2025
-    runs-on: ${{ ((matrix.runs-on == 'ubuntu-20.04') && 'ubuntu-latest') || matrix.runs-on }}
+    runs-on: ${{ ((matrix.runs-on == 'ubuntu-20.04' || matrix.runs-on == 'ubuntu-20.04') && 'ubuntu-latest') || matrix.runs-on }}
     container:
-      image: ${{ (matrix.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
+      image: ${{ (matrix.runs-on == 'ubuntu-18.04' && 'ghcr.io/catthehacker/ubuntu:runner-18.04') || (matrix.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
     needs:
       - c-build-library
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
@@ -670,7 +678,7 @@ jobs:
       id-token: write
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
       - name: 📥 Download Python wheels
         uses: actions/download-artifact@v4
         with:
@@ -700,7 +708,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
       - name: 📥 Download Linux library
         uses: actions/download-artifact@v4
         with:
