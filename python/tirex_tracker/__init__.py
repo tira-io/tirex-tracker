@@ -856,18 +856,24 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         elif any(
             Path(self._export_file_path).name.endswith(extension)
             for extension in [
-                ".ir_metadata",
-                ".ir-metadata",
-                ".ir_metadata.yml",
-                ".ir-metadata.yml",
-                ".ir_metadata.yaml",
-                ".ir-metadata.yaml",
-                ".ir_metadata.gz",
-                ".ir-metadata.gz",
-                ".ir_metadata.yml.gz",
-                ".ir-metadata.yml.gz",
-                ".ir_metadata.yaml.gz",
-                ".ir-metadata.yaml.gz",
+                "ir_metadata",
+                "ir-metadata",
+                "irmetadata",
+                "ir_metadata.yml",
+                "ir-metadata.yml",
+                "irmetadata.yml",
+                "ir_metadata.yaml",
+                "ir-metadata.yaml",
+                "irmetadata.yaml",
+                "ir_metadata.gz",
+                "ir-metadata.gz",
+                "irmetadata.gz",
+                "ir_metadata.yml.gz",
+                "ir-metadata.yml.gz",
+                "irmetadata.yml.gz",
+                "ir_metadata.yaml.gz",
+                "ir-metadata.yaml.gz",
+                "irmetadata.yaml.gz",
             ]
         ):
             self._export_ir_metadata(result)
@@ -960,10 +966,12 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         write_prefix_suffix = any(
             Path(self._export_file_path).name.endswith(extension)
             for extension in [
-                ".ir_metadata",
-                ".ir-metadata",
-                ".ir_metadata.gz",
-                ".ir-metadata.gz",
+                "ir_metadata",
+                "ir-metadata",
+                "irmetadata",
+                "ir_metadata.gz",
+                "ir-metadata.gz",
+                "irmetadata.gz",
             ]
         )
         with file_open() as file:

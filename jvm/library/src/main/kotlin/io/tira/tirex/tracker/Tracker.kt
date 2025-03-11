@@ -681,18 +681,24 @@ class TrackingHandle private constructor(
         if (exportFilePath == null) return
         else if (
             listOf(
-                ".ir_metadata",
-                ".ir-metadata",
-                ".ir_metadata.yml",
-                ".ir-metadata.yml",
-                ".ir_metadata.yaml",
-                ".ir-metadata.yaml",
-                ".ir_metadata.gz",
-                ".ir-metadata.gz",
-                ".ir_metadata.yml.gz",
-                ".ir-metadata.yml.gz",
-                ".ir_metadata.yaml.gz",
-                ".ir-metadata.yaml.gz",
+                "ir_metadata",
+                "ir-metadata",
+                "irmetadata",
+                "ir_metadata.yml",
+                "ir-metadata.yml",
+                "irmetadata.yml",
+                "ir_metadata.yaml",
+                "ir-metadata.yaml",
+                "irmetadata.yaml",
+                "ir_metadata.gz",
+                "ir-metadata.gz",
+                "irmetadata.gz",
+                "ir_metadata.yml.gz",
+                "ir-metadata.yml.gz",
+                "irmetadata.yml.gz",
+                "ir_metadata.yaml.gz",
+                "ir-metadata.yaml.gz",
+                "irmetadata.yaml.gz",
             ).any { exportFilePath.name.endsWith(it) }
         ) exportIrMetadata(result)
     }
@@ -788,10 +794,12 @@ class TrackingHandle private constructor(
             } else it
         }
         val writePrefixSuffix = listOf(
-            ".ir_metadata",
-            ".ir-metadata",
-            ".ir_metadata.gz",
-            ".ir-metadata.gz",
+            "ir_metadata",
+            "ir-metadata",
+            "irmetadata",
+            "ir_metadata.gz",
+            "ir-metadata.gz",
+            "irmetadata.gz",
         ).any { exportFilePath.name.endsWith(it) }
         stream.bufferedWriter().use { writer ->
             if (writePrefixSuffix) {
