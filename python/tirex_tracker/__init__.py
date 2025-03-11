@@ -18,7 +18,6 @@ from importlib_metadata import distributions, version
 from importlib_resources import files
 from io import BytesIO
 from json import dumps, loads
-from os import PathLike
 from pathlib import Path
 from sys import modules as sys_modules, executable, argv, platform, version_info
 from typing import (
