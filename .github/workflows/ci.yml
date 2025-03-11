@@ -70,7 +70,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: c-library-windows
-          path: c/build/extensions/Release/tirex_tracker_full.dll
+          path: c/build/extensions/libtirex_tracker_full.dll
   c-check-format:
     name: 🔍 Check C code format
     runs-on: ubuntu-latest
