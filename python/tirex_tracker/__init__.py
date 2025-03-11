@@ -874,20 +874,16 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         ir_metadata["implementation"]["script"]["path"] = loads(
             self._python_info[Measure.PYTHON_SCRIPT_FILE_PATH].value
         )
-        ir_metadata["implementation"]["notebook"]["path"] = loads(
-            self._python_info[Measure.PYTHON_NOTEBOOK_FILE_PATH].value
+        if Measure.PYTHON_NOTEBOOK_FILE_PATH in self._python_info:
+            ir_metadata["implementation"]["notebook"]["path"] = loads(
+                self._python_info[Measure.PYTHON_NOTEBOOK_FILE_PATH].value
+            )
+        ir_metadata["implementation"]["source"]["archive"]["path"] = loads(
+            self._python_info[Measure.PYTHON_CODE_ARCHIVE_PATH].value
         )
-
-        if Measure.PYTHON_CODE_ARCHIVE_PATH in self._python_info:
-            ir_metadata["implementation"]["source"]["archive"]["path"] = loads(
-                self._python_info[Measure.PYTHON_CODE_ARCHIVE_PATH].value
-            )
-
-        if Measure.PYTHON_SCRIPT_FILE_PATH_IN_CODE_ARCHIVE in self._python_info:
-            ir_metadata["implementation"]["source"]["archive"]["script path"] = loads(
-                self._python_info[Measure.PYTHON_SCRIPT_FILE_PATH_IN_CODE_ARCHIVE].value
-            )
-
+        ir_metadata["implementation"]["source"]["archive"]["script path"] = loads(
+            self._python_info[Measure.PYTHON_SCRIPT_FILE_PATH_IN_CODE_ARCHIVE].value
+        )
         if Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE in self._python_info:
             ir_metadata["implementation"]["source"]["archive"]["notebook path"] = loads(
                 self._python_info[
