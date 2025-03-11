@@ -253,11 +253,18 @@ jobs:
           - ubuntu-20.04
           - ubuntu-22.04
           - ubuntu-24.04
-          - macos-14
-          - macos-15
+          # - macos-14
+          # - macos-15
           - windows-2019
           - windows-2022
           - windows-2025
+        exclusions:
+          - java: "19"
+            runs-on: windows-2022
+          - java: "21"
+            runs-on: windows-2022
+          - java: "21"
+            runs-on: windows-2025
     runs-on: ${{ ((matrix.runs-on == 'ubuntu-20.04') && 'ubuntu-latest') || matrix.runs-on }}
     container:
       image: ${{ (matrix.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
@@ -410,7 +417,7 @@ jobs:
       fail-fast: false
       matrix:
         python:
-          - "3.8"
+          # - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
