@@ -57,19 +57,19 @@ jobs:
         run: cmake --build c/build/ --config Release --target tirex_tracker_full
       - name: 📤 Upload Linux library
         if: matrix.environment.runs-on == 'ubuntu-20.04'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: c-library-linux
           path: c/build/extensions/libtirex_tracker_full.so
       - name: 📤 Upload macOS library
         if: matrix.environment.runs-on == 'macos-14'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: c-library-macos
           path: c/build/extensions/libtirex_tracker_full.dylib
       - name: 📤 Upload Windows library
         if: matrix.environment.runs-on == 'windows-2022'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: c-library-windows
           path: c/build/extensions/Release/tirex_tracker_full.dll
@@ -135,19 +135,19 @@ jobs:
         run: cmake --build c/build/ --config Release --target measure
       - name: 📤 Upload Linux CLI
         if: matrix.environment.runs-on == 'ubuntu-20.04'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: c-cli-linux
           path: c/build/examples/03_measure_command/measure
       - name: 📤 Upload macOS CLI
         if: matrix.environment.runs-on == 'macos-14' 
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: c-cli-macos
           path: c/build/examples/03_measure_command/measure
       - name: 📤 Upload Windows CLI
         if: matrix.environment.runs-on == 'windows-2022' 
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: c-cli-windows
           path: c/build/examples/03_measure_command/Release/measure.exe
@@ -189,7 +189,7 @@ jobs:
         run: cmake --build c/build/ --config Release --target package
       - name: 📤 Upload Debian package
         if: matrix.environment.runs-on == 'ubuntu-20.04' 
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: c-debian-package
           path: c/build/tirex-tracker-*-Linux.deb
@@ -229,17 +229,17 @@ jobs:
             jvm/example/build.gradle.kts
             jvm/library/build.gradle.kts
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-linux
           path: jvm/library/src/main/resources/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-macos
           path: jvm/library/src/main/resources/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-windows
           path: jvm/library/src/main/resources/
@@ -293,17 +293,17 @@ jobs:
             jvm/example/build.gradle.kts
             jvm/library/build.gradle.kts
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-linux
           path: jvm/library/src/main/resources/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-macos
           path: jvm/library/src/main/resources/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-windows
           path: jvm/library/src/main/resources/
@@ -356,17 +356,17 @@ jobs:
             jvm/example/build.gradle.kts
             jvm/library/build.gradle.kts
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-linux
           path: jvm/library/src/main/resources/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-macos
           path: jvm/library/src/main/resources/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-windows
           path: jvm/library/src/main/resources/
@@ -374,25 +374,25 @@ jobs:
         run: jvm/gradlew --project-dir jvm/ publishToMavenLocal
       - name: 📤 Upload JVM JAR
         if: matrix.java == '21'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jvm-jar
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*.jar
       - name: 📤 Upload JVM sources JAR
         if: matrix.java == '21'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jvm-sources-jar
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*-sources.jar
       - name: 📤 Upload JVM Javadoc JAR
         if: matrix.java == '21'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jvm-javadoc-jar
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*-javadoc.jar
       - name: 📤 Upload JVM HTML docs JAR
         if: matrix.java == '21'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jvm-html-docs-jar
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*-html-docs.jar
@@ -435,17 +435,17 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-linux
           path: python/tirex_tracker/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-macos
           path: python/tirex_tracker/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-windows
           path: python/tirex_tracker/
@@ -457,7 +457,7 @@ jobs:
         run: twine check python/dist/*
       - name: 📤 Upload Python wheels
         if: matrix.python == '3.13'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: python-wheels
           path: python/dist/
@@ -487,17 +487,17 @@ jobs:
           cache: pip
           cache-dependency-path: python/pyproject.toml
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-linux
           path: python/tirex_tracker/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-macos
           path: python/tirex_tracker/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-windows
           path: python/tirex_tracker/
@@ -531,17 +531,17 @@ jobs:
           cache: pip
           cache-dependency-path: python/pyproject.toml
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-linux
           path: python/tirex_tracker/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-macos
           path: python/tirex_tracker/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-windows
           path: python/tirex_tracker/
@@ -575,17 +575,17 @@ jobs:
           cache: pip
           cache-dependency-path: python/pyproject.toml
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-linux
           path: python/tirex_tracker/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-macos
           path: python/tirex_tracker/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-windows
           path: python/tirex_tracker/
@@ -631,17 +631,17 @@ jobs:
           cache: pip
           cache-dependency-path: python/pyproject.toml
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-linux
           path: python/tirex_tracker/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-macos
           path: python/tirex_tracker/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-windows
           path: python/tirex_tracker/
@@ -673,7 +673,7 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v3
       - name: 📥 Download Python wheels
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: python-wheels
           path: dist
@@ -703,68 +703,68 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v3
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-linux
           path: tmp/c/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-macos
           path: tmp/c/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-library-windows
           path: tmp/c/
       - name: 📥 Download Linux CLI
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-cli-linux
           path: tmp/c/
       - name: ✏️ Rename Linux CLI
         run: mv tmp/c/measure tmp/c/measure-${{ github.ref_name }}-linux
       - name: 📥 Download macOS CLI
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-cli-macos
           path: tmp/c/
       - name: ✏️ Rename macOS CLI
         run: mv tmp/c/measure tmp/c/measure-${{ github.ref_name }}-macos
       - name: 📥 Download Windows CLI
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-cli-windows
           path: tmp/c/
       - name: ✏️ Rename Windows CLI
         run: mv tmp/c/measure.exe tmp/c/measure-${{ github.ref_name }}-windows.exe
       - name: 📥 Download Debian package
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: c-debian-package
           path: tmp/c/
       - name: 📥 Download Python wheels
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: python-wheels
           path: tmp/python/dist/
       - name: 📥 Download JVM JAR
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: jvm-jar
           path: tmp/jvm/
       - name: 📥 Download JVM sources JAR
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: jvm-sources-jar
           path: tmp/jvm/
       - name: 📥 Download JVM Javadoc JAR
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: jvm-javadoc-jar
           path: tmp/jvm/
       - name: 📥 Download JVM HTML docs JAR
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: jvm-html-docs-jar
           path: tmp/jvm/
