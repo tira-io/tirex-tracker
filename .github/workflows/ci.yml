@@ -39,7 +39,11 @@ jobs:
       image: ${{ (matrix.environment.runs-on == 'ubuntu-18.04' && 'ghcr.io/catthehacker/ubuntu:runner-18.04') || (matrix.environment.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        if: matrix.environment.runs-on != 'ubuntu-19.04' && matrix.environment.runs-on != 'ubuntu-20.04'
+        uses: actions/checkout@v4
+      - name: 📥 Check-out (legacy)
+        if: matrix.environment.runs-on == 'ubuntu-19.04' || matrix.environment.runs-on == 'ubuntu-20.04'
+        uses: actions/checkout@v2
       - name: 🧰 Download keys
         if: matrix.environment.runs-on == 'ubuntu-20.04'
         run: |
@@ -78,7 +82,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
@@ -116,7 +120,11 @@ jobs:
       image: ${{ (matrix.environment.runs-on == 'ubuntu-18.04' && 'ghcr.io/catthehacker/ubuntu:runner-18.04') || (matrix.environment.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        if: matrix.environment.runs-on != 'ubuntu-19.04' && matrix.environment.runs-on != 'ubuntu-20.04'
+        uses: actions/checkout@v4
+      - name: 📥 Check-out (legacy)
+        if: matrix.environment.runs-on == 'ubuntu-19.04' || matrix.environment.runs-on == 'ubuntu-20.04'
+        uses: actions/checkout@v2
       - name: 🧰 Download keys
         if: matrix.environment.runs-on == 'ubuntu-20.04'
         run: |
@@ -140,13 +148,13 @@ jobs:
           name: c-cli-linux
           path: c/build/examples/03_measure_command/measure
       - name: 📤 Upload macOS CLI
-        if: matrix.environment.runs-on == 'macos-14' 
+        if: matrix.environment.runs-on == 'macos-14'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-macos
           path: c/build/examples/03_measure_command/measure
       - name: 📤 Upload Windows CLI
-        if: matrix.environment.runs-on == 'windows-2022' 
+        if: matrix.environment.runs-on == 'windows-2022'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-windows
@@ -170,7 +178,11 @@ jobs:
       image: ${{ (matrix.environment.runs-on == 'ubuntu-18.04' && 'ghcr.io/catthehacker/ubuntu:runner-18.04') || (matrix.environment.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        if: matrix.environment.runs-on != 'ubuntu-19.04' && matrix.environment.runs-on != 'ubuntu-20.04'
+        uses: actions/checkout@v4
+      - name: 📥 Check-out (legacy)
+        if: matrix.environment.runs-on == 'ubuntu-19.04' || matrix.environment.runs-on == 'ubuntu-20.04'
+        uses: actions/checkout@v2
       - name: 🧰 Download keys
         if: matrix.environment.runs-on == 'ubuntu-20.04'
         run: |
@@ -188,7 +200,7 @@ jobs:
       - name: 🏗️ Build Debian package
         run: cmake --build c/build/ --config Release --target package
       - name: 📤 Upload Debian package
-        if: matrix.environment.runs-on == 'ubuntu-20.04' 
+        if: matrix.environment.runs-on == 'ubuntu-20.04'
         uses: actions/upload-artifact@v4
         with:
           name: c-debian-package
@@ -209,7 +221,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 🧰 Install JDK 8 (for compiling)
         uses: actions/setup-java@v4
         with:
@@ -280,7 +292,11 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        if: matrix.runs-on != 'ubuntu-19.04' && matrix.runs-on != 'ubuntu-20.04'
+        uses: actions/checkout@v4
+      - name: 📥 Check-out (legacy)
+        if: matrix.runs-on == 'ubuntu-19.04' || matrix.runs-on == 'ubuntu-20.04'
+        uses: actions/checkout@v2
       - name: 🧰 Install JDK 8 (for compiling)
         uses: actions/setup-java@v4
         with:
@@ -343,7 +359,7 @@ jobs:
       - jvm-check
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 🧰 Install JDK 8 (for compiling)
         uses: actions/setup-java@v4
         with:
@@ -436,7 +452,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
@@ -486,7 +502,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
@@ -530,7 +546,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
@@ -574,7 +590,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
@@ -630,7 +646,11 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        if: matrix.runs-on != 'ubuntu-19.04' && matrix.runs-on != 'ubuntu-20.04'
+        uses: actions/checkout@v4
+      - name: 📥 Check-out (legacy)
+        if: matrix.runs-on == 'ubuntu-19.04' || matrix.runs-on == 'ubuntu-20.04'
+        uses: actions/checkout@v2
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
@@ -678,7 +698,7 @@ jobs:
       id-token: write
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 📥 Download Python wheels
         uses: actions/download-artifact@v4
         with:
