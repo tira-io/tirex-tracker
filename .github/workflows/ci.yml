@@ -39,10 +39,10 @@ jobs:
       image: ${{ (matrix.environment.runs-on == 'ubuntu-18.04' && 'ghcr.io/catthehacker/ubuntu:runner-18.04') || (matrix.environment.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
     steps:
       - name: 📥 Check-out
-        if: matrix.environment.runs-on != 'ubuntu-19.04' && matrix.environment.runs-on != 'ubuntu-20.04'
+        if: matrix.environment.runs-on != 'ubuntu-18.04'
         uses: actions/checkout@v4
       - name: 📥 Check-out (legacy)
-        if: matrix.environment.runs-on == 'ubuntu-19.04' || matrix.environment.runs-on == 'ubuntu-20.04'
+        if: matrix.environment.runs-on == 'ubuntu-18.04'
         uses: actions/checkout@v2
       - name: 🧰 Download keys
         if: matrix.environment.runs-on == 'ubuntu-20.04'
@@ -120,10 +120,10 @@ jobs:
       image: ${{ (matrix.environment.runs-on == 'ubuntu-18.04' && 'ghcr.io/catthehacker/ubuntu:runner-18.04') || (matrix.environment.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
     steps:
       - name: 📥 Check-out
-        if: matrix.environment.runs-on != 'ubuntu-19.04' && matrix.environment.runs-on != 'ubuntu-20.04'
+        if: matrix.environment.runs-on != 'ubuntu-18.04'
         uses: actions/checkout@v4
       - name: 📥 Check-out (legacy)
-        if: matrix.environment.runs-on == 'ubuntu-19.04' || matrix.environment.runs-on == 'ubuntu-20.04'
+        if: matrix.environment.runs-on == 'ubuntu-18.04'
         uses: actions/checkout@v2
       - name: 🧰 Download keys
         if: matrix.environment.runs-on == 'ubuntu-20.04'
@@ -178,10 +178,10 @@ jobs:
       image: ${{ (matrix.environment.runs-on == 'ubuntu-18.04' && 'ghcr.io/catthehacker/ubuntu:runner-18.04') || (matrix.environment.runs-on == 'ubuntu-20.04' && 'ghcr.io/catthehacker/ubuntu:runner-20.04') || null }}
     steps:
       - name: 📥 Check-out
-        if: matrix.environment.runs-on != 'ubuntu-19.04' && matrix.environment.runs-on != 'ubuntu-20.04'
+        if: matrix.environment.runs-on != 'ubuntu-18.04'
         uses: actions/checkout@v4
       - name: 📥 Check-out (legacy)
-        if: matrix.environment.runs-on == 'ubuntu-19.04' || matrix.environment.runs-on == 'ubuntu-20.04'
+        if: matrix.environment.runs-on == 'ubuntu-18.04'
         uses: actions/checkout@v2
       - name: 🧰 Download keys
         if: matrix.environment.runs-on == 'ubuntu-20.04'
@@ -292,10 +292,10 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        if: matrix.runs-on != 'ubuntu-19.04' && matrix.runs-on != 'ubuntu-20.04'
+        if: matrix.runs-on != 'ubuntu-18.04'
         uses: actions/checkout@v4
       - name: 📥 Check-out (legacy)
-        if: matrix.runs-on == 'ubuntu-19.04' || matrix.runs-on == 'ubuntu-20.04'
+        if: matrix.runs-on == 'ubuntu-18.04'
         uses: actions/checkout@v2
       - name: 🧰 Install JDK 8 (for compiling)
         uses: actions/setup-java@v4
@@ -646,10 +646,10 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        if: matrix.runs-on != 'ubuntu-19.04' && matrix.runs-on != 'ubuntu-20.04'
+        if: matrix.runs-on != 'ubuntu-18.04'
         uses: actions/checkout@v4
       - name: 📥 Check-out (legacy)
-        if: matrix.runs-on == 'ubuntu-19.04' || matrix.runs-on == 'ubuntu-20.04'
+        if: matrix.runs-on == 'ubuntu-18.04'
         uses: actions/checkout@v2
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
