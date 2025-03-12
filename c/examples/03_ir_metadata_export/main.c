@@ -144,8 +144,8 @@ int main(int argc, char* argv[]) {
 	}
 	if (tirexStopTracking(measure, &result) != TIREX_SUCCESS)
 		abort();
-	printf("Writing results to ./test.ir_metadata\n");
-	if (tirexResultExportIrMetadata(info, result, "./test.ir_metadata") != TIREX_SUCCESS)
+	printf("Writing results to ./ir_metadata.yml\n");
+	if (tirexResultExportIrMetadata(info, result, "./ir_metadata.yml") != TIREX_SUCCESS)
 		abort();
 	tirexResultFree(info);
 	tirexResultFree(result);

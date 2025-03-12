@@ -1,4 +1,4 @@
 add_subdirectory(01_tracking)
 add_subdirectory(02_list_measures)
 add_subdirectory(03_measure_command)
-add_subdirectory(04_ir_extension)
+add_subdirectory(03_ir_metadata_export)
