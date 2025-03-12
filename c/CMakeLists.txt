@@ -11,6 +11,10 @@ if (NOT TIREX_TRACKER_ONLY_DOCS)
     add_subdirectory(src)
     add_subdirectory(extensions)
 
+	if (TIREX_TRACKER_BUILD_CLI)
+		add_subdirectory(cli)
+	endif()
+
 	if (TIREX_TRACKER_BUILD_EXAMPLES)
 		add_subdirectory(examples)
 	endif()
