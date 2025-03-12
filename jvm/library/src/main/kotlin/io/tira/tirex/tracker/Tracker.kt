@@ -446,7 +446,7 @@ private interface TrackerLibrary : Library {
 }
 
 private val LIBRARY = Native.load(
-    "tirex_tracker_full",
+    if (Platform.isWindows()) "libtirex_tracker_full" else "tirex_tracker_full",
     TrackerLibrary::class.java,
     mapOf(Library.OPTION_STRING_ENCODING to ENCODING),
 )
