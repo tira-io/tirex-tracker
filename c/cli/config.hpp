@@ -47,6 +47,9 @@ namespace tirex {
 					{"simple", simpleFormatter},
 					{"json", jsonFormatter},
 					{"irmetadata", irmetadataFormatter},
+					{"ir_metadata", irmetadataFormatter},
+					{"ir-metadata", irmetadataFormatter},
+					{"ir", irmetadataFormatter},
 			};
 			return formatters.at(formatter);
 		}
