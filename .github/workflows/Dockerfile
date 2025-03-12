@@ -11,6 +11,8 @@ ENV CXX=g++-5
 # 🧰 Install CMake.
 RUN apt-get remove -y cmake
 RUN python3 -m pip install cmake~=3.24.0
+# 🧰 Install Doxygen.
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install doxygen
 
 
 # Note: GCC 8 is the latest available on Ubuntu 20.04
@@ -26,6 +28,8 @@ ENV CXX=g++-8
 # 🧰 Install CMake.
 RUN apt-get remove -y cmake
 RUN python3 -m pip install cmake~=3.24.0
+# 🧰 Install Doxygen.
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install doxygen
 
 
 # Note: GCC 9 is the latest available on Ubuntu 20.04
@@ -41,3 +45,5 @@ ENV CXX=g++-9
 # 🧰 Install CMake.
 RUN apt-get remove -y cmake
 RUN python3 -m pip install cmake~=3.24.0
+# 🧰 Install Doxygen.
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install doxygen
