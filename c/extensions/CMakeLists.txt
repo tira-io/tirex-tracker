@@ -1,8 +1,8 @@
-add_library(measureext_ir
+add_library(tirex_tracker_extension_irmetadata
     irtracker.cpp
 )
-target_include_directories(measureext_ir PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-target_link_libraries(measureext_ir PUBLIC tirex_tracker)
+target_include_directories(tirex_tracker_extension_irmetadata PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+target_link_libraries(tirex_tracker_extension_irmetadata PUBLIC tirex_tracker)
 
 
 add_library(tirex_tracker_full SHARED
