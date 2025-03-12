@@ -3,7 +3,7 @@
 #include "../../logging.hpp"
 
 #include <git2.h>
-#include <sha1.h>
+#include <sha1.hpp>
 
 #include <filesystem>
 #include <fstream>
@@ -119,7 +119,7 @@ static std::vector<std::string> getTags(git_repository* repo) {
 }
 
 static std::string hashAllFiles(git_repository* repo) {
-	Chocobo1::SHA1 hash;
+	SHA1 hash;
 	git_status_list* list;
 	git_status_options opts = GIT_STATUS_OPTIONS_INIT;
 	opts.flags = GIT_STATUS_OPT_INCLUDE_UNTRACKED | GIT_STATUS_OPT_INCLUDE_UNMODIFIED;
@@ -133,11 +133,10 @@ static std::string hashAllFiles(git_repository* repo) {
 			tirex::log::error("gitstats", "Error opening file: {}", entry->index_to_workdir->new_file.path);
 			continue;
 		}
-		for (char buffer[8192]; is; is.read(buffer, sizeof(buffer)))
-			hash.addData(buffer, is.gcount());
+		hash.update(is);
 	}
 	git_status_list_free(list);
-	return hash.finalize().toString();
+	return hash.final();
 }
 
 struct GitStatusStats {

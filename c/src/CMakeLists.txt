@@ -115,8 +115,8 @@ if (UNIX AND APPLE)
 	target_link_libraries(tirex_tracker_static PRIVATE "$<LINK_LIBRARY:FRAMEWORK,IOKit>")
 endif()
 
-# Hash
-FetchContent_Declare(hash GIT_REPOSITORY https://github.com/Chocobo1/Hash.git GIT_TAG 250fd19b9b6f3fda714f5071ab477057615fb6d0)
-FetchContent_MakeAvailable(hash)
-target_include_directories(tirex_tracker PRIVATE ${hash_SOURCE_DIR}/src)
-target_include_directories(tirex_tracker_static PRIVATE ${hash_SOURCE_DIR}/src)
+# SHA-1
+FetchContent_Declare(sha1 GIT_REPOSITORY https://github.com/vog/sha1.git GIT_TAG 1.4)
+FetchContent_MakeAvailable(sha1)
+target_include_directories(tirex_tracker PRIVATE ${sha1_SOURCE_DIR})
+target_include_directories(tirex_tracker_static PRIVATE ${sha1_SOURCE_DIR})
