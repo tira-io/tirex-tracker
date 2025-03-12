@@ -304,8 +304,22 @@ jobs:
           - windows-2022
           - windows-2025
         exclude:
+          - java: "8"
+            runs-on: windows-2022
+          - java: "8"
+            runs-on: windows-2025
+          - java: "11"
+            runs-on: windows-2019
+          - java: "11"
+            runs-on: windows-2022
+          - java: "11"
+            runs-on: windows-2025
+          - java: "19"
+            runs-on: windows-2019
           - java: "19"
             runs-on: windows-2022
+          - java: "21"
+            runs-on: windows-2019
           - java: "21"
             runs-on: windows-2022
           - java: "21"
