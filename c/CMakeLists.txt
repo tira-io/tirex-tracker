@@ -5,7 +5,29 @@ option(TIREX_TRACKER_ONLY_DOCS "Build only documentation -- this disables tests 
 option(TIREX_TRACKER_BUILD_EXAMPLES "Build the examples" OFF)
 option(TIREX_TRACKER_BUILD_DOCS "Build the documentation" OFF)
 
-project(tirex_tracker VERSION 0.0.1 LANGUAGES C CXX)
+# Infer version from Git tag.
+find_program(GIT_EXECUTABLE git)
+if(GIT_EXECUTABLE)
+	# Generate a git-describe version string from Git repository tags
+	execute_process(
+		COMMAND ${GIT_EXECUTABLE} describe --tags --dirty --match "*.*.*"
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+		OUTPUT_VARIABLE GIT_DESCRIBE_VERSION
+		RESULT_VARIABLE GIT_DESCRIBE_ERROR_CODE
+		OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+	if(NOT GIT_DESCRIBE_ERROR_CODE)
+		set(TIREX_TRACKER_VERSION ${GIT_DESCRIBE_VERSION})
+	endif()
+endif()
+if(NOT DEFINED TIREX_TRACKER_VERSION)
+	set(TIREX_TRACKER_VERSION 0.0.0-unknown)
+	message(WARNING "Failed to determine TIREX_TRACKER_VERSION from Git tag.")
+endif()
+string(REGEX MATCH "^[0-9]+\.[0-9]+\.[0-9]+" TIREX_TRACKER_VERSION_PLAIN ${TIREX_TRACKER_VERSION})
+message(DEBUG "The TIREx tracker version is ${TIREX_TRACKER_VERSION} (${TIREX_TRACKER_VERSION_PLAIN})")
+
+project(tirex_tracker VERSION ${TIREX_TRACKER_VERSION_PLAIN} LANGUAGES C CXX)
 
 if (NOT TIREX_TRACKER_ONLY_DOCS)
     add_subdirectory(src)
@@ -67,28 +89,4 @@ if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND TIREX_TRACKER_BUILD_DOCS)
 		${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/README.md ${CMAKE_CURRENT_SOURCE_DIR}/docs
 		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	)
-endif()
-
-
-##########################################################################################
-# Debian Package
-##########################################################################################
-# Debian Packaging only available if this is the main app
-if(NOT TIREX_TRACKER_ONLY_DOCS AND (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND TIREX_TRACKER_BUILD_DEB)
-	install(TARGETS tirex_tracker ARCHIVE DESTINATION lib COMPONENT tirex_tracker)
-	install(DIRECTORY include DESTINATION include COMPONENT tirex_tracker)
-
-	SET(CPACK_GENERATOR "DEB")
-	SET(CPACK_PACKAGE_NAME "tirex-tracker")
-	SET(CPACK_SET_DESTDIR TRUE)
-	SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "not-set")
-	SET(CPACK_PACKAGE_VERSION "0.0.1rc")
-	include(GNUInstallDirs)
-	SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "TODO")
-	SET(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/../README.md")
-	SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE")
-	SET(CPACK_DEBIAN_PACKAGE_DEPENDS "")
-	SET(CPACK_PACKAGE_VENDOR "")
-	include(CPack)
-	cpack_add_component(tirex_tracker)
 endif()
