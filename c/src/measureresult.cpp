@@ -43,27 +43,27 @@ static std::string toYAML(const tirex::TimeSeries<unsigned>& timeseries) {
 
 	std::stringstream timestampsStream;
 	timestampsStream << "[";
-	bool first = true;
+	bool firstTImestamp = true;
 	for (auto& elem : timestamps) {
-		if (!first)
+		if (!firstTImestamp)
 			timestampsStream << ",";
 		timestampsStream << "\"";
 		timestampsStream << elem.count();
 		timestampsStream << "\"";
-		first = false;
+		firstTImestamp = false;
 	}
 	timestampsStream << "]";
 
 	std::stringstream valuesStream;
 	valuesStream << "[";
-	bool first = true;
+	bool firstValue = true;
 	for (auto& elem : values) {
-		if (!first)
+		if (!firstValue)
 			valuesStream << ",";
 		valuesStream << "\"";
 		valuesStream << elem;
 		valuesStream << "\"";
-		first = false;
+		firstValue = false;
 	}
 	valuesStream << "]";
 
