@@ -17,7 +17,7 @@ add_library(tirex_tracker SHARED
 	measure/stats/systemstats_windows.cpp
 )
 
-target_compile_features(tirex_tracker PUBLIC cxx_std_20)
+target_compile_features(tirex_tracker PRIVATE cxx_std_20)
 target_include_directories(tirex_tracker PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../include)
 set_property(TARGET tirex_tracker PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_compile_definitions(tirex_tracker PRIVATE TIREX_TRACKER_LIB_EXPORT)
