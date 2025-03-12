@@ -1,14 +1,13 @@
 #include "gitstats.hpp"
 
 #include "../../logging.hpp"
-#include "../utils/rangeutils.hpp"
 
 #include <git2.h>
 #include <sha1.h>
 
 #include <filesystem>
 #include <fstream>
-#include <ranges>
+#include <iostream>
 #include <string>
 #include <tuple>
 
@@ -204,12 +203,25 @@ Stats GitStats::getInfo() {
 		);
 		tirex::log::info("gitstats", "Local is {} commits ahead and {} behind upstream", status.ahead, status.behind);
 		auto [local, remote] = getBranchName(repo);
+		auto tags = getTags(repo);
+		std::stringstream tagsStream;
+		tagsStream << "[";
+		bool first = true;
+		for (auto& elem : tags) {
+			if (!first)
+				tagsStream << ",";
+			tagsStream << "\"";
+			tagsStream << elem;
+			tagsStream << "\"";
+			first = false;
+		}
+		tagsStream << "]";
 		return {{TIREX_GIT_IS_REPO, "true"s},
 				{TIREX_GIT_HASH, hashAllFiles(repo)},
 				{TIREX_GIT_LAST_COMMIT_HASH, getLastCommitHash(repo)},
 				{TIREX_GIT_BRANCH, local},
 				{TIREX_GIT_BRANCH_UPSTREAM, remote},
-				{TIREX_GIT_TAGS, "["s + tirex::utils::join(getTags(repo), ',') + "]"s},
+				{TIREX_GIT_TAGS, tagsStream.str()},
 				{TIREX_GIT_REMOTE_ORIGIN, getRemoteOrigin(repo)},
 				{TIREX_GIT_UNCOMMITTED_CHANGES, (status.numModified != 0) ? "true"s : "false"s},
 				{TIREX_GIT_UNPUSHED_CHANGES, ((status.ahead != 0) || remote.empty()) ? "true"s : "false"s},
