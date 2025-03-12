@@ -81,7 +81,7 @@ jobs:
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
           cmake --build c/build/ --config Release --target tirex_tracker_full
       - name: 📤 Upload Linux library
-        if: matrix.environment.runs-on == 'ubuntu-18.04'
+        if: matrix.environment.runs-on == 'ubuntu-20.04'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-linux
@@ -172,7 +172,7 @@ jobs:
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
           cmake --build c/build/ --config Release --target measure
       - name: 📤 Upload Linux CLI
-        if: matrix.environment.runs-on == 'ubuntu-18.04'
+        if: matrix.environment.runs-on == 'ubuntu-20.04'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-linux
@@ -227,7 +227,7 @@ jobs:
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
           cmake --build c/build/ --config Release --target package
       - name: 📤 Upload Debian package
-        if: matrix.environment.runs-on == 'ubuntu-18.04'
+        if: matrix.environment.runs-on == 'ubuntu-20.04'
         uses: actions/upload-artifact@v4
         with:
           name: c-debian-package
