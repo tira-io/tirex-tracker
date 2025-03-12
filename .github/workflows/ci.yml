@@ -41,7 +41,7 @@ jobs:
           cmake: "3.24"
           setup-cpp: false
       - name: 🔧 Configure CMake
-        run: cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=${{ env.CC }} -D CMAKE_CXX_COMPILER=${{ env.CXX }}
+        run: cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=${{ env.CC }} -DCMAKE_CXX_COMPILER=${{ env.CXX }}
       - name: 🏗️ Build library
         run: cmake --build c/build/ --config Release --target tirex_tracker_full
       - name: 📤 Upload macOS library
@@ -85,7 +85,7 @@ jobs:
       - name: 🔧 Configure CMake
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
-          cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=gcc-13 -D CMAKE_CXX_COMPILER=g++-13
+          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13
       - name: 🏗️ Build library
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
@@ -142,7 +142,7 @@ jobs:
           setup-cpp: false
       - name: 🔧 Configure CMake
         run: |
-          cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=${{ env.CC }} -D CMAKE_CXX_COMPILER=${{ env.CXX }} -D TIREX_TRACKER_BUILD_CLI=YES
+          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=${{ env.CC }} -DCMAKE_CXX_COMPILER=${{ env.CXX }} -DTIREX_TRACKER_BUILD_CLI=YES
       - name: 🏗️ Build CLI
         run: cmake --build c/build/ --config Release --target tirex_tracker_cli
       - name: 📤 Upload macOS CLI
@@ -186,7 +186,7 @@ jobs:
       - name: 🔧 Configure CMake
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
-          cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=gcc-13 -D CMAKE_CXX_COMPILER=g++-13 -D TIREX_TRACKER_BUILD_CLI=YES
+          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13 -DTIREX_TRACKER_BUILD_CLI=YES
       - name: 🏗️ Build CLI
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
@@ -219,7 +219,7 @@ jobs:
           setup-cpp: false
       - name: 🔧 Configure CMake
         run: |
-          cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=${{ env.CC }} -D CMAKE_CXX_COMPILER=${{ env.CXX }} -D TIREX_TRACKER_BUILD_DEB=YES
+          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=${{ env.CC }} -DCMAKE_CXX_COMPILER=${{ env.CXX }} -DTIREX_TRACKER_BUILD_DEB=YES
       - name: 🏗️ Build Debian package
         run: cmake --build c/build/ --config Release --target package
   c-build-debian-package-legacy:
@@ -251,7 +251,7 @@ jobs:
       - name: 🔧 Configure CMake
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
-          cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=gcc-13 -D CMAKE_CXX_COMPILER=g++-13 -D TIREX_TRACKER_BUILD_DEB=YES
+          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13 -DTIREX_TRACKER_BUILD_DEB=YES
       - name: 🏗️ Build Debian package
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \

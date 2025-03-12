@@ -256,13 +256,13 @@ First, setup CMake to use the correct version of [GCC](https://gcc.gnu.org/) and
 
 ```shell
 cmake -S c/ -B c/build/ \
-  -D CMAKE_BUILD_TYPE=Release \
-  -D CMAKE_C_COMPILER=gcc-13 \
-  -D CMAKE_CXX_COMPILER=g++-13 \
-  -D BUILD_SHARED_LIBS=YES \
-  -D TIREX_TRACKER_BUILD_DOCS=YES \
-  -D TIREX_TRACKER_BUILD_DEB=YES \
-  -D TIREX_TRACKER_BUILD_EXAMPLES=YES
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_C_COMPILER=gcc-13 \
+  -DCMAKE_CXX_COMPILER=g++-13 \
+  -DTIREX_TRACKER_BUILD_DOCS=YES \
+  -DTIREX_TRACKER_BUILD_CLI=YES \
+  -DTIREX_TRACKER_BUILD_DEB=YES \
+  -DTIREX_TRACKER_BUILD_EXAMPLES=YES
 ```
 
 (Hint: If you do not want to generate the documentation and have not installed Doxygen, you can disable it by setting `TIREX_TRACKER_BUILD_DOCS=NO`.)
