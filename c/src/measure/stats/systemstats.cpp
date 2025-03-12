@@ -336,7 +336,7 @@ SystemStats::CPUInfo::VirtFlags getVirtSupport() {
 	/** This is a crude implementation for now that only takes into account the flags of the very first processor **/
 	std::ifstream is("/proc/cpuinfo");
 	for (std::string line; std::getline(is, line);)
-		if (line.starts_with("Features"))
+		if (line.substr(0, 9) == "Features")
 			return {.svm = line.find("svm") != std::string::npos, .vmx = line.find("vmx") != std::string::npos};
 	return {.svm = false, .vmx = false};
 }
