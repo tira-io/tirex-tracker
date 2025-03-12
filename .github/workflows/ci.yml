@@ -817,21 +817,21 @@ jobs:
           name: c-cli-linux
           path: tmp/c/
       - name: ✏️ Rename Linux CLI
-        run: mv tmp/c/measure tmp/c/measure-${{ github.ref_name }}-linux
+        run: mv tmp/c/measure tmp/c/tirex-tracker-${{ github.ref_name }}-Linux
       - name: 📥 Download macOS CLI
         uses: actions/download-artifact@v4
         with:
           name: c-cli-macos
           path: tmp/c/
       - name: ✏️ Rename macOS CLI
-        run: mv tmp/c/measure tmp/c/measure-${{ github.ref_name }}-macos
+        run: mv tmp/c/measure tmp/c/tirex-tracker-${{ github.ref_name }}-macOS
       - name: 📥 Download Windows CLI
         uses: actions/download-artifact@v4
         with:
           name: c-cli-windows
           path: tmp/c/
       - name: ✏️ Rename Windows CLI
-        run: mv tmp/c/measure.exe tmp/c/measure-${{ github.ref_name }}-windows.exe
+        run: mv tmp/c/measure.exe tmp/c/tirex-tracker-${{ github.ref_name }}-Windows.exe
       - name: 📥 Download Debian package
         uses: actions/download-artifact@v4
         with:
@@ -870,9 +870,9 @@ jobs:
             tmp/c/*.so
             tmp/c/*.dylib
             tmp/c/*.dll
-            tmp/c/measure-*-linux
-            tmp/c/measure-*-macos
-            tmp/c/measure-*-windows.exe
+            tmp/c/tirex-tracker-*-Linux
+            tmp/c/tirex-tracker-*-macOS
+            tmp/c/tirex-tracker-*-Windows.exe
             tmp/c/tirex-tracker-*-Linux.deb
             tmp/python/dist/*
             tmp/jvm/*/*.jar
