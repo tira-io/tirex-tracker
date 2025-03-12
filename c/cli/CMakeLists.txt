@@ -1,8 +1,8 @@
 
 add_executable(tirex_tracker_cli
-    main.cpp
     formatters.cpp
     logging.cpp
+    main.cpp
 )
 
 target_compile_features(tirex_tracker_cli PUBLIC cxx_std_20)

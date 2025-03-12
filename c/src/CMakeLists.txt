@@ -27,19 +27,18 @@ target_compile_definitions(tirex_tracker PRIVATE TIREX_TRACKER_LIB_EXPORT)
 
 
 add_library(tirex_tracker_static STATIC
-	measureapi.cpp
-	measureinfo.cpp
-	measureresult.cpp
-	logging.cpp
-	measure/stats/provider.cpp
-
 	measure/stats/energystats.cpp
 	measure/stats/gitstats.cpp
 	measure/stats/gpustats.cpp
-	measure/stats/systemstats.cpp
+	measure/stats/provider.cpp
 	measure/stats/systemstats_linux.cpp
 	measure/stats/systemstats_macos.cpp
 	measure/stats/systemstats_windows.cpp
+	measure/stats/systemstats.cpp
+	logging.cpp
+	measureapi.cpp
+	measureinfo.cpp
+	measureresult.cpp
 )
 target_compile_features(tirex_tracker_static PUBLIC cxx_std_20)
 target_include_directories(tirex_tracker_static PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../include)
