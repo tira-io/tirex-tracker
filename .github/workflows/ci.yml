@@ -71,7 +71,14 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Prepare runner image
-        run: docker build --tag runner --target ${{ matrix.environment.runs-on }}-${{ matrix.environment.compiler }} .github/workflows/
+        uses: docker/build-push-action@v6
+        with:
+          context: .github/workflows/
+          target: ${{ matrix.environment.runs-on }}-${{ matrix.environment.compiler }}
+          tags: runner
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: 🔧 Configure CMake
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
@@ -162,7 +169,14 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Prepare runner image
-        run: docker build --tag runner --target ${{ matrix.environment.runs-on }}-${{ matrix.environment.compiler }} .github/workflows/
+        uses: docker/build-push-action@v6
+        with:
+          context: .github/workflows/
+          target: ${{ matrix.environment.runs-on }}-${{ matrix.environment.compiler }}
+          tags: runner
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: 🔧 Configure CMake
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
@@ -217,7 +231,14 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Prepare runner image
-        run: docker build --tag runner --target ${{ matrix.environment.runs-on }}-${{ matrix.environment.compiler }} .github/workflows/
+        uses: docker/build-push-action@v6
+        with:
+          context: .github/workflows/
+          target: ${{ matrix.environment.runs-on }}-${{ matrix.environment.compiler }}
+          tags: runner
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: 🔧 Configure CMake
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
