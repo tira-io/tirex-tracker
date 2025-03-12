@@ -204,17 +204,17 @@ Stats GitStats::getInfo() {
 		);
 		tirex::log::info("gitstats", "Local is {} commits ahead and {} behind upstream", status.ahead, status.behind);
 		auto [local, remote] = getBranchName(repo);
-		return {{TIREX_GIT_IS_REPO, "1"s},
+		return {{TIREX_GIT_IS_REPO, "true"s},
 				{TIREX_GIT_HASH, hashAllFiles(repo)},
 				{TIREX_GIT_LAST_COMMIT_HASH, getLastCommitHash(repo)},
 				{TIREX_GIT_BRANCH, local},
 				{TIREX_GIT_BRANCH_UPSTREAM, remote},
 				{TIREX_GIT_TAGS, "["s + tirex::utils::join(getTags(repo), ',') + "]"s},
 				{TIREX_GIT_REMOTE_ORIGIN, getRemoteOrigin(repo)},
-				{TIREX_GIT_UNCOMMITTED_CHANGES, (status.numModified != 0) ? "1"s : "0"s},
-				{TIREX_GIT_UNPUSHED_CHANGES, ((status.ahead != 0) || remote.empty()) ? "1"s : "0"s},
-				{TIREX_GIT_UNCHECKED_FILES, (status.numNew != 0) ? "1"s : "0"s}};
+				{TIREX_GIT_UNCOMMITTED_CHANGES, (status.numModified != 0) ? "true"s : "false"s},
+				{TIREX_GIT_UNPUSHED_CHANGES, ((status.ahead != 0) || remote.empty()) ? "true"s : "false"s},
+				{TIREX_GIT_UNCHECKED_FILES, (status.numNew != 0) ? "true"s : "false"s}};
 	} else {
-		return {{TIREX_GIT_IS_REPO, "0"s}};
+		return {{TIREX_GIT_IS_REPO, "false"s}};
 	}
 }
