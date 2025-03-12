@@ -36,8 +36,8 @@ struct tirexMeasureHandle_st final {
 		monitorthread.join();
 
 		// Stop measuring
-		for (auto& provider : providers | std::views::reverse)
-			provider->stop();
+		for(unsigned i = providers.size() - 1; providers.size() > i; --i)
+			providers[i]->stop();
 
 		// Collect statistics and print them
 		tirex::Stats stats{}; /** \todo ranges **/
