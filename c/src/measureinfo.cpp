@@ -4,9 +4,13 @@
 
 size_t tirexDataProviderGetAll(tirexDataProvider* buf, size_t bufsize) {
 	if (buf != nullptr) {
-		for (const auto& [key, value] : tirex::providers | std::views::take(bufsize)) {
+		unsigned i = 0;
+		for (const auto& [key, value] : tirex::providers) {
+			if (i >= bufsize)
+				break;
 			*buf = {.name = key.c_str(), .description = value.description, .version = value.version};
 			++buf;
+			++i;
 		}
 	}
 	return tirex::providers.size();
