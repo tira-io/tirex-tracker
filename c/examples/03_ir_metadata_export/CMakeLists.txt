@@ -1,5 +1,5 @@
-add_executable(04_ir_extension
+add_executable(03_ir_metadata_export
     main.c
 )
 
-target_link_libraries(04_ir_extension tirex_tracker tirex_tracker_extension_irmetadata)
+target_link_libraries(03_ir_metadata_export tirex_tracker tirex_tracker_extension_ir_metadata)
