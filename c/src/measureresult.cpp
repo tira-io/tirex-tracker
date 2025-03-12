@@ -78,11 +78,12 @@ extern tirexResult_st* tirex::createMsrResultFromStats(tirex::Stats&& stats) {
 	std::vector<std::pair<tirexMeasure, std::string>> result;
 	for (auto&& [key, value] : stats) {
 		std::visit(
-				overloaded{
-						[key, &result](std::string& str) { result.emplace_back(key, std::move(str)); },
-						[key, &result](const tirex::TimeSeries<unsigned>& timeseries) {
-							result.emplace_back(key, toYAML(timeseries));
-						}
+				[key, &result](auto&& arg) {
+					using T = std::decay_t<decltype(arg)>;
+					if constexpr (std::is_same_v<T, std::string>)
+						result.emplace_back(key, std::move(arg));
+					else if constexpr (std::is_same_v<T, tirex::TimeSeries<unsigned>>)
+						result.emplace_back(key, toYAML(arg));
 				},
 				value
 		);
