@@ -38,7 +38,7 @@ jobs:
         uses: aminya/setup-cpp@v1
         with:
           compiler: ${{ matrix.environment.compiler }}
-          cmake: "3.31.6"
+          cmake: "3.24"
           setup-cpp: false
       - name: 🔧 Configure CMake
         run: cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=${{ env.CC }} -D CMAKE_CXX_COMPILER=${{ env.CXX }} -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=NO
@@ -128,7 +128,7 @@ jobs:
         uses: aminya/setup-cpp@v1
         with:
           compiler: ${{ matrix.environment.compiler }}
-          cmake: "3.31.6"
+          cmake: "3.24"
           setup-cpp: false
       - name: 🔧 Configure CMake
         run: |
@@ -195,7 +195,7 @@ jobs:
         uses: aminya/setup-cpp@v1
         with:
           compiler: ${{ matrix.environment.compiler }}
-          cmake: "3.31.6"
+          cmake: "3.24"
           setup-cpp: false
       - name: 🔧 Configure CMake
         run: |
