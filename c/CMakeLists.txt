@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
+# Declare build options.
 option(TIREX_TRACKER_ONLY_DOCS "Build only the documentation and disable tests and others." OFF)
 option(TIREX_TRACKER_BUILD_CLI "Build the command line interface." OFF)
 option(TIREX_TRACKER_BUILD_DEB "Build the Debian package." OFF)
@@ -28,30 +29,36 @@ endif()
 string(REGEX MATCH "^[0-9]+\.[0-9]+\.[0-9]+" TIREX_TRACKER_VERSION_PLAIN ${TIREX_TRACKER_VERSION})
 message(DEBUG "The TIREx tracker version is ${TIREX_TRACKER_VERSION} (${TIREX_TRACKER_VERSION_PLAIN})")
 
+# Configure the project metadata.
 project(tirex_tracker VERSION ${TIREX_TRACKER_VERSION_PLAIN} LANGUAGES C CXX)
 
+# Add the project's source directories.
 if (NOT TIREX_TRACKER_ONLY_DOCS)
+	# Main source code
     add_subdirectory(src)
+	# Extensions for exporting data
     add_subdirectory(extensions)
-
+	# Command line interface
 	if (TIREX_TRACKER_BUILD_CLI)
 		add_subdirectory(cli)
 	endif()
-
+	# Examples
 	if (TIREX_TRACKER_BUILD_EXAMPLES)
 		add_subdirectory(examples)
 	endif()
 endif()
 
 
-##########################################################################################
-# Documentation
-##########################################################################################
+#################
+# Documentation #
+#################
+
 # Documentation only available if this is the main app
 if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND TIREX_TRACKER_BUILD_DOCS)
 	find_package(Doxygen REQUIRED)
 	include(FetchContent)
-	## Set Doxygen configuration options (THIS REPLACES THE DOXYFILE!)
+
+	# Configure Doxygen options (replaces the Doxyfile)
 	set(DOXYGEN_PROJECT_BRIEF "Measuring what really matters")
 	set(DOXYGEN_PROJECT_LOGO "")
 	set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/documentation)
@@ -73,7 +80,7 @@ if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND TIREX_TRACKER_BUILD_DOCS)
 
 	set(DOXYGEN_GENERATE_HTML "YES")
 
-    ## Install and configure the "Doxygen Awesome" theme
+    # Install and configure the "Doxygen Awesome" theme.
 	FetchContent_Declare(doxawesome GIT_REPOSITORY https://github.com/jothepro/doxygen-awesome-css GIT_TAG v2.3.4)
 	FetchContent_MakeAvailable(doxawesome)
 	set(DOXYGEN_GENERATE_TREEVIEW "NO")
@@ -84,7 +91,7 @@ if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND TIREX_TRACKER_BUILD_DOCS)
 	set(DOXYGEN_HTML_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/doxygen-header.html)
 	set(DOXYGEN_HTML_EXTRA_FILES ${doxawesome_SOURCE_DIR}/doxygen-awesome-darkmode-toggle.js ${doxawesome_SOURCE_DIR}/doxygen-awesome-fragment-copy-button.js ${doxawesome_SOURCE_DIR}/doxygen-awesome-interactive-toc.js ${doxawesome_SOURCE_DIR}/doxygen-awesome-paragraph-link.js)
 
-	## Build Documentation
+	# Build documentation.
 	doxygen_add_docs(
 		tirex_tracker_docs
 		${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/README.md ${CMAKE_CURRENT_SOURCE_DIR}/docs
