@@ -1,6 +1,9 @@
 include(FetchContent)
 include(ExternalProject)
 
+# Expose the project version to the source code.
+add_definitions(-D TIREX_TRACKER_VERSION=${TIREX_TRACKER_VERSION})
+
 add_library(tirex_tracker SHARED
 	measureapi.cpp
 	measureinfo.cpp
