@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
-option(TIREX_TRACKER_BUILD_DEB "Build debian package" OFF)
-option(TIREX_TRACKER_ONLY_DOCS "Build only documentation -- this disables tests and others" OFF)
-option(TIREX_TRACKER_BUILD_EXAMPLES "Build the examples" OFF)
-option(TIREX_TRACKER_BUILD_DOCS "Build the documentation" OFF)
+option(TIREX_TRACKER_ONLY_DOCS "Build only the documentation and disable tests and others." OFF)
+option(TIREX_TRACKER_BUILD_CLI "Build the command line interface." OFF)
+option(TIREX_TRACKER_BUILD_DEB "Build the Debian package." OFF)
+option(TIREX_TRACKER_BUILD_EXAMPLES "Build the examples." OFF)
+option(TIREX_TRACKER_BUILD_DOCS "Build the documentation." OFF)
 
 # Infer version from Git tag.
 find_program(GIT_EXECUTABLE git)
