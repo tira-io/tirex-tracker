@@ -1,7 +1,5 @@
 #include <tirex_tracker.h>
 
-#include <ranges>
-
 #include "measure/stats/provider.hpp"
 
 size_t tirexDataProviderGetAll(tirexDataProvider* buf, size_t bufsize) {
