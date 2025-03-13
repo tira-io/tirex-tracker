@@ -1,24 +1,35 @@
-add_library(tirex_tracker_extension_ir_metadata
-    irtracker.cpp
-)
-target_include_directories(tirex_tracker_extension_ir_metadata PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-target_link_libraries(tirex_tracker_extension_ir_metadata PUBLIC tirex_tracker_static)
+cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
 
+######################################
+# Shared library with all extensions #
+######################################
 add_library(tirex_tracker_full SHARED
     irtracker.cpp
 )
-target_include_directories(tirex_tracker_full PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_CURRENT_LIST_DIR}/../include)
-# For now see if the LINK_LIBRARY generator works with old systems (requires CMake 3.24). If it is too new, uncomment the following line:
-# target_link_libraries(tirex_tracker_full PRIVATE "-Wl,--whole-archive" tirex_tracker_static "-Wl,--no-whole-archive")
-target_link_libraries(tirex_tracker_full PRIVATE "$<LINK_LIBRARY:WHOLE_ARCHIVE,tirex_tracker_static>")
+# Set the C++ standard to C++20.
+target_compile_features(tirex_tracker_full PRIVATE cxx_std_20)
+# Include the header files.
+target_include_directories(tirex_tracker_full PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+# Link required libraries.
+target_link_libraries(tirex_tracker_full PUBLIC "$<LINK_LIBRARY:WHOLE_ARCHIVE,tirex_tracker_static>")
+# Configure the library build.
 target_compile_definitions(tirex_tracker_full PRIVATE TIREX_TRACKER_LIB_EXPORT)
+target_compile_definitions(tirex_tracker_full PUBLIC TIREX_TRACKER_VERSION=${TIREX_TRACKER_VERSION})
 
+
+######################################
+# Static library with all extensions #
+######################################
 add_library(tirex_tracker_full_static STATIC
     irtracker.cpp
 )
-target_include_directories(tirex_tracker_full_static PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_CURRENT_LIST_DIR}/../include)
-# For now see if the LINK_LIBRARY generator works with old systems (requires CMake 3.24). If it is too new, uncomment the following line:
-# target_link_libraries(tirex_tracker_full_static PRIVATE "-Wl,--whole-archive" tirex_tracker_static "-Wl,--no-whole-archive")
-target_link_libraries(tirex_tracker_full_static PRIVATE "$<LINK_LIBRARY:WHOLE_ARCHIVE,tirex_tracker_static>")
-target_compile_definitions(tirex_tracker_full_static PUBLIC TIREX_TRACKER_STATIC)
+# Set the C++ standard to C++20.
+target_compile_features(tirex_tracker_full_static PRIVATE cxx_std_20)
+# Include the header files.
+target_include_directories(tirex_tracker_full_static PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+# Link required libraries.
+target_link_libraries(tirex_tracker_full_static PUBLIC "$<LINK_LIBRARY:WHOLE_ARCHIVE,tirex_tracker_static>")
+# Configure the library build.
+target_compile_definitions(tirex_tracker_full_static PRIVATE TIREX_TRACKER_STATIC)
+target_compile_definitions(tirex_tracker_full_static PUBLIC TIREX_TRACKER_VERSION=${TIREX_TRACKER_VERSION})

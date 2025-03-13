@@ -52,10 +52,11 @@ endif()
 #################
 # Documentation #
 #################
-
-# Documentation only available if this is the main app
+# Note: The documentation build target is only available if this is the root project.
 if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND TIREX_TRACKER_BUILD_DOCS)
 	find_package(Doxygen REQUIRED)
+
+	# Include helper module.
 	include(FetchContent)
 
 	# Configure Doxygen options (replaces the Doxyfile)
@@ -78,11 +79,8 @@ if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND TIREX_TRACKER_BUILD_DOCS)
 	set(DOXYGEN_EXPAND_ONLY_PREDEF "YES")
 	set(DOXYGEN_PREDEFINED "TIREX_EXPORT")
 
+    # Install and configure the "Doxygen Awesome" theme from GitHub.
 	set(DOXYGEN_GENERATE_HTML "YES")
-
-    # Install and configure the "Doxygen Awesome" theme.
-	FetchContent_Declare(doxawesome GIT_REPOSITORY https://github.com/jothepro/doxygen-awesome-css GIT_TAG v2.3.4)
-	FetchContent_MakeAvailable(doxawesome)
 	set(DOXYGEN_GENERATE_TREEVIEW "NO")
 	set(DOXYGEN_DISABLE_INDEX "NO")
 	set(DOXYGEN_FULL_SIDEBAR "NO")
@@ -90,6 +88,8 @@ if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND TIREX_TRACKER_BUILD_DOCS)
 	set(DOXYGEN_HTML_COLORSTYLE "LIGHT")
 	set(DOXYGEN_HTML_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/doxygen-header.html)
 	set(DOXYGEN_HTML_EXTRA_FILES ${doxawesome_SOURCE_DIR}/doxygen-awesome-darkmode-toggle.js ${doxawesome_SOURCE_DIR}/doxygen-awesome-fragment-copy-button.js ${doxawesome_SOURCE_DIR}/doxygen-awesome-interactive-toc.js ${doxawesome_SOURCE_DIR}/doxygen-awesome-paragraph-link.js)
+	FetchContent_Declare(doxawesome GIT_REPOSITORY https://github.com/jothepro/doxygen-awesome-css GIT_TAG v2.3.4)
+	FetchContent_MakeAvailable(doxawesome)
 
 	# Build documentation.
 	doxygen_add_docs(
