@@ -68,7 +68,7 @@ jobs:
           - runs-on: ubuntu-18.04
             compiler: gcc-8
           - runs-on: ubuntu-20.04
-            compiler: gcc-13
+            compiler: gcc-9
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Check-out
@@ -85,7 +85,7 @@ jobs:
       - name: 🔧 Configure CMake
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
-          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13
+          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX
       - name: 🏗️ Build library
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
@@ -169,7 +169,7 @@ jobs:
           - runs-on: ubuntu-18.04
             compiler: gcc-8
           - runs-on: ubuntu-20.04
-            compiler: gcc-13
+            compiler: gcc-9
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Check-out
@@ -186,7 +186,7 @@ jobs:
       - name: 🔧 Configure CMake
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
-          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13 -D TIREX_TRACKER_BUILD_CLI=YES
+          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -D TIREX_TRACKER_BUILD_CLI=YES
       - name: 🏗️ Build CLI
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
@@ -234,7 +234,7 @@ jobs:
           - runs-on: ubuntu-18.04
             compiler: gcc-8
           - runs-on: ubuntu-20.04
-            compiler: gcc-13
+            compiler: gcc-9
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Check-out
@@ -251,7 +251,7 @@ jobs:
       - name: 🔧 Configure CMake
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
-          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13 -D TIREX_TRACKER_BUILD_DEB=YES
+          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -D TIREX_TRACKER_BUILD_DEB=YES
       - name: 🏗️ Build Debian package
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
