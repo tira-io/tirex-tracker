@@ -142,7 +142,7 @@ jobs:
           setup-cpp: false
       - name: 🔧 Configure CMake
         run: |
-          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=${{ env.CC }} -DCMAKE_CXX_COMPILER=${{ env.CXX }} -DTIREX_TRACKER_BUILD_CLI=YES
+          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=${{ env.CC }} -DCMAKE_CXX_COMPILER=${{ env.CXX }} -D TIREX_TRACKER_BUILD_CLI=YES
       - name: 🏗️ Build CLI
         run: cmake --build c/build/ --config Release --target tirex_tracker_cli
       - name: 📤 Upload macOS CLI
@@ -150,13 +150,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-macos
-          path: c/build/examples/03_measure_command/measure
+          path: c/build/cli/tirex-tracker-*-Darwin-*
       - name: 📤 Upload Windows CLI
         if: matrix.environment.runs-on == 'windows-2022'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-windows
-          path: c/build/examples/03_measure_command/Release/measure.exe
+          path: c/build/cli/Release/tirex-tracker-*-Windows-*.exe
   c-build-cli-legacy:
     name: 🏗️ Build C CLI (legacy)
     strategy:
@@ -186,7 +186,7 @@ jobs:
       - name: 🔧 Configure CMake
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
-          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13 -DTIREX_TRACKER_BUILD_CLI=YES
+          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13 -D TIREX_TRACKER_BUILD_CLI=YES
       - name: 🏗️ Build CLI
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
@@ -196,7 +196,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-linux
-          path: c/build/examples/03_measure_command/measure
+          path: c/build/cli/tirex-tracker-*-Linux-*
   c-build-debian-package:
     name: 🏗️ Build Debian package
     strategy:
@@ -219,7 +219,7 @@ jobs:
           setup-cpp: false
       - name: 🔧 Configure CMake
         run: |
-          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=${{ env.CC }} -DCMAKE_CXX_COMPILER=${{ env.CXX }} -DTIREX_TRACKER_BUILD_DEB=YES
+          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=${{ env.CC }} -DCMAKE_CXX_COMPILER=${{ env.CXX }} -D TIREX_TRACKER_BUILD_DEB=YES
       - name: 🏗️ Build Debian package
         run: cmake --build c/build/ --config Release --target package
   c-build-debian-package-legacy:
@@ -251,7 +251,7 @@ jobs:
       - name: 🔧 Configure CMake
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
-          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13 -DTIREX_TRACKER_BUILD_DEB=YES
+          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13 -D TIREX_TRACKER_BUILD_DEB=YES
       - name: 🏗️ Build Debian package
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
@@ -816,22 +816,16 @@ jobs:
         with:
           name: c-cli-linux
           path: tmp/c/
-      - name: ✏️ Rename Linux CLI
-        run: mv tmp/c/measure tmp/c/tirex-tracker-${{ github.ref_name }}-Linux
       - name: 📥 Download macOS CLI
         uses: actions/download-artifact@v4
         with:
           name: c-cli-macos
           path: tmp/c/
-      - name: ✏️ Rename macOS CLI
-        run: mv tmp/c/measure tmp/c/tirex-tracker-${{ github.ref_name }}-macOS
       - name: 📥 Download Windows CLI
         uses: actions/download-artifact@v4
         with:
           name: c-cli-windows
           path: tmp/c/
-      - name: ✏️ Rename Windows CLI
-        run: mv tmp/c/measure.exe tmp/c/tirex-tracker-${{ github.ref_name }}-Windows.exe
       - name: 📥 Download Debian package
         uses: actions/download-artifact@v4
         with:
@@ -870,9 +864,9 @@ jobs:
             tmp/c/*.so
             tmp/c/*.dylib
             tmp/c/*.dll
-            tmp/c/tirex-tracker-*-Linux
-            tmp/c/tirex-tracker-*-macOS
-            tmp/c/tirex-tracker-*-Windows.exe
+            tmp/c/tirex-tracker-*-Linux-*
+            tmp/c/tirex-tracker-*-Darwin-*
+            tmp/c/tirex-tracker-*-Windows-*.exe
             tmp/c/tirex-tracker-*-Linux.deb
             tmp/python/dist/*
             tmp/jvm/*/*.jar
