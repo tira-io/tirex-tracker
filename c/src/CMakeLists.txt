@@ -152,3 +152,15 @@ FetchContent_Declare(sha1 GIT_REPOSITORY https://github.com/vog/sha1.git GIT_TAG
 FetchContent_MakeAvailable(sha1)
 target_include_directories(tirex_tracker PRIVATE ${sha1_SOURCE_DIR})
 target_include_directories(tirex_tracker_static PRIVATE ${sha1_SOURCE_DIR})
+
+
+###################################
+# Link standard library extension #
+###################################
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+	target_link_libraries(tirex_tracker PRIVATE c++fs)
+	target_link_libraries(tirex_tracker_static PRIVATE c++fs)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	target_link_libraries(tirex_tracker PRIVATE stdc++fs)
+	target_link_libraries(tirex_tracker_static PRIVATE stdc++fs)
+endif()
