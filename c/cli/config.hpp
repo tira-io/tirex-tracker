@@ -44,12 +44,9 @@ namespace tirex {
 
 		const ResultFormatter& getFormatter() const {
 			static const std::map<std::string, ResultFormatter> formatters{
-					{"simple", simpleFormatter},
-					{"json", jsonFormatter},
-					{"irmetadata", irmetadataFormatter},
-					{"ir_metadata", irmetadataFormatter},
-					{"ir-metadata", irmetadataFormatter},
-					{"ir", irmetadataFormatter},
+					{"simple", simpleFormatter},		  {"json", jsonFormatter},
+					{"irmetadata", irmetadataFormatter},  {"ir_metadata", irmetadataFormatter},
+					{"ir-metadata", irmetadataFormatter}, {"ir", irmetadataFormatter},
 			};
 			return formatters.at(formatter);
 		}
