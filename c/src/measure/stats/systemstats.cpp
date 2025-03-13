@@ -300,7 +300,7 @@ static std::string armImplementerToStr(uint32_t midr) {
 	return _fmt::format("Unknown Implementer ({:#04x})", implementer);
 }
 
-template <uint32_t SystemStats::CPUInfo::Cache::*entry>
+template <uint32_t SystemStats::CPUInfo::Cache::* entry>
 static void aggCaches(SystemStats::CPUInfo::Cache& dest, const cpuinfo_cache* caches, uint32_t num) {
 	for (auto i = 0u; i < num; ++i)
 		dest.*entry += caches[i].size;
