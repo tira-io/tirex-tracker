@@ -9,4 +9,4 @@ add_executable(03_ir_metadata_export
 # Set the C++ standard to C++20.
 target_compile_features(03_ir_metadata_export PRIVATE cxx_std_20)
 # Link required libraries.
-target_link_libraries(03_ir_metadata_export PRIVATE tirex_tracker_full_static)
+target_link_libraries(03_ir_metadata_export PRIVATE tirex_tracker_full)

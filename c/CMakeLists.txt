@@ -60,7 +60,7 @@ if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND TIREX_TRACKER_BUILD_DOCS)
 	include(FetchContent)
 
 	# Configure Doxygen options (replaces the Doxyfile)
-	set(DOXYGEN_PROJECT_BRIEF "Measuring what really matters")
+	set(DOXYGEN_PROJECT_BRIEF "Automatic resource and metadata tracking for information retrieval experiments.")
 	set(DOXYGEN_PROJECT_LOGO "")
 	set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/documentation)
 	set(DOXYGEN_STRIP_FROM_PATH "include")
