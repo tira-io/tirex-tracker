@@ -36,7 +36,7 @@ struct tirexMeasureHandle_st final {
 		monitorthread.join();
 
 		// Stop measuring
-		for(unsigned i = providers.size() - 1; providers.size() > i; --i)
+		for (std::size_t i = providers.size() - 1; providers.size() > i; --i)
 			providers[i]->stop();
 
 		// Collect statistics and print them
