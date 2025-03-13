@@ -14,9 +14,7 @@ target_include_directories(tirex_tracker_full PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 # Link required libraries.
 target_link_libraries(tirex_tracker_full PUBLIC tirex_tracker)
 # Configure the library build.
-target_compile_definitions(tirex_tracker_full PRIVATE TIREX_TRACKER_LIB_EXPORT)
 target_compile_definitions(tirex_tracker_full PUBLIC TIREX_TRACKER_VERSION=${TIREX_TRACKER_VERSION})
-set_target_properties(tirex_tracker_full PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 
 ######################################
@@ -32,6 +30,4 @@ target_include_directories(tirex_tracker_full_static PUBLIC ${CMAKE_CURRENT_LIST
 # Link required libraries.
 target_link_libraries(tirex_tracker_full_static PUBLIC tirex_tracker_static)
 # Configure the library build.
-target_compile_definitions(tirex_tracker_full_static PRIVATE TIREX_TRACKER_STATIC)
 target_compile_definitions(tirex_tracker_full_static PUBLIC TIREX_TRACKER_VERSION=${TIREX_TRACKER_VERSION})
-set_target_properties(tirex_tracker_full_static PROPERTIES POSITION_INDEPENDENT_CODE ON)
