@@ -12,7 +12,7 @@ target_compile_features(tirex_tracker_full PRIVATE cxx_std_17)
 # Include the header files.
 target_include_directories(tirex_tracker_full PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 # Link required libraries.
-target_link_libraries(tirex_tracker_full PUBLIC tirex_tracker)
+target_link_libraries(tirex_tracker_full PUBLIC tirex_tracker_static)
 # Configure the library build.
 target_compile_definitions(tirex_tracker_full PUBLIC TIREX_TRACKER_VERSION=${TIREX_TRACKER_VERSION})
 
