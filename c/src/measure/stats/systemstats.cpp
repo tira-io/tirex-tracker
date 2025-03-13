@@ -356,6 +356,15 @@ SystemStats::CPUInfo::VirtFlags getVirtSupport() {
 
 SystemStats::SystemStats() {}
 
+bool isBigEndian() {
+	// Store 0x0001 in memory.
+	uint16_t word = 1;
+	// Get a pointer to the first byte of the word.
+	uint8_t* firstByte = (uint8_t*)&word;
+	// Check if the first byte is zero.
+	return !(*firstByte);
+}
+
 SystemStats::CPUInfo SystemStats::getCPUInfo() {
 	cpuinfo_initialize();
 	auto numProcessors = cpuinfo_get_processors_count();
@@ -377,10 +386,8 @@ SystemStats::CPUInfo SystemStats::getCPUInfo() {
 	auto package = cluster->package;
 	auto core = cpuinfo_get_core(0);
 
-	std::string endianness =
-			(std::endian::native == std::endian::big)
-					? "Big Endian"
-					: ((std::endian::native == std::endian::little) ? "Little Endian" : "Mixed Endian");
+	// FIXME: Can we somehow check for mixed endianess without using the std::endian enum?
+	std::string endianness = (isBigEndian()) ? "Big Endian" : "Little Endian";
 
 	auto [minFreq, maxFreq] = getProcessorMinMaxFreq(0);
 
