@@ -235,12 +235,10 @@ tirexError writeIrMetadata(const tirexResult* info, const tirexResult* result, s
 	if (result != nullptr)
 		asMap(map, result, versionFilter(version));
 
-	stream << "ir_metadata.start\n";
 	stream << "schema version: " << version << '\n';
 	writePlatform(map, stream);
 	writeImplementation(map, stream);
 	writeResources(map, stream);
-	stream << "ir_metadata.end\n";
 	return tirexError::TIREX_SUCCESS;
 }
 
