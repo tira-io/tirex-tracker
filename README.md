@@ -42,11 +42,12 @@ To use the TIREx tracker in your C/C++ projects, first include this repository t
 ```cmake
 include(FetchContent)
 # Use GIT_TAG to request the tag (or branch) you would like
-FetchContent_Declare(tirex_tracker GIT_REPOSITORY https://github.com/tira-io/tirex-tracker.git GIT_TAG 0.0.11)
+FetchContent_Declare(tirex_tracker GIT_REPOSITORY https://github.com/tira-io/tirex-tracker.git GIT_TAG x.x.x)
 FetchContent_MakeAvailable(tirex_tracker)
 target_link_libraries(<yourtarget> tirex_tracker::tirex_tracker)
 ```
 
+Replace the version placeholder (`x.x.x`) with the [latest available version tag](https://github.com/tira-io/tirex-tracker/releases/latest).
 This will link the TIREx tracker C API to your binaries.
 Take a look at the [examples](c/examples/) to see how our C API can be used.
 
@@ -248,9 +249,9 @@ The further steps will depend on which part of the TIREx tracker's API you work 
 
 ### C development
 
-We use [CMake](https://cmake.org/) to build the C library, command line tool, and examples. Different build targets are used so that you can select what to build.
+We use [CMake 3.24](https://cmake.org/) to build the C library, command line tool, and examples. Different build targets are used so that you can select what to build.
 [Doxygen](https://doxygen.nl/) is used to generate the documentation for the C API.
-If you haven't installed CMake and/or Doxygen, please install it as described [here for CMake](https://cmake.org/download/) and [here for Doxygen](https://doxygen.nl/download.html)
+If you haven't installed CMake and/or Doxygen, please install it as described [here for CMake 3.24](https://cmake.org/download/) and [here for Doxygen](https://doxygen.nl/download.html)
 
 First, setup CMake to use the correct version of [GCC](https://gcc.gnu.org/) and enable all build targets by running:
 
@@ -259,18 +260,24 @@ cmake -S c/ -B c/build/ \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_C_COMPILER=gcc-13 \
   -DCMAKE_CXX_COMPILER=g++-13 \
-  -DTIREX_TRACKER_BUILD_DOCS=YES \
-  -DTIREX_TRACKER_BUILD_CLI=YES \
-  -DTIREX_TRACKER_BUILD_DEB=YES \
-  -DTIREX_TRACKER_BUILD_EXAMPLES=YES
+  -D TIREX_TRACKER_BUILD_DOCS=YES \
+  -D TIREX_TRACKER_BUILD_CLI=YES \
+  -D TIREX_TRACKER_BUILD_DEB=YES \
+  -D TIREX_TRACKER_BUILD_EXAMPLES=YES
 ```
 
 (Hint: If you do not want to generate the documentation and have not installed Doxygen, you can disable it by setting `TIREX_TRACKER_BUILD_DOCS=NO`.)
 
-You can then build the library (and examples) like this:
+You can then build the library, full library, CLI, Debian package, example and documentation like this:
 
 ```shell
-cmake --build c/build/ --config Release --target tirex_tracker_full
+cmake --build c/build/ --config Release --target \
+  tirex_tracker \
+  tirex_tracker_full \
+  tirex_tracker_cli \
+  01_tracking \
+  02_list_measures \
+  03_ir_metadata_export
 ```
 
 This will compile the C API into a statically linked library at `c/build/extensions/libtirex_tracker_full.so`.
