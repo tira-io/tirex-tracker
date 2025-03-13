@@ -6,22 +6,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if defined(__has_include)
-#if !__has_include(<threads.h>)
-// Under MacOS this is not set properly :(
-#define __STDC_NO_THREADS__ 0
-#endif
-#endif
-#if (!defined(__STDC_NO_THREADS__) || __STDC_NO_THREADS__)
-#include <threads.h>
+#if defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
+#include <windows.h>
 #else
-#include <time.h>
 #include <unistd.h>
-
-static int thrd_sleep(const struct timespec* duration, struct timespec* remaining) {
-	return nanosleep(duration, remaining);
-}
 #endif
+
+void tirex_sleep(int ms) {
+#if defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
+	Sleep(ms);
+#else
+	usleep(ms * 1000);
+#endif
+}
 
 static void logcallback(tirexLogLevel level, const char* component, const char* message) {
 	static const char* levlToStr[] = {[TRACE] = "TRACE", [DEBUG] = "DEBUG", [INFO] = "INFO",
@@ -138,7 +135,7 @@ int main(int argc, char* argv[]) {
 		char* data = calloc(24 * 1000 * 1000, 1);	  // allocate 24 MB
 		for (size_t i = 0; i < 24 * 1000 * 1000; ++i) // Access the data so it is not optimized away
 			data[i] = 1;
-		thrd_sleep(&(struct timespec){.tv_sec = 1}, NULL);
+		tirex_sleep(1000);
 		free(data);
 		//fib(45);
 	}
