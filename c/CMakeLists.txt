@@ -6,6 +6,8 @@ option(TIREX_TRACKER_BUILD_CLI "Build the command line interface." OFF)
 option(TIREX_TRACKER_BUILD_DEB "Build the Debian package." OFF)
 option(TIREX_TRACKER_BUILD_EXAMPLES "Build the examples." OFF)
 option(TIREX_TRACKER_BUILD_DOCS "Build the documentation." OFF)
+set(BUILD_SHARED_LIBS OFF)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Infer version from Git tag.
 find_program(GIT_EXECUTABLE git)
