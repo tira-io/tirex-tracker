@@ -89,7 +89,7 @@ static void setupLoggerArgs(CLI::App& app, tirex::LoggerConf& conf) {
 static void runMeasureCmd(const MeasureCmdArgs& args) {
 	// Initialization and setup
 	tirex::setVerbosity(args.logConf.getVerbosity());
-	auto logger = tirex::getLogger("measure");
+	auto logger = tirex::getLogger("tirex-tracker");
 	logger->info("Measuring command: {}", args.command);
 
 	// Start measuring
@@ -134,7 +134,7 @@ int main(int argc, char* argv[]) {
 
 	MeasureCmdArgs measureArgs;
 	setupLoggerArgs(app, measureArgs.logConf);
-	app.add_option("command", measureArgs.command, "The command to measure resources for")->required();
+	app.add_option("command", measureArgs.command, "The command to track resources for")->required();
 	app.add_option("--format,-f", measureArgs.formatter, "Specified how the output should be formatted")
 			->default_val("simple");
 	app.add_option("--source,-s", measureArgs.statproviders, "The datasources to poll information from")
@@ -145,7 +145,7 @@ int main(int argc, char* argv[]) {
 					"usage. Smaller intervalls allow for higher accuracy."
 			)
 			->default_val(100);
-	app.add_flag("--pedantic", measureArgs.pedantic, "If set, measure will stop execution on errors")
+	app.add_flag("--pedantic", measureArgs.pedantic, "If set, stop execution on errors")
 			->default_val(false); /** \todo support pedantic **/
 	app.add_option("-o", measureArgs.outfile)->description("Sets the file to write the result measurements into.");
 
