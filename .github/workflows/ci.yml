@@ -62,9 +62,8 @@ jobs:
       fail-fast: false
       matrix:
         environment:
-          # FIXME: CMake build configuration fails.
-          # - runs-on: ubuntu-16.04
-          #   compiler: gcc-5
+          - runs-on: ubuntu-16.04
+            compiler: gcc-5
           - runs-on: ubuntu-18.04
             compiler: gcc-8
           - runs-on: ubuntu-20.04
@@ -80,8 +79,6 @@ jobs:
           target: ${{ matrix.environment.runs-on }}-${{ matrix.environment.compiler }}
           tags: runner
           load: true
-          # cache-from: type=gha
-          # cache-to: type=gha,mode=max
       - name: 🔧 Configure CMake
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
@@ -163,9 +160,8 @@ jobs:
       fail-fast: false
       matrix:
         environment:
-          # FIXME: CMake build configuration fails.
-          # - runs-on: ubuntu-16.04
-          #   compiler: gcc-5
+          - runs-on: ubuntu-16.04
+            compiler: gcc-5
           - runs-on: ubuntu-18.04
             compiler: gcc-8
           - runs-on: ubuntu-20.04
@@ -181,8 +177,6 @@ jobs:
           target: ${{ matrix.environment.runs-on }}-${{ matrix.environment.compiler }}
           tags: runner
           load: true
-          # cache-from: type=gha
-          # cache-to: type=gha,mode=max
       - name: 🔧 Configure CMake
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
@@ -228,9 +222,8 @@ jobs:
       fail-fast: false
       matrix:
         environment:
-          # FIXME: CMake build configuration fails.
-          # - runs-on: ubuntu-16.04
-          #   compiler: gcc-5
+          - runs-on: ubuntu-16.04
+            compiler: gcc-5
           - runs-on: ubuntu-18.04
             compiler: gcc-8
           - runs-on: ubuntu-20.04
@@ -246,8 +239,6 @@ jobs:
           target: ${{ matrix.environment.runs-on }}-${{ matrix.environment.compiler }}
           tags: runner
           load: true
-          # cache-from: type=gha
-          # cache-to: type=gha,mode=max
       - name: 🔧 Configure CMake
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
