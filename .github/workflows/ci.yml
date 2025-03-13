@@ -105,7 +105,6 @@ jobs:
           clang-format: "19.1.0"
           setup-cpp: false
       - name: 🔍 Check Codestyle
-        working-directory: ${{github.workspace}}/c/
         run: |
           find c/ -type f -iregex '^.*\.\(c\|h\|cpp\|hpp\|cc\|hh\)$' | \
           xargs git ls-files | \
