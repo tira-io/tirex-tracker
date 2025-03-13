@@ -17,6 +17,7 @@ namespace _fmt = std;
 namespace _fmt = fmt;
 #endif
 
+#include <bit>
 #include <fstream>
 #include <map>
 #include <sstream>
@@ -413,17 +414,32 @@ Stats SystemStats::getInfo() {
 	cpuInfo.modelname = getSysctl<std::string>("machdep.cpu.brand_string");
 #endif
 
-	std::string caches = "";
+	std::stringstream cachesStream;
+	cachesStream << "{";
 	size_t cacheIdx = 1;
+	bool first = true;
 	for (auto& [unified, instruct, data] : cpuInfo.caches) {
-		if (unified)
-			caches += _fmt::format("\"l{}\": \"{} KiB\",", cacheIdx, unified / 1024);
-		if (instruct)
-			caches += _fmt::format("\"l{}i\": \"{} KiB\",", cacheIdx, instruct / 1024);
-		if (data)
-			caches += _fmt::format("\"l{}d\": \"{} KiB\",", cacheIdx, data / 1024);
+		if (unified) {
+			if (!first)
+				cachesStream << ",";
+			cachesStream << _fmt::format("\"l{}\": {}", cacheIdx, unified);
+			first = false;
+		}
+		if (instruct) {
+			if (!first)
+				cachesStream << ",";
+			cachesStream << _fmt::format("\"l{}i\": {}", cacheIdx, instruct);
+			first = false;
+		}
+		if (data) {
+			if (!first)
+				cachesStream << ",";
+			cachesStream << _fmt::format("\"l{}d\": {}", cacheIdx, data);
+			first = false;
+		}
 		++cacheIdx;
 	}
+	cachesStream << "}";
 
 	return {{TIREX_OS_NAME, info.osname},
 			{TIREX_OS_KERNEL, info.kerneldesc},
@@ -437,7 +453,7 @@ Stats SystemStats::getInfo() {
 			{TIREX_CPU_MODEL_NAME, cpuInfo.modelname},
 			{TIREX_CPU_CORES_PER_SOCKET, std::to_string(cpuInfo.coresPerSocket)},
 			{TIREX_CPU_THREADS_PER_CORE, std::to_string(cpuInfo.threadsPerCore)},
-			{TIREX_CPU_CACHES, caches},
+			{TIREX_CPU_CACHES, cachesStream.str()},
 			{TIREX_CPU_VIRTUALIZATION,
 			 (cpuInfo.virtualization.svm ? "AMD-V "s : ""s) + (cpuInfo.virtualization.vmx ? "VT-x"s : ""s)},
 			{TIREX_RAM_AVAILABLE_SYSTEM_MB, std::to_string(info.totalRamMB)}};
