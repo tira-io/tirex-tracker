@@ -27,7 +27,6 @@ target_compile_features(tirex_tracker PRIVATE cxx_std_17)
 # Include the header files.
 target_include_directories(tirex_tracker PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../include)
 # Configure the library build.
-set_property(TARGET tirex_tracker PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_compile_definitions(tirex_tracker PRIVATE TIREX_TRACKER_LIB_EXPORT)
 target_compile_definitions(tirex_tracker PUBLIC TIREX_TRACKER_VERSION=${TIREX_TRACKER_VERSION})
 set_target_properties(tirex_tracker PROPERTIES POSITION_INDEPENDENT_CODE ON)
@@ -59,23 +58,16 @@ target_compile_definitions(tirex_tracker_static PUBLIC TIREX_TRACKER_VERSION=${T
 set_target_properties(tirex_tracker_static PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 
-####################
-# Platform options #
-####################
-set(BUILD_SHARED_LIBS OFF)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-
 #########################
 # Link system libraries #
 #########################
-if (LINUX)
+if (UNIX AND NOT APPLE)
 	# On Linux, link dl for: dlopen, dlclose, etc.
-	target_link_libraries(tirex_tracker PRIVATE dl) 
-	target_link_libraries(tirex_tracker_static PRIVATE dl)
+	target_link_libraries(tirex_tracker PRIVATE ${CMAKE_DL_LIBS}) 
+	target_link_libraries(tirex_tracker_static PRIVATE ${CMAKE_DL_LIBS})
 endif()
 if(WIN32)
-	# TODO: Describe why we link Powrprof.
+	# On Windows, link Powrprof to get CallNtPowerInformation for power usage.
 	target_link_libraries(tirex_tracker PRIVATE Powrprof)
 	target_link_libraries(tirex_tracker_static PRIVATE Powrprof)
 endif()
@@ -83,7 +75,7 @@ if (UNIX AND APPLE)
 	# On macOS, link CoreFoundation to get IOReport for system information.
 	target_link_libraries(tirex_tracker PRIVATE "$<LINK_LIBRARY:FRAMEWORK,CoreFoundation>")
 	target_link_libraries(tirex_tracker_static PRIVATE "$<LINK_LIBRARY:FRAMEWORK,CoreFoundation>")
-	# TODO: Describe why we link IOKit.
+	# TODO: Describe why we link IOKit, or remove it.
 	target_link_libraries(tirex_tracker PRIVATE "$<LINK_LIBRARY:FRAMEWORK,IOKit>")
 	target_link_libraries(tirex_tracker_static PRIVATE "$<LINK_LIBRARY:FRAMEWORK,IOKit>")
 endif()

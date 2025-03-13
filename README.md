@@ -44,7 +44,7 @@ include(FetchContent)
 # Use GIT_TAG to request the tag (or branch) you would like
 FetchContent_Declare(tirex_tracker GIT_REPOSITORY https://github.com/tira-io/tirex-tracker.git GIT_TAG x.x.x)
 FetchContent_MakeAvailable(tirex_tracker)
-target_link_libraries(<yourtarget> tirex_tracker::tirex_tracker)
+target_link_libraries(<yourtarget> tirex_tracker)
 ```
 
 Replace the version placeholder (`x.x.x`) with the [latest available version tag](https://github.com/tira-io/tirex-tracker/releases/latest).
