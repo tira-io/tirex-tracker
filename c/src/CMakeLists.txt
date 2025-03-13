@@ -30,6 +30,7 @@ target_include_directories(tirex_tracker PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../inc
 set_property(TARGET tirex_tracker PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_compile_definitions(tirex_tracker PRIVATE TIREX_TRACKER_LIB_EXPORT)
 target_compile_definitions(tirex_tracker PUBLIC TIREX_TRACKER_VERSION=${TIREX_TRACKER_VERSION})
+set_target_properties(tirex_tracker PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 
 ##################
@@ -54,30 +55,36 @@ target_compile_features(tirex_tracker_static PRIVATE cxx_std_17)
 # Include the header files.
 target_include_directories(tirex_tracker_static PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../include)
 target_compile_definitions(tirex_tracker_static PRIVATE TIREX_TRACKER_STATIC)
-target_compile_definitions(tirex_tracker PUBLIC TIREX_TRACKER_VERSION=${TIREX_TRACKER_VERSION})
+target_compile_definitions(tirex_tracker_static PUBLIC TIREX_TRACKER_VERSION=${TIREX_TRACKER_VERSION})
+set_target_properties(tirex_tracker_static PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 
 ####################
 # Platform options #
 ####################
 set(BUILD_SHARED_LIBS OFF)
-set_property(TARGET tirex_tracker_static PROPERTY POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+
+#########################
+# Link system libraries #
+#########################
 if (LINUX)
-	# Needed for: dlopen, dlclose, ...
+	# On Linux, link dl for: dlopen, dlclose, etc.
 	target_link_libraries(tirex_tracker PRIVATE dl) 
 	target_link_libraries(tirex_tracker_static PRIVATE dl)
-elseif(WIN32)
+endif()
+if(WIN32)
+	# TODO: Describe why we link Powrprof.
 	target_link_libraries(tirex_tracker PRIVATE Powrprof)
 	target_link_libraries(tirex_tracker_static PRIVATE Powrprof)
 endif()
-
-# On macOS, bind to CoreFoundation to get IOReport for system information.
 if (UNIX AND APPLE)
+	# On macOS, link CoreFoundation to get IOReport for system information.
 	target_link_libraries(tirex_tracker PRIVATE "$<LINK_LIBRARY:FRAMEWORK,CoreFoundation>")
-	target_link_libraries(tirex_tracker PRIVATE "$<LINK_LIBRARY:FRAMEWORK,IOKit>")
 	target_link_libraries(tirex_tracker_static PRIVATE "$<LINK_LIBRARY:FRAMEWORK,CoreFoundation>")
+	# TODO: Describe why we link IOKit.
+	target_link_libraries(tirex_tracker PRIVATE "$<LINK_LIBRARY:FRAMEWORK,IOKit>")
 	target_link_libraries(tirex_tracker_static PRIVATE "$<LINK_LIBRARY:FRAMEWORK,IOKit>")
 endif()
 
@@ -88,9 +95,9 @@ endif()
 
 # Install CPPJoules library from GitHub.
 if (NOT (UNIX AND APPLE)) # CPPJoules does not support macos right now
-	FetchContent_Declare(cppjoule GIT_REPOSITORY https://github.com/TheMrSheldon/CPPJoules.git GIT_TAG main) # FIXME: switch to GIT_TAG v1.0 once it is released.
-	FetchContent_MakeAvailable(cppjoule)
-	set_property(TARGET CPP_Joules PROPERTY POSITION_INDEPENDENT_CODE ON)
+	FetchContent_Declare(cppjoules GIT_REPOSITORY https://github.com/TheMrSheldon/CPPJoules.git GIT_TAG main) # FIXME: switch to GIT_TAG v1.0 once it is released.
+	FetchContent_MakeAvailable(cppjoules)
+	set_target_properties(CPP_Joules PROPERTIES POSITION_INDEPENDENT_CODE ON)
 	target_link_libraries(tirex_tracker PRIVATE CPP_Joules)
 	target_link_libraries(tirex_tracker_static PRIVATE CPP_Joules)
 endif()
@@ -108,8 +115,8 @@ set(USE_REGEX "builtin" CACHE STRING "" FORCE)
 set(USE_COMPRESSION "builtin" CACHE STRING "" FORCE)
 FetchContent_Declare(libgit GIT_REPOSITORY https://github.com/libgit2/libgit2.git GIT_TAG v1.8.4)
 FetchContent_MakeAvailable(libgit)
-set_property(TARGET libgit2 PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_property(TARGET libgit2package PROPERTY POSITION_INDEPENDENT_CODE ON)
+# set_target_properties(libgit2 PROPERTIES POSITION_INDEPENDENT_CODE ON)
+# set_target_properties(libgit2package PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(tirex_tracker PRIVATE libgit2 libgit2package)
 target_link_libraries(tirex_tracker_static PRIVATE libgit2 libgit2package)
 
@@ -129,9 +136,9 @@ set(FMT_FUZZ OFF CACHE BOOL "" FORCE)
 set(FMT_CUDA_TEST OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(fmt GIT_REPOSITORY https://github.com/fmtlib/fmt.git GIT_TAG 11.1.3)
 FetchContent_MakeAvailable(fmt)
-set_property(TARGET fmt PROPERTY POSITION_INDEPENDENT_CODE ON)
-target_link_libraries(tirex_tracker PRIVATE fmt::fmt)
-target_link_libraries(tirex_tracker_static PRIVATE fmt::fmt)
+set_target_properties(fmt PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(tirex_tracker PRIVATE fmt)
+target_link_libraries(tirex_tracker_static PRIVATE fmt)
 
 # Install cpuinfo library from GitHub.
 set(CPUINFO_LIBRARY_TYPE static CACHE STRING "" FORCE)
@@ -144,9 +151,9 @@ set(CPUINFO_BUILD_BENCHMARKS OFF CACHE BOOL "" FORCE)
 set(CPUINFO_BUILD_PKG_CONFIG OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(cpuinfo GIT_REPOSITORY https://github.com/pytorch/cpuinfo.git GIT_TAG aaac07ee499895770c89163ce0920ef8bb41ed23)
 FetchContent_MakeAvailable(cpuinfo)
-set_property(TARGET cpuinfo PROPERTY POSITION_INDEPENDENT_CODE ON)
-target_link_libraries(tirex_tracker PRIVATE cpuinfo::cpuinfo)
-target_link_libraries(tirex_tracker_static PRIVATE cpuinfo::cpuinfo)
+set_target_properties(cpuinfo PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(tirex_tracker PRIVATE cpuinfo)
+target_link_libraries(tirex_tracker_static PRIVATE cpuinfo)
 
 # Install SHA-1 library from GitHub.
 FetchContent_Declare(sha1 GIT_REPOSITORY https://github.com/vog/sha1.git GIT_TAG 1.4)

@@ -16,7 +16,7 @@ set_target_properties(tirex_tracker_cli PROPERTIES OUTPUT_NAME "tirex-tracker-${
 # Set the C++ standard to C++17.
 target_compile_features(tirex_tracker_cli PRIVATE cxx_std_17)
 # Link required libraries.
-target_link_libraries(tirex_tracker_cli PRIVATE "$<LINK_LIBRARY:WHOLE_ARCHIVE,tirex_tracker_full_static>")
+target_link_libraries(tirex_tracker_cli PRIVATE tirex_tracker_full_static)
 
 
 #########################
@@ -34,8 +34,8 @@ set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(spdlog GIT_REPOSITORY https://github.com/gabime/spdlog.git GIT_TAG v1.14.1)
 FetchContent_MakeAvailable(spdlog)
 set(BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS_OLD}" CACHE BOOL "" FORCE)
-set_property(TARGET spdlog PROPERTY POSITION_INDEPENDENT_CODE ON)
-target_link_libraries(tirex_tracker_cli PRIVATE spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
+set_target_properties(spdlog PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(tirex_tracker_cli PRIVATE spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 
 # Instal CLI11 library from GitHub.
 set(CLI11_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -47,7 +47,8 @@ set(CLI11_INSTALL OFF CACHE BOOL "" FORCE)
 set(CLI11_CUDA_TESTS OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(cli11 GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git GIT_TAG v2.4.2)
 FetchContent_MakeAvailable(cli11)
-target_link_libraries(tirex_tracker_cli PRIVATE CLI11::CLI11)
+set_target_properties(CLI11 PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(tirex_tracker_cli PRIVATE CLI11)
 
 
 ##################
