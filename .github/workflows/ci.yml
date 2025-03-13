@@ -62,8 +62,8 @@ jobs:
       fail-fast: false
       matrix:
         environment:
-          - runs-on: ubuntu-16.04
-            compiler: gcc-5
+          # - runs-on: ubuntu-16.04
+          #   compiler: gcc-5
           - runs-on: ubuntu-18.04
             compiler: gcc-8
           - runs-on: ubuntu-20.04
@@ -162,8 +162,8 @@ jobs:
       fail-fast: false
       matrix:
         environment:
-          - runs-on: ubuntu-16.04
-            compiler: gcc-5
+          # - runs-on: ubuntu-16.04
+          #   compiler: gcc-5
           - runs-on: ubuntu-18.04
             compiler: gcc-8
           - runs-on: ubuntu-20.04
@@ -224,8 +224,8 @@ jobs:
       fail-fast: false
       matrix:
         environment:
-          - runs-on: ubuntu-16.04
-            compiler: gcc-5
+          # - runs-on: ubuntu-16.04
+          #   compiler: gcc-5
           - runs-on: ubuntu-18.04
             compiler: gcc-8
           - runs-on: ubuntu-20.04
