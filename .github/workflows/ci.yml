@@ -213,7 +213,7 @@ jobs:
           setup-cpp: false
       - name: 🔧 Configure CMake
         run: |
-          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=${{ env.CC }} -DCMAKE_CXX_COMPILER=${{ env.CXX }} -D TIREX_TRACKER_BUILD_DEB=YES
+          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=${{ env.CC }} -DCMAKE_CXX_COMPILER=${{ env.CXX }} -D TIREX_TRACKER_BUILD_CLI=YES -D TIREX_TRACKER_BUILD_DEB=YES
       - name: 🏗️ Build Debian package
         run: cmake --build c/build/ --config Release --target package
   c-build-debian-package-legacy:
@@ -242,7 +242,7 @@ jobs:
       - name: 🔧 Configure CMake
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
-          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -D TIREX_TRACKER_BUILD_DEB=YES
+          cmake -S c/ -B c/build/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -D TIREX_TRACKER_BUILD_CLI=YES -D TIREX_TRACKER_BUILD_DEB=YES
       - name: 🏗️ Build Debian package
         run: |
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
