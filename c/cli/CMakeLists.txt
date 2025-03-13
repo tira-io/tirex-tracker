@@ -12,6 +12,7 @@ add_executable(tirex_tracker_cli
     logging.cpp
     main.cpp
 )
+set_target_properties(tirex_tracker_cli PROPERTIES OUTPUT_NAME "tirex-tracker-${TIREX_TRACKER_VERSION}-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
 # Set the C++ standard to C++20.
 target_compile_features(tirex_tracker_cli PRIVATE cxx_std_20)
 # Link required libraries.
