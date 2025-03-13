@@ -25,14 +25,26 @@ target_link_libraries(tirex_tracker_cli PRIVATE "$<LINK_LIBRARY:WHOLE_ARCHIVE,ti
 
 # Install spdlog library from GitHub.
 set(SPDLOG_BUILD_BENCH OFF CACHE BOOL "" FORCE)
-set(SPDLOG_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+set(SPDLOG_BUILD_EXAMPLE OFF CACHE BOOL "" FORCE)
+set(SPDLOG_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(SPDLOG_NO_THREAD_ID ON CACHE BOOL "" FORCE)
+set(SPDLOG_NO_TLS ON CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS_OLD "${BUILD_SHARED_LIBS}")
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(spdlog GIT_REPOSITORY https://github.com/gabime/spdlog.git GIT_TAG v1.14.1)
 FetchContent_MakeAvailable(spdlog)
+set(BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS_OLD}" CACHE BOOL "" FORCE)
 set_property(TARGET spdlog PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(tirex_tracker_cli PRIVATE spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 
 # Instal CLI11 library from GitHub.
+set(CLI11_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(CLI11_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(CLI11_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(CLI11_BUILD_EXAMPLES_JSON OFF CACHE BOOL "" FORCE)
+set(CLI11_SINGLE_FILE_TESTS OFF CACHE BOOL "" FORCE)
+set(CLI11_INSTALL OFF CACHE BOOL "" FORCE)
+set(CLI11_CUDA_TESTS OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(cli11 GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git GIT_TAG v2.4.2)
 FetchContent_MakeAvailable(cli11)
 target_link_libraries(tirex_tracker_cli PRIVATE CLI11::CLI11)
