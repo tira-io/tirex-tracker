@@ -7,8 +7,8 @@ cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 add_library(tirex_tracker_full SHARED
     irtracker.cpp
 )
-# Set the C++ standard to C++20.
-target_compile_features(tirex_tracker_full PRIVATE cxx_std_20)
+# Set the C++ standard to C++17.
+target_compile_features(tirex_tracker_full PRIVATE cxx_std_17)
 # Include the header files.
 target_include_directories(tirex_tracker_full PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 # Link required libraries.
@@ -24,8 +24,8 @@ target_compile_definitions(tirex_tracker_full PUBLIC TIREX_TRACKER_VERSION=${TIR
 add_library(tirex_tracker_full_static STATIC
     irtracker.cpp
 )
-# Set the C++ standard to C++20.
-target_compile_features(tirex_tracker_full_static PRIVATE cxx_std_20)
+# Set the C++ standard to C++17.
+target_compile_features(tirex_tracker_full_static PRIVATE cxx_std_17)
 # Include the header files.
 target_include_directories(tirex_tracker_full_static PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 # Link required libraries.

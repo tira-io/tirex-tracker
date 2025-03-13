@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 add_executable(01_tracking
     main.c
 )
-# Set the C++ standard to C++20.
-target_compile_features(01_tracking PRIVATE cxx_std_20)
+# Set the C++ standard to C++17.
+target_compile_features(01_tracking PRIVATE cxx_std_17)
 # Link required libraries.
 target_link_libraries(01_tracking PRIVATE tirex_tracker)

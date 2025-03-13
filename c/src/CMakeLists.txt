@@ -22,8 +22,8 @@ add_library(tirex_tracker SHARED
 	measure/stats/systemstats_macos.cpp
 	measure/stats/systemstats_windows.cpp
 )
-# Set the C++ standard to C++20.
-target_compile_features(tirex_tracker PRIVATE cxx_std_20)
+# Set the C++ standard to C++17.
+target_compile_features(tirex_tracker PRIVATE cxx_std_17)
 # Include the header files.
 target_include_directories(tirex_tracker PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../include)
 # Configure the library build.
@@ -49,8 +49,8 @@ add_library(tirex_tracker_static STATIC
 	measureinfo.cpp
 	measureresult.cpp
 )
-# Set the C++ standard to C++20.
-target_compile_features(tirex_tracker_static PRIVATE cxx_std_20)
+# Set the C++ standard to C++17.
+target_compile_features(tirex_tracker_static PRIVATE cxx_std_17)
 # Include the header files.
 target_include_directories(tirex_tracker_static PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../include)
 target_compile_definitions(tirex_tracker_static PRIVATE TIREX_TRACKER_STATIC)
