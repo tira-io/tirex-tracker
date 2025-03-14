@@ -27,7 +27,7 @@ target_compile_features(tirex_tracker PRIVATE cxx_std_17)
 # Include the header files.
 target_include_directories(tirex_tracker PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../include)
 # Configure the library build.
-target_compile_definitions(tirex_tracker PRIVATE TIREX_TRACKER_LIB_EXPORT)
+target_compile_definitions(tirex_tracker PUBLIC TIREX_TRACKER_LIB_EXPORT)
 target_compile_definitions(tirex_tracker PUBLIC TIREX_TRACKER_VERSION=${TIREX_TRACKER_VERSION})
 set_target_properties(tirex_tracker PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
