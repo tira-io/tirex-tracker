@@ -321,8 +321,8 @@ jobs:
         runs-on:
           - ubuntu-22.04
           - ubuntu-24.04
-          - macos-14
-          - macos-15
+          # - macos-14
+          # - macos-15
           - windows-2019
           - windows-2022
           - windows-2025

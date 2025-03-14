@@ -17,6 +17,9 @@ set_target_properties(tirex_tracker_cli PROPERTIES OUTPUT_NAME "tirex-tracker-${
 target_compile_features(tirex_tracker_cli PRIVATE cxx_std_17)
 # Link required libraries.
 target_link_libraries(tirex_tracker_cli PRIVATE tirex_tracker_full_static)
+# Configure the library build.
+target_compile_definitions(tirex_tracker_full PUBLIC TIREX_TRACKER_LIB_EXPORT)
+target_compile_definitions(tirex_tracker_full PUBLIC TIREX_TRACKER_VERSION=${TIREX_TRACKER_VERSION})
 
 
 #########################
