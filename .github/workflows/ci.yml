@@ -24,12 +24,12 @@ jobs:
             compiler: gcc-14
           - runs-on: macos-15
             compiler: gcc-14
-          # - runs-on: windows-2019
-          #   compiler: gcc-14
-          # - runs-on: windows-2022
-          #   compiler: gcc-14
-          # - runs-on: windows-2025
-          #   compiler: gcc-14
+          - runs-on: windows-2019
+            compiler: gcc-14
+          - runs-on: windows-2022
+            compiler: gcc-14
+          - runs-on: windows-2025
+            compiler: gcc-14
     runs-on: ${{ matrix.environment.runs-on }}
     steps:
       - name: 📥 Check-out
@@ -88,7 +88,7 @@ jobs:
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
           cmake --build c/build/ --config Release --target tirex_tracker_full
       - name: 📤 Upload Linux library
-        if: matrix.environment.runs-on == 'ubuntu-20.04'
+        if: matrix.environment.runs-on == 'ubuntu-18.04'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-linux
@@ -123,12 +123,12 @@ jobs:
             compiler: gcc-14
           - runs-on: macos-15
             compiler: gcc-14
-          # - runs-on: windows-2019
-          #   compiler: gcc-14
-          # - runs-on: windows-2022
-          #   compiler: gcc-14
-          # - runs-on: windows-2025
-          #   compiler: gcc-14
+          - runs-on: windows-2019
+            compiler: gcc-14
+          - runs-on: windows-2022
+            compiler: gcc-14
+          - runs-on: windows-2025
+            compiler: gcc-14
     runs-on: ${{ matrix.environment.runs-on }}
     steps:
       - name: 📥 Check-out
@@ -188,7 +188,7 @@ jobs:
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
           cmake --build c/build/ --config Release --target tirex_tracker_cli
       - name: 📤 Upload Linux CLI
-        if: matrix.environment.runs-on == 'ubuntu-20.04'
+        if: matrix.environment.runs-on == 'ubuntu-18.04'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-linux
@@ -250,7 +250,7 @@ jobs:
           docker run --volume ${{ github.workspace }}:/workspace --workdir /workspace runner \
           cmake --build c/build/ --config Release --target package
       - name: 📤 Upload Debian package
-        if: matrix.environment.runs-on == 'ubuntu-20.04'
+        if: matrix.environment.runs-on == 'ubuntu-18.04'
         uses: actions/upload-artifact@v4
         with:
           name: c-debian-package
@@ -301,11 +301,11 @@ jobs:
         with:
           name: c-library-macos
           path: jvm/library/src/main/resources/
-      # - name: 📥 Download Windows library
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: c-library-windows
-      #     path: jvm/library/src/main/resources/
+      - name: 📥 Download Windows library
+        uses: actions/download-artifact@v4
+        with:
+          name: c-library-windows
+          path: jvm/library/src/main/resources/
       - name: 🏗️ Build project
         run: jvm/gradlew --project-dir jvm/ build
   jvm-check:
@@ -321,11 +321,11 @@ jobs:
         runs-on:
           - ubuntu-22.04
           - ubuntu-24.04
-          # - macos-14
-          # - macos-15
-          # - windows-2019
-          # - windows-2022
-          # - windows-2025
+          - macos-14
+          - macos-15
+          - windows-2019
+          - windows-2022
+          - windows-2025
         exclude:
           - java: "8"
             runs-on: windows-2019
@@ -387,11 +387,11 @@ jobs:
         with:
           name: c-library-macos
           path: jvm/library/src/main/resources/
-      # - name: 📥 Download Windows library
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: c-library-windows
-      #     path: jvm/library/src/main/resources/
+      - name: 📥 Download Windows library
+        uses: actions/download-artifact@v4
+        with:
+          name: c-library-windows
+          path: jvm/library/src/main/resources/
       - name: 🧪 Test and check with Gradle
         run: jvm/gradlew --project-dir jvm/ check
       - name: 📤 Upload coverage to Codecov
@@ -451,11 +451,11 @@ jobs:
         with:
           name: c-library-macos
           path: jvm/library/src/main/resources/
-      # - name: 📥 Download Windows library
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: c-library-windows
-      #     path: jvm/library/src/main/resources/
+      - name: 📥 Download Windows library
+        uses: actions/download-artifact@v4
+        with:
+          name: c-library-windows
+          path: jvm/library/src/main/resources/
       - name: 🚀 Publish JVM library to Maven Local
         run: jvm/gradlew --project-dir jvm/ publishToMavenLocal
       - name: 📤 Upload JVM JAR
@@ -503,7 +503,7 @@ jobs:
       fail-fast: false
       matrix:
         python:
-          # - "3.8"
+          - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
@@ -531,11 +531,11 @@ jobs:
         with:
           name: c-library-macos
           path: python/tirex_tracker/
-      # - name: 📥 Download Windows library
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: c-library-windows
-      #     path: python/tirex_tracker/
+      - name: 📥 Download Windows library
+        uses: actions/download-artifact@v4
+        with:
+          name: c-library-windows
+          path: python/tirex_tracker/
       - name: 🧰 Install dependencies
         run: pip install build twine
       - name: 🏗️ Build Python wheels
@@ -584,11 +584,11 @@ jobs:
         with:
           name: c-library-macos
           path: python/tirex_tracker/
-      # - name: 📥 Download Windows library
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: c-library-windows
-      #     path: python/tirex_tracker/
+      - name: 📥 Download Windows library
+        uses: actions/download-artifact@v4
+        with:
+          name: c-library-windows
+          path: python/tirex_tracker/
       - name: 🧰 Install dependencies
         run: pip install -e python[tests]
       - name: 🔍 Check Python code
@@ -629,11 +629,11 @@ jobs:
         with:
           name: c-library-macos
           path: python/tirex_tracker/
-      # - name: 📥 Download Windows library
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: c-library-windows
-      #     path: python/tirex_tracker/
+      - name: 📥 Download Windows library
+        uses: actions/download-artifact@v4
+        with:
+          name: c-library-windows
+          path: python/tirex_tracker/
       - name: 🧰 Install dependencies
         run: pip install -e python[tests]
       - name: 🔍 Check Python static typing
@@ -674,11 +674,11 @@ jobs:
         with:
           name: c-library-macos
           path: python/tirex_tracker/
-      # - name: 📥 Download Windows library
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: c-library-windows
-      #     path: python/tirex_tracker/
+      - name: 📥 Download Windows library
+        uses: actions/download-artifact@v4
+        with:
+          name: c-library-windows
+          path: python/tirex_tracker/
       - name: 🧰 Install dependencies
         run: pip install -e python[tests]
       - name: 🔍 Check Python code security
@@ -700,9 +700,9 @@ jobs:
           - ubuntu-24.04
           - macos-14
           - macos-15
-          # - windows-2019
-          # - windows-2022
-          # - windows-2025
+          - windows-2019
+          - windows-2022
+          - windows-2025
     runs-on: ${{ matrix.runs-on }}
     needs:
       - c-build-library
@@ -727,11 +727,11 @@ jobs:
         with:
           name: c-library-macos
           path: python/tirex_tracker/
-      # - name: 📥 Download Windows library
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: c-library-windows
-      #     path: python/tirex_tracker/
+      - name: 📥 Download Windows library
+        uses: actions/download-artifact@v4
+        with:
+          name: c-library-windows
+          path: python/tirex_tracker/
       - name: 🧰 Install dependencies
         run: pip install -e python[tests]
       - name: 🧪 Test Python code
@@ -803,11 +803,11 @@ jobs:
         with:
           name: c-library-macos
           path: tmp/c/
-      # - name: 📥 Download Windows library
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: c-library-windows
-      #     path: tmp/c/
+      - name: 📥 Download Windows library
+        uses: actions/download-artifact@v4
+        with:
+          name: c-library-windows
+          path: tmp/c/
       - name: 📥 Download Linux CLI
         uses: actions/download-artifact@v4
         with:
@@ -818,11 +818,11 @@ jobs:
         with:
           name: c-cli-macos
           path: tmp/c/
-      # - name: 📥 Download Windows CLI
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: c-cli-windows
-      #     path: tmp/c/
+      - name: 📥 Download Windows CLI
+        uses: actions/download-artifact@v4
+        with:
+          name: c-cli-windows
+          path: tmp/c/
       - name: 📥 Download Debian package
         uses: actions/download-artifact@v4
         with:
@@ -863,19 +863,10 @@ jobs:
             tmp/c/*.dll
             tmp/c/tirex-tracker-*-Linux-*
             tmp/c/tirex-tracker-*-Darwin-*
+            tmp/c/tirex-tracker-*-Windows-*.exe
             tmp/c/tirex-tracker-*-Linux.deb
             tmp/python/dist/*
             tmp/jvm/*/*.jar
-          # files: |
-          #   tmp/c/*.so
-          #   tmp/c/*.dylib
-          #   tmp/c/*.dll
-          #   tmp/c/tirex-tracker-*-Linux-*
-          #   tmp/c/tirex-tracker-*-Darwin-*
-          #   tmp/c/tirex-tracker-*-Windows-*.exe
-          #   tmp/c/tirex-tracker-*-Linux.deb
-          #   tmp/python/dist/*
-          #   tmp/jvm/*/*.jar
           fail_on_unmatched_files: true
           draft: false
           prerelease: false
