@@ -1,4 +1,5 @@
 build/
+deps/
 
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudio,visualstudiocode,codeblocks,macos,linux,windows,vim,c++,cmake
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudio,visualstudiocode,codeblocks,macos,linux,windows,vim,c++,cmake

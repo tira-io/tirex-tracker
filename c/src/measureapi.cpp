@@ -7,7 +7,6 @@
 #include <cstring>
 #include <future>
 #include <iostream>
-#include <ranges>
 #include <sstream>
 #include <thread>
 #include <vector>
@@ -37,8 +36,8 @@ struct tirexMeasureHandle_st final {
 		monitorthread.join();
 
 		// Stop measuring
-		for (auto& provider : providers | std::views::reverse)
-			provider->stop();
+		for (std::size_t i = providers.size() - 1; providers.size() > i; --i)
+			providers[i]->stop();
 
 		// Collect statistics and print them
 		tirex::Stats stats{}; /** \todo ranges **/
