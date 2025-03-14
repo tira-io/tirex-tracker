@@ -14,6 +14,7 @@ target_include_directories(tirex_tracker_full PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 # Link required libraries.
 target_link_libraries(tirex_tracker_full PUBLIC "$<LINK_LIBRARY:WHOLE_ARCHIVE,tirex_tracker_static>")
 # Configure the library build.
+target_compile_definitions(tirex_tracker_full PUBLIC TIREX_TRACKER_LIB_EXPORT)
 target_compile_definitions(tirex_tracker_full PUBLIC TIREX_TRACKER_VERSION=${TIREX_TRACKER_VERSION})
 
 
