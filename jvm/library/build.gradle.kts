@@ -33,7 +33,7 @@ dependencies {
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.12.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.12.1")
 }
 
 val javaLanguageVersionCompile = JavaLanguageVersion.of(8)
