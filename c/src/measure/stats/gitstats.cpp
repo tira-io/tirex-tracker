@@ -1,14 +1,14 @@
 #include "gitstats.hpp"
 
 #include "../../logging.hpp"
-#include "../utils/rangeutils.hpp"
 
 #include <git2.h>
-#include <sha1.h>
+#include <sha1.hpp>
 
 #include <filesystem>
 #include <fstream>
-#include <ranges>
+#include <iostream>
+#include <sstream>
 #include <string>
 #include <tuple>
 
@@ -119,7 +119,7 @@ static std::vector<std::string> getTags(git_repository* repo) {
 }
 
 static std::string hashAllFiles(git_repository* repo) {
-	Chocobo1::SHA1 hash;
+	SHA1 hash;
 	git_status_list* list;
 	git_status_options opts = GIT_STATUS_OPTIONS_INIT;
 	opts.flags = GIT_STATUS_OPT_INCLUDE_UNTRACKED | GIT_STATUS_OPT_INCLUDE_UNMODIFIED;
@@ -133,11 +133,10 @@ static std::string hashAllFiles(git_repository* repo) {
 			tirex::log::error("gitstats", "Error opening file: {}", entry->index_to_workdir->new_file.path);
 			continue;
 		}
-		for (char buffer[8192]; is; is.read(buffer, sizeof(buffer)))
-			hash.addData(buffer, is.gcount());
+		hash.update(is);
 	}
 	git_status_list_free(list);
-	return hash.finalize().toString();
+	return hash.final();
 }
 
 struct GitStatusStats {
@@ -204,17 +203,30 @@ Stats GitStats::getInfo() {
 		);
 		tirex::log::info("gitstats", "Local is {} commits ahead and {} behind upstream", status.ahead, status.behind);
 		auto [local, remote] = getBranchName(repo);
-		return {{TIREX_GIT_IS_REPO, "1"s},
+		auto tags = getTags(repo);
+		std::stringstream tagsStream;
+		tagsStream << "[";
+		bool first = true;
+		for (auto& elem : tags) {
+			if (!first)
+				tagsStream << ",";
+			tagsStream << "\"";
+			tagsStream << elem;
+			tagsStream << "\"";
+			first = false;
+		}
+		tagsStream << "]";
+		return {{TIREX_GIT_IS_REPO, "true"s},
 				{TIREX_GIT_HASH, hashAllFiles(repo)},
 				{TIREX_GIT_LAST_COMMIT_HASH, getLastCommitHash(repo)},
 				{TIREX_GIT_BRANCH, local},
 				{TIREX_GIT_BRANCH_UPSTREAM, remote},
-				{TIREX_GIT_TAGS, "["s + tirex::utils::join(getTags(repo), ',') + "]"s},
+				{TIREX_GIT_TAGS, tagsStream.str()},
 				{TIREX_GIT_REMOTE_ORIGIN, getRemoteOrigin(repo)},
-				{TIREX_GIT_UNCOMMITTED_CHANGES, (status.numModified != 0) ? "1"s : "0"s},
-				{TIREX_GIT_UNPUSHED_CHANGES, ((status.ahead != 0) || remote.empty()) ? "1"s : "0"s},
-				{TIREX_GIT_UNCHECKED_FILES, (status.numNew != 0) ? "1"s : "0"s}};
+				{TIREX_GIT_UNCOMMITTED_CHANGES, (status.numModified != 0) ? "true"s : "false"s},
+				{TIREX_GIT_UNPUSHED_CHANGES, ((status.ahead != 0) || remote.empty()) ? "true"s : "false"s},
+				{TIREX_GIT_UNCHECKED_FILES, (status.numNew != 0) ? "true"s : "false"s}};
 	} else {
-		return {{TIREX_GIT_IS_REPO, "0"s}};
+		return {{TIREX_GIT_IS_REPO, "false"s}};
 	}
 }

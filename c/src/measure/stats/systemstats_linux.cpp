@@ -107,7 +107,7 @@ std::optional<std::string> readDistroFromLSB() {
 	}
 	for (std::string line; std::getline(stream, line);) {
 		/** \fixme could fail if there are spaces or has no quotes **/
-		if (line.starts_with("DISTRIB_DESCRIPTION=\"")) {
+		if (line.substr(0, 22) == "DISTRIB_DESCRIPTION=\"") {
 			return line.substr(21, line.length() - 21 - 1);
 		}
 	}
@@ -123,7 +123,7 @@ std::optional<std::string> readDistroFromOS() {
 	}
 	for (std::string line; std::getline(stream, line);) {
 		/** \fixme could fail if there are spaces or has no quotes **/
-		if (line.starts_with("PRETTY_NAME=\"")) {
+		if (line.substr(0, 14) == "PRETTY_NAME=\"") {
 			return line.substr(13, line.length() - 13 - 1);
 		}
 	}

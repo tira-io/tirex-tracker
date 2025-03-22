@@ -1,6 +1,12 @@
-include(FetchContent)
-include(ExternalProject)
+cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
+# Include helper module.
+include(FetchContent)
+
+
+##################
+# Shared library #
+##################
 add_library(tirex_tracker SHARED
 	measureapi.cpp
 	measureinfo.cpp
@@ -16,107 +22,144 @@ add_library(tirex_tracker SHARED
 	measure/stats/systemstats_macos.cpp
 	measure/stats/systemstats_windows.cpp
 )
-
-target_compile_features(tirex_tracker PUBLIC cxx_std_20)
+# Set the C++ standard to C++17.
+target_compile_features(tirex_tracker PRIVATE cxx_std_17)
+# Include the header files.
 target_include_directories(tirex_tracker PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../include)
-set_property(TARGET tirex_tracker PROPERTY POSITION_INDEPENDENT_CODE ON)
-target_compile_definitions(tirex_tracker PRIVATE TIREX_TRACKER_LIB_EXPORT)
+# Configure the library build.
+target_compile_definitions(tirex_tracker PUBLIC TIREX_TRACKER_LIB_EXPORT)
+target_compile_definitions(tirex_tracker PUBLIC TIREX_TRACKER_VERSION=${TIREX_TRACKER_VERSION})
+set_target_properties(tirex_tracker PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 
+##################
+# Static library #
+##################
 add_library(tirex_tracker_static STATIC
-	measureapi.cpp
-	measureinfo.cpp
-	measureresult.cpp
-	logging.cpp
-	measure/stats/provider.cpp
-
 	measure/stats/energystats.cpp
 	measure/stats/gitstats.cpp
 	measure/stats/gpustats.cpp
-	measure/stats/systemstats.cpp
+	measure/stats/provider.cpp
 	measure/stats/systemstats_linux.cpp
 	measure/stats/systemstats_macos.cpp
 	measure/stats/systemstats_windows.cpp
+	measure/stats/systemstats.cpp
+	logging.cpp
+	measureapi.cpp
+	measureinfo.cpp
+	measureresult.cpp
 )
-target_compile_features(tirex_tracker_static PUBLIC cxx_std_20)
+# Set the C++ standard to C++17.
+target_compile_features(tirex_tracker_static PRIVATE cxx_std_17)
+# Include the header files.
 target_include_directories(tirex_tracker_static PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../include)
-target_compile_definitions(tirex_tracker_static PUBLIC TIREX_TRACKER_STATIC)
+target_compile_definitions(tirex_tracker_static PRIVATE TIREX_TRACKER_STATIC)
+target_compile_definitions(tirex_tracker_static PUBLIC TIREX_TRACKER_VERSION=${TIREX_TRACKER_VERSION})
+set_target_properties(tirex_tracker_static PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-if (LINUX)
-target_link_libraries(tirex_tracker PUBLIC dl)  # dlopen, dlclose, ...
-target_link_libraries(tirex_tracker_static PUBLIC dl)  # dlopen, dlclose, ...
-elseif(WIN32)
-target_link_libraries(tirex_tracker PUBLIC Powrprof)
-target_link_libraries(tirex_tracker_static PUBLIC Powrprof)
+
+#########################
+# Link system libraries #
+#########################
+if (UNIX AND NOT APPLE)
+	# On Linux, link dl for: dlopen, dlclose, etc.
+	target_link_libraries(tirex_tracker PRIVATE ${CMAKE_DL_LIBS}) 
+	target_link_libraries(tirex_tracker_static PRIVATE ${CMAKE_DL_LIBS})
+endif()
+if(WIN32)
+	# On Windows, link Powrprof to get CallNtPowerInformation for power usage.
+	target_link_libraries(tirex_tracker PRIVATE Powrprof)
+	target_link_libraries(tirex_tracker_static PRIVATE Powrprof)
+endif()
+if (UNIX AND APPLE)
+	# On macOS, link CoreFoundation to get IOReport for system information.
+	target_link_libraries(tirex_tracker PRIVATE "$<LINK_LIBRARY:FRAMEWORK,CoreFoundation>")
+	target_link_libraries(tirex_tracker_static PRIVATE "$<LINK_LIBRARY:FRAMEWORK,CoreFoundation>")
+	# TODO: Describe why we link IOKit, or remove it.
+	target_link_libraries(tirex_tracker PRIVATE "$<LINK_LIBRARY:FRAMEWORK,IOKit>")
+	target_link_libraries(tirex_tracker_static PRIVATE "$<LINK_LIBRARY:FRAMEWORK,IOKit>")
 endif()
 
 
-set(BUILD_SHARED_LIBS OFF)
-set_property(TARGET tirex_tracker_static PROPERTY POSITION_INDEPENDENT_CODE ON)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+#########################
+# Third-party libraries #
+#########################
 
-
-##########################################################################################
-# Libraries
-##########################################################################################
-# CPPJoule
-if (NOT (UNIX AND APPLE)) # CPPJouls does not support macos right now
-	FetchContent_Declare(cppjoule GIT_REPOSITORY https://github.com/TheMrSheldon/CPPJoules.git GIT_TAG main)#GIT_TAG v1.0)
-	FetchContent_MakeAvailable(cppjoule)
-	set_property(TARGET CPP_Joules PROPERTY POSITION_INDEPENDENT_CODE ON)
+# Install CPPJoules library from GitHub.
+if (NOT (UNIX AND APPLE)) # CPPJoules does not support macos right now
+	FetchContent_Declare(cppjoules GIT_REPOSITORY https://github.com/TheMrSheldon/CPPJoules.git GIT_TAG main) # FIXME: switch to GIT_TAG v1.0 once it is released.
+	FetchContent_MakeAvailable(cppjoules)
+	set_target_properties(CPP_Joules PROPERTIES POSITION_INDEPENDENT_CODE ON)
 	target_link_libraries(tirex_tracker PRIVATE CPP_Joules)
 	target_link_libraries(tirex_tracker_static PRIVATE CPP_Joules)
 endif()
 
-# LibGit
+# Install libgit2 library from GitHub.
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(BUILD_CLI OFF CACHE BOOL "" FORCE)
+set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(BUILD_FUZZERS OFF CACHE BOOL "" FORCE)
 set(USE_SSH OFF CACHE BOOL "" FORCE)
 set(USE_HTTPS OFF CACHE BOOL "" FORCE)
-set(REGEX_BACKEND "builtin" CACHE STRING "" FORCE)
-set(BUILD_CLI OFF CACHE BOOL "" FORCE) # Do not build the Git CLI
-set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(USE_REGEX "builtin" CACHE STRING "" FORCE)
+set(USE_COMPRESSION "builtin" CACHE STRING "" FORCE)
 FetchContent_Declare(libgit GIT_REPOSITORY https://github.com/libgit2/libgit2.git GIT_TAG v1.8.4)
 FetchContent_MakeAvailable(libgit)
-set_property(TARGET libgit2 PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_property(TARGET libgit2package PROPERTY POSITION_INDEPENDENT_CODE ON)
+# set_target_properties(libgit2 PROPERTIES POSITION_INDEPENDENT_CODE ON)
+# set_target_properties(libgit2package PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(tirex_tracker PRIVATE libgit2 libgit2package)
 target_link_libraries(tirex_tracker_static PRIVATE libgit2 libgit2package)
 
-# NVML (We load the go-nvml bindings since there does not seem to be a repo with just the header)
+# Install NVML headers from GitHub.
+# Note: We load the go-nvml bindings since there does not seem to be a repo with just the header.
 FetchContent_Declare(nvml GIT_REPOSITORY https://github.com/NVIDIA/go-nvml.git GIT_TAG v0.12.4-0)
 FetchContent_MakeAvailable(nvml)
 target_include_directories(tirex_tracker PRIVATE ${nvml_SOURCE_DIR}/gen/)
 target_include_directories(tirex_tracker_static PRIVATE ${nvml_SOURCE_DIR}/gen/)
 
-# FMT (remove in the future when std::format can be assumed)
+# Install {fmt} library from GitHub.
+# TODO: Remove in the future when std::format can be assumed to be available.
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(FMT_DOC OFF CACHE BOOL "" FORCE)
+set(FMT_TEST OFF CACHE BOOL "" FORCE)
+set(FMT_FUZZ OFF CACHE BOOL "" FORCE)
+set(FMT_CUDA_TEST OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(fmt GIT_REPOSITORY https://github.com/fmtlib/fmt.git GIT_TAG 11.1.3)
 FetchContent_MakeAvailable(fmt)
-set_property(TARGET fmt PROPERTY POSITION_INDEPENDENT_CODE ON)
-target_link_libraries(tirex_tracker PRIVATE fmt::fmt)
-target_link_libraries(tirex_tracker_static PRIVATE fmt::fmt)
+set_target_properties(fmt PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(tirex_tracker PRIVATE fmt)
+target_link_libraries(tirex_tracker_static PRIVATE fmt)
 
-# cpuinfo
-# option(CPUINFO_LOG_TO_STDIO OFF)
-option(CPUINFO_BUILD_TOOLS OFF)
-option(CPUINFO_BUILD_UNIT_TESTS OFF)
-option(CPUINFO_BUILD_MOCK_TESTS OFF)
-option(CPUINFO_BUILD_BENCHMARKS OFF)
-# set(CPUINFO_LOG_LEVEL "debug")
+# Install cpuinfo library from GitHub.
+set(CPUINFO_LIBRARY_TYPE static CACHE STRING "" FORCE)
+set(CPUINFO_RUNTIME_TYPE static CACHE STRING "" FORCE)
+set(CPUINFO_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+set(CPUINFO_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+set(CPUINFO_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+set(CPUINFO_BUILD_MOCK_TESTS OFF CACHE BOOL "" FORCE)
+set(CPUINFO_BUILD_BENCHMARKS OFF CACHE BOOL "" FORCE)
+set(CPUINFO_BUILD_PKG_CONFIG OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(cpuinfo GIT_REPOSITORY https://github.com/pytorch/cpuinfo.git GIT_TAG aaac07ee499895770c89163ce0920ef8bb41ed23)
 FetchContent_MakeAvailable(cpuinfo)
-set_property(TARGET cpuinfo PROPERTY POSITION_INDEPENDENT_CODE ON)
-target_link_libraries(tirex_tracker PRIVATE cpuinfo::cpuinfo)
-target_link_libraries(tirex_tracker_static PRIVATE cpuinfo::cpuinfo)
+set_target_properties(cpuinfo PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(tirex_tracker PRIVATE cpuinfo)
+target_link_libraries(tirex_tracker_static PRIVATE cpuinfo)
 
-# Mac Only: Bind to CoreFoundation to get IOReport for system information
-if (UNIX AND APPLE)
-	target_link_libraries(tirex_tracker PRIVATE "$<LINK_LIBRARY:FRAMEWORK,CoreFoundation>")
-	target_link_libraries(tirex_tracker PRIVATE "$<LINK_LIBRARY:FRAMEWORK,IOKit>")
-	target_link_libraries(tirex_tracker_static PRIVATE "$<LINK_LIBRARY:FRAMEWORK,CoreFoundation>")
-	target_link_libraries(tirex_tracker_static PRIVATE "$<LINK_LIBRARY:FRAMEWORK,IOKit>")
+# Install SHA-1 library from GitHub.
+FetchContent_Declare(sha1 GIT_REPOSITORY https://github.com/vog/sha1.git GIT_TAG 1.4)
+FetchContent_MakeAvailable(sha1)
+target_include_directories(tirex_tracker PRIVATE ${sha1_SOURCE_DIR})
+target_include_directories(tirex_tracker_static PRIVATE ${sha1_SOURCE_DIR})
+
+
+###################################
+# Link standard library extension #
+###################################
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+	target_link_libraries(tirex_tracker PRIVATE c++fs)
+	target_link_libraries(tirex_tracker_static PRIVATE c++fs)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	target_link_libraries(tirex_tracker PRIVATE stdc++fs)
+	target_link_libraries(tirex_tracker_static PRIVATE stdc++fs)
 endif()
-
-# Hash
-FetchContent_Declare(hash GIT_REPOSITORY https://github.com/Chocobo1/Hash.git GIT_TAG 250fd19b9b6f3fda714f5071ab477057615fb6d0)
-FetchContent_MakeAvailable(hash)
-target_include_directories(tirex_tracker PRIVATE ${hash_SOURCE_DIR}/src)
-target_include_directories(tirex_tracker_static PRIVATE ${hash_SOURCE_DIR}/src)

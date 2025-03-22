@@ -17,6 +17,7 @@ namespace _fmt = std;
 namespace _fmt = fmt;
 #endif
 
+#include <bit>
 #include <fstream>
 #include <map>
 #include <sstream>
@@ -336,7 +337,7 @@ SystemStats::CPUInfo::VirtFlags getVirtSupport() {
 	/** This is a crude implementation for now that only takes into account the flags of the very first processor **/
 	std::ifstream is("/proc/cpuinfo");
 	for (std::string line; std::getline(is, line);)
-		if (line.starts_with("Features"))
+		if (line.substr(0, 9) == "Features")
 			return {.svm = line.find("svm") != std::string::npos, .vmx = line.find("vmx") != std::string::npos};
 	return {.svm = false, .vmx = false};
 }
@@ -354,6 +355,15 @@ SystemStats::CPUInfo::VirtFlags getVirtSupport() {
 #endif
 
 SystemStats::SystemStats() {}
+
+bool isBigEndian() {
+	// Store 0x0001 in memory.
+	uint16_t word = 1;
+	// Get a pointer to the first byte of the word.
+	uint8_t* firstByte = (uint8_t*)&word;
+	// Check if the first byte is zero.
+	return !(*firstByte);
+}
 
 SystemStats::CPUInfo SystemStats::getCPUInfo() {
 	cpuinfo_initialize();
@@ -376,10 +386,8 @@ SystemStats::CPUInfo SystemStats::getCPUInfo() {
 	auto package = cluster->package;
 	auto core = cpuinfo_get_core(0);
 
-	std::string endianness =
-			(std::endian::native == std::endian::big)
-					? "Big Endian"
-					: ((std::endian::native == std::endian::little) ? "Little Endian" : "Mixed Endian");
+	// FIXME: Can we somehow check for mixed endianess without using the std::endian enum?
+	std::string endianness = (isBigEndian()) ? "Big Endian" : "Little Endian";
 
 	auto [minFreq, maxFreq] = getProcessorMinMaxFreq(0);
 
@@ -413,17 +421,32 @@ Stats SystemStats::getInfo() {
 	cpuInfo.modelname = getSysctl<std::string>("machdep.cpu.brand_string");
 #endif
 
-	std::string caches = "";
+	std::stringstream cachesStream;
+	cachesStream << "{";
 	size_t cacheIdx = 1;
+	bool first = true;
 	for (auto& [unified, instruct, data] : cpuInfo.caches) {
-		if (unified)
-			caches += _fmt::format("\"l{}\": \"{} KiB\",", cacheIdx, unified / 1024);
-		if (instruct)
-			caches += _fmt::format("\"l{}i\": \"{} KiB\",", cacheIdx, instruct / 1024);
-		if (data)
-			caches += _fmt::format("\"l{}d\": \"{} KiB\",", cacheIdx, data / 1024);
+		if (unified) {
+			if (!first)
+				cachesStream << ",";
+			cachesStream << _fmt::format("\"l{}\": {}", cacheIdx, unified);
+			first = false;
+		}
+		if (instruct) {
+			if (!first)
+				cachesStream << ",";
+			cachesStream << _fmt::format("\"l{}i\": {}", cacheIdx, instruct);
+			first = false;
+		}
+		if (data) {
+			if (!first)
+				cachesStream << ",";
+			cachesStream << _fmt::format("\"l{}d\": {}", cacheIdx, data);
+			first = false;
+		}
 		++cacheIdx;
 	}
+	cachesStream << "}";
 
 	return {{TIREX_OS_NAME, info.osname},
 			{TIREX_OS_KERNEL, info.kerneldesc},
@@ -437,7 +460,7 @@ Stats SystemStats::getInfo() {
 			{TIREX_CPU_MODEL_NAME, cpuInfo.modelname},
 			{TIREX_CPU_CORES_PER_SOCKET, std::to_string(cpuInfo.coresPerSocket)},
 			{TIREX_CPU_THREADS_PER_CORE, std::to_string(cpuInfo.threadsPerCore)},
-			{TIREX_CPU_CACHES, caches},
+			{TIREX_CPU_CACHES, cachesStream.str()},
 			{TIREX_CPU_VIRTUALIZATION,
 			 (cpuInfo.virtualization.svm ? "AMD-V "s : ""s) + (cpuInfo.virtualization.vmx ? "VT-x"s : ""s)},
 			{TIREX_RAM_AVAILABLE_SYSTEM_MB, std::to_string(info.totalRamMB)}};
