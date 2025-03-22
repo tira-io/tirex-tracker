@@ -43,10 +43,8 @@ struct tirexMeasureHandle_st final {
 
 		// Collect statistics and print them
 		tirex::Stats stats{};
-		for (auto& provider : providers) {
-			auto tmp = provider->getStats();
-			stats.insert(tmp.begin(), tmp.end());
-		}
+		for (auto& provider : providers)
+			stats.merge(provider->getStats());
 		return stats;
 	}
 
@@ -64,7 +62,7 @@ static tirexError
 initProviders(const tirexMeasureConf* measures, std::vector<std::unique_ptr<tirex::StatsProvider>>& providers) {
 	std::set<tirexMeasure> tirexset;
 	for (auto conf = measures; conf->source != tirexMeasure::TIREX_MEASURE_INVALID; ++conf) {
-		auto [it, inserted] = tirexset.insert(conf->source); /** \todo implement conf->aggregate support **/
+		auto [it, inserted] = tirexset.insert(conf->source);
 		if (!inserted) {
 			/** \todo if pedantic abort here **/
 			tirex::log::warn(
@@ -86,10 +84,8 @@ tirexError tirexFetchInfo(const tirexMeasureConf* measures, tirexResult** result
 	if (tirexError err; (err = initProviders(measures, providers)) != TIREX_SUCCESS)
 		return err;
 	tirex::Stats stats{};
-	for (auto& provider : providers) {
-		auto tmp = provider->getInfo();
-		stats.insert(tmp.begin(), tmp.end());
-	}
+	for (auto& provider : providers)
+		stats.merge(provider->getInfo());
 	*result = createMsrResultFromStats(std::move(stats));
 	return TIREX_SUCCESS;
 }
