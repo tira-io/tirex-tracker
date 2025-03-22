@@ -83,15 +83,21 @@ def create_git_zip_archive(
         return None
     working_tree_dir_path = Path(working_tree_dir)
 
+    tracked_prefix = str(script_file_path.parent.resolve().absolute())
     tracked_paths = (
         Path(item.abspath)
         for item in repo.commit().tree.traverse()
         if isinstance(item, IndexObject)
     )
-    tracked_file_paths = (
+    tracked_paths = (
         path
         for path in tracked_paths
         if path.is_file()
+    )
+    tracked_paths = (
+        path
+        for path in tracked_paths
+        if str(path.parent.resolve().absolute()).startswith(tracked_prefix)
     )
 
     return _create_zip_archive(
@@ -99,7 +105,7 @@ def create_git_zip_archive(
         base_directory_path=working_tree_dir_path,
         script_file_path=script_file_path,
         notebook_file_path=None,
-        other_paths=tracked_file_paths,
+        other_paths=tracked_paths,
     )
 
 
