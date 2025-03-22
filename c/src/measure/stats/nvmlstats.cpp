@@ -155,21 +155,21 @@ void NVMLStats::step() {
 	}
 }
 
+std::set<tirexMeasure> NVMLStats::providedMeasures() noexcept { return measures; }
+
 Stats NVMLStats::getStats() {
-	/** \todo: filter by requested metrics */
 	if (nvml.supported) {
-		return {
-				{TIREX_GPU_USED_PROCESS_PERCENT, "TODO"s},
-				{TIREX_GPU_USED_SYSTEM_PERCENT, nvml.utilizationTotal},
-				{TIREX_GPU_VRAM_USED_PROCESS_MB, "TODO"s},
-				{TIREX_GPU_VRAM_USED_SYSTEM_MB, nvml.vramUsageTotal},
-		};
+		return makeFilteredStats(
+				enabled, std::pair{TIREX_GPU_USED_PROCESS_PERCENT, "TODO"s},
+				std::pair{TIREX_GPU_USED_SYSTEM_PERCENT, nvml.utilizationTotal},
+				std::pair{TIREX_GPU_VRAM_USED_PROCESS_MB, "TODO"s},
+				std::pair{TIREX_GPU_VRAM_USED_SYSTEM_MB, nvml.vramUsageTotal}
+		);
 	} else {
 		return {};
 	}
 }
 Stats NVMLStats::getInfo() {
-	/** \todo: filter by requested metrics */
 	if (nvml.supported) {
 		std::string modelName;
 		std::string vramTotal;
@@ -197,11 +197,11 @@ Stats NVMLStats::getInfo() {
 			}
 		}
 
-		return {{TIREX_GPU_SUPPORTED, "1"s},
-				{TIREX_GPU_MODEL_NAME, modelName},
-				{TIREX_GPU_NUM_CORES, cores},
-				{TIREX_GPU_VRAM_AVAILABLE_SYSTEM_MB, vramTotal}};
+		return makeFilteredStats(
+				enabled, std::pair{TIREX_GPU_SUPPORTED, "1"s}, std::pair{TIREX_GPU_MODEL_NAME, modelName},
+				std::pair{TIREX_GPU_NUM_CORES, cores}, std::pair{TIREX_GPU_VRAM_AVAILABLE_SYSTEM_MB, vramTotal}
+		);
 	} else {
-		return {{TIREX_GPU_SUPPORTED, "0"s}};
+		return makeFilteredStats(enabled, std::pair{TIREX_GPU_SUPPORTED, "0"s});
 	}
 }

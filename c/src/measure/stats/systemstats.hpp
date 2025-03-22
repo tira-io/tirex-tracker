@@ -111,6 +111,7 @@ namespace tirex {
 	public:
 		SystemStats();
 
+		std::set<tirexMeasure> providedMeasures() noexcept override;
 		void start() override;
 		void stop() override;
 		void step() override;

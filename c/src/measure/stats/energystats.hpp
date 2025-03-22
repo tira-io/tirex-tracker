@@ -31,6 +31,7 @@ namespace tirex {
 	public:
 		EnergyStats();
 
+		std::set<tirexMeasure> providedMeasures() noexcept override;
 		void start() override;
 		void stop() override;
 		Stats getStats() override;

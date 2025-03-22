@@ -411,8 +411,9 @@ SystemStats::CPUInfo SystemStats::getCPUInfo() {
 	};
 }
 
+std::set<tirexMeasure> SystemStats::providedMeasures() noexcept { return measures; }
+
 Stats SystemStats::getInfo() {
-	/** \todo: filter by requested metrics */
 	auto info = getSysInfo();
 	auto cpuInfo = getCPUInfo();
 
@@ -433,37 +434,35 @@ Stats SystemStats::getInfo() {
 		++cacheIdx;
 	}
 
-	return {{TIREX_OS_NAME, info.osname},
-			{TIREX_OS_KERNEL, info.kerneldesc},
-			{TIREX_CPU_AVAILABLE_SYSTEM_CORES, std::to_string(cpuInfo.numCores)},
-			{TIREX_CPU_FEATURES, cpuInfo.flags},
-			{TIREX_CPU_FREQUENCY_MIN_MHZ, std::to_string(cpuInfo.frequency_min)},
-			{TIREX_CPU_FREQUENCY_MAX_MHZ, std::to_string(cpuInfo.frequency_max)},
-			{TIREX_CPU_VENDOR_ID, cpuInfo.vendorId},
-			{TIREX_CPU_BYTE_ORDER, cpuInfo.endianness},
-			{TIREX_CPU_ARCHITECTURE, info.architecture},
-			{TIREX_CPU_MODEL_NAME, cpuInfo.modelname},
-			{TIREX_CPU_CORES_PER_SOCKET, std::to_string(cpuInfo.coresPerSocket)},
-			{TIREX_CPU_THREADS_PER_CORE, std::to_string(cpuInfo.threadsPerCore)},
-			{TIREX_CPU_CACHES, caches},
-			{TIREX_CPU_VIRTUALIZATION,
-			 (cpuInfo.virtualization.svm ? "AMD-V "s : ""s) + (cpuInfo.virtualization.vmx ? "VT-x"s : ""s)},
-			{TIREX_RAM_AVAILABLE_SYSTEM_MB, std::to_string(info.totalRamMB)}};
+	return makeFilteredStats(
+			enabled, std::pair{TIREX_OS_NAME, info.osname}, std::pair{TIREX_OS_KERNEL, info.kerneldesc},
+			std::pair{TIREX_CPU_AVAILABLE_SYSTEM_CORES, std::to_string(cpuInfo.numCores)},
+			std::pair{TIREX_CPU_FEATURES, cpuInfo.flags},
+			std::pair{TIREX_CPU_FREQUENCY_MIN_MHZ, std::to_string(cpuInfo.frequency_min)},
+			std::pair{TIREX_CPU_FREQUENCY_MAX_MHZ, std::to_string(cpuInfo.frequency_max)},
+			std::pair{TIREX_CPU_VENDOR_ID, cpuInfo.vendorId}, std::pair{TIREX_CPU_BYTE_ORDER, cpuInfo.endianness},
+			std::pair{TIREX_CPU_ARCHITECTURE, info.architecture}, std::pair{TIREX_CPU_MODEL_NAME, cpuInfo.modelname},
+			std::pair{TIREX_CPU_CORES_PER_SOCKET, std::to_string(cpuInfo.coresPerSocket)},
+			std::pair{TIREX_CPU_THREADS_PER_CORE, std::to_string(cpuInfo.threadsPerCore)},
+			std::pair{TIREX_CPU_CACHES, caches},
+			std::pair{
+					TIREX_CPU_VIRTUALIZATION,
+					(cpuInfo.virtualization.svm ? "AMD-V "s : ""s) + (cpuInfo.virtualization.vmx ? "VT-x"s : ""s)
+			},
+			std::pair{TIREX_RAM_AVAILABLE_SYSTEM_MB, std::to_string(info.totalRamMB)}
+	);
 }
 
 Stats SystemStats::getStats() {
-	/** \todo: filter by requested metrics */
 	auto wallclocktime =
 			std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(stoptime - starttime).count());
 
-	return {
-			{{TIREX_TIME_ELAPSED_WALL_CLOCK_MS, wallclocktime},
-			 {TIREX_TIME_ELAPSED_USER_MS, std::to_string(tickToMs(stopUTime - startUTime))},
-			 {TIREX_TIME_ELAPSED_SYSTEM_MS, std::to_string(tickToMs(stopSysTime - startSysTime))},
-			 {TIREX_CPU_USED_PROCESS_PERCENT, cpuUtil},
-			 {TIREX_CPU_USED_SYSTEM_PERCENT, sysCpuUtil},
-			 {TIREX_CPU_FREQUENCY_MHZ, frequency},
-			 {TIREX_RAM_USED_PROCESS_KB, ram},
-			 {TIREX_RAM_USED_SYSTEM_MB, sysRam}}
-	};
+	return makeFilteredStats(
+			enabled, std::pair{TIREX_TIME_ELAPSED_WALL_CLOCK_MS, wallclocktime},
+			std::pair{TIREX_TIME_ELAPSED_USER_MS, std::to_string(tickToMs(stopUTime - startUTime))},
+			std::pair{TIREX_TIME_ELAPSED_SYSTEM_MS, std::to_string(tickToMs(stopSysTime - startSysTime))},
+			std::pair{TIREX_CPU_USED_PROCESS_PERCENT, cpuUtil}, std::pair{TIREX_CPU_USED_SYSTEM_PERCENT, sysCpuUtil},
+			std::pair{TIREX_CPU_FREQUENCY_MHZ, frequency}, std::pair{TIREX_RAM_USED_PROCESS_KB, ram},
+			std::pair{TIREX_RAM_USED_SYSTEM_MB, sysRam}
+	);
 }

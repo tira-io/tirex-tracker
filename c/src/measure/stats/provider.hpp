@@ -5,6 +5,7 @@
 
 #include "../measure.hpp"
 
+#include <concepts>
 #include <functional>
 #include <map>
 #include <memory>
@@ -19,8 +20,14 @@ namespace tirex {
 	tirexResult_st* createMsrResultFromStats(Stats&& stats);
 
 	class StatsProvider {
+	protected:
+		std::set<tirexMeasure> enabled;
+
 	public:
 		virtual ~StatsProvider() = default;
+
+		void requestMeasures(const std::set<tirexMeasure>& measures) noexcept;
+		virtual std::set<tirexMeasure> providedMeasures() noexcept = 0;
 
 		/**
 		 * @brief Start is called once at the very beginning of collecting statistics and shortly before the command is
@@ -63,6 +70,18 @@ namespace tirex {
 
 	std::set<tirexMeasure>
 	initProviders(std::set<tirexMeasure> measures, std::vector<std::unique_ptr<StatsProvider>>& providers);
+
+	Stats makeFilteredStats(
+			const std::set<tirexMeasure>& filter,
+			const std::convertible_to<std::pair<tirexMeasure, StatVal>> auto&&... args
+	) {
+		Stats stats;
+		for (auto&& arg : {std::pair<tirexMeasure, StatVal>(args)...}) {
+			if (filter.contains(arg.first))
+				stats.insert(std::move(arg));
+		}
+		return stats;
+	}
 } // namespace tirex
 
 #endif

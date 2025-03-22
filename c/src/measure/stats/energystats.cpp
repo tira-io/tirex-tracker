@@ -23,14 +23,17 @@ const std::set<tirexMeasure> EnergyStats::measures{
 
 EnergyStats::EnergyStats() : tracker() {}
 
+std::set<tirexMeasure> EnergyStats::providedMeasures() noexcept { return measures; }
+
 void EnergyStats::start() { tracker.start(); }
 void EnergyStats::stop() { tracker.stop(); }
 Stats EnergyStats::getStats() {
-	/** \todo: filter by requested metrics */
 	auto results = tracker.calculate_energy().energy;
 	for (auto& [device, result] : results)
 		tirex::log::debug("cppjoules", "[{}] {}", device, result);
-	return {{TIREX_CPU_ENERGY_SYSTEM_JOULES, std::to_string(getOrDefault(results, "core-0", 0))},
-			{TIREX_RAM_ENERGY_SYSTEM_JOULES, std::to_string(getOrDefault(results, "dram-0", 0))},
-			{TIREX_GPU_ENERGY_SYSTEM_JOULES, std::to_string(getOrDefault(results, "nvidia_gpu_0", 0))}};
+	return makeFilteredStats(
+			enabled, std::pair{TIREX_CPU_ENERGY_SYSTEM_JOULES, std::to_string(getOrDefault(results, "core-0", 0))},
+			std::pair{TIREX_RAM_ENERGY_SYSTEM_JOULES, std::to_string(getOrDefault(results, "dram-0", 0))},
+			std::pair{TIREX_GPU_ENERGY_SYSTEM_JOULES, std::to_string(getOrDefault(results, "nvidia_gpu_0", 0))}
+	);
 }

@@ -26,6 +26,7 @@ namespace tirex {
 	public:
 		NVMLStats();
 
+		std::set<tirexMeasure> providedMeasures() noexcept override;
 		void step() override;
 		Stats getStats() override;
 		Stats getInfo() override;
