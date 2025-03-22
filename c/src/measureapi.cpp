@@ -42,7 +42,7 @@ struct tirexMeasureHandle_st final {
 			provider->stop();
 
 		// Collect statistics and print them
-		tirex::Stats stats{}; /** \todo ranges **/
+		tirex::Stats stats{};
 		for (auto& provider : providers) {
 			auto tmp = provider->getStats();
 			stats.insert(tmp.begin(), tmp.end());
@@ -85,7 +85,7 @@ tirexError tirexFetchInfo(const tirexMeasureConf* measures, tirexResult** result
 	std::vector<std::unique_ptr<tirex::StatsProvider>> providers;
 	if (tirexError err; (err = initProviders(measures, providers)) != TIREX_SUCCESS)
 		return err;
-	tirex::Stats stats{}; /** \todo ranges **/
+	tirex::Stats stats{};
 	for (auto& provider : providers) {
 		auto tmp = provider->getInfo();
 		stats.insert(tmp.begin(), tmp.end());

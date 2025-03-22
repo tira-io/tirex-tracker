@@ -197,7 +197,6 @@ bool GitStats::isRepository() const noexcept { return repo != nullptr; }
 std::set<tirexMeasure> GitStats::providedMeasures() noexcept { return measures; }
 
 Stats GitStats::getInfo() {
-	/** \todo: filter by requested metrics */
 	if (isRepository()) {
 		auto status = getStatusStats(repo);
 		tirex::log::info(

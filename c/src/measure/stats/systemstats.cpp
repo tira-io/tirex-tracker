@@ -417,11 +417,6 @@ Stats SystemStats::getInfo() {
 	auto info = getSysInfo();
 	auto cpuInfo = getCPUInfo();
 
-#ifdef __APPLE__
-	/** \todo this should not be needed once https://github.com/pytorch/cpuinfo/pull/246/files is merged. **/
-	cpuInfo.modelname = getSysctl<std::string>("machdep.cpu.brand_string");
-#endif
-
 	std::string caches = "";
 	size_t cacheIdx = 1;
 	for (auto& [unified, instruct, data] : cpuInfo.caches) {

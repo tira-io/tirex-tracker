@@ -8,7 +8,7 @@ using tirex::EnergyStats;
 using tirex::Stats;
 
 template <typename C, typename K, typename V>
-V getOrDefault(const C& m, K const& key, const V& defval) {
+static V getOrDefault(const C& m, K const& key, const V& defval) {
 	auto it = m.find(key);
 	if (it == m.end())
 		return defval;

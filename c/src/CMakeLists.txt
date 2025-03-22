@@ -61,7 +61,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 ##########################################################################################
 # CPPJoule
 if (NOT (UNIX AND APPLE)) # CPPJouls does not support macos right now
-	FetchContent_Declare(cppjoule GIT_REPOSITORY https://github.com/TheMrSheldon/CPPJoules.git GIT_TAG main)#GIT_TAG v1.0)
+	FetchContent_Declare(cppjoule GIT_REPOSITORY https://github.com/TheMrSheldon/CPPJoules.git GIT_TAG pcm)#GIT_TAG v1.0)
 	FetchContent_MakeAvailable(cppjoule)
 	set_property(TARGET CPP_Joules PROPERTY POSITION_INDEPENDENT_CODE ON)
 	target_link_libraries(tirex_tracker PRIVATE CPP_Joules)
@@ -101,7 +101,7 @@ option(CPUINFO_BUILD_UNIT_TESTS OFF)
 option(CPUINFO_BUILD_MOCK_TESTS OFF)
 option(CPUINFO_BUILD_BENCHMARKS OFF)
 # set(CPUINFO_LOG_LEVEL "debug")
-FetchContent_Declare(cpuinfo GIT_REPOSITORY https://github.com/pytorch/cpuinfo.git GIT_TAG aaac07ee499895770c89163ce0920ef8bb41ed23)
+FetchContent_Declare(cpuinfo GIT_REPOSITORY https://github.com/pytorch/cpuinfo.git GIT_TAG 5e3d2445e6a84d9599bee2bf78edbb4d80865e1d)
 FetchContent_MakeAvailable(cpuinfo)
 set_property(TARGET cpuinfo PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(tirex_tracker PRIVATE cpuinfo::cpuinfo)
