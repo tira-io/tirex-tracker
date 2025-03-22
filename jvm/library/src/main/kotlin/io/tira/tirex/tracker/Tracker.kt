@@ -588,7 +588,7 @@ class TrackingHandle private constructor(
         @JvmOverloads
         fun start(
             measures: Iterable<Measure> = ALL_MEASURES,
-            pollIntervalMillis: Long = -1,
+            pollIntervalMillis: Long = 1000,
             systemName: String? = null,
             systemDescription: String? = null,
             exportFilePath: File? = null,
@@ -632,7 +632,7 @@ class TrackingHandle private constructor(
         @JvmOverloads
         fun start(
             measures: Iterable<Measure> = ALL_MEASURES,
-            pollIntervalMillis: Long = -1,
+            pollIntervalMillis: Long = 1000,
             systemName: String? = null,
             systemDescription: String? = null,
             exportFilePath: Path,
@@ -773,7 +773,7 @@ class TrackingHandle private constructor(
 @JvmOverloads
 fun startTracking(
     measures: Iterable<Measure> = ALL_MEASURES,
-    pollIntervalMillis: Long = -1,
+    pollIntervalMillis: Long = 1000,
     systemName: String? = null,
     systemDescription: String? = null,
     exportFilePath: File? = null,
@@ -791,7 +791,7 @@ fun startTracking(
 @JvmOverloads
 fun startTracking(
     measures: Iterable<Measure> = ALL_MEASURES,
-    pollIntervalMillis: Long = -1,
+    pollIntervalMillis: Long = 1000,
     systemName: String? = null,
     systemDescription: String? = null,
     exportFilePath: Path,
@@ -812,7 +812,7 @@ fun stopTracking(trackingHandle: TrackingHandle) = trackingHandle.stop()
 @JvmOverloads
 fun tracking(
     measures: Iterable<Measure> = ALL_MEASURES,
-    pollIntervalMillis: Long = -1,
+    pollIntervalMillis: Long = 1000,
     systemName: String? = null,
     systemDescription: String? = null,
     exportFilePath: File? = null,
@@ -830,7 +830,7 @@ fun tracking(
 @JvmOverloads
 fun tracking(
     measures: Iterable<Measure> = ALL_MEASURES,
-    pollIntervalMillis: Long = -1,
+    pollIntervalMillis: Long = 1000,
     systemName: String? = null,
     systemDescription: String? = null,
     exportFilePath: Path,
@@ -847,7 +847,7 @@ fun tracking(
 @JvmOverloads
 inline fun track(
     measures: Iterable<Measure> = ALL_MEASURES,
-    pollIntervalMillis: Long = -1,
+    pollIntervalMillis: Long = 1000,
     systemName: String? = null,
     systemDescription: String? = null,
     exportFilePath: File? = null,
@@ -875,7 +875,7 @@ inline fun track(
 @JvmOverloads
 inline fun track(
     measures: Iterable<Measure> = ALL_MEASURES,
-    pollIntervalMillis: Long = -1,
+    pollIntervalMillis: Long = 1000,
     systemName: String? = null,
     systemDescription: String? = null,
     exportFilePath: Path,
@@ -898,7 +898,7 @@ interface BlockCallback {
 @JvmOverloads
 fun track(
     measures: Iterable<Measure> = ALL_MEASURES,
-    pollIntervalMillis: Long = -1,
+    pollIntervalMillis: Long = 1000,
     systemName: String? = null,
     systemDescription: String? = null,
     exportFilePath: File? = null,
@@ -920,7 +920,7 @@ fun track(
 @JvmOverloads
 fun track(
     measures: Iterable<Measure> = ALL_MEASURES,
-    pollIntervalMillis: Long = -1,
+    pollIntervalMillis: Long = 1000,
     systemName: String? = null,
     systemDescription: String? = null,
     exportFilePath: Path,
