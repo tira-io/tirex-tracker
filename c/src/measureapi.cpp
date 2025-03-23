@@ -62,7 +62,7 @@ static tirexError
 initProviders(const tirexMeasureConf* measures, std::vector<std::unique_ptr<tirex::StatsProvider>>& providers) {
 	std::set<tirexMeasure> tirexset;
 	for (auto conf = measures; conf->source != tirexMeasure::TIREX_MEASURE_INVALID; ++conf) {
-		auto [it, inserted] = tirexset.insert(conf->source);
+		auto [it, inserted] = tirexset.insert(conf->source); /** \todo implement conf->aggregate support **/
 		if (!inserted) {
 			/** \todo if pedantic abort here **/
 			tirex::log::warn(

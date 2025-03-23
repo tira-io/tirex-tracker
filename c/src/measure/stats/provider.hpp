@@ -27,6 +27,10 @@ namespace tirex {
 		virtual ~StatsProvider() = default;
 
 		void requestMeasures(const std::set<tirexMeasure>& measures) noexcept;
+
+		/**
+		 * @brief The set of measures that the provider can provide.
+		 */
 		virtual std::set<tirexMeasure> providedMeasures() noexcept = 0;
 
 		/**
@@ -62,7 +66,20 @@ namespace tirex {
 	using ProviderConstructor = std::function<std::unique_ptr<StatsProvider>(void)>;
 	struct ProviderEntry final {
 		ProviderConstructor constructor;
-		const std::set<tirexMeasure>& measures; /**< The set of measures that the provider is responsible for */
+		/**
+		 * @brief The set of measures that the provider can provide in principle.
+		 * @details This field can be used to instantiate only relevant providers (e.g., if only energy metrics are
+		 * requested, then initializing the git provider may be skipped). AS such, the measures listed here must contain
+		 * all measures that the provider can at most support. But StatsProvider::providedMeasures may return only a
+		 * subset if it can not support these measures on the system. E.g., the Git provider may not support measures if
+		 * it cannot detect a git repository.
+		 */
+		const std::set<tirexMeasure>& measures;
+		/**
+		 * @brief A version string describing the provider and its data sources.
+		 * @details This (potentially multiline) string can be used to pass information on dependencies to the caller.
+		 * This may be useful for debugging purposes. E.g., the Git provider could report the version of libgit used.
+		 */
 		const char* version;
 		const char* description;
 	};

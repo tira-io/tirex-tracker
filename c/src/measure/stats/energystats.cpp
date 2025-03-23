@@ -23,7 +23,17 @@ const std::set<tirexMeasure> EnergyStats::measures{
 
 EnergyStats::EnergyStats() : tracker() {}
 
-std::set<tirexMeasure> EnergyStats::providedMeasures() noexcept { return measures; }
+std::set<tirexMeasure> EnergyStats::providedMeasures() noexcept {
+	std::set<tirexMeasure> measures{};
+	auto cap = tracker.getCapabilities();
+	if (cap & cppjoules::Capability::CPU_PROFILE)
+		measures.insert(TIREX_CPU_ENERGY_SYSTEM_JOULES);
+	if (cap & cppjoules::Capability::RAM_PROFILE)
+		measures.insert(TIREX_RAM_ENERGY_SYSTEM_JOULES);
+	if (cap & cppjoules::Capability::GPU_PROFILE)
+		measures.insert(TIREX_GPU_ENERGY_SYSTEM_JOULES);
+	return measures;
+}
 
 void EnergyStats::start() { tracker.start(); }
 void EnergyStats::stop() { tracker.stop(); }

@@ -99,7 +99,6 @@ static void getProcessorFrequencies(std::vector<uint32_t>& freq) {
 	SYSTEM_INFO si = {0};
 	GetSystemInfo(&si);
 
-	/** \todo keep this buffer as a member fo avoid reallocation **/
 	std::vector<PROCESSOR_POWER_INFORMATION> data(si.dwNumberOfProcessors);
 	DWORD dwSize = sizeof(PROCESSOR_POWER_INFORMATION) * si.dwNumberOfProcessors;
 	CallNtPowerInformation(ProcessorInformation, NULL, 0, &data[0], dwSize);
