@@ -46,6 +46,16 @@ public:
 	using DEVICE_GET_MEMORY_INFO = nvmlReturn_t (*)(nvmlDevice_t device, nvmlMemory_t* memory);
 	DEVICE_GET_MEMORY_INFO deviceGetMemoryInfo = load<DEVICE_GET_MEMORY_INFO>({"nvmlDeviceGetMemoryInfo"});
 
+	// nvmlDeviceGetProcessUtilization
+
+	// using DEVICE_GET_COMPUTE_RUNNING_PROCESSES =	nvmlReturn_t (*)(nvmlDevice_t device, unsigned int* infoCount, nvmlProcessInfo_t* infos);
+	// DEVICE_GET_COMPUTE_RUNNING_PROCESSES deviceGetComputeRunningProcesses = oad<DEVICE_GET_COMPUTE_RUNNING_PROCESSES>({"nvmlDeviceGetComputeRunningProcesses_v3"});
+
+	using DEVICE_GET_RUNNING_PROCESS_DETAIL_LIST =
+			nvmlReturn_t (*)(nvmlDevice_t device, nvmlProcessDetailList_t* plist);
+	DEVICE_GET_RUNNING_PROCESS_DETAIL_LIST deviceGetRunningProcessDetailList =
+			load<DEVICE_GET_RUNNING_PROCESS_DETAIL_LIST>({"nvmlDeviceGetRunningProcessDetailList"});
+
 #if defined(__linux__)
 	NVMLLib() : tirex::utils::SharedLib("libnvidia-ml.so.1") {}
 #elif defined(__APPLE__)
@@ -126,6 +136,7 @@ NVMLStats::NVMLStats() : nvml({.supported = initNVML(), .devices = {}}) {
 				break;
 			}
 		}
+		break;
 	default:
 		tirex::log::error("gpustats", "Fetching devices failed with error {}", ::nvml.errorString(err));
 		break;
@@ -152,6 +163,30 @@ void NVMLStats::step() {
 			abort(); /** \todo how to handle? **/
 		}
 	}
+
+	/*unsigned int processCount;
+	for (auto device : nvml.devices) {
+		// Get the list of running processes
+		nvmlProcessDetailList_t list;
+		list.version = nvmlProcessDetailList_v1;
+		list.numProcArrayEntries = 0;
+		list.procArray = nullptr;
+		auto result = ::nvml.deviceGetRunningProcessDetailList(device, &list);
+		if (result == NVML_SUCCESS) {
+			std::cout << "No processes running on GPU" << std::endl;
+			continue;
+		} else if (result == NVML_ERROR_INSUFFICIENT_SIZE) {
+			std::vector<nvmlProcessDetail_v1_t> buf;
+			buf.resize(list.numProcArrayEntries);
+			list.procArray = buf.data();
+			result = ::nvml.deviceGetRunningProcessDetailList(device, &list);
+			for (auto element : buf) {
+				std::cout << "PID: " << element.pid << " Mem: " << element.usedGpuMemory << std::endl;
+			}
+		} else {
+			std::cout << "Error: " << ::nvml.errorString(result) << std::endl;
+		}
+	}*/
 }
 
 std::set<tirexMeasure> NVMLStats::providedMeasures() noexcept { return measures; }
