@@ -24,7 +24,7 @@ namespace cppjoules {
 		void stop() {}
 		TrackerResults calculate_energy() const noexcept { return TrackerResults{{}, {}}; }
 
-		Capability EnergyTracker::getCapabilities() const { return Capability::NONE; }
+		Capability getCapabilities() const { return Capability::NONE; }
 	};
 } // namespace cppjoules
 #endif
