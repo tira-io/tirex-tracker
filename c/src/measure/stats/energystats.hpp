@@ -6,6 +6,7 @@
 #ifndef __APPLE__
 #include <cppjoules/cppjoules.hpp>
 #else
+// Remove me once CPPJoules supports apple
 #include <chrono>
 #include <map>
 
@@ -14,11 +15,16 @@ namespace cppjoules {
 		std::chrono::milliseconds time;
 		std::map<std::string, long long> energy;
 	};
+
+	enum Capability { NONE = 0, CPU_PROFILE = 1 << 0, RAM_PROFILE = 1 << 1, GPU_PROFILE = 1 << 2 };
+
 	class EnergyTracker {
 	public:
 		void start() {}
 		void stop() {}
 		TrackerResults calculate_energy() const noexcept { return TrackerResults{{}, {}}; }
+
+		Capability EnergyTracker::getCapabilities() const { return Capability::NONE; }
 	};
 } // namespace cppjoules
 #endif
