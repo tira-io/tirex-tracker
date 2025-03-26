@@ -72,6 +72,7 @@ endif()
 set(USE_SSH OFF CACHE BOOL "" FORCE)
 set(USE_HTTPS OFF CACHE BOOL "" FORCE)
 set(REGEX_BACKEND "builtin" CACHE STRING "" FORCE)
+set(USE_BUNDLED_ZLIB ON CACHE BOOL "" FORCE)
 set(BUILD_CLI OFF CACHE BOOL "" FORCE) # Do not build the Git CLI
 set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(libgit GIT_REPOSITORY https://github.com/libgit2/libgit2.git GIT_TAG v1.8.4 EXCLUDE_FROM_ALL)
@@ -80,6 +81,20 @@ set_property(TARGET libgit2 PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_property(TARGET libgit2package PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(tirex_tracker PRIVATE libgit2 libgit2package)
 target_link_libraries(tirex_tracker_static PRIVATE libgit2 libgit2package)
+
+# libzip
+set(ENABLE_OPENSSL OFF CACHE BOOL "" FORCE)
+set(BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+set(BUILD_REGRESS OFF CACHE BOOL "" FORCE)
+set(BUILD_OSSFUZZ OFF CACHE BOOL "" FORCE)
+set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(BUILD_DOC OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(zip GIT_REPOSITORY https://github.com/nih-at/libzip.git GIT_TAG v1.11.3 EXCLUDE_FROM_ALL)
+FetchContent_MakeAvailable(zip)
+set_property(TARGET zip PROPERTY POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(tirex_tracker PRIVATE zip)
+target_link_libraries(tirex_tracker_static PRIVATE zip)
+
 
 # NVML (We load the go-nvml bindings since there does not seem to be a repo with just the header)
 FetchContent_Declare(nvml GIT_REPOSITORY https://github.com/NVIDIA/go-nvml.git GIT_TAG v0.12.4-0 EXCLUDE_FROM_ALL)
