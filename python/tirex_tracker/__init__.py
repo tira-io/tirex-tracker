@@ -20,6 +20,7 @@ from io import BytesIO
 from json import dumps, loads
 from pathlib import Path
 from sys import modules as sys_modules, executable, argv, platform, version_info
+from traceback import extract_stack
 from typing import (
     ItemsView,
     Iterator,
@@ -48,7 +49,7 @@ from IPython import get_ipython
 from typing_extensions import ParamSpec, Self, TypeAlias  # type: ignore
 from ruamel.yaml import YAML
 
-from tirex_tracker.archive_utils import create_code_archive
+from tirex_tracker.archive_utils import create_code_archive, git_repo_or_none
 
 
 if TYPE_CHECKING:
@@ -449,6 +450,18 @@ def _get_python_info(
         value=is_interactive,
     )
 
+    if ipython is None:
+        script_file_path = Path(extract_stack()[0].filename).resolve()
+        repo = git_repo_or_none(script_file_path)
+        if repo is not None and repo.working_tree_dir is not None:
+            script_file_path = script_file_path.relative_to(repo.working_tree_dir)
+        _add_python_result_entry(
+            results=results,
+            measure=Measure.PYTHON_SCRIPT_FILE_PATH,
+            measures=measures,
+            value=str(script_file_path),
+        )
+
     if export_file_path is not None:
         # Create a utility directory as a sibling to the export file, containing the code archive.
         metadata_directory_path = Path(export_file_path).parent / ".tirex-tracker"
@@ -464,21 +477,8 @@ def _get_python_info(
             results=results,
             measure=Measure.PYTHON_CODE_ARCHIVE_PATH,
             measures=measures,
-            value=str(archive_paths.zip_file_path.resolve()),
+            value=str(archive_paths.zip_file_path),
         )
-        _add_python_result_entry(
-            results=results,
-            measure=Measure.PYTHON_SCRIPT_FILE_PATH,
-            measures=measures,
-            value=str(archive_paths.script_file_path.resolve()),
-        )
-        if archive_paths.notebook_file_path is not None:
-            _add_python_result_entry(
-                results=results,
-                measure=Measure.PYTHON_NOTEBOOK_FILE_PATH,
-                measures=measures,
-                value=str(archive_paths.notebook_file_path.resolve()),
-            )
         _add_python_result_entry(
             results=results,
             measure=Measure.PYTHON_SCRIPT_FILE_PATH_IN_CODE_ARCHIVE,
@@ -873,9 +873,10 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         ir_metadata["implementation"]["python"]["interactive"] = loads(
             self._python_info[Measure.PYTHON_IS_INTERACTIVE].value
         )
-        ir_metadata["implementation"]["script"]["path"] = loads(
-            self._python_info[Measure.PYTHON_SCRIPT_FILE_PATH].value
-        )
+        if Measure.PYTHON_SCRIPT_FILE_PATH in self._python_info:
+            ir_metadata["implementation"]["script"]["path"] = loads(
+                self._python_info[Measure.PYTHON_SCRIPT_FILE_PATH].value
+            )
         if Measure.PYTHON_NOTEBOOK_FILE_PATH in self._python_info:
             ir_metadata["implementation"]["notebook"]["path"] = loads(
                 self._python_info[Measure.PYTHON_NOTEBOOK_FILE_PATH].value

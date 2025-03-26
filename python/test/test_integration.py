@@ -58,7 +58,7 @@ def test_python_script() -> None:
         assert "script path" in yaml_content["implementation"]["source"]["archive"]
         assert "example.py" in yaml_content["implementation"]["source"]["archive"]["script path"]
 
-        archive_path = Path(yaml_content["implementation"]["source"]["archive"]["path"])
+        archive_path = Path(working_dir_path) / Path(yaml_content["implementation"]["source"]["archive"]["path"])
         assert archive_path.exists()
 
         with ZipFile(archive_path) as zip_file:
@@ -102,12 +102,6 @@ def test_jupyter_notebook() -> None:
             yaml_content = yaml.load(yaml_file)
 
         assert "implementation" in yaml_content
-        assert "script" in yaml_content["implementation"]
-        assert "path" in yaml_content["implementation"]["script"]
-        assert "script.py" in yaml_content["implementation"]["script"]["path"]
-        assert "notebook" in yaml_content["implementation"]
-        assert "path" in yaml_content["implementation"]["notebook"]
-        assert "notebook.ipynb" in yaml_content["implementation"]["notebook"]["path"]
         assert "source" in yaml_content["implementation"]
         assert "archive" in yaml_content["implementation"]["source"]
         assert "path" in yaml_content["implementation"]["source"]["archive"]
@@ -116,7 +110,7 @@ def test_jupyter_notebook() -> None:
         assert "notebook path" in yaml_content["implementation"]["source"]["archive"]
         assert "notebook.ipynb" in yaml_content["implementation"]["source"]["archive"]["notebook path"]
 
-        archive_path = Path(yaml_content["implementation"]["source"]["archive"]["path"])
+        archive_path = Path(working_dir_path) / Path(yaml_content["implementation"]["source"]["archive"]["path"])
         assert archive_path.exists()
 
         with ZipFile(archive_path) as zip_file:
