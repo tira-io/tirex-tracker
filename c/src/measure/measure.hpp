@@ -18,11 +18,18 @@ namespace tirex {
 
 	private:
 		struct AggFn {
+			AggFn() = default;
+			AggFn(const AggFn&) = default;
+			AggFn(AggFn&&) = default;
+			virtual ~AggFn() = default;
+			AggFn& operator=(const AggFn&) = default;
+			AggFn& operator=(AggFn&&) = default;
+
 			virtual T update(const T& next) = 0;
 			virtual void reset() = 0;
 			virtual std::unique_ptr<AggFn> copy() = 0;
 		};
-		struct MaxAggFn : public AggFn {
+		struct MaxAggFn final : public AggFn {
 			std::optional<T> val;
 			MaxAggFn() { reset(); }
 			T update(const T& next) override {
@@ -35,7 +42,7 @@ namespace tirex {
 			void reset() override { val = std::nullopt; }
 			std::unique_ptr<AggFn> copy() override { return std::make_unique<MaxAggFn>(*this); }
 		};
-		struct MinAggFn : public AggFn {
+		struct MinAggFn final : public AggFn {
 			std::optional<T> val;
 			MinAggFn() { reset(); }
 			T update(const T& next) override {
@@ -48,7 +55,7 @@ namespace tirex {
 			void reset() override { val = std::nullopt; }
 			std::unique_ptr<AggFn> copy() override { return std::make_unique<MinAggFn>(*this); }
 		};
-		struct AvgAggFn : public AggFn {
+		struct AvgAggFn final : public AggFn {
 			T sum;
 			size_t num = 0;
 			AvgAggFn() { reset(); }
