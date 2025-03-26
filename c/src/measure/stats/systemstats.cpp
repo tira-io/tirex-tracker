@@ -9,7 +9,7 @@
 
 #include <cpuinfo.h>
 
-#if __cpp_lib_format
+#if __cpp_lib_format and __cplusplus >= 202207L // __cplusplus >= 202207L required for std::format_string
 #include <format>
 namespace _fmt = std;
 #else
@@ -28,6 +28,7 @@ using tirex::Stats;
 using tirex::SystemStats;
 
 #ifdef __linux__
+#include <unistd.h>
 extern "C" {
 // Not part of the public API but we use them for now until there is a public API for frequency
 uint32_t cpuinfo_linux_get_processor_min_frequency(uint32_t processor);
@@ -36,11 +37,9 @@ uint32_t cpuinfo_linux_get_processor_max_frequency(uint32_t processor);
 std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
 	return {cpuinfo_linux_get_processor_min_frequency(processor), cpuinfo_linux_get_processor_max_frequency(processor)};
 }
-#elif _WINDOWS
+#elif defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
 #include <powrprof.h>
 #include <windows.h>
-
-#pragma comment(lib, "Powrprof.lib")
 
 std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
 	struct PROCESSOR_POWER_INFORMATION {
@@ -61,7 +60,8 @@ std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
 	return {0, data[processor].MaxMhz};
 }
 #elif __APPLE__
-#include "macos/sysctl.hpp"
+#include "./details/macos/sysctl.hpp"
+#include <unistd.h>
 
 std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
 	return {0, 0}; /** Not implemented as I don't know of any way to get this information from macOS. **/
@@ -342,7 +342,7 @@ SystemStats::CPUInfo::VirtFlags getVirtSupport() {
 			return {.svm = line.find("svm") != std::string::npos, .vmx = line.find("vmx") != std::string::npos};
 	return {.svm = false, .vmx = false};
 }
-#elif defined(_WIN64)
+#elif defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
 #include <windows.h>
 
 SystemStats::CPUInfo::VirtFlags getVirtSupport() {
@@ -355,7 +355,13 @@ SystemStats::CPUInfo::VirtFlags getVirtSupport() {
 #error "getVirtSupport not supported for this OS"
 #endif
 
-SystemStats::SystemStats() {}
+#if defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
+SystemStats::SystemStats() : pid(GetCurrentProcess()) {}
+#elif defined(__linux__)
+SystemStats::SystemStats() : pid(getpid()) {}
+#elif defined(__APPLE__)
+SystemStats::SystemStats() : pid(getpid()) {}
+#endif
 
 SystemStats::CPUInfo SystemStats::getCPUInfo() {
 	cpuinfo_initialize();
@@ -405,15 +411,11 @@ SystemStats::CPUInfo SystemStats::getCPUInfo() {
 	};
 }
 
+std::set<tirexMeasure> SystemStats::providedMeasures() noexcept { return measures; }
+
 Stats SystemStats::getInfo() {
-	/** \todo: filter by requested metrics */
 	auto info = getSysInfo();
 	auto cpuInfo = getCPUInfo();
-
-#ifdef __APPLE__
-	/** \todo this should not be needed once https://github.com/pytorch/cpuinfo/pull/246/files is merged. **/
-	cpuInfo.modelname = getSysctl<std::string>("machdep.cpu.brand_string");
-#endif
 
 	std::string caches = "";
 	size_t cacheIdx = 1;
@@ -427,37 +429,35 @@ Stats SystemStats::getInfo() {
 		++cacheIdx;
 	}
 
-	return {{TIREX_OS_NAME, info.osname},
-			{TIREX_OS_KERNEL, info.kerneldesc},
-			{TIREX_CPU_AVAILABLE_SYSTEM_CORES, std::to_string(cpuInfo.numCores)},
-			{TIREX_CPU_FEATURES, cpuInfo.flags},
-			{TIREX_CPU_FREQUENCY_MIN_MHZ, std::to_string(cpuInfo.frequency_min)},
-			{TIREX_CPU_FREQUENCY_MAX_MHZ, std::to_string(cpuInfo.frequency_max)},
-			{TIREX_CPU_VENDOR_ID, cpuInfo.vendorId},
-			{TIREX_CPU_BYTE_ORDER, cpuInfo.endianness},
-			{TIREX_CPU_ARCHITECTURE, info.architecture},
-			{TIREX_CPU_MODEL_NAME, cpuInfo.modelname},
-			{TIREX_CPU_CORES_PER_SOCKET, std::to_string(cpuInfo.coresPerSocket)},
-			{TIREX_CPU_THREADS_PER_CORE, std::to_string(cpuInfo.threadsPerCore)},
-			{TIREX_CPU_CACHES, caches},
-			{TIREX_CPU_VIRTUALIZATION,
-			 (cpuInfo.virtualization.svm ? "AMD-V "s : ""s) + (cpuInfo.virtualization.vmx ? "VT-x"s : ""s)},
-			{TIREX_RAM_AVAILABLE_SYSTEM_MB, std::to_string(info.totalRamMB)}};
+	return makeFilteredStats(
+			enabled, std::pair{TIREX_OS_NAME, info.osname}, std::pair{TIREX_OS_KERNEL, info.kerneldesc},
+			std::pair{TIREX_CPU_AVAILABLE_SYSTEM_CORES, std::to_string(cpuInfo.numCores)},
+			std::pair{TIREX_CPU_FEATURES, cpuInfo.flags},
+			std::pair{TIREX_CPU_FREQUENCY_MIN_MHZ, std::to_string(cpuInfo.frequency_min)},
+			std::pair{TIREX_CPU_FREQUENCY_MAX_MHZ, std::to_string(cpuInfo.frequency_max)},
+			std::pair{TIREX_CPU_VENDOR_ID, cpuInfo.vendorId}, std::pair{TIREX_CPU_BYTE_ORDER, cpuInfo.endianness},
+			std::pair{TIREX_CPU_ARCHITECTURE, info.architecture}, std::pair{TIREX_CPU_MODEL_NAME, cpuInfo.modelname},
+			std::pair{TIREX_CPU_CORES_PER_SOCKET, std::to_string(cpuInfo.coresPerSocket)},
+			std::pair{TIREX_CPU_THREADS_PER_CORE, std::to_string(cpuInfo.threadsPerCore)},
+			std::pair{TIREX_CPU_CACHES, caches},
+			std::pair{
+					TIREX_CPU_VIRTUALIZATION,
+					(cpuInfo.virtualization.svm ? "AMD-V "s : ""s) + (cpuInfo.virtualization.vmx ? "VT-x"s : ""s)
+			},
+			std::pair{TIREX_RAM_AVAILABLE_SYSTEM_MB, std::to_string(info.totalRamMB)}
+	);
 }
 
 Stats SystemStats::getStats() {
-	/** \todo: filter by requested metrics */
 	auto wallclocktime =
 			std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(stoptime - starttime).count());
 
-	return {
-			{{TIREX_TIME_ELAPSED_WALL_CLOCK_MS, wallclocktime},
-			 {TIREX_TIME_ELAPSED_USER_MS, std::to_string(tickToMs(stopUTime - startUTime))},
-			 {TIREX_TIME_ELAPSED_SYSTEM_MS, std::to_string(tickToMs(stopSysTime - startSysTime))},
-			 {TIREX_CPU_USED_PROCESS_PERCENT, cpuUtil},
-			 {TIREX_CPU_USED_SYSTEM_PERCENT, sysCpuUtil},
-			 {TIREX_CPU_FREQUENCY_MHZ, frequency},
-			 {TIREX_RAM_USED_PROCESS_KB, ram},
-			 {TIREX_RAM_USED_SYSTEM_MB, sysRam}}
-	};
+	return makeFilteredStats(
+			enabled, std::pair{TIREX_TIME_ELAPSED_WALL_CLOCK_MS, wallclocktime},
+			std::pair{TIREX_TIME_ELAPSED_USER_MS, std::to_string(tickToMs(stopUTime - startUTime))},
+			std::pair{TIREX_TIME_ELAPSED_SYSTEM_MS, std::to_string(tickToMs(stopSysTime - startSysTime))},
+			std::pair{TIREX_CPU_USED_PROCESS_PERCENT, cpuUtil}, std::pair{TIREX_CPU_USED_SYSTEM_PERCENT, sysCpuUtil},
+			std::pair{TIREX_CPU_FREQUENCY_MHZ, frequency}, std::pair{TIREX_RAM_USED_PROCESS_KB, ram},
+			std::pair{TIREX_RAM_USED_SYSTEM_MB, sysRam}
+	);
 }

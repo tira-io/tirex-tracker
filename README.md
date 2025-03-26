@@ -261,11 +261,14 @@ The further steps will depend on which part of the TIREx tracker's API you work 
 
 ### C development
 
-We use [CMake](https://cmake.org/) to build the C library, command line tool, and examples. Different build targets are used so that you can select what to build.
+> [!TIP]
+> If you are not familiar with CMake, we highly recommend using the [CMake VSCode extension](https://github.com/microsoft/vscode-cmake-tools/blob/main/docs/how-to.md#configure-a-project).
+
+We use the meta-build tool [CMake](https://cmake.org/) to configure the project. Different build targets are used so that you can select what to build.
 [Doxygen](https://doxygen.nl/) is used to generate the documentation for the C API.
 If you haven't installed CMake and/or Doxygen, please install it as described [here for CMake](https://cmake.org/download/) and [here for Doxygen](https://doxygen.nl/download.html)
 
-First, setup CMake to use the correct version of [GCC](https://gcc.gnu.org/) and enable all build targets by running:
+First, configure CMake enable desired build targets by running the following. Here, we use [GCC](https://gcc.gnu.org/) but any **C++20 compliant** compiler also works.
 
 ```shell
 cmake -S c/ -B c/build/ \
@@ -281,24 +284,43 @@ cmake -S c/ -B c/build/ \
 > [!TIP]
 > If you do not want to generate the documentation and have not installed Doxygen, you can disable it by setting `TIREX_TRACKER_BUILD_DOCS=NO`.
 
-You can then build the library (and examples) like this:
-
+To build the library, run
 ```shell
 cmake --build c/build/ --config Release --target tirex_tracker_full
 ```
+Under Linux, this will compile the C API into a statically linked library at `c/build/extensions/libtirex_tracker_full.so`.
 
-This will compile the C API into a statically linked library at `c/build/extensions/libtirex_tracker_full.so`.
+The supported targets are<br/>
+Target                   | Type          | Description
+-------------------------|---------------|-----------------------------------------------------------------------------------------------
+**tirex_tracker_full**   | Library       | A shared library containing `tirex_tracker` and all extensions.
+**measureext_ir**        | Library       | A shared library containing only the IR extension. `tirex_tracker´ must be loaded separately.
+**tirex_tracker**        | Library       | The `tirex_tracker´ shared library.
+**tirex_tracker_static** | Library       | The `tirex_tracker´ static library.
+**measure**              | Executable    | The measure command.
+**01_tracking**          | Executable    | Example 01: demonstrating basic tracking
+**02_list_measures**     | Executable    | Example 02: demonstrating how to fetch meta information through the API.
+**04_ir_extension**      | Executable    | Example 04: demonstrating the IR extension (`measureext_ir`).
+**tirex_tracker_docs**   | Documentation | Builds the documentation; Is only available if Doxygen is installed.
+**package**              | Package       | Builds a debian package.
+=======
 
-<!-- TODO: How to build the macOS or Windows library and where to find it? -->
-<!-- TODO: How to build the "minimal" library without the `ir_metadata` export? -->
-
-The Debian package is built by running:
+That means, to build the Debian package, run:
 
 ```shell
 cmake --build c/build/ --config Release --target package
 ```
 
 You will find the compiled Debian package file at `c/build/tirex-tracker-*-Linux.deb` (where `*` is the version).
+
+#### CMake Options
+Option                         | Description                                                                                         | Default
+-------------------------------|-----------------------------------------------------------------------------------------------------|---------
+`TIREX_TRACKER_ONLY_DOCS`      | Build only documentation -- this disables tests and others                                          | OFF
+`TIREX_TRACKER_BUILD_EXAMPLES` | Build the examples                                                                                  | OFF
+`TIREX_TRACKER_BUILD_DEB`      | Build debian package                                                                                | OFF
+`TIREX_TRACKER_BUILD_DOCS`     | Build the documentation                                                                             | OFF
+`TIREX_TRACKER_BUILD_CMD_DEB`  | Build the debian package for the measure command (`requires TIREX_TRACKER_BUILD_EXAMPLES` to be ON) | OFF
 
 <!-- TODO: C test instructions. -->
 

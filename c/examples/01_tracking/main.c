@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef _WINDOWS
+#if defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
 #include <synchapi.h>
 #include <time.h>
 #include <windows.h>
@@ -136,6 +136,8 @@ int main(int argc, char* argv[]) {
 			{TIREX_RAM_AVAILABLE_SYSTEM_MB, TIREX_AGG_NO},
 			{TIREX_RAM_ENERGY_SYSTEM_JOULES, TIREX_AGG_NO},
 			{TIREX_GPU_SUPPORTED, TIREX_AGG_NO},
+			{TIREX_GPU_MODEL_NAME, TIREX_AGG_NO},
+			{TIREX_GPU_NUM_CORES, TIREX_AGG_NO},
 			{TIREX_GPU_USED_PROCESS_PERCENT, TIREX_AGG_NO},
 			{TIREX_GPU_USED_SYSTEM_PERCENT, TIREX_AGG_NO},
 			{TIREX_GPU_VRAM_USED_PROCESS_MB, TIREX_AGG_NO},

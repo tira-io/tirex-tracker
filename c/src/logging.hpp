@@ -3,7 +3,7 @@
 
 #include <tirex_tracker.h>
 
-#if __cpp_lib_format
+#if __cpp_lib_format and __cplusplus >= 202207L // __cplusplus >= 202207L required for std::format_string
 #include <format>
 namespace _fmt = std;
 #else

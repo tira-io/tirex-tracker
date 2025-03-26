@@ -1,5 +1,4 @@
 from collections import defaultdict
-from contextlib import redirect_stdout
 from ctypes import (
     cdll,
     CDLL,
@@ -19,10 +18,8 @@ from importlib_metadata import distributions, version
 from importlib_resources import files
 from io import BytesIO
 from json import dumps, loads
-from os import PathLike
 from pathlib import Path
 from sys import modules as sys_modules, executable, argv, platform, version_info
-from tempfile import mkdtemp
 from traceback import extract_stack
 from typing import (
     ItemsView,
@@ -49,12 +46,16 @@ from typing import (
 )
 
 from IPython import get_ipython
-from typing_extensions import ParamSpec, Self  # type: ignore
+from typing_extensions import ParamSpec, Self, TypeAlias  # type: ignore
 from ruamel.yaml import YAML
+
+from tirex_tracker.archive_utils import create_code_archive, git_repo_or_none
 
 
 if TYPE_CHECKING:
     from ctypes import _Pointer as Pointer, _CFunctionType as CFunctionType, Array  # type: ignore
+
+PathLike: TypeAlias = Optional[Union[str, Path]]
 
 P = ParamSpec("P")
 T = TypeVar("T")
@@ -120,9 +121,12 @@ class Measure(IntEnum):
     PYTHON_INSTALLED_PACKAGES = 1004
     PYTHON_IS_INTERACTIVE = 1005
     PYTHON_SCRIPT_FILE_PATH = 1006
-    PYTHON_SCRIPT_FILE_CONTENTS = 1007
+    # 1007 was used in previous versions of the library.
     PYTHON_NOTEBOOK_FILE_PATH = 1008
-    PYTHON_NOTEBOOK_FILE_CONTENTS = 1009
+    # 1009 was used in previous versions of the library.
+    PYTHON_CODE_ARCHIVE_PATH = 1010
+    PYTHON_SCRIPT_FILE_PATH_IN_CODE_ARCHIVE = 1011
+    PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE = 1012
 
 
 _INVALID_MEASURE = -1
@@ -346,43 +350,25 @@ _PYTHON_MEASURES: Mapping[Measure, MeasureInfo] = {
         data_type=ResultType.STRING,
         example=dumps("/path/to/script.py"),
     ),
-    Measure.PYTHON_SCRIPT_FILE_CONTENTS: MeasureInfo(
-        description="Contents of the Python script file.",
-        data_type=ResultType.STRING,
-        example=dumps("""
-print("Hello, World!")
-"""),
-    ),
     Measure.PYTHON_NOTEBOOK_FILE_PATH: MeasureInfo(
         description="Path to the Jupyter notebook file.",
         data_type=ResultType.STRING,
         example=dumps("/path/to/notebook.ipynb"),
     ),
-    Measure.PYTHON_NOTEBOOK_FILE_CONTENTS: MeasureInfo(
-        description="Contents of the Jupyter notebook file.",
+    Measure.PYTHON_CODE_ARCHIVE_PATH: MeasureInfo(
+        description="The archive that contains a snapshot of the code.",
         data_type=ResultType.STRING,
-        example=dumps("""
-{
- "cells": [
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "print(\"Hello, World!\")"
-   ]
-  }
- ],
- "metadata": {
-  "language_info": {
-   "name": "python"
-  }
- },
- "nbformat": 4,
- "nbformat_minor": 2
-}
-"""),
+        example=dumps("/path/to/code.zip"),
+    ),
+    Measure.PYTHON_SCRIPT_FILE_PATH_IN_CODE_ARCHIVE: MeasureInfo(
+        description="The script that was executed in the code archive.",
+        data_type=ResultType.STRING,
+        example=dumps("script.py"),
+    ),
+    Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE: MeasureInfo(
+        description="The notebook that was executed in the code archive.",
+        data_type=ResultType.STRING,
+        example=dumps("notebook.ipynb"),
     ),
 }
 
@@ -407,7 +393,7 @@ def _add_python_result_entry(
 
 
 def _get_python_info(
-    measures: Iterable[Measure],
+    measures: Iterable[Measure], export_file_path: Optional[PathLike] = None
 ) -> Tuple[Mapping[Measure, ResultEntry], Iterable[Measure]]:
     results: MutableMapping[Measure, ResultEntry] = {}
 
@@ -464,69 +450,48 @@ def _get_python_info(
         value=is_interactive,
     )
 
-    if ipython is not None:
-        tmp_dir = mkdtemp()
-        tmp_dir_path = Path(tmp_dir)
-        script_file_path = tmp_dir_path / "script.py"
+    if ipython is None:
+        script_file_path = Path(extract_stack()[0].filename).resolve()
+        repo = git_repo_or_none(script_file_path)
+        if repo is not None and repo.working_tree_dir is not None:
+            script_file_path = script_file_path.relative_to(repo.working_tree_dir)
         _add_python_result_entry(
             results=results,
             measure=Measure.PYTHON_SCRIPT_FILE_PATH,
             measures=measures,
             value=str(script_file_path),
-        )
-        with redirect_stdout(None):
-            ipython.magic(f"save -f {script_file_path} 1-9999")
-        script_file_contents = script_file_path.read_text()
-        _add_python_result_entry(
-            results=results,
-            measure=Measure.PYTHON_SCRIPT_FILE_CONTENTS,
-            measures=measures,
-            value=script_file_contents,
-        )
-        notebook_file_path = tmp_dir_path / "notebook.ipynb"
-        _add_python_result_entry(
-            results=results,
-            measure=Measure.PYTHON_NOTEBOOK_FILE_PATH,
-            measures=measures,
-            value=str(notebook_file_path),
-        )
-        with redirect_stdout(None):
-            ipython.magic(f"notebook {notebook_file_path}")
-        notebook_file_contents = notebook_file_path.read_text()
-        _add_python_result_entry(
-            results=results,
-            measure=Measure.PYTHON_NOTEBOOK_FILE_CONTENTS,
-            measures=measures,
-            value=notebook_file_contents,
         )
 
-    else:
-        script_file_path = Path(extract_stack()[0].filename).resolve()
+    if export_file_path is not None:
+        # Create a utility directory as a sibling to the export file, containing the code archive.
+        metadata_directory_path = Path(export_file_path).parent / ".tirex-tracker"
+
+        # Clear and create the directory.
+        if metadata_directory_path.exists():
+            metadata_directory_path.rmdir()
+        metadata_directory_path.mkdir(parents=True)
+
+        archive_paths = create_code_archive(metadata_directory_path)
+
         _add_python_result_entry(
             results=results,
-            measure=Measure.PYTHON_SCRIPT_FILE_PATH,
+            measure=Measure.PYTHON_CODE_ARCHIVE_PATH,
             measures=measures,
-            value=str(script_file_path),
-        )
-        script_file_contents = script_file_path.read_text()
-        _add_python_result_entry(
-            results=results,
-            measure=Measure.PYTHON_SCRIPT_FILE_CONTENTS,
-            measures=measures,
-            value=script_file_contents,
-        )
-        _add_python_result_entry(
-            results=results,
-            measure=Measure.PYTHON_NOTEBOOK_FILE_PATH,
-            measures=measures,
-            value=None,
+            value=str(archive_paths.zip_file_path),
         )
         _add_python_result_entry(
             results=results,
-            measure=Measure.PYTHON_NOTEBOOK_FILE_CONTENTS,
+            measure=Measure.PYTHON_SCRIPT_FILE_PATH_IN_CODE_ARCHIVE,
             measures=measures,
-            value=None,
+            value=str(archive_paths.script_file_path_in_zip),
         )
+        if archive_paths.notebook_file_path_in_zip is not None:
+            _add_python_result_entry(
+                results=results,
+                measure=Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE,
+                measures=measures,
+                value=str(archive_paths.notebook_file_path_in_zip),
+            )
 
     measures = {
         measure for measure in measures if measure not in _PYTHON_MEASURES.keys()
@@ -752,14 +717,16 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
     def start(
         cls,
         measures: Iterable[Measure] = ALL_MEASURES,
-        poll_intervall_ms: int = -1,
+        poll_intervall_ms: int = 1000,
         system_name: Optional[str] = None,
         system_description: Optional[str] = None,
         export_file_path: Optional[PathLike] = None,
         export_format: Optional[ExportFormat] = None,
     ) -> Self:
         # Get Python info first, and then strip Python measures from the list.
-        python_info, measures = _get_python_info(measures=measures)
+        python_info, measures = _get_python_info(
+            measures=measures, export_file_path=export_file_path
+        )
 
         # Prepare the measure configurations.
         configs_array = _prepare_measure_configurations(measures)
@@ -906,18 +873,26 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         ir_metadata["implementation"]["python"]["interactive"] = loads(
             self._python_info[Measure.PYTHON_IS_INTERACTIVE].value
         )
-        ir_metadata["implementation"]["script"]["path"] = loads(
-            self._python_info[Measure.PYTHON_SCRIPT_FILE_PATH].value
+        if Measure.PYTHON_SCRIPT_FILE_PATH in self._python_info:
+            ir_metadata["implementation"]["script"]["path"] = loads(
+                self._python_info[Measure.PYTHON_SCRIPT_FILE_PATH].value
+            )
+        if Measure.PYTHON_NOTEBOOK_FILE_PATH in self._python_info:
+            ir_metadata["implementation"]["notebook"]["path"] = loads(
+                self._python_info[Measure.PYTHON_NOTEBOOK_FILE_PATH].value
+            )
+        ir_metadata["implementation"]["source"]["archive"]["path"] = loads(
+            self._python_info[Measure.PYTHON_CODE_ARCHIVE_PATH].value
         )
-        ir_metadata["implementation"]["script"]["contents"] = loads(
-            self._python_info[Measure.PYTHON_SCRIPT_FILE_CONTENTS].value
+        ir_metadata["implementation"]["source"]["archive"]["script path"] = loads(
+            self._python_info[Measure.PYTHON_SCRIPT_FILE_PATH_IN_CODE_ARCHIVE].value
         )
-        ir_metadata["implementation"]["notebook"]["path"] = loads(
-            self._python_info[Measure.PYTHON_NOTEBOOK_FILE_PATH].value
-        )
-        ir_metadata["implementation"]["notebook"]["contents"] = loads(
-            self._python_info[Measure.PYTHON_NOTEBOOK_FILE_CONTENTS].value
-        )
+        if Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE in self._python_info:
+            ir_metadata["implementation"]["source"]["archive"]["notebook path"] = loads(
+                self._python_info[
+                    Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE
+                ].value
+            )
 
         ir_metadata = _deep_merge(ir_metadata, tmp_ir_metadata)
         ir_metadata = _recursive_undefaultdict(ir_metadata)
@@ -938,7 +913,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
 # TODO: Add aggregation(s) (mapping) parameter.
 def start_tracking(
     measures: Iterable[Measure] = ALL_MEASURES,
-    poll_intervall_ms: int = -1,
+    poll_intervall_ms: int = 1000,
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
@@ -963,7 +938,7 @@ def stop_tracking(
 # TODO: Add aggregation(s) (mapping) parameter.
 def tracking(
     measures: Iterable[Measure] = ALL_MEASURES,
-    poll_intervall_ms: int = -1,
+    poll_intervall_ms: int = 1000,
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
@@ -974,7 +949,7 @@ def tracking(
         poll_intervall_ms=poll_intervall_ms,
         system_name=system_name,
         system_description=system_description,
-        export_file_path=export_file_path,
+        export_file_path=None if export_file_path is None else Path(export_file_path),
         export_format=export_format,
     )
 
@@ -983,7 +958,7 @@ def tracking(
 def track(
     block: Callable[[], None],
     measures: Iterable[Measure] = ALL_MEASURES,
-    poll_intervall_ms: int = -1,
+    poll_intervall_ms: int = 1000,
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
@@ -1021,7 +996,7 @@ def tracked(
 # TODO: Add aggregation(s) (mapping) parameter.
 def tracked(
     f_or_measures: Union[Callable[P, T], Iterable[Measure]] = ALL_MEASURES,
-    poll_intervall_ms: int = -1,
+    poll_intervall_ms: int = 1000,
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,

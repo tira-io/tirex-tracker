@@ -16,8 +16,6 @@
 
 #include <tuple>
 
-#pragma comment(lib, "Powrprof.lib")
-
 using namespace std::string_literals;
 using std::chrono::steady_clock;
 
@@ -101,7 +99,6 @@ static void getProcessorFrequencies(std::vector<uint32_t>& freq) {
 	SYSTEM_INFO si = {0};
 	GetSystemInfo(&si);
 
-	/** \todo keep this buffer as a member fo avoid reallocation **/
 	std::vector<PROCESSOR_POWER_INFORMATION> data(si.dwNumberOfProcessors);
 	DWORD dwSize = sizeof(PROCESSOR_POWER_INFORMATION) * si.dwNumberOfProcessors;
 	CallNtPowerInformation(ProcessorInformation, NULL, 0, &data[0], dwSize);
@@ -116,7 +113,6 @@ static uint64_t fileTimeToUint64(const FILETIME& ft) {
 }
 
 std::tuple<size_t, size_t> SystemStats::getSysAndUserTime() const {
-	HANDLE pid = GetCurrentProcess(); /** \todo move this into a member variable **/
 	FILETIME creationTime, exitTime, kernelTime, userTime;
 	if (GetProcessTimes(pid, &creationTime, &exitTime, &kernelTime, &userTime)) {
 		return {fileTimeToUint64(kernelTime), fileTimeToUint64(userTime)};
@@ -181,7 +177,6 @@ uint8_t SystemStats::getCPUUtilization() {
 }
 
 uint8_t SystemStats::getProcCPUUtilization() {
-	HANDLE pid = GetCurrentProcess(); /** \todo store in member **/
 	FILETIME ftime, fsys, fuser;
 	ULARGE_INTEGER now, sys, user;
 	size_t percent;
@@ -203,7 +198,6 @@ uint8_t SystemStats::getProcCPUUtilization() {
 }
 
 SystemStats::Utilization SystemStats::getUtilization() {
-	HANDLE pid = GetCurrentProcess(); /** \todo store in member **/
 	return Utilization{
 			.ramUsedKB = getRAMUsageKB(pid),
 			.cpuUtilization = getProcCPUUtilization(),

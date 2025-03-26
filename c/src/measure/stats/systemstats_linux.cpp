@@ -52,7 +52,6 @@ size_t SystemStats::tickToMs(size_t tick) {
 }
 
 std::tuple<size_t, size_t> SystemStats::getSysAndUserTime() const {
-	auto pid = getpid(); /** \todo store in member **/
 	// Table 1-4 in https://www.kernel.org/doc/html/latest/filesystems/proc.html
 	auto statFile = std::filesystem::path("/") / "proc" / std::to_string(pid) / "stat";
 	auto is = std::ifstream(statFile.c_str());
@@ -79,7 +78,7 @@ SystemStats::SysInfo SystemStats::getSysInfo() {
 }
 
 void SystemStats::start() {
-	tirex::log::info("linuxstats", "Collecting resources for Process {}", getpid());
+	tirex::log::info("linuxstats", "Collecting resources for Process {}", pid);
 	starttime = steady_clock::now();
 	std::tie(startSysTime, startUTime) = getSysAndUserTime();
 	tirex::log::debug("linuxstats", "Start systime {} ms, utime {} ms", tickToMs(startSysTime), tickToMs(startUTime));
@@ -140,7 +139,6 @@ std::string readDistro() {
 
 SystemStats::Utilization SystemStats::getUtilization() {
 	Utilization utilization;
-	auto pid = getpid();
 	parseStat(utilization);
 	parseStatm(pid, utilization);
 

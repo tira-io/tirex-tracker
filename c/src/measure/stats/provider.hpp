@@ -5,6 +5,7 @@
 
 #include "../measure.hpp"
 
+#include <concepts>
 #include <functional>
 #include <map>
 #include <memory>
@@ -19,8 +20,18 @@ namespace tirex {
 	tirexResult_st* createMsrResultFromStats(Stats&& stats);
 
 	class StatsProvider {
+	protected:
+		std::set<tirexMeasure> enabled;
+
 	public:
 		virtual ~StatsProvider() = default;
+
+		void requestMeasures(const std::set<tirexMeasure>& measures) noexcept;
+
+		/**
+		 * @brief The set of measures that the provider can provide.
+		 */
+		virtual std::set<tirexMeasure> providedMeasures() noexcept = 0;
 
 		/**
 		 * @brief Start is called once at the very beginning of collecting statistics and shortly before the command is
@@ -55,7 +66,20 @@ namespace tirex {
 	using ProviderConstructor = std::function<std::unique_ptr<StatsProvider>(void)>;
 	struct ProviderEntry final {
 		ProviderConstructor constructor;
-		const std::set<tirexMeasure>& measures; /**< The set of measures that the provider is responsible for */
+		/**
+		 * @brief The set of measures that the provider can provide in principle.
+		 * @details This field can be used to instantiate only relevant providers (e.g., if only energy metrics are
+		 * requested, then initializing the git provider may be skipped). AS such, the measures listed here must contain
+		 * all measures that the provider can at most support. But StatsProvider::providedMeasures may return only a
+		 * subset if it can not support these measures on the system. E.g., the Git provider may not support measures if
+		 * it cannot detect a git repository.
+		 */
+		const std::set<tirexMeasure>& measures;
+		/**
+		 * @brief A version string describing the provider and its data sources.
+		 * @details This (potentially multiline) string can be used to pass information on dependencies to the caller.
+		 * This may be useful for debugging purposes. E.g., the Git provider could report the version of libgit used.
+		 */
 		const char* version;
 		const char* description;
 	};
@@ -63,6 +87,18 @@ namespace tirex {
 
 	std::set<tirexMeasure>
 	initProviders(std::set<tirexMeasure> measures, std::vector<std::unique_ptr<StatsProvider>>& providers);
+
+	Stats makeFilteredStats(
+			const std::set<tirexMeasure>& filter,
+			const std::convertible_to<std::pair<tirexMeasure, StatVal>> auto&&... args
+	) {
+		Stats stats;
+		for (auto&& arg : {std::pair<tirexMeasure, StatVal>(args)...}) {
+			if (filter.contains(arg.first))
+				stats.insert(std::move(arg));
+		}
+		return stats;
+	}
 } // namespace tirex
 
 #endif

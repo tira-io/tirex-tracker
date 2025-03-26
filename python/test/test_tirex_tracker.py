@@ -1,3 +1,4 @@
+from faulthandler import enable as faulthandler_enable
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import sleep
@@ -19,9 +20,7 @@ from tirex_tracker import (
     ExportFormat,
 )
 
-import faulthandler
-
-faulthandler.enable()
+faulthandler_enable()
 
 
 def test_provider_infos() -> None:
