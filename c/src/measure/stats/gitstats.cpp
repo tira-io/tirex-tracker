@@ -5,6 +5,7 @@
 
 #include <git2.h>
 #include <sha1.h>
+#include <zip.h>
 
 #include <filesystem>
 #include <fstream>
@@ -128,6 +129,11 @@ static std::string hashAllFiles(git_repository* repo) {
 	std::filesystem::path root = git_repository_workdir(repo);
 	for (size_t i = 0; i < changes; ++i) {
 		auto entry = git_status_byindex(list, i);
+		/** \todo root / entry->index_to_workdir->new_file.path may be a directory and this case is not yet handled correctly **/
+		if (!std::filesystem::is_regular_file(root / entry->index_to_workdir->new_file.path)) {
+			tirex::log::critical("gitstats", "I can not yet compute the hash correctly if there are unchecked folders");
+			abort();
+		}
 		std::ifstream is(root / entry->index_to_workdir->new_file.path, std::ios::binary);
 		if (!is) {
 			tirex::log::error("gitstats", "Error opening file: {}", entry->index_to_workdir->new_file.path);
@@ -138,6 +144,49 @@ static std::string hashAllFiles(git_repository* repo) {
 	}
 	git_status_list_free(list);
 	return hash.finalize().toString();
+}
+
+static bool repoToArchive(git_repository* repo, const std::filesystem::path& archive) {
+	std::filesystem::path root = git_repository_workdir(repo);
+	tirex::log::debug("gitstats", "Archiving git repo at root {} to {}", root.c_str(), archive.c_str());
+	int err;
+	auto handle = zip_open(archive.c_str(), ZIP_CREATE, &err);
+	if (handle == nullptr) {
+		zip_error_t error;
+		zip_error_init_with_code(&error, err);
+		tirex::log::error("gitstats", "Failed to create zip archive: {}", zip_error_strerror(&error));
+		zip_error_fini(&error);
+		return false;
+	}
+	git_status_list* list;
+	git_status_options opts = GIT_STATUS_OPTIONS_INIT;
+	opts.flags = GIT_STATUS_OPT_INCLUDE_UNTRACKED | GIT_STATUS_OPT_INCLUDE_UNMODIFIED;
+	git_status_list_new(&list, repo, &opts);
+	auto changes = git_status_list_entrycount(list);
+	for (size_t i = 0; i < changes; ++i) {
+		auto entry = git_status_byindex(list, i);
+		auto path = root / entry->index_to_workdir->new_file.path;
+		/** \todo root / entry->index_to_workdir->new_file.path may be a directory and this case is not yet handled correctly **/
+		if (!std::filesystem::is_regular_file(path)) {
+			tirex::log::critical("gitstats", "I can not yet archive correctly if there are unchecked folders");
+			abort();
+		}
+		auto source = zip_source_file(handle, path.c_str(), 0, 0);
+		if (source == nullptr) {
+			tirex::log::error("gitstats", "Error reading file: {}", entry->index_to_workdir->new_file.path);
+			continue;
+		}
+		if (zip_file_add(handle, entry->index_to_workdir->new_file.path, source, ZIP_FL_OVERWRITE) < 0) {
+			tirex::log::error("gitstats", "Error adding file to archive: {}", entry->index_to_workdir->new_file.path);
+			continue;
+		}
+	}
+	git_status_list_free(list);
+	if (zip_close(handle) < 0) {
+		tirex::log::error("gitstats", "Failed to write out archive: {}", zip_strerror(handle));
+		return false;
+	}
+	return true;
 }
 
 struct GitStatusStats {
@@ -204,6 +253,7 @@ Stats GitStats::getInfo() {
 				status.numNew
 		);
 		tirex::log::info("gitstats", "Local is {} commits ahead and {} behind upstream", status.ahead, status.behind);
+		repoToArchive(repo, std::filesystem::current_path() / "test.zip");
 		auto [local, remote] = getBranchName(repo);
 		return makeFilteredStats(
 				enabled, std::pair{TIREX_GIT_IS_REPO, "1"s}, std::pair{TIREX_GIT_HASH, hashAllFiles(repo)},
