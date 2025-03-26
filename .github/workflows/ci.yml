@@ -29,7 +29,15 @@ jobs:
           - gcc-13
           - gcc-14
           - clang-19.1.0
+          - msvc
         exclude:
+          - {runs-on: ubuntu-20.04, compiler: msvc}  # MSVC only supported windows
+          - {runs-on: ubuntu-22.04, compiler: msvc}  # MSVC only supported windows
+          - {runs-on: ubuntu-24.04, compiler: msvc}  # MSVC only supported windows
+          - {runs-on: macos-13,     compiler: msvc}  # MSVC only supported windows
+          - {runs-on: macos-14,     compiler: msvc}  # MSVC only supported windows
+          - {runs-on: macos-15,     compiler: msvc}  # MSVC only supported windows
+          - {runs-on: windows-2019, compiler: msvc}  # Internal error of the MSVC parser
           - runs-on: ubuntu-20.04
             compiler: gcc-14 # Cannot be installed.
           - runs-on: ubuntu-22.04
@@ -46,6 +54,9 @@ jobs:
             compiler: clang-19.1.0 # setup-cpp fails to setup
           - runs-on: macos-15
             compiler: clang-19.1.0 # Known issue with clang (https://github.com/llvm/llvm-project/issues/109549)
+          - {runs-on: windows-2019, compiler: clang-19.1.0}  # Wrongly configured by the action TODO: reenable once fixed
+          - {runs-on: windows-2022, compiler: clang-19.1.0}  # Wrongly configured by the action TODO: reenable once fixed
+          - {runs-on: windows-2025, compiler: clang-19.1.0}  # Wrongly configured by the action TODO: reenable once fixed
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
@@ -57,7 +68,7 @@ jobs:
           cmake: "3.31.6"
           setup-cpp: false
       - name: 🔧 Configure CMake
-        run: cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=${{ env.CC }} -D CMAKE_CXX_COMPILER=${{ env.CXX }} -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=NO
+        run: cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=NO
       - name: 🏗️ Build library
         run: cmake --build c/build/ --config Release --target tirex_tracker_full
       - name: 📤 Upload Linux library
@@ -73,7 +84,7 @@ jobs:
           name: c-library-macos
           path: c/build/extensions/libtirex_tracker_full.dylib
       - name: 📤 Upload Windows library
-        if: matrix.runs-on == 'windows-2022' && matrix.compiler == 'clang-19.1.0'
+        if: matrix.runs-on == 'windows-2022' && matrix.compiler == 'msvc'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-windows
@@ -111,7 +122,15 @@ jobs:
           - gcc-13
           - gcc-14
           - clang-19.1.0
+          - msvc
         exclude:
+          - {runs-on: ubuntu-20.04, compiler: msvc}  # MSVC only supported windows
+          - {runs-on: ubuntu-22.04, compiler: msvc}  # MSVC only supported windows
+          - {runs-on: ubuntu-24.04, compiler: msvc}  # MSVC only supported windows
+          - {runs-on: macos-13,     compiler: msvc}  # MSVC only supported windows
+          - {runs-on: macos-14,     compiler: msvc}  # MSVC only supported windows
+          - {runs-on: macos-15,     compiler: msvc}  # MSVC only supported windows
+          - {runs-on: windows-2019, compiler: msvc}  # Internal error of the MSVC parser
           - runs-on: ubuntu-20.04
             compiler: gcc-14 # Cannot be installed.
           - runs-on: ubuntu-22.04
@@ -128,6 +147,9 @@ jobs:
             compiler: clang-19.1.0 # setup-cpp fails to setup
           - runs-on: macos-15
             compiler: clang-19.1.0 # Known issue with clang (https://github.com/llvm/llvm-project/issues/109549)
+          - {runs-on: windows-2019, compiler: clang-19.1.0}  # Wrongly configured by the action TODO: reenable once fixed
+          - {runs-on: windows-2022, compiler: clang-19.1.0}  # Wrongly configured by the action TODO: reenable once fixed
+          - {runs-on: windows-2025, compiler: clang-19.1.0}  # Wrongly configured by the action TODO: reenable once fixed
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
@@ -140,7 +162,7 @@ jobs:
           setup-cpp: false
       - name: 🔧 Configure CMake
         run: |
-          cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=${{ env.CC }} -D CMAKE_CXX_COMPILER=${{ env.CXX }} -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=YES
+          cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=YES
       - name: 🏗️ Build CLI
         run: cmake --build c/build/ --config Release --target measure
       - name: 📤 Upload Linux CLI
@@ -156,7 +178,7 @@ jobs:
           name: c-cli-macos
           path: c/build/examples/03_measure_command/measure
       - name: 📤 Upload Windows CLI
-        if: matrix.runs-on == 'windows-2022' && matrix.compiler == 'clang-19.1.0'
+        if: matrix.runs-on == 'windows-2022' && matrix.compiler == 'msvc'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-windows
@@ -174,7 +196,7 @@ jobs:
           cmake: true
       - name: 🔧 Configure CMake
         run: |
-          cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=${{ env.CC }} -D CMAKE_CXX_COMPILER=${{ env.CXX }} -D LLVM_ENABLE_ZLIB=OFF -D LLVM_ENABLE_ZSTD=OFF -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=YES -D TIREX_TRACKER_BUILD_EXAMPLES=NO
+          cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D LLVM_ENABLE_ZLIB=OFF -D LLVM_ENABLE_ZSTD=OFF -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=YES -D TIREX_TRACKER_BUILD_EXAMPLES=NO
       - name: 🏗️ Build Debian package
         run: cmake --build c/build/ --config Release --target package
       - name: 📤 Upload Debian package

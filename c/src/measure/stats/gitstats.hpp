@@ -16,6 +16,7 @@ namespace tirex {
 
 		bool isRepository() const noexcept;
 
+		std::set<tirexMeasure> providedMeasures() noexcept override;
 		Stats getInfo() override;
 
 		static constexpr const char* description = "Collects git related metrics.";

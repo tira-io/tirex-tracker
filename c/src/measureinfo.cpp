@@ -19,11 +19,11 @@ static const tirexMeasureInfo measureInfos[]{
 		/*[TIREX_OS_NAME] = */
 		{.description = "Name and version of the operating system under which is currently running.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "TODO"},
+		 .example = "Fedora Linux 41 (Workstation Edition)"},
 		/*[TIREX_OS_KERNEL] = */
 		{.description = "The version of the kernel that the operating system is running on.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "TODO"},
+		 .example = "Linux 6.12.8-200.fc41.x86_64 x86_64"},
 		// Time
 		/*[TIREX_TIME_ELAPSED_WALL_CLOCK_MS] = */
 		{.description = "The (\"real\") wall clock time in milliseconds elapsed during tracking.",
@@ -41,35 +41,40 @@ static const tirexMeasureInfo measureInfos[]{
 		/*[TIREX_CPU_USED_PROCESS_PERCENT] = */
 		{.description = "CPU usage of the tracked process in percent per logical CPU cores.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "TODO"},
+		 .example = "{max: 117, min: 0, avg: 0, timeseries: {timestamps: [108ms], values: [57]}}"},
 		/*[TIREX_CPU_USED_SYSTEM_PERCENT] = */
 		{.description = "CPU usage of the entire system in percent per logical CPU cores.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "TODO"},
+		 .example = "{max: 17, min: 0, avg: 0, timeseries: {timestamps: [108ms], values: [9]}}"},
 		/*[TIREX_CPU_AVAILABLE_SYSTEM_CORES] = */
 		{.description = "Number of CPU cores available in the system.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "TODO"},
+		 .example = "8"},
 		/*[TIREX_CPU_ENERGY_SYSTEM_JOULES] = */
 		{.description = "The energy consumed by the CPU by the entire system over the tracked period in joules. ",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "TODO"},
+		 .example = "2970137"},
 		/*[TIREX_CPU_FEATURES] = */
 		{.description = "List of hardware features the CPU supports (e.g., the instruction set, encryption "
 						"capabilities).",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "TODO"},
+		 .example = "rdtsc rdtscp rdpid clzero mwait mwaitx fxsave xsave fpu mmx mmx_plus prefetch prefetchw daz sse "
+					"sse2 sse3 ssse3 sse4_1 sse4_2 sse4a misaligned_sse avx fma3 f16c avx2 avx512f avx512cd avx512dq "
+					"avx512bw avx512vl avx512ifma avx512vbmi avx512vbmi2 avx512bitalg avx512vpopcntdq avx512vnni "
+					"avx512bf16 cmov cmpxchg8b cmpxchg16b clwb movbe lahf_sahf lzcnt popcnt bmi bmi2 adx aes vaes "
+					"pclmulqdq vpclmulqdq gfni rdrand rdseed sha"},
 		/*[TIREX_CPU_FREQUENCY_MHZ] = */
-		{.description = "Current CPU speed in megahertz.", .datatype = tirexResultType::TIREX_STRING, .example = "TODO"
-		},
+		{.description = "Current CPU speed in megahertz.",
+		 .datatype = tirexResultType::TIREX_STRING,
+		 .example = "{max: 0, min: 0, avg: 0, timeseries: {timestamps: [108ms], values: [0]}}"},
 		/*[TIREX_CPU_FREQUENCY_MIN_MHZ] = */
 		{.description = "Minimum possible CPU speed in megahertz.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "TODO"},
+		 .example = "400"},
 		/*[TIREX_CPU_FREQUENCY_MAX_MHZ] = */
 		{.description = "Maximum possible CPU speed in megahertz. ",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "TODO"},
+		 .example = "3801"},
 		/*[TIREX_CPU_VENDOR_ID] = */
 		{.description = "A textual name for the vendor of the CPU.",
 		 .datatype = tirexResultType::TIREX_STRING,
@@ -106,56 +111,56 @@ static const tirexMeasureInfo measureInfos[]{
 		/*[TIREX_RAM_USED_PROCESS_KB] = */
 		{.description = "RAM usage of the tracked process in kilobytes.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "TODO"},
+		 .example = "{max: 21630, min: 0, avg: 0, timeseries: {timestamps: [108ms], values: [21630]}}"},
 		/*[TIREX_RAM_USED_SYSTEM_MB] = */
 		{.description = "RAM usage of the entire system in megabytes. ",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "TODO"},
+		 .example = "{max: 22040, min: 0, avg: 0, timeseries: {timestamps: [108ms], values: [22040]}}"},
 		/*[TIREX_RAM_AVAILABLE_SYSTEM_MB] = */
 		{.description = "Amount of RAM available in the system in megabytes.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "TODO"},
+		 .example = "32888"},
 		/*[TIREX_RAM_ENERGY_SYSTEM_JOULES] = */
 		{.description = "The energy consumed by the DRAM by the entire system over the tracked period in joules.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "TODO"},
+		 .example = "2970137"},
 		// GPU
 		/*[TIREX_GPU_SUPPORTED] = */
 		{.description = "1 if a GPU is detected in the system, and we support tracking it; 0 otherwise.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "TODO"},
+		 .example = "1"},
 		/*[TIREX_GPU_MODEL_NAME] = */
 		{.description = "The name of the GPU model detected in the system.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "TODO"},
+		 .example = "NVIDIA GeForce RTX 2060"},
 		/*[TIREX_GPU_NUM_CORES] = */
 		{.description = "Number of GPU cores available in the system.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "TODO"},
+		 .example = "1920"},
 		/*[TIREX_GPU_USED_PROCESS_PERCENT] = */
 		{.description = "GPU usage of the tracked process in percent.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "TODO"},
+		 .example = "{max: 23, min: 0, avg: 0, timeseries: {timestamps: [108ms], values: [23]}}"},
 		/*[TIREX_GPU_USED_SYSTEM_PERCENT] = */
 		{.description = "GPU utilization of the entire system in percent.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "TODO"},
+		 .example = "{max: 23, min: 0, avg: 0, timeseries: {timestamps: [108ms], values: [23]}}"},
 		/*[TIREX_GPU_VRAM_USED_PROCESS_MB] = */
 		{.description = "GPU VRAM usage of the tracked process in megabyte.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "TODO"},
+		 .example = "{max: 1557, min: 0, avg: 0, timeseries: {timestamps: [105ms], values: [1557]}}"},
 		/*[TIREX_GPU_VRAM_USED_SYSTEM_MB] = */
 		{.description = "GPU VRAM usage of the entire system in megabytes.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "TODO"},
+		 .example = "{max: 1557, min: 0, avg: 0, timeseries: {timestamps: [105ms], values: [1557]}}"},
 		/*[TIREX_GPU_VRAM_AVAILABLE_SYSTEM_MB] = */
 		{.description = "Amount of GPU VRAM available in the system in megabytes.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "TODO"},
+		 .example = "6442"},
 		/*[TIREX_GPU_ENERGY_SYSTEM_JOULES] = */
 		{.description = "The energy consumed by the GPU for the entire system in joules.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "TODO"},
+		 .example = "2970137"},
 		// Git
 		/*[TIREX_GIT_IS_REPO] = */
 		{.description = "1 if the current working directory is (part of) a Git repository; 0 otherwise",

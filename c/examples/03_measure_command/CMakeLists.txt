@@ -16,13 +16,13 @@ option(TIREX_TRACKER_BUILD_CMD_DEB "Build the debian package for the measure com
 ##########################################################################################
 include(FetchContent)
 # spdlog for logging
-FetchContent_Declare(spdlog GIT_REPOSITORY https://github.com/gabime/spdlog.git GIT_TAG v1.14.1)
+FetchContent_Declare(spdlog GIT_REPOSITORY https://github.com/gabime/spdlog.git GIT_TAG v1.14.1 EXCLUDE_FROM_ALL)
 FetchContent_MakeAvailable(spdlog)
 set_property(TARGET spdlog PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(measure spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 
 # CLI11
-FetchContent_Declare(cli11 GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git GIT_TAG v2.4.2)
+FetchContent_Declare(cli11 GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git GIT_TAG v2.4.2 EXCLUDE_FROM_ALL)
 FetchContent_MakeAvailable(cli11)
 target_link_libraries(measure CLI11::CLI11)
 
@@ -40,7 +40,7 @@ if(NOT TIREX_TRACKER_ONLY_DOCS AND (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AN
 	SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "not-set")
 	SET(CPACK_PACKAGE_VERSION "0.0.1rc")
 	include(GNUInstallDirs)
-	SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "TODO")
+	SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Automatic resource and metadata tracking")
 	SET(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/../../../README.md")
 	SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../../../LICENSE")
 	SET(CPACK_DEBIAN_PACKAGE_DEPENDS "")
