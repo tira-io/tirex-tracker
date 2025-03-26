@@ -29,7 +29,15 @@ jobs:
           - gcc-13
           - gcc-14
           - clang-19.1.0
+          - msvc
         exclude:
+          - {runs-on: ubuntu-20.04, compiler: msvc}  # MSVC only supported windows
+          - {runs-on: ubuntu-22.04, compiler: msvc}  # MSVC only supported windows
+          - {runs-on: ubuntu-24.04, compiler: msvc}  # MSVC only supported windows
+          - {runs-on: macos-13,     compiler: msvc}  # MSVC only supported windows
+          - {runs-on: macos-14,     compiler: msvc}  # MSVC only supported windows
+          - {runs-on: macos-15,     compiler: msvc}  # MSVC only supported windows
+          - {runs-on: windows-2019, compiler: msvc}  # Internal error of the MSVC parser
           - runs-on: ubuntu-20.04
             compiler: gcc-14 # Cannot be installed.
           - runs-on: ubuntu-22.04
@@ -46,6 +54,9 @@ jobs:
             compiler: clang-19.1.0 # setup-cpp fails to setup
           - runs-on: macos-15
             compiler: clang-19.1.0 # Known issue with clang (https://github.com/llvm/llvm-project/issues/109549)
+          - {runs-on: windows-2019, compiler: clang-19.1.0}  # Wrongly configured by the action TODO: reenable once fixed
+          - {runs-on: windows-2022, compiler: clang-19.1.0}  # Wrongly configured by the action TODO: reenable once fixed
+          - {runs-on: windows-2025, compiler: clang-19.1.0}  # Wrongly configured by the action TODO: reenable once fixed
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
@@ -111,7 +122,15 @@ jobs:
           - gcc-13
           - gcc-14
           - clang-19.1.0
+          - msvc
         exclude:
+          - {runs-on: ubuntu-20.04, compiler: msvc}  # MSVC only supported windows
+          - {runs-on: ubuntu-22.04, compiler: msvc}  # MSVC only supported windows
+          - {runs-on: ubuntu-24.04, compiler: msvc}  # MSVC only supported windows
+          - {runs-on: macos-13,     compiler: msvc}  # MSVC only supported windows
+          - {runs-on: macos-14,     compiler: msvc}  # MSVC only supported windows
+          - {runs-on: macos-15,     compiler: msvc}  # MSVC only supported windows
+          - {runs-on: windows-2019, compiler: msvc}  # Internal error of the MSVC parser
           - runs-on: ubuntu-20.04
             compiler: gcc-14 # Cannot be installed.
           - runs-on: ubuntu-22.04
@@ -128,6 +147,9 @@ jobs:
             compiler: clang-19.1.0 # setup-cpp fails to setup
           - runs-on: macos-15
             compiler: clang-19.1.0 # Known issue with clang (https://github.com/llvm/llvm-project/issues/109549)
+          - {runs-on: windows-2019, compiler: clang-19.1.0}  # Wrongly configured by the action TODO: reenable once fixed
+          - {runs-on: windows-2022, compiler: clang-19.1.0}  # Wrongly configured by the action TODO: reenable once fixed
+          - {runs-on: windows-2025, compiler: clang-19.1.0}  # Wrongly configured by the action TODO: reenable once fixed
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
