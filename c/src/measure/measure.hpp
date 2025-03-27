@@ -116,6 +116,11 @@ namespace tirex {
 
 		TimeSeries& operator=(TimeSeries&& other) = default;
 
+		/**
+		 * @brief Adds a new value to the time series at the current time (clock::now()).
+		 * 
+		 * @param value The value to be added for the current point in time.
+		 */
 		void addValue(const T& value) noexcept {
 			if (storeSeries) {
 				auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(clock::now() - starttime);
@@ -132,9 +137,36 @@ namespace tirex {
 			/** \todo update average **/
 		}
 
+		/**
+		 * @brief The largest value encountered in the time series.
+		 * @details It is undefined behavior to call this on an empty time series.
+		 * 
+		 * @return The largest value encountered in the time series.
+		 */
 		const T& maxValue() const noexcept { return max; }
+
+		/**
+		 * @brief The smallest value encountered in the time series.
+		 * @details It is undefined behavior to call this on an empty time series.
+		 * 
+		 * @return The smallest value encountered in the time series.
+		 */
 		const T& minValue() const noexcept { return min; }
+
+		/**
+		 * @brief The (potentially approximated) average over all values encountered in the time series.
+		 * @details It is undefined behavior to call this on an empty time series.
+		 * 
+		 * @return The (potentially approximated) average over all values encountered in the time series.
+		 */
 		const T& avgValue() const noexcept { return avg; }
+
+		/**
+		 * @brief A pair of timepoint and data vectors. Where the i-th data entry denotes the value of the time series
+		 * at the i-th timepoint.
+		 * 
+		 * @return A pair of timepoint and data vectors.
+		 */
 		const std::pair<const std::vector<std::chrono::milliseconds>&, const std::vector<T>&>
 		timeseries() const noexcept {
 			return {timepoints, values};
