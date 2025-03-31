@@ -38,7 +38,8 @@
 				],
 				"cmake.configureSettings": {
 					"TIREX_TRACKER_BUILD_EXAMPLES": true,
-					"TIREX_TRACKER_BUILD_DOCS": true
+					"TIREX_TRACKER_BUILD_DOCS": true,
+					"TIREX_TRACKER_BUILD_TESTS": true
 				},
 				"launch": {
 					"version": "0.2.0",
