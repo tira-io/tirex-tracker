@@ -55,12 +55,24 @@ def _create_notebook_zip_archive(
     with redirect_stdout(None):
         ipython.run_line_magic("save", f"-f {script_file_path} 1-9999")
         ipython.run_line_magic("notebook", str(notebook_file_path))
-    return _create_zip_archive(
+    ret = _create_zip_archive(
         metadata_directory_path=metadata_directory_path,
         base_directory_path=metadata_directory_path,
         script_file_path=script_file_path,
         notebook_file_path=notebook_file_path,
     )
+
+    script_file_path.unlink()
+    notebook_file_path.unlink()
+
+    return ret
+
+
+def git_repo_or_none(script_file_path: Path) -> Optional[Repo]:
+    try:
+        return Repo(script_file_path, search_parent_directories=True)
+    except InvalidGitRepositoryError:
+        return None
 
 
 def create_git_zip_archive(
@@ -72,10 +84,8 @@ def create_git_zip_archive(
 
     :param directory_path_in_git_repository: A directory that is inside the Git repository that should be archived.
     """
-
-    try:
-        repo = Repo(script_file_path, search_parent_directories=True)
-    except InvalidGitRepositoryError:
+    repo = git_repo_or_none(script_file_path)
+    if repo is None:
         return None
 
     working_tree_dir = repo.working_tree_dir
