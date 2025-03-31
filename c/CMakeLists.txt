@@ -48,7 +48,7 @@ if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND TIREX_TRACKER_BUILD_DOCS)
 	set(DOXYGEN_GENERATE_HTML "YES")
 
     ## Install and configure the "Doxygen Awesome" theme
-	FetchContent_Declare(doxawesome GIT_REPOSITORY https://github.com/jothepro/doxygen-awesome-css GIT_TAG v2.3.4)
+	FetchContent_Declare(doxawesome GIT_REPOSITORY https://github.com/jothepro/doxygen-awesome-css GIT_TAG v2.3.4 EXCLUDE_FROM_ALL)
 	FetchContent_MakeAvailable(doxawesome)
 	set(DOXYGEN_GENERATE_TREEVIEW "NO")
 	set(DOXYGEN_DISABLE_INDEX "NO")
@@ -81,7 +81,7 @@ if(NOT TIREX_TRACKER_ONLY_DOCS AND (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AN
 	SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "not-set")
 	SET(CPACK_PACKAGE_VERSION "0.0.1rc")
 	include(GNUInstallDirs)
-	SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "TODO")
+	SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Automatic resource and metadata tracking")
 	SET(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/../README.md")
 	SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE")
 	SET(CPACK_DEBIAN_PACKAGE_DEPENDS "")
