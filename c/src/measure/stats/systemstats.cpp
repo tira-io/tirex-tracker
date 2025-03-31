@@ -456,8 +456,9 @@ Stats SystemStats::getStats() {
 			enabled, std::pair{TIREX_TIME_ELAPSED_WALL_CLOCK_MS, wallclocktime},
 			std::pair{TIREX_TIME_ELAPSED_USER_MS, std::to_string(tickToMs(stopUTime - startUTime))},
 			std::pair{TIREX_TIME_ELAPSED_SYSTEM_MS, std::to_string(tickToMs(stopSysTime - startSysTime))},
-			std::pair{TIREX_CPU_USED_PROCESS_PERCENT, cpuUtil}, std::pair{TIREX_CPU_USED_SYSTEM_PERCENT, sysCpuUtil},
-			std::pair{TIREX_CPU_FREQUENCY_MHZ, frequency}, std::pair{TIREX_RAM_USED_PROCESS_KB, ram},
-			std::pair{TIREX_RAM_USED_SYSTEM_MB, sysRam}
+			std::pair{TIREX_CPU_USED_PROCESS_PERCENT, std::ref(cpuUtil)},
+			std::pair{TIREX_CPU_USED_SYSTEM_PERCENT, std::ref(sysCpuUtil)},
+			std::pair{TIREX_CPU_FREQUENCY_MHZ, std::ref(frequency)},
+			std::pair{TIREX_RAM_USED_PROCESS_KB, std::ref(ram)}, std::pair{TIREX_RAM_USED_SYSTEM_MB, std::ref(sysRam)}
 	);
 }

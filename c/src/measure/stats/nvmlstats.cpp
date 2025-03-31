@@ -195,9 +195,9 @@ Stats NVMLStats::getStats() {
 	if (nvml.supported) {
 		return makeFilteredStats(
 				enabled, std::pair{TIREX_GPU_USED_PROCESS_PERCENT, "TODO"s},
-				std::pair{TIREX_GPU_USED_SYSTEM_PERCENT, nvml.utilizationTotal},
+				std::pair{TIREX_GPU_USED_SYSTEM_PERCENT, std::ref(nvml.utilizationTotal)},
 				std::pair{TIREX_GPU_VRAM_USED_PROCESS_MB, "TODO"s},
-				std::pair{TIREX_GPU_VRAM_USED_SYSTEM_MB, nvml.vramUsageTotal}
+				std::pair{TIREX_GPU_VRAM_USED_SYSTEM_MB, std::ref(nvml.vramUsageTotal)}
 		);
 	} else {
 		return {};

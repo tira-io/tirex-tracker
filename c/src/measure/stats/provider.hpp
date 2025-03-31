@@ -3,7 +3,7 @@
 
 #include <tirex_tracker.h>
 
-#include "../measure.hpp"
+#include "../timeseries.hpp"
 
 #include <concepts>
 #include <functional>
@@ -14,7 +14,7 @@
 #include <variant>
 
 namespace tirex {
-	using StatVal = std::variant<std::string, tirex::TimeSeries<unsigned>>;
+	using StatVal = std::variant<std::string, std::reference_wrapper<tirex::TimeSeries<unsigned>>>;
 	using Stats = std::map<tirexMeasure, StatVal>;
 
 	tirexResult_st* createMsrResultFromStats(Stats&& stats);
