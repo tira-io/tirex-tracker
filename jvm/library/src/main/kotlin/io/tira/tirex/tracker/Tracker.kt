@@ -12,6 +12,7 @@ import org.yaml.snakeyaml.Yaml
 import java.io.Closeable
 import java.io.File
 import java.nio.file.Path
+import java.util.zip.GZIPOutputStream
 
 private const val ENCODING = "ascii"
 
@@ -671,9 +672,35 @@ class TrackingHandle private constructor(
     private fun export(result: Pointer) {
         if (exportFilePath == null) return
         when (exportFormat) {
-            null -> return
+            null -> exportGuessedFormat(result)
             ExportFormat.IR_METADATA -> exportIrMetadata(result)
         }
+    }
+
+    private fun exportGuessedFormat(result: Pointer) {
+        if (exportFilePath == null) return
+        else if (
+            listOf(
+                "ir_metadata",
+                "ir-metadata",
+                "irmetadata",
+                "ir_metadata.yml",
+                "ir-metadata.yml",
+                "irmetadata.yml",
+                "ir_metadata.yaml",
+                "ir-metadata.yaml",
+                "irmetadata.yaml",
+                "ir_metadata.gz",
+                "ir-metadata.gz",
+                "irmetadata.gz",
+                "ir_metadata.yml.gz",
+                "ir-metadata.yml.gz",
+                "irmetadata.yml.gz",
+                "ir_metadata.yaml.gz",
+                "ir-metadata.yaml.gz",
+                "irmetadata.yaml.gz",
+            ).any { exportFilePath.name.endsWith(it) }
+        ) exportIrMetadata(result)
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -699,16 +726,14 @@ class TrackingHandle private constructor(
                 defaultFlowStyle = DumperOptions.FlowStyle.AUTO
             },
         )
-        val irMetadataString = exportFilePath.useLines { lines ->
-            lines.dropWhile {
-                it != "ir_metadata.start"
-            }.drop(1).takeWhile {
-                it != "ir_metadata.end"
-            }.joinToString("\n")
-            // FIXME: There's a bug in the YAML output format that we work around here:
-        }.replace(Regex("""caches: (.*),"""), """caches: {\1}""")
-        val irMetadata: MutableMap<String, Any?> = yaml.load<MutableMap<String, Any?>>(irMetadataString)
-
+        val irMetadataYamlString = exportFilePath.readText()
+            .removePrefix("ir_metadata.start\n") // Remove optional ir_metadata prefix line.
+            .removeSuffix("ir_metadata.end\n") // Remove optional ir_metadata suffix line.
+            .replace(
+                Regex("""caches: (.*),"""),
+                """caches: {\1}"""
+            ) // FIXME: There's a bug in the YAML output format (https://github.com/tira-io/tirex-tracker/issues/42) that we work around here.
+        val irMetadata: MutableMap<String, Any?> = yaml.load<MutableMap<String, Any?>>(irMetadataYamlString)
 
         // Add user-provided metadata.
         val method: MutableMap<String, Any?> =
@@ -763,8 +788,28 @@ class TrackingHandle private constructor(
             javaInfo.getValue(Measure.JAVA_SPECIFICATION_NAME).value?.let { json.decodeFromString<String?>(it) }
 
         // Serialize the updated ir_metadata.
-        exportFilePath.outputStream().bufferedWriter().use { writer ->
+        val stream = exportFilePath.outputStream().let {
+            if (exportFilePath.name.endsWith(".gz")) {
+                GZIPOutputStream(it)
+            } else it
+        }
+        val writePrefixSuffix = listOf(
+            "ir_metadata",
+            "ir-metadata",
+            "irmetadata",
+            "ir_metadata.gz",
+            "ir-metadata.gz",
+            "irmetadata.gz",
+        ).any { exportFilePath.name.endsWith(it) }
+        stream.bufferedWriter().use { writer ->
+            if (writePrefixSuffix) {
+                writer.write("ir_metadata.start\n")
+            }
             yaml.dump(irMetadata, writer)
+            if (writePrefixSuffix) {
+                writer.write("\n")
+                writer.write("ir_metadata.end\n")
+            }
         }
     }
 }
