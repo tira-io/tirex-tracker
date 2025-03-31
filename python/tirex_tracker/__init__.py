@@ -14,6 +14,7 @@ from ctypes import (
 from dataclasses import dataclass
 from enum import IntEnum, Enum
 from functools import wraps
+from gzip import open as gzip_open
 from importlib_metadata import distributions, version
 from importlib_resources import files
 from io import BytesIO
@@ -22,6 +23,7 @@ from pathlib import Path
 from sys import modules as sys_modules, executable, argv, platform, version_info
 from traceback import extract_stack
 from typing import (
+    IO,
     ItemsView,
     Iterator,
     KeysView,
@@ -809,11 +811,39 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         if self._export_file_path is None:
             return
         elif self._export_format is None:
-            return
+            self._export_guessed_format(result)
         elif self._export_format == ExportFormat.IR_METADATA:
             self._export_ir_metadata(result)
         else:
             raise ValueError("Invalid export format.")
+
+    def _export_guessed_format(self, result: "Pointer[_Result]") -> None:
+        if self._export_file_path is None:
+            return
+        elif any(
+            Path(self._export_file_path).name.endswith(extension)
+            for extension in [
+                "ir_metadata",
+                "ir-metadata",
+                "irmetadata",
+                "ir_metadata.yml",
+                "ir-metadata.yml",
+                "irmetadata.yml",
+                "ir_metadata.yaml",
+                "ir-metadata.yaml",
+                "irmetadata.yaml",
+                "ir_metadata.gz",
+                "ir-metadata.gz",
+                "irmetadata.gz",
+                "ir_metadata.yml.gz",
+                "ir-metadata.yml.gz",
+                "irmetadata.yml.gz",
+                "ir_metadata.yaml.gz",
+                "ir-metadata.yaml.gz",
+                "irmetadata.yaml.gz",
+            ]
+        ):
+            self._export_ir_metadata(result)
 
     def _export_ir_metadata(self, result: "Pointer[_Result]") -> None:
         if self._export_file_path is None:
@@ -837,7 +867,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         if buffer.endswith(b"ir_metadata.end\n"):
             buffer = buffer[: -len(b"ir_metadata.end\n")]
 
-        # FIXME: There's a bug in the YAML output format that we work around here:
+        # FIXME: There's a bug in the YAML output format (https://github.com/tira-io/tirex-tracker/issues/42) that we work around here:
         from re import sub
 
         buffer = sub(rb"caches: (.*),", rb"caches: {\1}", buffer)
@@ -898,8 +928,30 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         ir_metadata = _recursive_undefaultdict(ir_metadata)
 
         # Serialize the updated ir_metadata.
-        with export_file_path.open("wt") as file:
-            file.write("ir_metadata.start\n")
+        file_open: Callable[[], IO[str]]
+        if export_file_path.suffix == ".gz":
+
+            def file_open() -> IO[str]:
+                return gzip_open(export_file_path, "wt")
+        else:
+
+            def file_open() -> IO[str]:
+                return export_file_path.open("wt")
+
+        write_prefix_suffix = any(
+            Path(self._export_file_path).name.endswith(extension)
+            for extension in [
+                "ir_metadata",
+                "ir-metadata",
+                "irmetadata",
+                "ir_metadata.gz",
+                "ir-metadata.gz",
+                "irmetadata.gz",
+            ]
+        )
+        with file_open() as file:
+            if write_prefix_suffix:
+                file.write("ir_metadata.start\n")
 
             yaml = YAML(typ="safe", pure=True)
             yaml.width = 10_000
@@ -907,7 +959,8 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
                 data=ir_metadata,
                 stream=file,
             )
-            file.write("ir_metadata.end\n")
+            if write_prefix_suffix:
+                file.write("ir_metadata.end\n")
 
 
 # TODO: Add aggregation(s) (mapping) parameter.
