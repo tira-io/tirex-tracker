@@ -2,6 +2,7 @@
 
 #include "logging.hpp"
 #include "measure/stats/provider.hpp"
+#include "measure/utils/rangeutils.hpp"
 
 #include <cassert>
 #include <cstring>
@@ -41,17 +42,15 @@ struct tirexMeasureHandle_st final {
 			provider->stop();
 
 		// Collect statistics and print them
-		tirex::Stats stats{}; /** \todo ranges **/
-		for (auto& provider : providers) {
-			auto tmp = provider->getStats();
-			stats.insert(tmp.begin(), tmp.end());
-		}
+		tirex::Stats stats{};
+		for (auto& provider : providers)
+			stats.merge(provider->getStats());
 		return stats;
 	}
 
 	static void monitorThread(tirexMeasureHandle_st* self) {
 		auto future = self->signal.get_future();
-		auto intervall = std::chrono::milliseconds{self->pollIntervalMs};
+		std::chrono::milliseconds intervall{self->pollIntervalMs};
 		while (future.wait_for(intervall) != std::future_status::ready) {
 			for (auto& provider : self->providers)
 				provider->step();
@@ -63,7 +62,7 @@ static tirexError
 initProviders(const tirexMeasureConf* measures, std::vector<std::unique_ptr<tirex::StatsProvider>>& providers) {
 	std::set<tirexMeasure> tirexset;
 	for (auto conf = measures; conf->source != tirexMeasure::TIREX_MEASURE_INVALID; ++conf) {
-		auto [it, inserted] = tirexset.insert(conf->source); /** \todo implement **/
+		auto [it, inserted] = tirexset.insert(conf->source); /** \todo implement conf->aggregate support **/
 		if (!inserted) {
 			/** \todo if pedantic abort here **/
 			tirex::log::warn(
@@ -74,8 +73,8 @@ initProviders(const tirexMeasureConf* measures, std::vector<std::unique_ptr<tire
 	auto unmatched = tirex::initProviders(tirexset, providers);
 	if (!unmatched.empty()) {
 		/** \todo if pedantic abort here **/
-		/** \todo log which are not associated **/
 		tirex::log::warn("measure", "Not all requested measures are associated with a data provider");
+		tirex::log::warn("measure", "Unmatched: {}", tirex::utils::join(unmatched));
 	}
 	return TIREX_SUCCESS;
 }
@@ -84,11 +83,9 @@ tirexError tirexFetchInfo(const tirexMeasureConf* measures, tirexResult** result
 	std::vector<std::unique_ptr<tirex::StatsProvider>> providers;
 	if (tirexError err; (err = initProviders(measures, providers)) != TIREX_SUCCESS)
 		return err;
-	tirex::Stats stats{}; /** \todo ranges **/
-	for (auto& provider : providers) {
-		auto tmp = provider->getInfo();
-		stats.insert(tmp.begin(), tmp.end());
-	}
+	tirex::Stats stats{};
+	for (auto& provider : providers)
+		stats.merge(provider->getInfo());
 	*result = createMsrResultFromStats(std::move(stats));
 	return TIREX_SUCCESS;
 }

@@ -49,11 +49,21 @@ namespace tirex {
 		std::chrono::steady_clock::time_point starttime;
 		std::chrono::steady_clock::time_point stoptime;
 
-		tirex::TimeSeries<unsigned> ram{true};
-		tirex::TimeSeries<unsigned> sysRam{true};
-		tirex::TimeSeries<unsigned> cpuUtil{true};
-		tirex::TimeSeries<unsigned> sysCpuUtil{true};
-		tirex::TimeSeries<uint32_t> frequency{true};
+		tirex::TimeSeries<unsigned> ram{
+				std::chrono::milliseconds{10000}, TIREX_AGG_MAX
+		}; /** \todo make agg configurable */
+		tirex::TimeSeries<unsigned> sysRam{
+				std::chrono::milliseconds{10000}, TIREX_AGG_MAX
+		}; /** \todo make agg configurable */
+		tirex::TimeSeries<unsigned> cpuUtil{
+				std::chrono::milliseconds{10000}, TIREX_AGG_MEAN
+		}; /** \todo make agg configurable */
+		tirex::TimeSeries<unsigned> sysCpuUtil{
+				std::chrono::milliseconds{10000}, TIREX_AGG_MEAN
+		}; /** \todo make agg configurable */
+		tirex::TimeSeries<uint32_t> frequency{
+				std::chrono::milliseconds{10000}, TIREX_AGG_MAX
+		}; /** \todo make agg configurable */
 
 		size_t startUTime, stopUTime;
 		size_t startSysTime, stopSysTime;
@@ -72,6 +82,7 @@ namespace tirex {
 
 		uint8_t getProcCPUUtilization();
 #if __linux__
+		pid_t pid; /**< The process identifier of the tracked process. */
 		size_t lastIdle = 0;
 		size_t lastTotal = 0;
 		size_t lastProcActiveMs = 0;
@@ -81,12 +92,14 @@ namespace tirex {
 		void parseStat(Utilization& utilization);
 		void parseStatm(pid_t pid, Utilization& utilization);
 #elif defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
+		HANDLE pid; /**< The process identifier of the tracked process. */
 		FILETIME prevSysIdle, prevSysKernel, prevSysUser;
 		ULARGE_INTEGER lastCPU, lastSysCPU, lastUserCPU;
 		unsigned numProcessors;
 
 		uint8_t getCPUUtilization();
 #elif __APPLE__
+		pid_t pid; /**< The process identifier of the tracked process. */
 		size_t lastIdle = 0;
 		size_t lastTotal = 0;
 		size_t lastProcActiveMs = 0;
@@ -98,6 +111,7 @@ namespace tirex {
 	public:
 		SystemStats();
 
+		std::set<tirexMeasure> providedMeasures() noexcept override;
 		void start() override;
 		void stop() override;
 		void step() override;
