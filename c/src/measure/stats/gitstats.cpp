@@ -194,8 +194,9 @@ GitStats::~GitStats() { git_libgit2_shutdown(); }
 
 bool GitStats::isRepository() const noexcept { return repo != nullptr; }
 
+std::set<tirexMeasure> GitStats::providedMeasures() noexcept { return measures; }
+
 Stats GitStats::getInfo() {
-	/** \todo: filter by requested metrics */
 	if (isRepository()) {
 		auto status = getStatusStats(repo);
 		tirex::log::info(
@@ -204,17 +205,17 @@ Stats GitStats::getInfo() {
 		);
 		tirex::log::info("gitstats", "Local is {} commits ahead and {} behind upstream", status.ahead, status.behind);
 		auto [local, remote] = getBranchName(repo);
-		return {{TIREX_GIT_IS_REPO, "1"s},
-				{TIREX_GIT_HASH, hashAllFiles(repo)},
-				{TIREX_GIT_LAST_COMMIT_HASH, getLastCommitHash(repo)},
-				{TIREX_GIT_BRANCH, local},
-				{TIREX_GIT_BRANCH_UPSTREAM, remote},
-				{TIREX_GIT_TAGS, "["s + tirex::utils::join(getTags(repo), ',') + "]"s},
-				{TIREX_GIT_REMOTE_ORIGIN, getRemoteOrigin(repo)},
-				{TIREX_GIT_UNCOMMITTED_CHANGES, (status.numModified != 0) ? "1"s : "0"s},
-				{TIREX_GIT_UNPUSHED_CHANGES, ((status.ahead != 0) || remote.empty()) ? "1"s : "0"s},
-				{TIREX_GIT_UNCHECKED_FILES, (status.numNew != 0) ? "1"s : "0"s}};
+		return makeFilteredStats(
+				enabled, std::pair{TIREX_GIT_IS_REPO, "1"s}, std::pair{TIREX_GIT_HASH, hashAllFiles(repo)},
+				std::pair{TIREX_GIT_LAST_COMMIT_HASH, getLastCommitHash(repo)}, std::pair{TIREX_GIT_BRANCH, local},
+				std::pair{TIREX_GIT_BRANCH_UPSTREAM, remote},
+				std::pair{TIREX_GIT_TAGS, "["s + tirex::utils::join(getTags(repo), ',') + "]"s},
+				std::pair{TIREX_GIT_REMOTE_ORIGIN, getRemoteOrigin(repo)},
+				std::pair{TIREX_GIT_UNCOMMITTED_CHANGES, (status.numModified != 0) ? "1"s : "0"s},
+				std::pair{TIREX_GIT_UNPUSHED_CHANGES, ((status.ahead != 0) || remote.empty()) ? "1"s : "0"s},
+				std::pair{TIREX_GIT_UNCHECKED_FILES, (status.numNew != 0) ? "1"s : "0"s}
+		);
 	} else {
-		return {{TIREX_GIT_IS_REPO, "0"s}};
+		return makeFilteredStats(enabled, std::pair{TIREX_GIT_IS_REPO, "0"s});
 	}
 }
