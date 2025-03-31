@@ -1,4 +1,4 @@
-#include "gpustats.hpp"
+#include "nvmlstats.hpp"
 
 #include "../../logging.hpp"
 #include "../utils/sharedlib.hpp"
@@ -7,14 +7,14 @@
 
 using namespace std::literals;
 
-using tirex::GPUStats;
+using tirex::NVMLStats;
 using tirex::Stats;
 
-const char* GPUStats::version = "nvml v." NVML_API_VERSION_STR;
-const std::set<tirexMeasure> GPUStats::measures{TIREX_GPU_SUPPORTED,		   TIREX_GPU_MODEL_NAME,
-												TIREX_GPU_NUM_CORES,		   TIREX_GPU_USED_PROCESS_PERCENT,
-												TIREX_GPU_USED_SYSTEM_PERCENT, TIREX_GPU_VRAM_USED_PROCESS_MB,
-												TIREX_GPU_VRAM_USED_SYSTEM_MB, TIREX_GPU_VRAM_AVAILABLE_SYSTEM_MB};
+const char* NVMLStats::version = "nvml v." NVML_API_VERSION_STR;
+const std::set<tirexMeasure> NVMLStats::measures{TIREX_GPU_SUPPORTED,			TIREX_GPU_MODEL_NAME,
+												 TIREX_GPU_NUM_CORES,			TIREX_GPU_USED_PROCESS_PERCENT,
+												 TIREX_GPU_USED_SYSTEM_PERCENT, TIREX_GPU_VRAM_USED_PROCESS_MB,
+												 TIREX_GPU_VRAM_USED_SYSTEM_MB, TIREX_GPU_VRAM_AVAILABLE_SYSTEM_MB};
 
 struct NVMLLib final : tirex::utils::SharedLib {
 public:
@@ -46,13 +46,22 @@ public:
 	using DEVICE_GET_MEMORY_INFO = nvmlReturn_t (*)(nvmlDevice_t device, nvmlMemory_t* memory);
 	DEVICE_GET_MEMORY_INFO deviceGetMemoryInfo = load<DEVICE_GET_MEMORY_INFO>({"nvmlDeviceGetMemoryInfo"});
 
+	// nvmlDeviceGetProcessUtilization
+
+	// using DEVICE_GET_COMPUTE_RUNNING_PROCESSES =	nvmlReturn_t (*)(nvmlDevice_t device, unsigned int* infoCount, nvmlProcessInfo_t* infos);
+	// DEVICE_GET_COMPUTE_RUNNING_PROCESSES deviceGetComputeRunningProcesses = oad<DEVICE_GET_COMPUTE_RUNNING_PROCESSES>({"nvmlDeviceGetComputeRunningProcesses_v3"});
+
+	using DEVICE_GET_RUNNING_PROCESS_DETAIL_LIST =
+			nvmlReturn_t (*)(nvmlDevice_t device, nvmlProcessDetailList_t* plist);
+	DEVICE_GET_RUNNING_PROCESS_DETAIL_LIST deviceGetRunningProcessDetailList =
+			load<DEVICE_GET_RUNNING_PROCESS_DETAIL_LIST>({"nvmlDeviceGetRunningProcessDetailList"});
+
 #if defined(__linux__)
 	NVMLLib() : tirex::utils::SharedLib("libnvidia-ml.so.1") {}
 #elif defined(__APPLE__)
 	/* "MacOS is not supported to fetch NVIDIA GPU information */
 	NVMLLib() : tirex::utils::SharedLib() {}
-#elif defined(_WIN64)
-	/** \todo add support **/
+#elif defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
 	NVMLLib() : tirex::utils::SharedLib("nvml.dll") {}
 #else
 #error "Unsupported OS"
@@ -102,7 +111,7 @@ static bool initNVML() {
 	return false;
 }
 
-GPUStats::GPUStats() : nvml({.supported = initNVML(), .devices = {}}) {
+NVMLStats::NVMLStats() : nvml({.supported = initNVML(), .devices = {}}) {
 	if (!nvml.supported)
 		return;
 	unsigned int count;
@@ -127,13 +136,14 @@ GPUStats::GPUStats() : nvml({.supported = initNVML(), .devices = {}}) {
 				break;
 			}
 		}
+		break;
 	default:
 		tirex::log::error("gpustats", "Fetching devices failed with error {}", ::nvml.errorString(err));
 		break;
 	}
 }
 
-void GPUStats::step() {
+void NVMLStats::step() {
 	if (!nvml.supported)
 		return;
 	nvmlMemory_t memory;
@@ -153,23 +163,47 @@ void GPUStats::step() {
 			abort(); /** \todo how to handle? **/
 		}
 	}
+
+	/*unsigned int processCount;
+	for (auto device : nvml.devices) {
+		// Get the list of running processes
+		nvmlProcessDetailList_t list;
+		list.version = nvmlProcessDetailList_v1;
+		list.numProcArrayEntries = 0;
+		list.procArray = nullptr;
+		auto result = ::nvml.deviceGetRunningProcessDetailList(device, &list);
+		if (result == NVML_SUCCESS) {
+			std::cout << "No processes running on GPU" << std::endl;
+			continue;
+		} else if (result == NVML_ERROR_INSUFFICIENT_SIZE) {
+			std::vector<nvmlProcessDetail_v1_t> buf;
+			buf.resize(list.numProcArrayEntries);
+			list.procArray = buf.data();
+			result = ::nvml.deviceGetRunningProcessDetailList(device, &list);
+			for (auto element : buf) {
+				std::cout << "PID: " << element.pid << " Mem: " << element.usedGpuMemory << std::endl;
+			}
+		} else {
+			std::cout << "Error: " << ::nvml.errorString(result) << std::endl;
+		}
+	}*/
 }
 
-Stats GPUStats::getStats() {
-	/** \todo: filter by requested metrics */
+std::set<tirexMeasure> NVMLStats::providedMeasures() noexcept { return measures; }
+
+Stats NVMLStats::getStats() {
 	if (nvml.supported) {
-		return {
-				{TIREX_GPU_USED_PROCESS_PERCENT, "TODO"s},
-				{TIREX_GPU_USED_SYSTEM_PERCENT, nvml.utilizationTotal},
-				{TIREX_GPU_VRAM_USED_PROCESS_MB, "TODO"s},
-				{TIREX_GPU_VRAM_USED_SYSTEM_MB, nvml.vramUsageTotal},
-		};
+		return makeFilteredStats(
+				enabled, std::pair{TIREX_GPU_USED_PROCESS_PERCENT, "TODO"s},
+				std::pair{TIREX_GPU_USED_SYSTEM_PERCENT, nvml.utilizationTotal},
+				std::pair{TIREX_GPU_VRAM_USED_PROCESS_MB, "TODO"s},
+				std::pair{TIREX_GPU_VRAM_USED_SYSTEM_MB, nvml.vramUsageTotal}
+		);
 	} else {
 		return {};
 	}
 }
-Stats GPUStats::getInfo() {
-	/** \todo: filter by requested metrics */
+Stats NVMLStats::getInfo() {
 	if (nvml.supported) {
 		std::string modelName;
 		std::string vramTotal;
@@ -197,11 +231,11 @@ Stats GPUStats::getInfo() {
 			}
 		}
 
-		return {{TIREX_GPU_SUPPORTED, "1"s},
-				{TIREX_GPU_MODEL_NAME, modelName},
-				{TIREX_GPU_NUM_CORES, cores},
-				{TIREX_GPU_VRAM_AVAILABLE_SYSTEM_MB, vramTotal}};
+		return makeFilteredStats(
+				enabled, std::pair{TIREX_GPU_SUPPORTED, "1"s}, std::pair{TIREX_GPU_MODEL_NAME, modelName},
+				std::pair{TIREX_GPU_NUM_CORES, cores}, std::pair{TIREX_GPU_VRAM_AVAILABLE_SYSTEM_MB, vramTotal}
+		);
 	} else {
-		return {{TIREX_GPU_SUPPORTED, "0"s}};
+		return makeFilteredStats(enabled, std::pair{TIREX_GPU_SUPPORTED, "0"s});
 	}
 }
