@@ -169,6 +169,7 @@ namespace tirex {
 					timepoints[i / 2] = timepoints[i + 1];
 					values[i / 2] = aggfn(values[i], values[i + 1]);
 				}
+				/** \fixme does not yet work for uneven maxDataPoints */
 				timepoints.resize(timepoints.size() / 2);
 				values.resize(timepoints.size());
 			}
