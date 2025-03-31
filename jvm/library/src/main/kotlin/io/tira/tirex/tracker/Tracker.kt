@@ -729,10 +729,6 @@ class TrackingHandle private constructor(
         val irMetadataYamlString = exportFilePath.readText()
             .removePrefix("ir_metadata.start\n") // Remove optional ir_metadata prefix line.
             .removeSuffix("ir_metadata.end\n") // Remove optional ir_metadata suffix line.
-            .replace(
-                Regex("""caches: (.*),"""),
-                """caches: {\1}"""
-            ) // FIXME: There's a bug in the YAML output format (https://github.com/tira-io/tirex-tracker/issues/42) that we work around here.
         val irMetadata: MutableMap<String, Any?> = yaml.load<MutableMap<String, Any?>>(irMetadataYamlString)
 
         // Add user-provided metadata.
