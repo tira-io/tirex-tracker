@@ -867,11 +867,6 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         if buffer.endswith(b"ir_metadata.end\n"):
             buffer = buffer[: -len(b"ir_metadata.end\n")]
 
-        # FIXME: There's a bug in the YAML output format (https://github.com/tira-io/tirex-tracker/issues/42) that we work around here:
-        from re import sub
-
-        buffer = sub(rb"caches: (.*),", rb"caches: {\1}", buffer)
-
         with BytesIO(buffer) as yaml_file:
             yaml = YAML(typ="safe")
             tmp_ir_metadata = yaml.load(yaml_file)
