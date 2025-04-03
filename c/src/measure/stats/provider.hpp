@@ -14,7 +14,7 @@
 #include <variant>
 
 namespace tirex {
-	using StatVal = std::variant<std::string, std::reference_wrapper<tirex::TimeSeries<unsigned>>>;
+	using StatVal = std::variant<std::string, std::reference_wrapper<const tirex::TimeSeries<unsigned>>>;
 	using Stats = std::map<tirexMeasure, StatVal>;
 
 	tirexResult_st* createMsrResultFromStats(Stats&& stats);

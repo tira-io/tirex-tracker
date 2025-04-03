@@ -44,7 +44,7 @@ struct tirexMeasureHandle_st final {
 		// Collect statistics and print them
 		tirex::Stats stats{};
 		for (auto& provider : providers)
-			stats.merge(provider->getStats());
+			stats.merge(std::move(provider->getStats()));
 		return stats;
 	}
 
@@ -102,7 +102,7 @@ tirexError tirexStopTracking(tirexMeasureHandle* measure, tirexResult** result) 
 	if (measure == nullptr)
 		return TIREX_INVALID_ARGUMENT;
 	auto res = measure->stop();
-	delete measure;
 	*result = createMsrResultFromStats(std::move(res));
+	delete measure;
 	return TIREX_SUCCESS;
 }

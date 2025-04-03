@@ -15,6 +15,8 @@
 #endif
 
 namespace tirex {
+	using namespace std::chrono_literals;
+
 	class SystemStats final : public StatsProvider {
 	public:
 		struct SysInfo {
@@ -49,21 +51,19 @@ namespace tirex {
 		std::chrono::steady_clock::time_point starttime;
 		std::chrono::steady_clock::time_point stoptime;
 
-		tirex::TimeSeries<unsigned> ram = TimeSeries<unsigned>::create<MaxDataPoints<unsigned>>(
-				300, TIREX_AGG_MAX
-		); /** \todo make agg configurable */
-		tirex::TimeSeries<unsigned> sysRam = TimeSeries<unsigned>::create<MaxDataPoints<unsigned>>(
-				300, TIREX_AGG_MAX
-		); /** \todo make agg configurable */
-		tirex::TimeSeries<unsigned> cpuUtil = TimeSeries<unsigned>::create<MaxDataPoints<unsigned>>(
-				300, TIREX_AGG_MEAN
-		); /** \todo make agg configurable */
-		tirex::TimeSeries<unsigned> sysCpuUtil = TimeSeries<unsigned>::create<MaxDataPoints<unsigned>>(
-				300, TIREX_AGG_MEAN
-		); /** \todo make agg configurable */
-		tirex::TimeSeries<uint32_t> frequency = TimeSeries<unsigned>::create<MaxDataPoints<unsigned>>(
-				300, TIREX_AGG_MAX
-		); /** \todo make agg configurable */
+		tirex::TimeSeries<unsigned> ram = ts::store<unsigned>() | ts::Limit(300, TIREX_AGG_MAX) |
+										  ts::Batched(100ms, TIREX_AGG_MAX, 300); /** \todo make agg configurable */
+		tirex::TimeSeries<unsigned> sysRam = ts::store<unsigned>() | ts::Limit(300, TIREX_AGG_MAX) |
+											 ts::Batched(100ms, TIREX_AGG_MAX, 300); /** \todo make agg configurable */
+		tirex::TimeSeries<unsigned> cpuUtil =
+				ts::store<unsigned>() | ts::Limit(300, TIREX_AGG_MEAN) |
+				ts::Batched(100ms, TIREX_AGG_MEAN, 300); /** \todo make agg configurable */
+		tirex::TimeSeries<unsigned> sysCpuUtil =
+				ts::store<unsigned>() | ts::Limit(300, TIREX_AGG_MEAN) |
+				ts::Batched(100ms, TIREX_AGG_MEAN, 300); /** \todo make agg configurable */
+		tirex::TimeSeries<uint32_t> frequency =
+				ts::store<unsigned>() | ts::Limit(300, TIREX_AGG_MAX) |
+				ts::Batched(100ms, TIREX_AGG_MAX, 300); /** \todo make agg configurable */
 
 		size_t startUTime, stopUTime;
 		size_t startSysTime, stopSysTime;
