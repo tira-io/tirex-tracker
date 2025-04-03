@@ -7,20 +7,22 @@
 using nvmlDevice_t = struct nvmlDevice_st*;
 
 namespace tirex {
+	using namespace std::chrono_literals;
+
 	class NVMLStats final : public StatsProvider {
 	private:
 		struct {
 			const bool supported;
 			std::vector<nvmlDevice_t> devices;
-			TimeSeries<unsigned> vramUsageTotal = TimeSeries<unsigned>::create<MaxDataPoints<unsigned>>(
-					300, TIREX_AGG_MAX
-			); /** \todo make agg configurable */
-			TimeSeries<unsigned> vramUsageProcess = TimeSeries<unsigned>::create<MaxDataPoints<unsigned>>(
-					300, TIREX_AGG_MAX
-			); /** \todo make agg configurable */
-			TimeSeries<unsigned> utilizationTotal = TimeSeries<unsigned>::create<MaxDataPoints<unsigned>>(
-					300, TIREX_AGG_MAX
-			); /** \todo make agg configurable */
+			TimeSeries<unsigned> vramUsageTotal =
+					ts::store<unsigned>() | ts::Limit(300, TIREX_AGG_MAX) |
+					ts::Batched(100ms, TIREX_AGG_MAX, 300); /** \todo make agg configurable */
+			TimeSeries<unsigned> vramUsageProcess =
+					ts::store<unsigned>() | ts::Limit(300, TIREX_AGG_MAX) |
+					ts::Batched(100ms, TIREX_AGG_MAX, 300); /** \todo make agg configurable */
+			TimeSeries<unsigned> utilizationTotal =
+					ts::store<unsigned>() | ts::Limit(300, TIREX_AGG_MAX) |
+					ts::Batched(100ms, TIREX_AGG_MAX, 300); /** \todo make agg configurable */
 		} nvml;
 
 	public:

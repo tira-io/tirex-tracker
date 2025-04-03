@@ -7,7 +7,7 @@
 #include <functional>
 #include <memory>
 #include <optional>
-#include <utility>
+#include <tuple>
 #include <vector>
 
 namespace tirex {
@@ -15,7 +15,7 @@ namespace tirex {
 	/**
 	 * @brief The details namespace contains implementation details and is not part of the public API.
 	 */
-	namespace details {
+	namespace ts::details {
 		template <typename T>
 		struct AggFn {
 			AggFn() = default;
@@ -71,162 +71,262 @@ namespace tirex {
 		};
 
 		template <typename T>
-		[[nodiscard]] static inline std::unique_ptr<AggFn<T>> enumToAggFn(tirexAggregateFn fn) {
-			switch (fn) {
-			case TIREX_AGG_NO:
-				return nullptr;
-			case TIREX_AGG_MAX:
-				return std::make_unique<details::MaxAggFn<T>>();
-			case TIREX_AGG_MIN:
-				return std::make_unique<details::MinAggFn<T>>();
-			case TIREX_AGG_MEAN:
-				return std::make_unique<details::AvgAggFn<T>>();
-			default:
-				/** \todo handle more gracefully (e.g., return nullptr) **/
-				abort(); /** invalid value **/
-			};
-		}
-	} // namespace details
+		struct TimeSeriesImpl {
+		public:
+			TimeSeriesImpl() = default;
+			TimeSeriesImpl(const TimeSeriesImpl<T>&) = delete;
+			TimeSeriesImpl(TimeSeriesImpl<T>&&) = default;
+			virtual ~TimeSeriesImpl() = default;
+			TimeSeriesImpl<T>& operator=(const TimeSeriesImpl<T>&) = delete;
+			TimeSeriesImpl<T>& operator=(TimeSeriesImpl<T>&&) = default;
+
+			virtual void addValue(const T& value, const std::chrono::milliseconds& timestamp) noexcept = 0;
+			virtual std::chrono::milliseconds currentTimestamp() const noexcept = 0;
+			virtual const T& maxValue() const noexcept = 0;
+			virtual const T& minValue() const noexcept = 0;
+			virtual const T& avgValue() const noexcept = 0;
+			virtual std::tuple<std::vector<std::chrono::milliseconds>&, std::vector<T>&> timeseries() noexcept = 0;
+			virtual std::tuple<const std::vector<std::chrono::milliseconds>&, const std::vector<T>&>
+			timeseries() const noexcept = 0;
+
+			virtual size_t size() const noexcept = 0;
+		};
+	} // namespace ts::details
 
 	template <typename T>
-	class Strategy {
-	public:
-		Strategy() = default;
-		Strategy(const Strategy& other) = default;
-		Strategy(Strategy&& other) = default;
-		virtual ~Strategy() = default;
-		Strategy& operator=(const Strategy& other) = default;
-		Strategy& operator=(Strategy&& other) = default;
-
-		virtual void
-		update(std::vector<std::chrono::milliseconds>& timepoints, std::vector<T>& values,
-			   const std::chrono::milliseconds& deltatime, const T& value) noexcept = 0;
-	};
-
-	template <typename T>
-	class NoStore final : public Strategy<T> {
-	public:
-		void
-		update(std::vector<std::chrono::milliseconds>& timepoints, std::vector<T>& values,
-			   const std::chrono::milliseconds& deltatime, const T& value) noexcept override {}
-	};
-
-	template <typename T>
-	class BatchedStore final : public Strategy<T> {
+	struct TimeSeries final {
 	private:
-		std::chrono::milliseconds batchinverall;
-		std::unique_ptr<details::AggFn<T>> aggfn;
+		/** \todo propagate const **/
+		std::unique_ptr<ts::details::TimeSeriesImpl<T>> impl;
 
 	public:
-		BatchedStore(std::chrono::milliseconds batchinverall, tirexAggregateFn batchagg) noexcept
-				: batchinverall(batchinverall), aggfn(details::enumToAggFn<T>(batchagg)) {}
+		TimeSeries(const TimeSeries<T>&) = delete;
+		TimeSeries(TimeSeries<T>&&) = default;
+		explicit TimeSeries(std::unique_ptr<ts::details::TimeSeriesImpl<T>>&& impl) : impl(std::move(impl)) {}
+		TimeSeries<T>& operator=(const TimeSeries<T>&) = delete;
 
-		void
-		update(std::vector<std::chrono::milliseconds>& timepoints, std::vector<T>& values,
-			   const std::chrono::milliseconds& deltatime, const T& value) noexcept override {
-			if (!timepoints.empty() && (deltatime - timepoints.back()) < batchinverall) { // Add to previous batch
-				values.back() = aggfn->update(value);
-			} else { // Start New Batch
-				aggfn->reset();
-				timepoints.emplace_back(deltatime);
-				values.emplace_back(value);
-			}
+		void addValue(const T& value) noexcept { return addValue(value, currentTimestamp()); }
+		void addValue(const T& value, const std::chrono::milliseconds& timestamp) noexcept {
+			impl->addValue(value, timestamp);
 		}
-	};
-	template <typename T>
-	class MaxDataPoints final : public Strategy<T> {
-	private:
-		using AggFn = T (*)(const T& a, const T& b);
-		size_t maxDataPoints;
-		AggFn aggfn;
+		std::chrono::milliseconds currentTimestamp() const noexcept { return impl->currentTimestamp(); }
 
-		static AggFn enumToAggFn(tirexAggregateFn fn) {
-			switch (fn) {
-			case TIREX_AGG_NO:
-				return nullptr;
-			case TIREX_AGG_MAX:
-				return +[](const T& a, const T& b) { return std::max(a, b); };
-			case TIREX_AGG_MIN:
-				return +[](const T& a, const T& b) { return std::min(a, b); };
-			case TIREX_AGG_MEAN:
-				return +[](const T& a, const T& b) { return (a + b) / 2; };
-			default:
-				/** \todo handle more gracefully (e.g., return nullptr) **/
-				abort(); /** invalid value **/
-			};
+		const T& maxValue() const noexcept { return impl->maxValue(); }
+		const T& minValue() const noexcept { return impl->minValue(); }
+		const T& avgValue() const noexcept { return impl->avgValue(); }
+		std::tuple<std::vector<std::chrono::milliseconds>&, std::vector<T>&> timeseries() noexcept {
+			return impl->timeseries();
 		}
-
-	public:
-		MaxDataPoints(size_t maxDataPoints, tirexAggregateFn batchagg) noexcept
-				: maxDataPoints(maxDataPoints), aggfn(enumToAggFn(batchagg)) {}
-
-		void
-		update(std::vector<std::chrono::milliseconds>& timepoints, std::vector<T>& values,
-			   const std::chrono::milliseconds& deltatime, const T& value) noexcept override {
-			[[assume(timepoints.size() == values.size())]];
-			if (timepoints.size() >= maxDataPoints) { // Aggregate every pair of elements to half the number of points
-				for (size_t i = 0; i < timepoints.size(); i += 2) {
-					timepoints[i / 2] = timepoints[i + 1];
-					values[i / 2] = aggfn(values[i], values[i + 1]);
-				}
-				/** \fixme does not yet work for uneven maxDataPoints */
-				timepoints.resize(timepoints.size() / 2);
-				values.resize(timepoints.size());
-			}
-			timepoints.emplace_back(deltatime);
-			values.emplace_back(value);
+		std::tuple<const std::vector<std::chrono::milliseconds>&, const std::vector<T>&> timeseries() const noexcept {
+			return impl->timeseries();
 		}
+		size_t size() const noexcept { return impl->size(); }
 	};
 
-	/**
+	namespace ts::details {
+		/**
 	 * @brief The timeseries datatype represents a compressed timestamped sequence of datapoints.
 	 * 
 	 * @tparam T The datatype of each entry of the timeseries.
 	 */
-	template <typename T>
-	struct TimeSeries final {
-		using clock = std::chrono::high_resolution_clock;
+		template <typename T>
+		struct StoreImpl final : public TimeSeriesImpl<T> {
+			using clock = std::chrono::high_resolution_clock;
 
-	private:
-		clock::time_point starttime;
-		T max; /**< @brief Minimum value encountered in the time series **/
-		T min; /**< @brief Maximum value encountered in the time series **/
-		T avg; /**< @brief Average value encountered in the time series **/
-		std::vector<std::chrono::milliseconds> timepoints;
-		std::vector<T> values;
-		std::unique_ptr<Strategy<T>> strategy;
+		private:
+			clock::time_point starttime;
+			T max; /**< @brief Minimum value encountered in the time series **/
+			T min; /**< @brief Maximum value encountered in the time series **/
+			T avg; /**< @brief Average value encountered in the time series **/
+			std::vector<std::chrono::milliseconds> timepoints;
+			std::vector<T> values;
 
-		static T maxFn(const T& a, const T& b) { return std::max(a, b); }
-		static T minFn(const T& a, const T& b) { return std::min(a, b); }
+			static T maxFn(const T& a, const T& b) { return std::max(a, b); }
+			static T minFn(const T& a, const T& b) { return std::min(a, b); }
 
-	public:
-		TimeSeries(std::unique_ptr<Strategy<T>>&& strategy, clock::time_point starttime = clock::now())
-				: starttime(starttime), max(), min(), avg(), timepoints(), values(), strategy(std::move(strategy)) {}
-		TimeSeries(TimeSeries&& other) = default;
+		public:
+			StoreImpl() : StoreImpl(clock::now()) {}
+			explicit StoreImpl(clock::time_point starttime)
+					: starttime(starttime), max(), min(), avg(), timepoints(), values() {}
+			StoreImpl(StoreImpl&& other) = default;
 
-		TimeSeries& operator=(TimeSeries&& other) = default;
+			StoreImpl& operator=(StoreImpl&& other) = default;
+			std::chrono::milliseconds currentTimestamp() const noexcept override {
+				return std::chrono::duration_cast<std::chrono::milliseconds>(clock::now() - starttime);
+				;
+			}
 
-		void addValue(const T& value) noexcept {
-			auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(clock::now() - starttime);
-			strategy->update(timepoints, values, delta, value);
-			max = maxFn(max, value);
-			min = minFn(min, value);
-			/** \todo update average **/
+			void addValue(const T& value, const std::chrono::milliseconds& timestamp) noexcept override {
+				timepoints.emplace_back(timestamp);
+				values.emplace_back(value);
+				max = maxFn(max, value);
+				min = minFn(min, value);
+				/** \todo update average **/
+			}
+
+			const T& maxValue() const noexcept override { return max; }
+			const T& minValue() const noexcept override { return min; }
+			const T& avgValue() const noexcept override { return avg; }
+			std::tuple<std::vector<std::chrono::milliseconds>&, std::vector<T>&> timeseries() noexcept override {
+				return {timepoints, values};
+			}
+			std::tuple<const std::vector<std::chrono::milliseconds>&, const std::vector<T>&>
+			timeseries() const noexcept override {
+				return {timepoints, values};
+			}
+
+			size_t size() const noexcept override { return timepoints.size(); }
+		};
+
+		template <typename T>
+		struct BatchedImpl final : public TimeSeriesImpl<T> {
+			std::chrono::milliseconds batchintervall;
+			std::unique_ptr<AggFn<T>> aggfn;
+			size_t startBatchingAtSize;
+			TimeSeries<T> ts;
+
+			[[nodiscard]] static inline std::unique_ptr<AggFn<T>> enumToAggFn(tirexAggregateFn fn) {
+				switch (fn) {
+				case TIREX_AGG_NO:
+					return nullptr;
+				case TIREX_AGG_MAX:
+					return std::make_unique<MaxAggFn<T>>();
+				case TIREX_AGG_MIN:
+					return std::make_unique<MinAggFn<T>>();
+				case TIREX_AGG_MEAN:
+					return std::make_unique<AvgAggFn<T>>();
+				default:
+					/** \todo handle more gracefully (e.g., return nullptr) **/
+					abort(); /** invalid value **/
+				};
+			}
+
+			BatchedImpl(
+					std::chrono::milliseconds batchintervall, tirexAggregateFn agg, size_t startBatchingAtSize,
+					TimeSeries<T>&& ts
+			)
+					: batchintervall(batchintervall), aggfn(enumToAggFn(agg)),
+					  startBatchingAtSize(std::max(size_t(1), startBatchingAtSize)), ts(std::move(ts)) {}
+
+			void addValue(const T& value, const std::chrono::milliseconds& timestamp) noexcept override {
+				const auto& [timepoints, values] = timeseries();
+				if (size() >= startBatchingAtSize &&
+					(timestamp - timepoints.back()) < batchintervall) { // Add to previous batch
+					values.back() = aggfn->update(value);
+				} else { // Start New Batch
+					aggfn->reset();
+					ts.addValue(aggfn->update(value), timestamp);
+				}
+			}
+			std::chrono::milliseconds currentTimestamp() const noexcept override { return ts.currentTimestamp(); }
+			const T& maxValue() const noexcept override { return ts.maxValue(); }
+			const T& minValue() const noexcept override { return ts.minValue(); }
+			const T& avgValue() const noexcept override { return ts.avgValue(); }
+			std::tuple<std::vector<std::chrono::milliseconds>&, std::vector<T>&> timeseries() noexcept override {
+				return ts.timeseries();
+			}
+			std::tuple<const std::vector<std::chrono::milliseconds>&, const std::vector<T>&>
+			timeseries() const noexcept override {
+				return ts.timeseries();
+			}
+
+			size_t size() const noexcept override { return ts.size(); }
+		};
+
+		template <typename T>
+		struct LimitImpl final : public TimeSeriesImpl<T> {
+			using AggFn = T (*)(const T& a, const T& b);
+			size_t limit;
+			AggFn aggfn;
+			TimeSeries<T> ts;
+
+			static AggFn enumToAggFn(tirexAggregateFn fn) {
+				switch (fn) {
+				case TIREX_AGG_NO:
+					return nullptr;
+				case TIREX_AGG_MAX:
+					return +[](const T& a, const T& b) { return std::max(a, b); };
+				case TIREX_AGG_MIN:
+					return +[](const T& a, const T& b) { return std::min(a, b); };
+				case TIREX_AGG_MEAN:
+					return +[](const T& a, const T& b) { return (a + b) / 2; };
+				default:
+					/** \todo handle more gracefully (e.g., return nullptr) **/
+					abort(); /** invalid value **/
+				};
+			}
+
+			LimitImpl(size_t limit, tirexAggregateFn agg, TimeSeries<T>&& ts)
+					: limit(limit), aggfn(enumToAggFn(agg)), ts(std::move(ts)) {}
+
+			void addValue(const T& value, const std::chrono::milliseconds& timestamp) noexcept override {
+				auto data = timeseries();
+				auto& [timepoints, values] = data;
+				if (size() >= limit) { // Aggregate every pair of elements to half the number of points
+					for (size_t i = 0; i < timepoints.size(); i += 2) {
+						timepoints[i / 2] = timepoints[i + 1];
+						values[i / 2] = aggfn(values[i], values[i + 1]);
+					}
+					/** \fixme does not yet work for uneven limit */
+					timepoints.resize(timepoints.size() / 2);
+					values.resize(timepoints.size());
+				}
+				ts.addValue(value, timestamp);
+			}
+			std::chrono::milliseconds currentTimestamp() const noexcept override { return ts.currentTimestamp(); }
+			const T& maxValue() const noexcept override { return ts.maxValue(); }
+			const T& minValue() const noexcept override { return ts.minValue(); }
+			const T& avgValue() const noexcept override { return ts.avgValue(); }
+			std::tuple<std::vector<std::chrono::milliseconds>&, std::vector<T>&> timeseries() noexcept override {
+				return ts.timeseries();
+			}
+			std::tuple<const std::vector<std::chrono::milliseconds>&, const std::vector<T>&>
+			timeseries() const noexcept override {
+				return ts.timeseries();
+			}
+
+			size_t size() const noexcept override { return ts.size(); }
+		};
+	} // namespace ts::details
+
+	namespace ts {
+
+		struct Batched final {
+		private:
+			std::chrono::milliseconds batchintervall;
+			tirexAggregateFn agg;
+			size_t startBatchingAtSize;
+
+		public:
+			Batched(std::chrono::milliseconds batchintervall, tirexAggregateFn agg, size_t startBatchingAtSize = 0)
+					: batchintervall(batchintervall), agg(agg), startBatchingAtSize(startBatchingAtSize) {}
+			template <typename T>
+			friend TimeSeries<T> operator|(TimeSeries<T>&& ts, const Batched& self) {
+				return TimeSeries<T>(std::make_unique<details::BatchedImpl<T>>(
+						self.batchintervall, self.agg, self.startBatchingAtSize, std::move(ts)
+				));
+			}
+		};
+
+		struct Limit final {
+		private:
+			size_t limit;
+			tirexAggregateFn agg;
+
+		public:
+			Limit(size_t limit, tirexAggregateFn agg) : limit(limit), agg(agg) {}
+			template <typename T>
+			friend TimeSeries<T> operator|(TimeSeries<T>&& ts, const Limit& self) {
+				return TimeSeries<T>(std::make_unique<details::LimitImpl<T>>(self.limit, self.agg, std::move(ts)));
+			}
+		};
+
+		template <typename T>
+		static inline TimeSeries<T> store() {
+			return TimeSeries<T>(std::make_unique<details::StoreImpl<T>>());
 		}
+	} // namespace ts
 
-		const T& maxValue() const noexcept { return max; }
-		const T& minValue() const noexcept { return min; }
-		const T& avgValue() const noexcept { return avg; }
-		const std::pair<const std::vector<std::chrono::milliseconds>&, const std::vector<T>&>
-		timeseries() const noexcept {
-			return {timepoints, values};
-		}
-
-		template <typename S, typename... Args>
-		static TimeSeries create(Args&&... args) {
-			return TimeSeries(std::make_unique<S>(std::forward<Args>(args)...));
-		}
-	};
 }; // namespace tirex
 
 #endif

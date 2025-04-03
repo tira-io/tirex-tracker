@@ -5,32 +5,67 @@
 
 using Catch::Matchers::RangeEquals;
 
-using tirex::MaxDataPoints;
-using tirex::TimeSeries;
+using namespace tirex::ts;
+using namespace std::chrono_literals;
 
-TEST_CASE("Timeseries", "[MaxDataPoints]") {
+#include <iostream>
+
+TEST_CASE("Timeseries", "[Batched]") {
 	{
-		auto timeseries = TimeSeries<unsigned>::create<MaxDataPoints<unsigned>>(4, TIREX_AGG_MAX);
+		auto timeseries = store<unsigned>() | Batched(10ms, TIREX_AGG_MEAN, 2);
+		CHECK(timeseries.size() == 0);
+
+		timeseries.addValue(0, 2ms);
+		CHECK(timeseries.size() == 1);
+		CHECK_THAT(std::get<0>(timeseries.timeseries()), RangeEquals(std::vector{2ms}));
+		CHECK_THAT(std::get<1>(timeseries.timeseries()), RangeEquals(std::vector{0}));
+
+		timeseries.addValue(1, 5ms); // Not aggregated because batching starts only after size==1
+		CHECK(timeseries.size() == 2);
+		CHECK_THAT(std::get<0>(timeseries.timeseries()), RangeEquals(std::vector{2ms, 5ms}));
+		CHECK_THAT(std::get<1>(timeseries.timeseries()), RangeEquals(std::vector{0, 1}));
+
+		timeseries.addValue(3, 14ms); // Aggregated because within the batch size
+		CHECK(timeseries.size() == 2);
+		CHECK_THAT(std::get<0>(timeseries.timeseries()), RangeEquals(std::vector{2ms, 5ms}));
+		CHECK_THAT(std::get<1>(timeseries.timeseries()), RangeEquals(std::vector{0, (1 + 3) / 2}));
+
+		timeseries.addValue(3, 16ms);
+		CHECK(timeseries.size() == 3);
+		CHECK_THAT(std::get<0>(timeseries.timeseries()), RangeEquals(std::vector{2ms, 5ms, 16ms}));
+		CHECK_THAT(std::get<1>(timeseries.timeseries()), RangeEquals(std::vector{0, 2, 3}));
+
+		timeseries.addValue(4, 27ms);
+		CHECK(timeseries.size() == 4);
+		CHECK_THAT(std::get<0>(timeseries.timeseries()), RangeEquals(std::vector{2ms, 5ms, 16ms, 27ms}));
+		CHECK_THAT(std::get<1>(timeseries.timeseries()), RangeEquals(std::vector{0, 2, 3, 4}));
+	}
+}
+
+TEST_CASE("Timeseries", "[Limit]") {
+	{
+		auto timeseries = store<unsigned>() | Limit(4, TIREX_AGG_MAX);
+		REQUIRE(timeseries.size() == 0);
 		timeseries.addValue(0);
-		REQUIRE(timeseries.timeseries().first.size() == 1);
-		CHECK_THAT(timeseries.timeseries().second, RangeEquals(std::vector{0}));
+		REQUIRE(timeseries.size() == 1);
+		CHECK_THAT(std::get<1>(timeseries.timeseries()), RangeEquals(std::vector{0}));
 		timeseries.addValue(1);
-		REQUIRE(timeseries.timeseries().first.size() == 2);
-		CHECK_THAT(timeseries.timeseries().second, RangeEquals(std::vector{0, 1}));
+		REQUIRE(timeseries.size() == 2);
+		CHECK_THAT(std::get<1>(timeseries.timeseries()), RangeEquals(std::vector{0, 1}));
 		timeseries.addValue(2);
-		REQUIRE(timeseries.timeseries().first.size() == 3);
-		CHECK_THAT(timeseries.timeseries().second, RangeEquals(std::vector{0, 1, 2}));
+		REQUIRE(timeseries.size() == 3);
+		CHECK_THAT(std::get<1>(timeseries.timeseries()), RangeEquals(std::vector{0, 1, 2}));
 		timeseries.addValue(3);
-		REQUIRE(timeseries.timeseries().first.size() == 4);
-		CHECK_THAT(timeseries.timeseries().second, RangeEquals(std::vector{0, 1, 2, 3}));
+		REQUIRE(timeseries.size() == 4);
+		CHECK_THAT(std::get<1>(timeseries.timeseries()), RangeEquals(std::vector{0, 1, 2, 3}));
 		timeseries.addValue(4);
-		REQUIRE(timeseries.timeseries().first.size() == 3);
-		CHECK_THAT(timeseries.timeseries().second, RangeEquals(std::vector{1, 3, 4}));
+		REQUIRE(timeseries.size() == 3);
+		CHECK_THAT(std::get<1>(timeseries.timeseries()), RangeEquals(std::vector{1, 3, 4}));
 		timeseries.addValue(5);
-		REQUIRE(timeseries.timeseries().first.size() == 4);
-		CHECK_THAT(timeseries.timeseries().second, RangeEquals(std::vector{1, 3, 4, 5}));
+		REQUIRE(timeseries.size() == 4);
+		CHECK_THAT(std::get<1>(timeseries.timeseries()), RangeEquals(std::vector{1, 3, 4, 5}));
 		timeseries.addValue(6);
-		REQUIRE(timeseries.timeseries().first.size() == 3);
-		CHECK_THAT(timeseries.timeseries().second, RangeEquals(std::vector{3, 5, 6}));
+		REQUIRE(timeseries.size() == 3);
+		CHECK_THAT(std::get<1>(timeseries.timeseries()), RangeEquals(std::vector{3, 5, 6}));
 	}
 }

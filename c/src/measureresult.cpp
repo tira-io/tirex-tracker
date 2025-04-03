@@ -49,6 +49,7 @@ overloaded(Ts...) -> overloaded<Ts...>;
 template <typename T>
 static std::string toYAML(const tirex::TimeSeries<T>& timeseries) {
 	const auto& [timestamps, values] = timeseries.timeseries();
+	static_assert(std::is_same_v<decltype(timestamps), const std::vector<std::chrono::milliseconds>&>);
 	return _fmt::format(
 			"{{max: {}, min: {}, avg: {}, timeseries: {{timestamps: [{}], values: [{}]}}}}", timeseries.maxValue(),
 			timeseries.minValue(), timeseries.avgValue(), tirex::utils::join(timestamps, ','),
@@ -58,11 +59,11 @@ static std::string toYAML(const tirex::TimeSeries<T>& timeseries) {
 
 extern tirexResult_st* tirex::createMsrResultFromStats(tirex::Stats&& stats) {
 	std::vector<std::pair<tirexMeasure, std::string>> result;
-	for (auto&& [key, value] : stats) {
+	for (const auto& [key, value] : stats) {
 		std::visit(
 				overloaded{
-						[key, &result](std::string& str) { result.emplace_back(key, std::move(str)); },
-						[key, &result](const tirex::TimeSeries<unsigned>& timeseries) {
+						[&](const std::string& str) { result.emplace_back(key, std::move(str)); },
+						[&](const tirex::TimeSeries<unsigned>& timeseries) {
 							result.emplace_back(key, toYAML(timeseries));
 						}
 				},
