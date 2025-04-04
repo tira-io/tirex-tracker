@@ -51,10 +51,10 @@ struct tirexMeasureHandle_st final {
 	static void monitorThread(tirexMeasureHandle_st* self) {
 		auto future = self->signal.get_future();
 		std::chrono::milliseconds intervall{self->pollIntervalMs};
-		while (future.wait_for(intervall) != std::future_status::ready) {
+		do {
 			for (auto& provider : self->providers)
 				provider->step();
-		}
+		} while (future.wait_for(intervall) != std::future_status::ready);
 	}
 };
 
