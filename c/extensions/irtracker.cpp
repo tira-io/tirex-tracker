@@ -198,9 +198,9 @@ static void writeResources(const ResultMap& results, std::ostream& stream) {
 	//// RUNTIME DATA
 	stream << "  runtime:\n";
 	if (ResultMap::const_iterator it; (it = results.find(TIREX_TIME_START)) != results.end())
-		stream << "    start time: " << it->second << "\n";
+		stream << "    start time: \"" << it->second << "\"\n";
 	if (ResultMap::const_iterator it; (it = results.find(TIREX_TIME_STOP)) != results.end())
-		stream << "    stop time: " << it->second << "\n";
+		stream << "    stop time: \"" << it->second << "\"\n";
 	if (ResultMap::const_iterator it; (it = results.find(TIREX_TIME_ELAPSED_WALL_CLOCK_MS)) != results.end())
 		stream << "    wallclock: " << it->second << " ms\n";
 	if (ResultMap::const_iterator it; (it = results.find(TIREX_TIME_ELAPSED_USER_MS)) != results.end())
