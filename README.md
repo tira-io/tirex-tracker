@@ -8,7 +8,7 @@
 [![Code coverage](https://img.shields.io/codecov/c/github/tira-io/tirex-tracker?style=flat-square)](https://codecov.io/github/tira-io/tirex-tracker/)
 \
 [![Release](https://img.shields.io/github/v/tag/tira-io/tirex-tracker?style=flat-square&label=library)](https://github.com/tira-io/tirex-tracker/releases/)
-[![Ubuntu](https://img.shields.io/badge/ubuntu-20.04_%7C_22.04_%7C_24.04-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
+[![Ubuntu](https://img.shields.io/badge/ubuntu-22.04_%7C_24.04-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
 [![macOS](https://img.shields.io/badge/macos-13_%7C_14-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
 [![Windows](https://img.shields.io/badge/windows-2019_%7C_2022_%7C_2025-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
 \
