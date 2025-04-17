@@ -18,6 +18,7 @@
 
 using namespace std::string_literals;
 using std::chrono::steady_clock;
+using std::chrono::system_clock;
 
 using tirex::Stats;
 using tirex::SystemStats;
@@ -213,7 +214,8 @@ SystemStats::SysInfo SystemStats::getSysInfo() {
 }
 
 void SystemStats::start() {
-	starttime = steady_clock::now();
+	starttimer = steady_clock::now();
+	startTimepoint = system_clock::now();
 	std::tie(startSysTime, startUTime) = getSysAndUserTime();
 	tirex::log::debug("windowsstats", "Start systime {} ms, utime {} ms", tickToMs(startSysTime), tickToMs(startUTime));
 	getUtilization(); // Call getUtilization once to init CPU Utilization tracking
@@ -221,10 +223,6 @@ void SystemStats::start() {
 	SYSTEM_INFO sysInfo;
 	GetSystemInfo(&sysInfo);
 	numProcessors = sysInfo.dwNumberOfProcessors;
-}
-void SystemStats::stop() {
-	stoptime = steady_clock::now();
-	std::tie(stopSysTime, stopUTime) = getSysAndUserTime();
 }
 void SystemStats::step() {
 	thread_local static std::vector<uint32_t> cpuFreqs;

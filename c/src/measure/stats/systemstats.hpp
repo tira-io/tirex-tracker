@@ -48,8 +48,26 @@ namespace tirex {
 		};
 
 	private:
-		std::chrono::steady_clock::time_point starttime;
-		std::chrono::steady_clock::time_point stoptime;
+		/**
+		 * @brief The starting timepoint of the tracking on the steady timer.
+		 * @details This uses the steady clock. Use startTimepoint to get the timestamp.
+		 */
+		std::chrono::steady_clock::time_point starttimer;
+		/**
+		 * @brief The stopping timepoint of the tracking on the steady timer.
+		 * @details This uses the steady clock. Use stopTimepoint to get the timestamp.
+		 */
+		std::chrono::steady_clock::time_point stoptimer;
+		/**
+		 * @brief The starting timepoint of the tracking on the system clock.
+		 * @details This uses the system clock. Use starttimer to measure runtime.
+		 */
+		std::chrono::system_clock::time_point startTimepoint;
+		/**
+		 * @brief The stopping timepoint of the tracking on the system clock.
+		 * @details This uses the system clock. Use stoptimer to measure runtime.
+		 */
+		std::chrono::system_clock::time_point stopTimepoint;
 
 		tirex::TimeSeries<unsigned> ram = ts::store<unsigned>() | ts::Limit(300, TIREX_AGG_MAX) |
 										  ts::Batched(100ms, TIREX_AGG_MAX, 300); /** \todo make agg configurable */

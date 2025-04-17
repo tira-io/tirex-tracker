@@ -28,6 +28,8 @@ static std::map<std::string, std::vector<tirexMeasureConf>> confGroups = {
 		{"system",
 		 {{TIREX_OS_NAME, TIREX_AGG_NO},
 		  {TIREX_OS_KERNEL, TIREX_AGG_NO},
+		  {TIREX_TIME_START, TIREX_AGG_NO},
+		  {TIREX_TIME_STOP, TIREX_AGG_NO},
 		  {TIREX_TIME_ELAPSED_WALL_CLOCK_MS, TIREX_AGG_NO},
 		  {TIREX_TIME_ELAPSED_USER_MS, TIREX_AGG_NO},
 		  {TIREX_TIME_ELAPSED_SYSTEM_MS, TIREX_AGG_NO},

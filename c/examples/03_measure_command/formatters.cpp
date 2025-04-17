@@ -5,6 +5,8 @@
 static const char* measureToName[] = {
 		/*[TIREX_OS_NAME] =*/"os name",
 		/*[TIREX_OS_KERNEL] =*/"os kernel",
+		/*[TIREX_TIME_START] =*/"time start",
+		/*[TIREX_TIME_STOP] =*/"time stop",
 		/*[TIREX_TIME_ELAPSED_WALL_CLOCK_MS] =*/"time elapsed wall clock ms",
 		/*[TIREX_TIME_ELAPSED_USER_MS] =*/"time elapsed user ms",
 		/*[TIREX_TIME_ELAPSED_SYSTEM_MS] =*/"time elapsed system ms",
@@ -48,6 +50,7 @@ static const char* measureToName[] = {
 		/*[TIREX_GIT_UNPUSHED_CHANGES] =*/"git unpushed changes",
 		/*[TIREX_GIT_UNCHECKED_FILES] =*/"git unchecked files"
 };
+static_assert((sizeof(measureToName) / sizeof(*measureToName)) == TIREX_MEASURE_COUNT);
 
 /* SIMPLE FORMATTER */
 void tirex::simpleFormatter(std::ostream& stream, const tirexResult* info, const tirexResult* result) noexcept {

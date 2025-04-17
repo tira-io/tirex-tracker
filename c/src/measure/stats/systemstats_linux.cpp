@@ -19,6 +19,7 @@
 #include <optional>
 
 using std::chrono::steady_clock;
+using std::chrono::system_clock;
 
 using tirex::Stats;
 using tirex::SystemStats;
@@ -79,14 +80,11 @@ SystemStats::SysInfo SystemStats::getSysInfo() {
 
 void SystemStats::start() {
 	tirex::log::info("linuxstats", "Collecting resources for Process {}", pid);
-	starttime = steady_clock::now();
+	starttimer = steady_clock::now();
+	startTimepoint = system_clock::now();
 	std::tie(startSysTime, startUTime) = getSysAndUserTime();
 	tirex::log::debug("linuxstats", "Start systime {} ms, utime {} ms", tickToMs(startSysTime), tickToMs(startUTime));
 	getUtilization(); // Call getUtilization once to init CPU Utilization tracking
-}
-void SystemStats::stop() {
-	stoptime = steady_clock::now();
-	std::tie(stopSysTime, stopUTime) = getSysAndUserTime();
 }
 
 void SystemStats::step() {

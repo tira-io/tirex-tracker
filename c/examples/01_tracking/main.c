@@ -42,6 +42,8 @@ static void logcallback(tirexLogLevel level, const char* component, const char* 
 static const char* measureToName[] = {
 		[TIREX_OS_NAME] = "os name",
 		[TIREX_OS_KERNEL] = "os kernel",
+		[TIREX_TIME_START] = "time start",
+		[TIREX_TIME_STOP] = "time stop",
 		[TIREX_TIME_ELAPSED_WALL_CLOCK_MS] = "time elapsed wall clock ms",
 		[TIREX_TIME_ELAPSED_USER_MS] = "time elapsed user ms",
 		[TIREX_TIME_ELAPSED_SYSTEM_MS] = "time elapsed system ms",
@@ -85,6 +87,7 @@ static const char* measureToName[] = {
 		[TIREX_GIT_UNPUSHED_CHANGES] = "git unpushed changes",
 		[TIREX_GIT_UNCHECKED_FILES] = "git unchecked files"
 };
+static_assert((sizeof(measureToName) / sizeof(*measureToName)) == TIREX_MEASURE_COUNT);
 
 static void printResult(const tirexResult* result, const char* prefix) {
 	size_t num;
@@ -112,6 +115,8 @@ int main(int argc, char* argv[]) {
 	const tirexMeasureConf providers[] = {
 			{TIREX_OS_NAME, TIREX_AGG_NO},
 			{TIREX_OS_KERNEL, TIREX_AGG_NO},
+			{TIREX_TIME_START, TIREX_AGG_NO},
+			{TIREX_TIME_STOP, TIREX_AGG_NO},
 			{TIREX_TIME_ELAPSED_WALL_CLOCK_MS, TIREX_AGG_NO},
 			{TIREX_TIME_ELAPSED_USER_MS, TIREX_AGG_NO},
 			{TIREX_TIME_ELAPSED_SYSTEM_MS, TIREX_AGG_NO},
