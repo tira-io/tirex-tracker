@@ -1,18 +1,29 @@
-<!-- TODO: Add badges. -->
-
 <img width="100%" src="assets/banner.jpeg" alt="TIREx tracker banner image">
 <h1 align="center">TIREx Tracker</h1>
 <p align="center">Automatic resource and metadata tracking for information retrieval experiments.</p>
 <div align="center">
 
 [![CI](https://img.shields.io/github/actions/workflow/status/tira-io/tirex-tracker/ci.yml?branch=master&style=flat-square)](https://github.com/tira-io/tirex-tracker/actions/workflows/ci.yml)
-[![Maintenance](https://img.shields.io/maintenance/yes/2025?style=flat-square)](https://github.com/tira-io/tirex-tracker/graphs/contributors) [![Code coverage](https://img.shields.io/codecov/c/github/tira-io/tirex-tracker?style=flat-square)](https://codecov.io/github/tira-io/tirex-tracker/) \
-[![Release](https://img.shields.io/github/v/tag/tira-io/tirex-tracker?style=flat-square&label=library)](https://github.com/tira-io/tirex-tracker/releases/) [![Ubuntu](https://img.shields.io/badge/ubuntu-22.04_%7C_24.04-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/) [![macOS](https://img.shields.io/badge/macos-13_%7C_14-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/) [![Windows](https://img.shields.io/badge/windows-2019_%7C_2022-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/) \
-[![PyPi](https://img.shields.io/pypi/v/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Python](https://img.shields.io/pypi/pyversions/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Downloads](https://img.shields.io/pypi/dm/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) \
-[![Maven](https://img.shields.io/maven-central/v/io.tira/tirex-tracker?style=flat-square)](https://central.sonatype.com/artifact/io.tira/tirex-tracker) [![Java](https://img.shields.io/badge/java-8_%7C_11_%7C_17_%7C_21-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/packages/) \
-[![Issues](https://img.shields.io/github/issues/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/issues) [![Commit activity](https://img.shields.io/github/commit-activity/m/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/commits) [![License](https://img.shields.io/github/license/tira-io/tirex-tracker?style=flat-square)](LICENSE)
+[![Maintenance](https://img.shields.io/maintenance/yes/2025?style=flat-square)](https://github.com/tira-io/tirex-tracker/graphs/contributors)
+[![Code coverage](https://img.shields.io/codecov/c/github/tira-io/tirex-tracker?style=flat-square)](https://codecov.io/github/tira-io/tirex-tracker/)
+\
+[![Release](https://img.shields.io/github/v/tag/tira-io/tirex-tracker?style=flat-square&label=library)](https://github.com/tira-io/tirex-tracker/releases/)
+[![Ubuntu](https://img.shields.io/badge/ubuntu-22.04_%7C_24.04-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
+[![macOS](https://img.shields.io/badge/macos-13_%7C_14-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
+[![Windows](https://img.shields.io/badge/windows-2019_%7C_2022_%7C_2025-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
+\
+[![PyPi](https://img.shields.io/pypi/v/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/)
+[![Python](https://img.shields.io/pypi/pyversions/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/)
+[![Downloads](https://img.shields.io/pypi/dm/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/)
+\
+[![Maven](https://img.shields.io/maven-central/v/io.tira/tirex-tracker?style=flat-square)](https://central.sonatype.com/artifact/io.tira/tirex-tracker)
+[![Java](https://img.shields.io/badge/java-8_%7C_11_%7C_17_%7C_21-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/packages/)
+\
+[![Issues](https://img.shields.io/github/issues/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/issues)
+[![Commit activity](https://img.shields.io/github/commit-activity/m/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/commits)
+[![License](https://img.shields.io/github/license/tira-io/tirex-tracker?style=flat-square)](LICENSE)
 
-[CLI](#command-line-tool) • [C/C++ API](#cc-api) • [Python API](#python-api) • [Java/Kotlin API](#javakotlinjvm-api) • [Citation](#citation)
+[CLI](#command-line-tool)&emsp;•&emsp;[C/C++ API](#cc-api)&emsp;•&emsp;[Python API](#python-api)&emsp;•&emsp;[Java/Kotlin API](#javakotlinjvm-api)&emsp;•&emsp;[Citation](#citation)
 
 </div>
 
@@ -289,7 +300,7 @@ Target                   | Type          | Description
 **04_ir_extension**      | Executable    | Example 04: demonstrating the IR extension (`measureext_ir`).
 **tirex_tracker_docs**   | Documentation | Builds the documentation; Is only available if Doxygen is installed.
 **package**              | Package       | Builds a debian package.
-=======
+
 
 That means, to build the Debian package, run:
 
@@ -351,9 +362,20 @@ jvm/gradlew --project-dir jvm/ check
 
 ## Citation
 
-The TIREx tracker's accompanying paper is under review. We will add citation instructions once it is published.
+If you find our work useful and reference or use it in a paper, please cite us.
 
-<!-- TODO: Add citation (written out and as BibTeX). -->
+```bibtex
+@inproceedings{tirextracker2025,
+    author = {Hagen, Tim and Fr{\"o}be, Maik and Merker, Jan Heinrich and Scells, Harrisen and Hagen, Matthias and Potthast, Martin},
+    booktitle = {48th International ACM SIGIR Conference on Research and Development in Information Retrieval (SIGIR 2025)},
+    month = jul,
+    publisher = {ACM},
+    title = {{TIREx Tracker: The Information Retrieval Experiment Tracker}},
+    year = {2025}
+}
+```
+
+You can also use the [`CITATION.cff`](./CITATION.cff) to generate a citation in other formats.
 
 ## License
 
