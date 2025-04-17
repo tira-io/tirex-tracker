@@ -19,6 +19,7 @@
 
 using namespace std::string_literals;
 using std::chrono::steady_clock;
+using std::chrono::system_clock;
 
 using tirex::Stats;
 using tirex::SystemStats;
@@ -124,7 +125,8 @@ SystemStats::SysInfo SystemStats::getSysInfo() {
 
 void SystemStats::start() {
 	tirex::log::info("macosstats", "Collecting resources for Process {}", pid);
-	starttime = steady_clock::now();
+	starttimer = steady_clock::now();
+	startTimepoint = system_clock::now();
 	std::tie(startSysTime, startUTime) = getSysAndUserTime();
 	tirex::log::debug("macosstats", "Start systime {} ms, utime {} ms", tickToMs(startSysTime), tickToMs(startUTime));
 
@@ -167,11 +169,6 @@ void SystemStats::start() {
 	}
 	CFShow(delta);
 #endif
-}
-
-void SystemStats::stop() {
-	stoptime = steady_clock::now();
-	std::tie(stopSysTime, stopUTime) = getSysAndUserTime();
 }
 
 void SystemStats::step() {
