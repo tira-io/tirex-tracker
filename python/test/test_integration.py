@@ -44,8 +44,8 @@ def test_python_script() -> None:
         if buffer.endswith(b"ir_metadata.end\n"):
             buffer = buffer[: -len(b"ir_metadata.end\n")]
 
+        yaml = YAML(typ="safe")
         with BytesIO(buffer) as yaml_file:
-            yaml = YAML(typ="safe")
             yaml_content = yaml.load(yaml_file)
 
         assert "implementation" in yaml_content
@@ -97,8 +97,8 @@ def test_jupyter_notebook() -> None:
         if buffer.endswith(b"ir_metadata.end\n"):
             buffer = buffer[: -len(b"ir_metadata.end\n")]
 
+        yaml = YAML(typ="safe")
         with BytesIO(buffer) as yaml_file:
-            yaml = YAML(typ="safe")
             yaml_content = yaml.load(yaml_file)
 
         assert "implementation" in yaml_content
