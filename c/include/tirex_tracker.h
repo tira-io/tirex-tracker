@@ -52,10 +52,6 @@ typedef enum tirexError_enum { TIREX_SUCCESS = 0, TIREX_INVALID_ARGUMENT = 1 } t
 typedef enum tirexMeasure_enum {
 	TIREX_OS_NAME = 0,	 /**< Retrieve the name of the operating system (EnvInfo). */
 	TIREX_OS_KERNEL = 1, /**< Retrieve the version of the kernel (EnvInfo). */
-
-	// Note: The `TIREX_TIME_START`/`TIREX_TIME_STOP` measures were added later, and hence, have new enum values (for backwards compatibility).
-	TIREX_TIME_START = 44, /**< Timestamp when the tracking was started. */
-	TIREX_TIME_STOP = 45,  /**< Timestamp when the tracking was started. */
 	/**
 	 * @brief Measure the "real" (wall clock) time in milliseconds that elapsed between tirexStartTracking and
 	 * tirexStopTracking (Measurement).
@@ -115,6 +111,10 @@ typedef enum tirexMeasure_enum {
 	TIREX_GIT_UNCOMMITTED_CHANGES = 41,
 	TIREX_GIT_UNPUSHED_CHANGES = 42,
 	TIREX_GIT_UNCHECKED_FILES = 43,
+
+	// Note: The `TIREX_TIME_START`/`TIREX_TIME_STOP` measures were added later, and hence, have new enum values (for backwards compatibility).
+	TIREX_TIME_START = 44, /**< Timestamp when the tracking was started. */
+	TIREX_TIME_STOP = 45,  /**< Timestamp when the tracking was started. */
 
 	/**
 	 * @brief The total number of supported measures.
