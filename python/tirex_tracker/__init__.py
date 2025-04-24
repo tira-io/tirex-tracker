@@ -74,6 +74,8 @@ class Error(IntEnum):
 class Measure(IntEnum):
     OS_NAME = 0
     OS_KERNEL = 1
+    TIME_START = 44
+    TIME_STOP = 45
     TIME_ELAPSED_WALL_CLOCK_MS = 2
     TIME_ELAPSED_USER_MS = 3
     TIME_ELAPSED_SYSTEM_MS = 4
@@ -867,10 +869,11 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         if buffer.endswith(b"ir_metadata.end\n"):
             buffer = buffer[: -len(b"ir_metadata.end\n")]
 
-        with BytesIO(buffer) as yaml_file:
-            yaml = YAML(typ="safe")
-            tmp_ir_metadata = yaml.load(yaml_file)
+        yaml = YAML(typ="safe", pure=True)
+        yaml.default_style = '"'  # type: ignore
 
+        with BytesIO(buffer) as yaml_file:
+            tmp_ir_metadata = yaml.load(yaml_file)
         ir_metadata = _recursive_defaultdict()
 
         # Add user-provided metadata.
@@ -948,7 +951,6 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
             if write_prefix_suffix:
                 file.write("ir_metadata.start\n")
 
-            yaml = YAML(typ="safe", pure=True)
             yaml.width = 10_000
             yaml.dump(
                 data=ir_metadata,

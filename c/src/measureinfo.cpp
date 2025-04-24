@@ -25,6 +25,14 @@ static const tirexMeasureInfo measureInfos[]{
 		 .datatype = tirexResultType::TIREX_STRING,
 		 .example = "Linux 6.12.8-200.fc41.x86_64 x86_64"},
 		// Time
+		/*[TIREX_TIME_START] = */
+		{.description = "Timestamp when the tracking was started.",
+		 .datatype = tirexResultType::TIREX_STRING,
+		 .example = "2025-04-17T08:00:50.996022428+0000"},
+		/*[TIREX_TIME_STOP] = */
+		{.description = "Timestamp when the tracking was stopped.",
+		 .datatype = tirexResultType::TIREX_STRING,
+		 .example = "2025-04-17T08:00:55.666974375+0000"},
 		/*[TIREX_TIME_ELAPSED_WALL_CLOCK_MS] = */
 		{.description = "The (\"real\") wall clock time in milliseconds elapsed during tracking.",
 		 .datatype = tirexResultType::TIREX_STRING,
@@ -202,6 +210,7 @@ static const tirexMeasureInfo measureInfos[]{
 		 .datatype = tirexResultType::TIREX_STRING,
 		 .example = "1"},
 };
+static_assert((sizeof(measureInfos) / sizeof(*measureInfos)) == TIREX_MEASURE_COUNT);
 
 tirexError tirexMeasureInfoGet(tirexMeasure measure, const tirexMeasureInfo** info) {
 	if (measure < 0 || measure >= tirexMeasure::TIREX_MEASURE_COUNT)
