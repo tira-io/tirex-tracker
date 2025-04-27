@@ -46,10 +46,17 @@ public:
 	using DEVICE_GET_MEMORY_INFO = nvmlReturn_t (*)(nvmlDevice_t device, nvmlMemory_t* memory);
 	DEVICE_GET_MEMORY_INFO deviceGetMemoryInfo = load<DEVICE_GET_MEMORY_INFO>({"nvmlDeviceGetMemoryInfo"});
 
-	// nvmlDeviceGetProcessUtilization
+	using DEVICE_GET_PROCESS_UTILIZATION = nvmlReturn_t (*)(
+			nvmlDevice_t device, nvmlProcessUtilizationSample_t* utilization, unsigned int* processSamplesCount,
+			unsigned long long lastSeenTimeStamp
+	);
+	DEVICE_GET_PROCESS_UTILIZATION deviceGetProcessUtilization =
+			load<DEVICE_GET_PROCESS_UTILIZATION>({"nvmlDeviceGetProcessUtilization"});
 
-	// using DEVICE_GET_COMPUTE_RUNNING_PROCESSES =	nvmlReturn_t (*)(nvmlDevice_t device, unsigned int* infoCount, nvmlProcessInfo_t* infos);
-	// DEVICE_GET_COMPUTE_RUNNING_PROCESSES deviceGetComputeRunningProcesses = oad<DEVICE_GET_COMPUTE_RUNNING_PROCESSES>({"nvmlDeviceGetComputeRunningProcesses_v3"});
+	using DEVICE_GET_COMPUTE_RUNNING_PROCESSES =
+			nvmlReturn_t (*)(nvmlDevice_t device, unsigned int* infoCount, nvmlProcessInfo_t* infos);
+	DEVICE_GET_COMPUTE_RUNNING_PROCESSES deviceGetComputeRunningProcesses =
+			load<DEVICE_GET_COMPUTE_RUNNING_PROCESSES>({"nvmlDeviceGetComputeRunningProcesses_v3"});
 
 	using DEVICE_GET_RUNNING_PROCESS_DETAIL_LIST =
 			nvmlReturn_t (*)(nvmlDevice_t device, nvmlProcessDetailList_t* plist);
@@ -111,7 +118,16 @@ static bool initNVML() {
 	return false;
 }
 
-NVMLStats::NVMLStats() : nvml({.supported = initNVML(), .devices = {}}) {
+NVMLStats::NVMLStats()
+		: nvml({.supported = initNVML(), .devices = {}})
+#if defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
+		  ,
+		  pid(GetCurrentProcess())
+#elif __APPLE__ || __linux__
+		  ,
+		  pid(getpid())
+#endif
+{
 	if (!nvml.supported)
 		return;
 	unsigned int count;
@@ -164,29 +180,60 @@ void NVMLStats::step() {
 		}
 	}
 
-	/*unsigned int processCount;
-	for (auto device : nvml.devices) {
-		// Get the list of running processes
-		nvmlProcessDetailList_t list;
-		list.version = nvmlProcessDetailList_v1;
-		list.numProcArrayEntries = 0;
-		list.procArray = nullptr;
-		auto result = ::nvml.deviceGetRunningProcessDetailList(device, &list);
-		if (result == NVML_SUCCESS) {
-			std::cout << "No processes running on GPU" << std::endl;
-			continue;
-		} else if (result == NVML_ERROR_INSUFFICIENT_SIZE) {
-			std::vector<nvmlProcessDetail_v1_t> buf;
-			buf.resize(list.numProcArrayEntries);
-			list.procArray = buf.data();
-			result = ::nvml.deviceGetRunningProcessDetailList(device, &list);
-			for (auto element : buf) {
-				std::cout << "PID: " << element.pid << " Mem: " << element.usedGpuMemory << std::endl;
+	/** Get VRAM Usage per Process **/
+	// This currently only fetches the memory used for compute. We could additionally fetch:
+	//  - nvmlDeviceGetGraphicsRunningProcesses
+	//  - nvmlDeviceGetMPSComputeRunningProcesses
+	{
+		static thread_local std::vector<nvmlProcessInfo_t> buffer;
+		for (auto device : nvml.devices) {
+			unsigned count = buffer.size();
+			nvmlReturn_t result;
+			while ((result = ::nvml.deviceGetComputeRunningProcesses(device, &count, buffer.data())) ==
+				   NVML_ERROR_INSUFFICIENT_SIZE)
+				buffer.resize(count);
+			if (result == NVML_SUCCESS) {
+				unsigned memory = 0;
+				// Don't iterate buffer itself here since only the first count entries are valid
+				for (size_t i = 0; i < count; ++i) {
+					auto& util = buffer[i];
+					if (util.pid == pid) /** \todo check if pid is child of the tracked process **/
+						memory += util.usedGpuMemory;
+				}
+				nvml.vramUsageProcess.addValue(memory);
+			} else {
+				tirex::log::critical("gpustats", "Error: {}", ::nvml.errorString(result));
+				abort(); /** \todo handle more gracefully */
 			}
-		} else {
-			std::cout << "Error: " << ::nvml.errorString(result) << std::endl;
 		}
-	}*/
+	}
+
+	/** Get Utilization Information per Process **/
+	{
+		static thread_local std::vector<nvmlProcessUtilizationSample_t> buffer;
+		for (auto device : nvml.devices) {
+			unsigned count = buffer.size();
+			nvmlReturn_t result;
+			while ((result =
+							::nvml.deviceGetProcessUtilization(device, buffer.data(), &count, nvml.processUtilTimestamp)
+				   ) == NVML_ERROR_INSUFFICIENT_SIZE)
+				buffer.resize(count);
+			if (result == NVML_SUCCESS) {
+				unsigned utilization = 0;
+				// Don't iterate buffer itself here since only the first count entries are valid
+				for (size_t i = 0; i < count; ++i) {
+					auto& util = buffer[i];
+					if (util.pid == pid)			/** \todo check if pid is child of the tracked process **/
+						utilization += util.smUtil; // Track the 3D/compute utilization
+					nvml.processUtilTimestamp = util.timeStamp;
+				}
+				nvml.utilizationProcess.addValue(utilization);
+			} else {
+				tirex::log::critical("gpustats", "Error: {}", ::nvml.errorString(result));
+				abort(); /** \todo handle more gracefully */
+			}
+		}
+	}
 }
 
 std::set<tirexMeasure> NVMLStats::providedMeasures() noexcept { return measures; }
@@ -194,9 +241,9 @@ std::set<tirexMeasure> NVMLStats::providedMeasures() noexcept { return measures;
 Stats NVMLStats::getStats() {
 	if (nvml.supported) {
 		return makeFilteredStats(
-				enabled, std::pair{TIREX_GPU_USED_PROCESS_PERCENT, "TODO"s},
+				enabled, std::pair{TIREX_GPU_USED_PROCESS_PERCENT, std::cref(nvml.utilizationProcess)},
 				std::pair{TIREX_GPU_USED_SYSTEM_PERCENT, std::cref(nvml.utilizationTotal)},
-				std::pair{TIREX_GPU_VRAM_USED_PROCESS_MB, "TODO"s},
+				std::pair{TIREX_GPU_VRAM_USED_PROCESS_MB, std::cref(nvml.vramUsageProcess)},
 				std::pair{TIREX_GPU_VRAM_USED_SYSTEM_MB, std::cref(nvml.vramUsageTotal)}
 		);
 	} else {
