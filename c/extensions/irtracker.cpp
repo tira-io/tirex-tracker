@@ -215,7 +215,7 @@ static void writeResources(const ResultMap& results, std::ostream& stream) {
 	if (ResultMap::const_iterator it; (it = results.find(TIREX_CPU_USED_SYSTEM_PERCENT)) != results.end())
 		stream << "    used system: " << it->second << '\n';
 	if (ResultMap::const_iterator it; (it = results.find(TIREX_CPU_ENERGY_SYSTEM_JOULES)) != results.end())
-		stream << "    used energy: " << it->second << 'J \n';
+		stream << "    energy used system: " << it->second << " J\n";
 	//// GPU DATA
 	stream << "  gpu:\n";
 	if (ResultMap::const_iterator it; (it = results.find(TIREX_GPU_USED_PROCESS_PERCENT)) != results.end())
@@ -226,6 +226,8 @@ static void writeResources(const ResultMap& results, std::ostream& stream) {
 		stream << "    vram used process: " << it->second << '\n';
 	if (ResultMap::const_iterator it; (it = results.find(TIREX_GPU_VRAM_USED_SYSTEM_MB)) != results.end())
 		stream << "    vram used system: " << it->second << '\n';
+	if (ResultMap::const_iterator it; (it = results.find(TIREX_GPU_ENERGY_SYSTEM_JOULES)) != results.end())
+		stream << "    energy used system: " << it->second << " J\n";
 	//// RAM DATA
 	stream << "  ram:\n";
 	if (ResultMap::const_iterator it; (it = results.find(TIREX_RAM_USED_PROCESS_KB)) != results.end())
@@ -233,7 +235,7 @@ static void writeResources(const ResultMap& results, std::ostream& stream) {
 	if (ResultMap::const_iterator it; (it = results.find(TIREX_RAM_USED_SYSTEM_MB)) != results.end())
 		stream << "    used system: " << it->second << '\n';
 	if (ResultMap::const_iterator it; (it = results.find(TIREX_RAM_ENERGY_SYSTEM_JOULES)) != results.end())
-		stream << "    used energy: " << it->second << 'J \n';
+		stream << "    energy used system: " << it->second << " J\n";
 }
 
 // Not static because internally the measurecommand calls this. Not pretty :(
