@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 SCRIPT_DIR=$(dirname "$0")
-TRACKER="measure-0.2.12-linux"
+TRACKER="measure-0.2.13-linux"
 
 TRACKER_METADATA="/tmp/tira-metadata"
 
