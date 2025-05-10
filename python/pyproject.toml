@@ -40,6 +40,7 @@ tests = [
     "runnb~=1.0",
     "ruff>=0.9,<0.12",
     "jupyter~=1.1",
+    "pyaml",
 ]
 docs = [
     "sphinx~=8.1",

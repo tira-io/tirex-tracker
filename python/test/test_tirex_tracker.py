@@ -3,6 +3,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import sleep
 from typing import Collection, Mapping
+import yaml
 
 from tirex_tracker import (
     provider_infos,
@@ -193,6 +194,9 @@ def test_tracking_export_ir_metadata() -> None:
         assert export_file_path.exists()
         assert export_file_path.is_file()
         assert export_file_path.stat().st_size > 0
+        with open(export_file_path, 'r') as stream:
+            yml_loaded = yaml.safe_load(stream)
+            assert yml_loaded
 
 
 # TODO: Add test to check that the result type matches the measure info's data type.
