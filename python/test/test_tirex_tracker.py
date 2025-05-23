@@ -1,4 +1,5 @@
 from faulthandler import enable as faulthandler_enable
+from io import BytesIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import sleep
@@ -194,7 +195,14 @@ def test_tracking_export_ir_metadata() -> None:
         assert export_file_path.exists()
         assert export_file_path.is_file()
         assert export_file_path.stat().st_size > 0
-        with open(export_file_path, 'r') as stream:
+
+        buffer = Path(export_file_path).read_bytes()
+        if buffer.startswith(b"ir_metadata.start\n"):
+            buffer = buffer[len(b"ir_metadata.start\n") :]
+        if buffer.endswith(b"ir_metadata.end\n"):
+            buffer = buffer[: -len(b"ir_metadata.end\n")]
+
+        with BytesIO(buffer) as stream:
             yml_loaded = yaml.safe_load(stream)
             assert yml_loaded
 
