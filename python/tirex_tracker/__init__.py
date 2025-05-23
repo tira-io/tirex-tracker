@@ -951,10 +951,6 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
             safe_dump(
                 data=ir_metadata,
                 stream=file,
-                default_flow_style=True,
-                default_style='"',
-                width=10_000,
-                indent=2,
                 encoding="utf-8",
             )
             if write_prefix_suffix:
