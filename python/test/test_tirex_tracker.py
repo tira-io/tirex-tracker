@@ -166,7 +166,7 @@ def test_tracking_export_ir_metadata() -> None:
         assert tmp_dir_path.exists()
         assert tmp_dir_path.is_dir()
 
-        export_file_path = tmp_dir_path / ".ir_metadata"
+        export_file_path = tmp_dir_path / ".ir_metadata.yml"
         assert not export_file_path.exists()
 
         with tracking(
