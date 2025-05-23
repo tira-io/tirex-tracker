@@ -49,7 +49,7 @@ from typing import (
 
 from IPython import get_ipython
 from typing_extensions import ParamSpec, Self, TypeAlias  # type: ignore
-from ruamel.yaml import YAML
+from yaml import safe_load as yaml_safe_load, safe_dump as yaml_safe_dump
 
 from tirex_tracker.archive_utils import create_code_archive, git_repo_or_none
 
@@ -869,11 +869,8 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         if buffer.endswith(b"ir_metadata.end\n"):
             buffer = buffer[: -len(b"ir_metadata.end\n")]
 
-        yaml = YAML(typ="safe", pure=True)
-        yaml.default_style = '"'  # type: ignore
-
         with BytesIO(buffer) as yaml_file:
-            tmp_ir_metadata = yaml.load(yaml_file)
+            tmp_ir_metadata = yaml_safe_load(yaml_file)
         ir_metadata = _recursive_defaultdict()
 
         # Add user-provided metadata.
@@ -951,10 +948,10 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
             if write_prefix_suffix:
                 file.write("ir_metadata.start\n")
 
-            yaml.width = 10_000
-            yaml.dump(
+            yaml_safe_dump(
                 data=ir_metadata,
                 stream=file,
+                encoding="utf-8",
             )
             if write_prefix_suffix:
                 file.write("ir_metadata.end\n")
