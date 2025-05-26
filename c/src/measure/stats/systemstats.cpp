@@ -22,7 +22,11 @@ namespace _fmt = fmt;
 #include <sstream>
 #include <tuple>
 
+#include "../utils/rangeutils.hpp"
+
 using namespace std::string_literals;
+using std::chrono::steady_clock;
+using std::chrono::system_clock;
 
 using tirex::Stats;
 using tirex::SystemStats;
@@ -73,6 +77,8 @@ const std::set<tirexMeasure> SystemStats::measures{
 		TIREX_OS_NAME,
 		TIREX_OS_KERNEL,
 
+		TIREX_TIME_START,
+		TIREX_TIME_STOP,
 		TIREX_TIME_ELAPSED_WALL_CLOCK_MS,
 		TIREX_TIME_ELAPSED_USER_MS,
 		TIREX_TIME_ELAPSED_SYSTEM_MS,
@@ -413,21 +419,28 @@ SystemStats::CPUInfo SystemStats::getCPUInfo() {
 
 std::set<tirexMeasure> SystemStats::providedMeasures() noexcept { return measures; }
 
+void SystemStats::stop() {
+	stoptimer = steady_clock::now();
+	stopTimepoint = system_clock::now();
+	std::tie(stopSysTime, stopUTime) = getSysAndUserTime();
+}
+
 Stats SystemStats::getInfo() {
 	auto info = getSysInfo();
 	auto cpuInfo = getCPUInfo();
 
-	std::string caches = "";
 	size_t cacheIdx = 1;
+	std::vector<std::string> entries;
 	for (auto& [unified, instruct, data] : cpuInfo.caches) {
 		if (unified)
-			caches += _fmt::format("\"l{}\": \"{} KiB\",", cacheIdx, unified / 1024);
+			entries.emplace_back(std::move(_fmt::format("\"l{}\": \"{} KiB\"", cacheIdx, unified / 1024)));
 		if (instruct)
-			caches += _fmt::format("\"l{}i\": \"{} KiB\",", cacheIdx, instruct / 1024);
+			entries.emplace_back(std::move(_fmt::format("\"l{}i\": \"{} KiB\"", cacheIdx, instruct / 1024)));
 		if (data)
-			caches += _fmt::format("\"l{}d\": \"{} KiB\",", cacheIdx, data / 1024);
+			entries.emplace_back(std::move(_fmt::format("\"l{}d\": \"{} KiB\"", cacheIdx, data / 1024)));
 		++cacheIdx;
 	}
+	std::string caches = "{"s + utils::join(entries, ',') + "}";
 
 	return makeFilteredStats(
 			enabled, std::pair{TIREX_OS_NAME, info.osname}, std::pair{TIREX_OS_KERNEL, info.kerneldesc},
@@ -450,14 +463,17 @@ Stats SystemStats::getInfo() {
 
 Stats SystemStats::getStats() {
 	auto wallclocktime =
-			std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(stoptime - starttime).count());
+			std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(stoptimer - starttimer).count());
 
 	return makeFilteredStats(
-			enabled, std::pair{TIREX_TIME_ELAPSED_WALL_CLOCK_MS, wallclocktime},
+			enabled, std::pair{TIREX_TIME_START, _fmt::format("{:%FT%T%z}", startTimepoint)},
+			std::pair{TIREX_TIME_STOP, _fmt::format("{:%FT%T%z}", stopTimepoint)},
+			std::pair{TIREX_TIME_ELAPSED_WALL_CLOCK_MS, wallclocktime},
 			std::pair{TIREX_TIME_ELAPSED_USER_MS, std::to_string(tickToMs(stopUTime - startUTime))},
 			std::pair{TIREX_TIME_ELAPSED_SYSTEM_MS, std::to_string(tickToMs(stopSysTime - startSysTime))},
-			std::pair{TIREX_CPU_USED_PROCESS_PERCENT, cpuUtil}, std::pair{TIREX_CPU_USED_SYSTEM_PERCENT, sysCpuUtil},
-			std::pair{TIREX_CPU_FREQUENCY_MHZ, frequency}, std::pair{TIREX_RAM_USED_PROCESS_KB, ram},
-			std::pair{TIREX_RAM_USED_SYSTEM_MB, sysRam}
+			std::pair{TIREX_CPU_USED_PROCESS_PERCENT, std::cref(cpuUtil)},
+			std::pair{TIREX_CPU_USED_SYSTEM_PERCENT, std::cref(sysCpuUtil)},
+			std::pair{TIREX_CPU_FREQUENCY_MHZ, std::cref(frequency)},
+			std::pair{TIREX_RAM_USED_PROCESS_KB, std::cref(ram)}, std::pair{TIREX_RAM_USED_SYSTEM_MB, std::cref(sysRam)}
 	);
 }

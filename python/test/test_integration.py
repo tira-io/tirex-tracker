@@ -7,7 +7,7 @@ from sys import executable
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 
-from ruamel.yaml import YAML
+from yaml import safe_load as yaml_safe_load
 
 _EXAMPLES_DIR_PATH = Path(__file__).parent.parent / "examples"
 _EXAMPLE_SCRIPT_PATH = _EXAMPLES_DIR_PATH / "example.py"
@@ -45,8 +45,7 @@ def test_python_script() -> None:
             buffer = buffer[: -len(b"ir_metadata.end\n")]
 
         with BytesIO(buffer) as yaml_file:
-            yaml = YAML(typ="safe")
-            yaml_content = yaml.load(yaml_file)
+            yaml_content = yaml_safe_load(yaml_file)
 
         assert "implementation" in yaml_content
         assert "script" in yaml_content["implementation"]
@@ -98,8 +97,7 @@ def test_jupyter_notebook() -> None:
             buffer = buffer[: -len(b"ir_metadata.end\n")]
 
         with BytesIO(buffer) as yaml_file:
-            yaml = YAML(typ="safe")
-            yaml_content = yaml.load(yaml_file)
+            yaml_content = yaml_safe_load(yaml_file)
 
         assert "implementation" in yaml_content
         assert "source" in yaml_content["implementation"]

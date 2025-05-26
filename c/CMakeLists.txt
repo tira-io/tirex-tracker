@@ -5,6 +5,7 @@ option(TIREX_TRACKER_BUILD_DEB "Build debian package" OFF)
 option(TIREX_TRACKER_ONLY_DOCS "Build only documentation -- this disables tests and others" OFF)
 option(TIREX_TRACKER_BUILD_EXAMPLES "Build the examples" OFF)
 option(TIREX_TRACKER_BUILD_DOCS "Build the documentation" OFF)
+option(TIREX_TRACKER_BUILD_TESTS "Build the tests" OFF)
 
 project(tirex_tracker VERSION 0.0.1 LANGUAGES C CXX)
 
@@ -15,6 +16,13 @@ if (NOT TIREX_TRACKER_ONLY_DOCS)
 	if (TIREX_TRACKER_BUILD_EXAMPLES)
 		add_subdirectory(examples)
 	endif()
+endif()
+
+##########################################################################################
+# Tests
+##########################################################################################
+if (TIREX_TRACKER_BUILD_TESTS AND NOT TIREX_TRACKER_ONLY_DOCS)
+	add_subdirectory(tests)
 endif()
 
 

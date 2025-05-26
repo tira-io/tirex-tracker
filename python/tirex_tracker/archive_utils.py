@@ -93,9 +93,14 @@ def create_git_zip_archive(
         return None
     working_tree_dir_path = Path(working_tree_dir)
 
+    try:
+        repo_items = repo.commit().tree.traverse()
+    except ValueError:
+        return None
+
     tracked_paths = (
         Path(item.abspath)
-        for item in repo.commit().tree.traverse()
+        for item in repo_items
         if isinstance(item, IndexObject)
     )
     tracked_paths = (

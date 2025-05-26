@@ -44,17 +44,17 @@ struct tirexMeasureHandle_st final {
 		// Collect statistics and print them
 		tirex::Stats stats{};
 		for (auto& provider : providers)
-			stats.merge(provider->getStats());
+			stats.merge(std::move(provider->getStats()));
 		return stats;
 	}
 
 	static void monitorThread(tirexMeasureHandle_st* self) {
 		auto future = self->signal.get_future();
 		std::chrono::milliseconds intervall{self->pollIntervalMs};
-		while (future.wait_for(intervall) != std::future_status::ready) {
+		do {
 			for (auto& provider : self->providers)
 				provider->step();
-		}
+		} while (future.wait_for(intervall) != std::future_status::ready);
 	}
 };
 
@@ -102,7 +102,7 @@ tirexError tirexStopTracking(tirexMeasureHandle* measure, tirexResult** result) 
 	if (measure == nullptr)
 		return TIREX_INVALID_ARGUMENT;
 	auto res = measure->stop();
-	delete measure;
 	*result = createMsrResultFromStats(std::move(res));
+	delete measure;
 	return TIREX_SUCCESS;
 }

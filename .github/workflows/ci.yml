@@ -16,7 +16,6 @@ jobs:
       fail-fast: false
       matrix:
         runs-on:
-          - ubuntu-20.04
           - ubuntu-22.04
           - ubuntu-24.04
           - macos-13
@@ -31,15 +30,12 @@ jobs:
           - clang-19.1.0
           - msvc
         exclude:
-          - {runs-on: ubuntu-20.04, compiler: msvc}  # MSVC only supported windows
           - {runs-on: ubuntu-22.04, compiler: msvc}  # MSVC only supported windows
           - {runs-on: ubuntu-24.04, compiler: msvc}  # MSVC only supported windows
           - {runs-on: macos-13,     compiler: msvc}  # MSVC only supported windows
           - {runs-on: macos-14,     compiler: msvc}  # MSVC only supported windows
           - {runs-on: macos-15,     compiler: msvc}  # MSVC only supported windows
           - {runs-on: windows-2019, compiler: msvc}  # Internal error of the MSVC parser
-          - runs-on: ubuntu-20.04
-            compiler: gcc-14 # Cannot be installed.
           - runs-on: ubuntu-22.04
             compiler: gcc-14 # Cannot be installed.
           - runs-on: macos-13
@@ -70,9 +66,9 @@ jobs:
       - name: 🔧 Configure CMake
         run: cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=NO
       - name: 🏗️ Build library
-        run: cmake --build c/build/ --config Release --target tirex_tracker_full
+        run: cmake --build c/build/ --config Release --target tirex_tracker_full -j 16
       - name: 📤 Upload Linux library
-        if: matrix.runs-on == 'ubuntu-20.04' && matrix.compiler == 'clang-19.1.0'
+        if: matrix.runs-on == 'ubuntu-22.04' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-linux
@@ -109,7 +105,6 @@ jobs:
       fail-fast: false
       matrix:
         runs-on:
-          - ubuntu-20.04
           - ubuntu-22.04
           - ubuntu-24.04
           - macos-13
@@ -124,15 +119,12 @@ jobs:
           - clang-19.1.0
           - msvc
         exclude:
-          - {runs-on: ubuntu-20.04, compiler: msvc}  # MSVC only supported windows
           - {runs-on: ubuntu-22.04, compiler: msvc}  # MSVC only supported windows
           - {runs-on: ubuntu-24.04, compiler: msvc}  # MSVC only supported windows
           - {runs-on: macos-13,     compiler: msvc}  # MSVC only supported windows
           - {runs-on: macos-14,     compiler: msvc}  # MSVC only supported windows
           - {runs-on: macos-15,     compiler: msvc}  # MSVC only supported windows
           - {runs-on: windows-2019, compiler: msvc}  # Internal error of the MSVC parser
-          - runs-on: ubuntu-20.04
-            compiler: gcc-14 # Cannot be installed.
           - runs-on: ubuntu-22.04
             compiler: gcc-14 # Cannot be installed.
           - runs-on: macos-13
@@ -164,9 +156,9 @@ jobs:
         run: |
           cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=YES
       - name: 🏗️ Build CLI
-        run: cmake --build c/build/ --config Release --target measure
+        run: cmake --build c/build/ --config Release --target measure -j 16
       - name: 📤 Upload Linux CLI
-        if: matrix.runs-on == 'ubuntu-20.04' && matrix.compiler == 'clang-19.1.0'
+        if: matrix.runs-on == 'ubuntu-22.04' && matrix.compiler == 'clang-19.1.0'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-linux
@@ -185,7 +177,7 @@ jobs:
           path: c/build/examples/03_measure_command/Release/measure.exe
   c-build-debian-package:
     name: 🏗️ Build Debian package
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
@@ -198,7 +190,7 @@ jobs:
         run: |
           cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D LLVM_ENABLE_ZLIB=OFF -D LLVM_ENABLE_ZSTD=OFF -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=YES -D TIREX_TRACKER_BUILD_EXAMPLES=NO
       - name: 🏗️ Build Debian package
-        run: cmake --build c/build/ --config Release --target package
+        run: cmake --build c/build/ --config Release --target package -j 16
       - name: 📤 Upload Debian package
         uses: actions/upload-artifact@v4
         with:
@@ -267,7 +259,6 @@ jobs:
           - "17"
           - "21"
         runs-on:
-          - ubuntu-20.04
           - ubuntu-22.04
           # - ubuntu-24.04 # FIXME: Re-enable
           # - macos-13
