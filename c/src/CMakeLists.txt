@@ -8,6 +8,7 @@ add_library(tirex_tracker SHARED
 	logging.cpp
 	measure/stats/provider.cpp
 
+	measure/stats/amdstats.cpp
 	measure/stats/energystats.cpp
 	measure/stats/gitstats.cpp
 	measure/stats/nvmlstats.cpp
@@ -30,6 +31,7 @@ add_library(tirex_tracker_static STATIC
 	logging.cpp
 	measure/stats/provider.cpp
 
+	measure/stats/amdstats.cpp
 	measure/stats/energystats.cpp
 	measure/stats/gitstats.cpp
 	measure/stats/nvmlstats.cpp
@@ -86,6 +88,15 @@ FetchContent_Declare(nvml GIT_REPOSITORY https://github.com/NVIDIA/go-nvml.git G
 FetchContent_MakeAvailable(nvml)
 target_include_directories(tirex_tracker PRIVATE ${nvml_SOURCE_DIR}/gen/)
 target_include_directories(tirex_tracker_static PRIVATE ${nvml_SOURCE_DIR}/gen/)
+
+# AMD SMI
+FetchContent_Declare(amdsmi GIT_REPOSITORY https://github.com/ROCm/amdsmi GIT_TAG rocm-6.4.0 EXCLUDE_FROM_ALL)
+FetchContent_MakeAvailable(amdsmi)
+set_property(TARGET amd_smi PROPERTY POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(tirex_tracker PRIVATE amd_smi)
+target_include_directories(tirex_tracker PRIVATE ${amdsmi_SOURCE_DIR}/include/) # Should not be needed?
+target_link_libraries(tirex_tracker_static PRIVATE amd_smi)
+target_include_directories(tirex_tracker_static PRIVATE ${amdsmi_SOURCE_DIR}/include/) # Should not be needed?
 
 # FMT (remove in the future when std::format can be assumed)
 FetchContent_Declare(fmt GIT_REPOSITORY https://github.com/fmtlib/fmt.git GIT_TAG 11.1.3 EXCLUDE_FROM_ALL)
