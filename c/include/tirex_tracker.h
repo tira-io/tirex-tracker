@@ -112,9 +112,22 @@ typedef enum tirexMeasure_enum {
 	TIREX_GIT_UNPUSHED_CHANGES = 42,
 	TIREX_GIT_UNCHECKED_FILES = 43,
 
-	// Note: The `TIREX_TIME_START`/`TIREX_TIME_STOP` measures were added later, and hence, have new enum values (for backwards compatibility).
+	// Note: The `TIREX_TIME_START`/`TIREX_TIME_STOP` measures were added later, and hence, have new enum values (for
+	// backwards compatibility).
 	TIREX_TIME_START = 44, /**< Timestamp when the tracking was started. */
 	TIREX_TIME_STOP = 45,  /**< Timestamp when the tracking was started. */
+
+	/**
+	 * @brief The "working directory" of the repository (i.e. the path at which the root of the repository's file tree
+	 * is located). Empty, if the repository is bare.
+	 */
+	TIREX_GIT_ROOT = 46,
+	/**
+	 * @brief If requested, a zip archive is created that contains all files inside the repository that are not ignored
+	 * by the gitignore. The path to the archive is returned as the value for this measure. The archive is created in a
+	 * temporary location and is automatically deleted when the result object is freed.
+	 */
+	TIREX_GIT_ARCHIVE_PATH = 47,
 
 	/**
 	 * @brief The total number of supported measures.

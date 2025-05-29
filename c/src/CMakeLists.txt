@@ -109,6 +109,15 @@ set_property(TARGET fmt PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(tirex_tracker PRIVATE fmt::fmt)
 target_link_libraries(tirex_tracker_static PRIVATE fmt::fmt)
 
+# expected (remove in the future when std::expected can be assumed)
+set(EXPECTED_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(EXPECTED_BUILD_PACKAGE_DEB OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(expected GIT_REPOSITORY https://github.com/TartanLlama/expected.git GIT_TAG v1.1.0 EXCLUDE_FROM_ALL)
+FetchContent_MakeAvailable(expected)
+target_link_libraries(tirex_tracker PRIVATE tl::expected)
+target_link_libraries(tirex_tracker_static PRIVATE tl::expected)
+
+
 # cpuinfo
 # option(CPUINFO_LOG_TO_STDIO OFF)
 option(CPUINFO_BUILD_TOOLS OFF)
