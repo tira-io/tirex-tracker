@@ -59,7 +59,9 @@ static const std::map<std::string, std::set<tirexMeasure>> measuresPerVersion{
 		  TIREX_GIT_REMOTE_ORIGIN,
 		  TIREX_GIT_UNCOMMITTED_CHANGES,
 		  TIREX_GIT_UNPUSHED_CHANGES,
-		  TIREX_GIT_UNCHECKED_FILES}}
+		  TIREX_GIT_UNCHECKED_FILES,
+		  TIREX_GIT_ROOT,
+		  TIREX_GIT_ARCHIVE_PATH}}
 };
 
 static std::function<bool(const tirexResultEntry&)> versionFilter(const std::string& version) {
@@ -190,6 +192,10 @@ static void writeImplementation(const ResultMap& results, std::ostream& stream) 
 		stream << "    unpushed changes: " << it->second << '\n';
 	if (ResultMap::const_iterator it; (it = results.find(TIREX_GIT_UNCHECKED_FILES)) != results.end())
 		stream << "    unchecked files: " << it->second << '\n';
+	if (ResultMap::const_iterator it; (it = results.find(TIREX_GIT_ROOT)) != results.end())
+		stream << "    root: " << it->second << '\n';
+	if (ResultMap::const_iterator it; (it = results.find(TIREX_GIT_ARCHIVE_PATH)) != results.end())
+		stream << "    archive path: " << it->second << '\n';
 }
 
 static void writeResources(const ResultMap& results, std::ostream& stream) {
