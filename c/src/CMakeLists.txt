@@ -34,7 +34,6 @@ target_sources(tirex_tracker
 
 target_compile_features(tirex_tracker PUBLIC cxx_std_20)
 set_property(TARGET tirex_tracker PROPERTY POSITION_INDEPENDENT_CODE ON)
-target_compile_definitions(tirex_tracker PRIVATE TIREX_TRACKER_LIB_EXPORT)
 
 
 target_sources(tirex_tracker_static
@@ -63,7 +62,6 @@ target_sources(tirex_tracker_static
 		measure/stats/systemstats_windows.cpp
 )
 target_compile_features(tirex_tracker_static PUBLIC cxx_std_20)
-target_compile_definitions(tirex_tracker_static PUBLIC TIREX_TRACKER_STATIC)
 
 if (LINUX)
 target_link_libraries(tirex_tracker PUBLIC ${CMAKE_DL_LIBS})  # dlopen, dlclose, ...
