@@ -26,7 +26,8 @@ jobs:
         compiler:
           - gcc-13
           - gcc-14
-          - clang-19.1.0
+          - llvm-19
+          - llvm-20
           - msvc
         exclude:
           - {runs-on: ubuntu-22.04, compiler: msvc}  # MSVC only supported windows
@@ -40,16 +41,8 @@ jobs:
             compiler: gcc-13 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
           - runs-on: macos-13
             compiler: gcc-14 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - runs-on: macos-13
-            compiler: clang-19.1.0 # setup-cpp fails to setup
           - runs-on: macos-14
             compiler: gcc-13 # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
-          - runs-on: macos-14
-            compiler: clang-19.1.0 # setup-cpp fails to setup
-          - runs-on: macos-15
-            compiler: clang-19.1.0 # Known issue with clang (https://github.com/llvm/llvm-project/issues/109549)
-          - {runs-on: windows-2022, compiler: clang-19.1.0}  # Wrongly configured by the action TODO: reenable once fixed
-          - {runs-on: windows-2025, compiler: clang-19.1.0}  # Wrongly configured by the action TODO: reenable once fixed
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
@@ -117,7 +110,8 @@ jobs:
         compiler:
           - gcc-13
           - gcc-14
-          - clang-19.1.0
+          - llvm-19
+          - llvm-20
           - msvc
         exclude:
           - {runs-on: ubuntu-22.04, compiler: msvc}  # MSVC only supported windows
@@ -131,16 +125,8 @@ jobs:
             compiler: gcc-13 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
           - runs-on: macos-13
             compiler: gcc-14 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - runs-on: macos-13
-            compiler: clang-19.1.0 # setup-cpp fails to setup
           - runs-on: macos-14
             compiler: gcc-13 # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
-          - runs-on: macos-14
-            compiler: clang-19.1.0 # setup-cpp fails to setup
-          - runs-on: macos-15
-            compiler: clang-19.1.0 # Known issue with clang (https://github.com/llvm/llvm-project/issues/109549)
-          - {runs-on: windows-2022, compiler: clang-19.1.0}  # Wrongly configured by the action TODO: reenable once fixed
-          - {runs-on: windows-2025, compiler: clang-19.1.0}  # Wrongly configured by the action TODO: reenable once fixed
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
