@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         image:
-          - ubuntu:16.04
+          # - ubuntu:16.04  # Compiler setup fails
           - ubuntu:18.04
           - ubuntu:25.04
         compiler:
@@ -24,6 +24,10 @@ jobs:
           - gcc-14
           - llvm-19
           - llvm-20
+        exclude:
+          - {runs-on: ubuntu:18.04, compiler: gcc-14}  # setup-cpp compiler setup fails
+          - {runs-on: ubuntu:18.04, compiler: llvm-19}  # setup-cpp compiler setup fails
+          - {runs-on: ubuntu:18.04, compiler: llvm-20}  # setup-cpp compiler setup fails
     runs-on: ubuntu-latest
     container:
       image: ${{ matrix.image }}
