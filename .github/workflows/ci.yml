@@ -52,8 +52,8 @@ jobs:
           cmake: true
           ninja: true
           cppcheck: true
-          gcovr: true
-          opencppcoverage: true
+          git: true
+          gcovr: false
       - name: 🔧 Configure CMake
         run: cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=NO
       - name: 🏗️ Build library
