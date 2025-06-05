@@ -35,6 +35,7 @@ jobs:
     steps:
       - name: Install node.js for GitHub Actions
         run: |
+          apt-get update &&
           apt-get install -y curl ca-certificates &&
           # Install a Node.js version that works in older Ubuntu containers (read: does not require very recent glibc)
           NODE_VERSION=v20.18.1 &&
