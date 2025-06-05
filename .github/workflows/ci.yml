@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         image:
-          - ubuntu-16.04
+          - ubuntu:16.04
         compiler:
           - gcc-13
           - gcc-14
