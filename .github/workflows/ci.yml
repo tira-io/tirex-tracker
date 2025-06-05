@@ -17,6 +17,8 @@ jobs:
       matrix:
         image:
           - ubuntu:16.04
+          - ubuntu:18.04
+          - ubuntu:25.04
         compiler:
           - gcc-13
           - gcc-14
