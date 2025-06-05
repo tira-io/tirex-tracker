@@ -25,9 +25,9 @@ jobs:
           - llvm-19
           - llvm-20
         exclude:
-          - {runs-on: ubuntu:18.04, compiler: gcc-14}  # setup-cpp compiler setup fails
-          - {runs-on: ubuntu:18.04, compiler: llvm-19}  # setup-cpp compiler setup fails
-          - {runs-on: ubuntu:18.04, compiler: llvm-20}  # setup-cpp compiler setup fails
+          - {image: ubuntu:18.04, compiler:  gcc-14}  # setup-cpp compiler setup fails
+          - {image: ubuntu:18.04, compiler: llvm-19}  # setup-cpp compiler setup fails
+          - {image: ubuntu:18.04, compiler: llvm-20}  # setup-cpp compiler setup fails
     runs-on: ubuntu-latest
     container:
       image: ${{ matrix.image }}
