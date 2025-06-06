@@ -50,7 +50,7 @@ jobs:
           - {platform: {host: windows-2022}, compiler: llvm-19}  # libgit2 does not seem to support this
           - {platform: {host: windows-2025}, compiler: llvm-19}  # libgit2 does not seem to support this
     runs-on: ${{ matrix.platform.host }}
-    container: ${{ matrix.platform.container }} # for testing for now
+    container: ${{ matrix.platform.container }}
     steps:
       - name: Install node.js for GitHub Actions  # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
         if: matrix.platform.container != null
@@ -81,7 +81,7 @@ jobs:
       - name: 🏗️ Build library
         run: cmake --build c/build/ --config Release --target tirex_tracker_full -j 16
       - name: 📤 Upload Linux library
-        if: matrix.platform.host == 'ubuntu-latest' && matrix.platform.container.image == 'ubuntu:18.04' && matrix.compiler == 'llvm-19'
+        if: matrix.platform.host == 'ubuntu-latest' && matrix.platform.container.image == 'ubuntu:18.04' && matrix.compiler == 'gcc-13'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-linux
@@ -153,7 +153,7 @@ jobs:
           - {platform: {host: windows-2022}, compiler: llvm-19}  # libgit2 does not seem to support this
           - {platform: {host: windows-2025}, compiler: llvm-19}  # libgit2 does not seem to support this
     runs-on: ${{ matrix.platform.host }}
-    container: ${{ matrix.platform.container }} # for testing for now
+    container: ${{ matrix.platform.container }}
     steps:
       - name: Install node.js for GitHub Actions  # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
         if: matrix.platform.container != null
@@ -172,27 +172,32 @@ jobs:
         uses: aminya/setup-cpp@v1
         with:
           compiler: ${{ matrix.compiler }}
-          cmake: "3.31.6"
-          setup-cpp: false
+          vcvarsall: ${{ contains(matrix.platform.host, 'windows' )}}
+          cmake: true
+          ninja: true
+          cppcheck: true
+          gcovr: false
+          opencppcoverage: false
+          git: true
       - name: 🔧 Configure CMake
         run: |
           cmake -S c/ -B c/build/ ${{ (matrix.compiler != 'msvc') && '-G "Ninja Multi-Config"' || ''}} -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=YES
       - name: 🏗️ Build CLI
         run: cmake --build c/build/ --config Release --target measure -j 16
       - name: 📤 Upload Linux CLI
-        if: matrix.runs-on == 'ubuntu-22.04' && matrix.compiler == 'llvm-19'
+        if: matrix.platform.host == 'ubuntu-latest' && matrix.platform.container.image == 'ubuntu:18.04' && matrix.compiler == 'gcc-13'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-linux
           path: c/build/examples/03_measure_command/measure
       - name: 📤 Upload macOS CLI
-        if: matrix.runs-on == 'macos-14' && matrix.compiler == 'gcc-14'
+        if: matrix.platform.host == 'macos-14' && matrix.compiler == 'gcc-14'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-macos
           path: c/build/examples/03_measure_command/measure
       - name: 📤 Upload Windows CLI
-        if: matrix.runs-on == 'windows-2022' && matrix.compiler == 'msvc'
+        if: matrix.platform.host == 'windows-2022' && matrix.compiler == 'msvc'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-windows
@@ -202,7 +207,8 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ubuntu:18.04
-      volumes: ["/tmp:/__e/node20"]
+      volumes:
+        - /tmp:/__e/node20
     steps:
       - name: Install node.js for GitHub Actions  # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
         if: matrix.platform.container != null
