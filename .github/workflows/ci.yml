@@ -57,7 +57,7 @@ jobs:
     # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
     #  override /__e/node20 because GitHub Actions uses a version that requires too-recent glibc see "Install node.js
     #  for GitHub Actions" below
-    container: ${{ fromJSON('{image: "ubuntu:16.04"}') }} # for testing for now
+    container: '{image: "ubuntu:16.04"}' # for testing for now
     steps:
       - name: Install node.js for GitHub Actions
         if: matrix.platform.image != null
