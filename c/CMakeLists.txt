@@ -7,7 +7,13 @@ option(TIREX_TRACKER_BUILD_EXAMPLES "Build the examples" OFF)
 option(TIREX_TRACKER_BUILD_DOCS "Build the documentation" OFF)
 option(TIREX_TRACKER_BUILD_TESTS "Build the tests" OFF)
 
-project(tirex_tracker VERSION 0.0.1 LANGUAGES C CXX)
+set(TIREX_TRACKER_VER_MAJOR "0")
+set(TIREX_TRACKER_VER_MINOR "2")
+set(TIREX_TRACKER_VER_PATCH "15")
+set(TIREX_TRACKER_VERSION "${TIREX_TRACKER_VER_MAJOR}.${TIREX_TRACKER_VER_MINOR}.${TIREX_TRACKER_VER_PATCH}")
+
+
+project(tirex_tracker VERSION ${TIREX_TRACKER_VERSION} LANGUAGES C CXX)
 
 if (NOT TIREX_TRACKER_ONLY_DOCS)
     add_subdirectory(src)
@@ -80,15 +86,26 @@ endif()
 ##########################################################################################
 # Debian Packaging only available if this is the main app
 if(NOT TIREX_TRACKER_ONLY_DOCS AND (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND TIREX_TRACKER_BUILD_DEB)
-	install(TARGETS tirex_tracker ARCHIVE DESTINATION lib COMPONENT tirex_tracker)
+	include(CMakePackageConfigHelpers)
+	write_basic_package_version_file(
+		tirex_trackerConfigVersion.cmake
+		VERSION ${TIREX_TRACKER_VERSION}
+		COMPATIBILITY SameMajorVersion
+	)
+
+	include(GNUInstallDirs)
+
+	install(TARGETS tirex_tracker
+		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+			COMPONENT tirex_tracker
+	)
 	install(DIRECTORY include DESTINATION include COMPONENT tirex_tracker)
 
 	SET(CPACK_GENERATOR "DEB")
 	SET(CPACK_PACKAGE_NAME "tirex-tracker")
 	SET(CPACK_SET_DESTDIR TRUE)
 	SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "not-set")
-	SET(CPACK_PACKAGE_VERSION "0.0.1rc")
-	include(GNUInstallDirs)
+	SET(CPACK_PACKAGE_VERSION ${TIREX_TRACKER_VERSION})
 	SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Automatic resource and metadata tracking")
 	SET(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/../README.md")
 	SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE")
