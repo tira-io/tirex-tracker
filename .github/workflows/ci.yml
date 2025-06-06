@@ -17,6 +17,7 @@ jobs:
       matrix:
         platform:
           - {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}
+          - {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-22.04}
           - {host: ubuntu-24.04}
@@ -36,6 +37,7 @@ jobs:
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-19}  # setup-cpp compiler setup fails
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-20}  # setup-cpp compiler setup fails
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: ubuntu-22.04}, compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: ubuntu-24.04}, compiler:    msvc}  # MSVC only supported windows
@@ -81,7 +83,7 @@ jobs:
       - name: 🏗️ Build library
         run: cmake --build c/build/ --config Release --target tirex_tracker_full -j 16
       - name: 📤 Upload Linux library
-        if: matrix.platform.host == 'ubuntu-latest' && matrix.platform.container.image == 'ubuntu:18.04' && matrix.compiler == 'gcc-13'
+        if: matrix.platform.host == 'ubuntu-latest' && matrix.platform.container.image == 'ubuntu:20.04' && matrix.compiler == 'llvm-19'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-linux
@@ -120,6 +122,7 @@ jobs:
       matrix:
         platform:
           - {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}
+          - {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-22.04}
           - {host: ubuntu-24.04}
@@ -139,6 +142,7 @@ jobs:
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-19}  # setup-cpp compiler setup fails
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-20}  # setup-cpp compiler setup fails
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: ubuntu-22.04}, compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: ubuntu-24.04}, compiler:    msvc}  # MSVC only supported windows
@@ -185,7 +189,7 @@ jobs:
       - name: 🏗️ Build CLI
         run: cmake --build c/build/ --config Release --target measure -j 16
       - name: 📤 Upload Linux CLI
-        if: matrix.platform.host == 'ubuntu-latest' && matrix.platform.container.image == 'ubuntu:18.04' && matrix.compiler == 'gcc-13'
+        if: matrix.platform.host == 'ubuntu-latest' && matrix.platform.container.image == 'ubuntu:20.04' && matrix.compiler == 'llvm-19'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-linux
@@ -206,7 +210,7 @@ jobs:
     name: 📦 Build Debian package
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:18.04
+      image: ubuntu:20.04
       volumes:
         - /tmp:/__e/node20
     steps:
@@ -225,7 +229,7 @@ jobs:
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
-          compiler: gcc-13
+          compiler: llvm-19
           cmake: true
           ninja: true
           cppcheck: true
