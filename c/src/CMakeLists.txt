@@ -33,7 +33,6 @@ target_sources(tirex_tracker
 )
 
 target_compile_features(tirex_tracker PUBLIC cxx_std_20)
-target_compile_features(tirex_tracker PUBLIC c_std_99)
 
 
 target_sources(tirex_tracker_static
@@ -62,7 +61,6 @@ target_sources(tirex_tracker_static
 		measure/stats/systemstats_windows.cpp
 )
 target_compile_features(tirex_tracker_static PUBLIC cxx_std_20)
-target_compile_features(tirex_tracker PUBLIC c_std_99)
 
 if (LINUX)
 target_link_libraries(tirex_tracker PUBLIC ${CMAKE_DL_LIBS})  # dlopen, dlclose, ...
@@ -117,6 +115,8 @@ set(BUILD_CLI OFF CACHE BOOL "" FORCE) # Do not build the Git CLI
 set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(libgit GIT_REPOSITORY https://github.com/libgit2/libgit2.git GIT_TAG v1.8.4 EXCLUDE_FROM_ALL)
 FetchContent_MakeAvailable(libgit)
+target_compile_features(libgit2 PUBLIC c_std_99)
+target_compile_features(libgit2package PUBLIC c_std_99)
 #target_link_libraries(tirex_tracker PRIVATE libgit2package)
 #target_link_libraries(tirex_tracker_static PRIVATE libgit2package)
 #target_include_directories(tirex_tracker PRIVATE $<TARGET_PROPERTY:libgit2,INCLUDE_DIRECTORIES>)
