@@ -16,9 +16,8 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          # - {host: ubuntu-latest, image: "ubuntu:16.04"}  # Compiler setup fails
-          - {host: ubuntu-latest, image: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}
-          - {host: ubuntu-latest, image: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}
+          - {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}
+          - {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-22.04}
           - {host: ubuntu-24.04}
           - {host: macos-13}
@@ -33,45 +32,29 @@ jobs:
           - llvm-20
           - msvc
         exclude:
-          - {platform: {host: ubuntu-latest, image: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-latest, image: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-19}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-latest, image: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-20}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-latest, image: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: ubuntu-latest, image: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: ubuntu-22.04}, compiler: msvc}  # MSVC only supported windows
-          - {platform: {host: ubuntu-24.04}, compiler: msvc}  # MSVC only supported windows
-          - {platform: {host: macos-13},     compiler: msvc}  # MSVC only supported windows
-          - {platform: {host: macos-14},     compiler: msvc}  # MSVC only supported windows
-          - {platform: {host: macos-15},     compiler: msvc}  # MSVC only supported windows
-          - platform: {host: ubuntu-22.04}
-            compiler: gcc-14 # Cannot be installed.
-          - platform: {host: macos-13}
-            compiler: gcc-13 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - platform: {host: macos-13}
-            compiler: gcc-14 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - platform: {host: macos-14}
-            compiler: gcc-13 # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
-          - platform: {host: macos-15}
-            compiler: gcc-14 # Known issue (https://github.com/munich-quantum-toolkit/core/issues/979, https://stackoverflow.com/questions/79641443/c-bounds-h-not-found-after-upgrading-to-gcc-15)
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-19}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-20}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-22.04}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-24.04}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: macos-13},     compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: macos-14},     compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: macos-15},     compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-22.04}, compiler:  gcc-14}  # Cannot be installed.
+          - {platform: {host: macos-13},     compiler:  gcc-13}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
+          - {platform: {host: macos-13},     compiler:  gcc-14}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
+          - {platform: {host: macos-14},     compiler:  gcc-13}  # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
+          - {platform: {host: macos-15},     compiler:  gcc-14}  # Known issue (https://github.com/munich-quantum-toolkit/core/issues/979, https://stackoverflow.com/questions/79641443/c-bounds-h-not-found-after-upgrading-to-gcc-15)
           - {platform: {host: windows-2022}, compiler: llvm-19}  # libgit2 does not seem to support this
           - {platform: {host: windows-2025}, compiler: llvm-19}  # libgit2 does not seem to support this
     runs-on: ${{ matrix.platform.host }}
-    # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
-    #  override /__e/node20 because GitHub Actions uses a version that requires too-recent glibc see "Install node.js
-    #  for GitHub Actions" below
-    container: ${{ matrix.platform.image }} # for testing for now
+    container: ${{ matrix.platform.container }} # for testing for now
     steps:
       - name: Install node.js for GitHub Actions
-        if: matrix.platform.image != null
-        run: |
-          apt-get update &&
-          apt-get install -y curl ca-certificates &&
-          # Install a Node.js version that works in older Ubuntu containers (read: does not require very recent glibc)
-          NODE_VERSION=v20.18.1 &&
-          NODE_TAR_FILE=node-$NODE_VERSION-linux-x64-glibc-217.tar.gz &&
-          NODE_URL=https://unofficial-builds.nodejs.org/download/release/$NODE_VERSION/$NODE_TAR_FILE &&
-          curl -Lo /tmp/$NODE_TAR_FILE $NODE_URL &&
-          tar -C /__e/node20 -x --strip-components=1 -f /tmp/$NODE_TAR_FILE
+        if: matrix.platform.container != null
+        uses: ./.github/actions/downgrade-node
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Install compiler
@@ -90,7 +73,7 @@ jobs:
       - name: 🏗️ Build library
         run: cmake --build c/build/ --config Release --target tirex_tracker_full -j 16
       - name: 📤 Upload Linux library
-        if: matrix.platform.host == 'ubuntu-22.04' && matrix.compiler == 'llvm-19'
+        if: matrix.platform.host == 'ubuntu-latest' && matrix.platform.container.image == 'ubuntu:18.04' && matrix.compiler == 'llvm-19'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-linux
@@ -127,14 +110,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runs-on:
-          - ubuntu-22.04
-          - ubuntu-24.04
-          - macos-13
-          - macos-14
-          - macos-15
-          - windows-2022
-          - windows-2025
+        platform:
+          - {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}
+          - {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}
+          - {host: ubuntu-22.04}
+          - {host: ubuntu-24.04}
+          - {host: macos-13}
+          - {host: macos-14}
+          - {host: macos-15}
+          - {host: windows-2022}
+          - {host: windows-2025}
         compiler:
           - gcc-13
           - gcc-14
@@ -142,25 +127,29 @@ jobs:
           - llvm-20
           - msvc
         exclude:
-          - {runs-on: ubuntu-22.04, compiler: msvc}  # MSVC only supported windows
-          - {runs-on: ubuntu-24.04, compiler: msvc}  # MSVC only supported windows
-          - {runs-on: macos-13,     compiler: msvc}  # MSVC only supported windows
-          - {runs-on: macos-14,     compiler: msvc}  # MSVC only supported windows
-          - {runs-on: macos-15,     compiler: msvc}  # MSVC only supported windows
-          - runs-on: ubuntu-22.04
-            compiler: gcc-14 # Cannot be installed.
-          - runs-on: macos-13
-            compiler: gcc-13 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - runs-on: macos-13
-            compiler: gcc-14 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - runs-on: macos-14
-            compiler: gcc-13 # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
-          - runs-on: macos-15
-            compiler: gcc-14 # Known issue (https://github.com/munich-quantum-toolkit/core/issues/979, https://stackoverflow.com/questions/79641443/c-bounds-h-not-found-after-upgrading-to-gcc-15)
-          - {runs-on: windows-2022, compiler: llvm-19}  # libgit2 does not seem to support this
-          - {runs-on: windows-2025, compiler: llvm-19}  # libgit2 does not seem to support this
-    runs-on: ${{ matrix.runs-on }}
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-19}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-20}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-22.04}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-24.04}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: macos-13},     compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: macos-14},     compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: macos-15},     compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-22.04}, compiler:  gcc-14}  # Cannot be installed.
+          - {platform: {host: macos-13},     compiler:  gcc-13}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
+          - {platform: {host: macos-13},     compiler:  gcc-14}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
+          - {platform: {host: macos-14},     compiler:  gcc-13}  # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
+          - {platform: {host: macos-15},     compiler:  gcc-14}  # Known issue (https://github.com/munich-quantum-toolkit/core/issues/979, https://stackoverflow.com/questions/79641443/c-bounds-h-not-found-after-upgrading-to-gcc-15)
+          - {platform: {host: windows-2022}, compiler: llvm-19}  # libgit2 does not seem to support this
+          - {platform: {host: windows-2025}, compiler: llvm-19}  # libgit2 does not seem to support this
+    runs-on: ${{ matrix.platform.host }}
+    container: ${{ matrix.platform.container }} # for testing for now
     steps:
+      - name: Install node.js for GitHub Actions
+        if: matrix.platform.container != null
+        uses: ./.github/actions/downgrade-node
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Install compiler
@@ -175,7 +164,7 @@ jobs:
       - name: 🏗️ Build CLI
         run: cmake --build c/build/ --config Release --target measure -j 16
       - name: 📤 Upload Linux CLI
-        if: matrix.runs-on == 'ubuntu-22.04' && matrix.compiler == 'clang-19.1.0'
+        if: matrix.runs-on == 'ubuntu-22.04' && matrix.compiler == 'llvm-19'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-linux
@@ -194,18 +183,28 @@ jobs:
           path: c/build/examples/03_measure_command/Release/measure.exe
   c-build-debian-package:
     name: 🏗️ Build Debian package
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:18.04
+      volumes: ["/tmp:/__e/node20"]
     steps:
+      - name: Install node.js for GitHub Actions
+        if: matrix.platform.container != null
+        uses: ./.github/actions/downgrade-node
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
-          compiler: clang-19.1.0
+          compiler: gcc-13
           cmake: true
+          ninja: true
+          cppcheck: true
+          gcovr: false
+          opencppcoverage: false
+          git: true
       - name: 🔧 Configure CMake
-        run: |
-          cmake -S c/ -B c/build/ -G "Ninja Multi-Config" -D CMAKE_BUILD_TYPE=Release -D LLVM_ENABLE_ZLIB=OFF -D LLVM_ENABLE_ZSTD=OFF -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=YES -D TIREX_TRACKER_BUILD_EXAMPLES=NO
+        run: cmake -S c/ -B c/build/ -G "Ninja Multi-Config" -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=YES -D TIREX_TRACKER_BUILD_EXAMPLES=NO
       - name: 🏗️ Build Debian package
         run: cmake --build c/build/ --config Release --target package -j 16
       - name: 📤 Upload Debian package
