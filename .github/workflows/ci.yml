@@ -97,6 +97,8 @@ jobs:
             compiler: gcc-13 # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
           - runs-on: macos-15
             compiler: gcc-14 # Known issue (https://github.com/munich-quantum-toolkit/core/issues/979, https://stackoverflow.com/questions/79641443/c-bounds-h-not-found-after-upgrading-to-gcc-15)
+          - {runs-on: windows-2022, compiler: llvm-19}  # libgit2 does not seem to support this
+          - {runs-on: windows-2025, compiler: llvm-19}  # libgit2 does not seem to support this
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
@@ -183,6 +185,8 @@ jobs:
             compiler: gcc-13 # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
           - runs-on: macos-15
             compiler: gcc-14 # Known issue (https://github.com/munich-quantum-toolkit/core/issues/979, https://stackoverflow.com/questions/79641443/c-bounds-h-not-found-after-upgrading-to-gcc-15)
+          - {runs-on: windows-2022, compiler: llvm-19}  # libgit2 does not seem to support this
+          - {runs-on: windows-2025, compiler: llvm-19}  # libgit2 does not seem to support this
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 📥 Check-out
