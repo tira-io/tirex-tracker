@@ -211,7 +211,6 @@ jobs:
         - /tmp:/__e/node20
     steps:
       - name: Install node.js for GitHub Actions  # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
-        if: matrix.platform.container != null
         run: |
           apt-get update &&
           apt-get install -y curl ca-certificates &&
