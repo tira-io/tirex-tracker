@@ -16,6 +16,7 @@ option(TIREX_TRACKER_BUILD_CMD_DEB "Build the debian package for the measure com
 ##########################################################################################
 include(FetchContent)
 # spdlog for logging
+set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "" FORCE)
 FetchContent_Declare(spdlog GIT_REPOSITORY https://github.com/gabime/spdlog.git GIT_TAG v1.15.3 EXCLUDE_FROM_ALL)
 FetchContent_MakeAvailable(spdlog)
 set_property(TARGET spdlog PROPERTY POSITION_INDEPENDENT_CODE ON)
