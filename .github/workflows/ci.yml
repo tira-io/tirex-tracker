@@ -36,7 +36,6 @@ jobs:
           - {platform: {host: ubuntu-latest, image: "ubuntu:18.04"}, compiler:  gcc-14}  # setup-cpp compiler setup fails
           - {platform: {host: ubuntu-latest, image: "ubuntu:18.04"}, compiler: llvm-19}  # setup-cpp compiler setup fails
           - {platform: {host: ubuntu-latest, image: "ubuntu:18.04"}, compiler: llvm-20}  # setup-cpp compiler setup fails
-        exclude:
           - {platform: {host: ubuntu-22.04}, compiler: msvc}  # MSVC only supported windows
           - {platform: {host: ubuntu-24.04}, compiler: msvc}  # MSVC only supported windows
           - {platform: {host: macos-13},     compiler: msvc}  # MSVC only supported windows
@@ -58,7 +57,7 @@ jobs:
     # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
     #  override /__e/node20 because GitHub Actions uses a version that requires too-recent glibc see "Install node.js
     #  for GitHub Actions" below
-    container: ${{ matrix.platform.image && {image: matrix.platform.image, volumes: ["/tmp:/__e/node20"]}}}
+    container: ${{ fromJSON('{image: "ubuntu:16.04"') }} # for testing for now
     steps:
       - name: Install node.js for GitHub Actions
         if: matrix.platform.image != null
