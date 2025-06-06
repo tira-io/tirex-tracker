@@ -52,9 +52,17 @@ jobs:
     runs-on: ${{ matrix.platform.host }}
     container: ${{ matrix.platform.container }} # for testing for now
     steps:
-      - name: Install node.js for GitHub Actions
+      - name: Install node.js for GitHub Actions  # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
         if: matrix.platform.container != null
-        uses: ./.github/actions/downgrade-node
+        run: |
+          apt-get update &&
+          apt-get install -y curl ca-certificates &&
+          # Install a Node.js version that works in older Ubuntu containers (read: does not require very recent glibc)
+          NODE_VERSION=v20.18.1 &&
+          NODE_TAR_FILE=node-$NODE_VERSION-linux-x64-glibc-217.tar.gz &&
+          NODE_URL=https://unofficial-builds.nodejs.org/download/release/$NODE_VERSION/$NODE_TAR_FILE &&
+          curl -Lo /tmp/$NODE_TAR_FILE $NODE_URL &&
+          tar -C /__e/node20 -x --strip-components=1 -f /tmp/$NODE_TAR_FILE
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Install compiler
@@ -147,9 +155,17 @@ jobs:
     runs-on: ${{ matrix.platform.host }}
     container: ${{ matrix.platform.container }} # for testing for now
     steps:
-      - name: Install node.js for GitHub Actions
+      - name: Install node.js for GitHub Actions  # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
         if: matrix.platform.container != null
-        uses: ./.github/actions/downgrade-node
+        run: |
+          apt-get update &&
+          apt-get install -y curl ca-certificates &&
+          # Install a Node.js version that works in older Ubuntu containers (read: does not require very recent glibc)
+          NODE_VERSION=v20.18.1 &&
+          NODE_TAR_FILE=node-$NODE_VERSION-linux-x64-glibc-217.tar.gz &&
+          NODE_URL=https://unofficial-builds.nodejs.org/download/release/$NODE_VERSION/$NODE_TAR_FILE &&
+          curl -Lo /tmp/$NODE_TAR_FILE $NODE_URL &&
+          tar -C /__e/node20 -x --strip-components=1 -f /tmp/$NODE_TAR_FILE
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Install compiler
@@ -188,9 +204,17 @@ jobs:
       image: ubuntu:18.04
       volumes: ["/tmp:/__e/node20"]
     steps:
-      - name: Install node.js for GitHub Actions
+      - name: Install node.js for GitHub Actions  # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
         if: matrix.platform.container != null
-        uses: ./.github/actions/downgrade-node
+        run: |
+          apt-get update &&
+          apt-get install -y curl ca-certificates &&
+          # Install a Node.js version that works in older Ubuntu containers (read: does not require very recent glibc)
+          NODE_VERSION=v20.18.1 &&
+          NODE_TAR_FILE=node-$NODE_VERSION-linux-x64-glibc-217.tar.gz &&
+          NODE_URL=https://unofficial-builds.nodejs.org/download/release/$NODE_VERSION/$NODE_TAR_FILE &&
+          curl -Lo /tmp/$NODE_TAR_FILE $NODE_URL &&
+          tar -C /__e/node20 -x --strip-components=1 -f /tmp/$NODE_TAR_FILE
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Install compiler
