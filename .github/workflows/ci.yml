@@ -17,8 +17,8 @@ jobs:
       matrix:
         platform:
           # - {host: ubuntu-latest, image: "ubuntu:16.04"}  # Compiler setup fails
-          - {host: ubuntu-latest, image: "ubuntu:18.04"}
-          - {host: ubuntu-latest, image: "ubuntu:25.04"}
+          - {host: ubuntu-latest, image: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}
+          - {host: ubuntu-latest, image: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-22.04}
           - {host: ubuntu-24.04}
           - {host: macos-13}
@@ -33,9 +33,9 @@ jobs:
           - llvm-20
           - msvc
         exclude:
-          - {platform: {host: ubuntu-latest, image: "ubuntu:18.04"}, compiler:  gcc-14}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-latest, image: "ubuntu:18.04"}, compiler: llvm-19}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-latest, image: "ubuntu:18.04"}, compiler: llvm-20}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-latest, image: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-latest, image: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-19}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-latest, image: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-20}  # setup-cpp compiler setup fails
           - {platform: {host: ubuntu-22.04}, compiler: msvc}  # MSVC only supported windows
           - {platform: {host: ubuntu-24.04}, compiler: msvc}  # MSVC only supported windows
           - {platform: {host: macos-13},     compiler: msvc}  # MSVC only supported windows
