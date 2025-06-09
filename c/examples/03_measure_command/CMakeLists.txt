@@ -1,4 +1,3 @@
-
 add_executable(measure
     main.cpp
     formatters.cpp
@@ -14,17 +13,24 @@ option(TIREX_TRACKER_BUILD_CMD_DEB "Build the debian package for the measure com
 ##########################################################################################
 # Libraries
 ##########################################################################################
-include(FetchContent)
+# Load CPM
+file(
+	DOWNLOAD https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.42.0/CPM.cmake
+	${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
+)
+include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
+
 # spdlog for logging
-set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "" FORCE)
-FetchContent_Declare(spdlog GIT_REPOSITORY https://github.com/gabime/spdlog.git GIT_TAG v1.15.3 EXCLUDE_FROM_ALL)
-FetchContent_MakeAvailable(spdlog)
-set_property(TARGET spdlog PROPERTY POSITION_INDEPENDENT_CODE ON)
+CPMAddPackage(
+	URI "gh:gabime/spdlog@1.15.3"
+	OPTIONS "SPDLOG_FMT_EXTERNAL OFF"
+	EXCLUDE_FROM_ALL YES
+)
+set_property(TARGET spdlog PROPERTY POSITION_INDEPENDENT_CODE ON)  # Is this needed?
 target_link_libraries(measure spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 
 # CLI11
-FetchContent_Declare(cli11 GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git GIT_TAG v2.4.2 EXCLUDE_FROM_ALL)
-FetchContent_MakeAvailable(cli11)
+CPMAddPackage(URI "gh:CLIUtils/CLI11@2.4.2" EXCLUDE_FROM_ALL YES)
 target_link_libraries(measure CLI11::CLI11)
 
 

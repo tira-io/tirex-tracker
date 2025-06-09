@@ -99,22 +99,26 @@ set(BUILD_SHARED_LIBS OFF)
 set_property(TARGET tirex_tracker_static PROPERTY POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+# Load CPM
+file(
+	DOWNLOAD https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.42.0/CPM.cmake
+	${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
+)
+include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
+
 # CPPJoule
 if (NOT (UNIX AND APPLE)) # CPPJouls does not support macos right now
-	FetchContent_Declare(cppjoule GIT_REPOSITORY https://github.com/TheMrSheldon/CPPJoules.git GIT_TAG pcm EXCLUDE_FROM_ALL)#GIT_TAG v1.0)
-	FetchContent_MakeAvailable(cppjoule)
+	CPMAddPackage(URI "gh:TheMrSheldon/CPPJoules#pcm" EXCLUDE_FROM_ALL YES)
 	target_link_libraries(tirex_tracker PRIVATE CPP_Joules)
 	target_link_libraries(tirex_tracker_static PRIVATE CPP_Joules)
 endif()
 
 # LibGit
-set(USE_SSH OFF CACHE BOOL "" FORCE)
-set(USE_HTTPS OFF CACHE BOOL "" FORCE)
-set(REGEX_BACKEND "builtin" CACHE STRING "" FORCE)
-set(BUILD_CLI OFF CACHE BOOL "" FORCE) # Do not build the Git CLI
-set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
-FetchContent_Declare(libgit GIT_REPOSITORY https://github.com/libgit2/libgit2.git GIT_TAG v1.8.4 EXCLUDE_FROM_ALL)
-FetchContent_MakeAvailable(libgit)
+CPMAddPackage(
+	URI "gh:libgit2/libgit2@1.8.4"
+	OPTIONS "USE_SSH OFF" "USE_HTTPS OFF" "REGEX_BACKEND builtin" "BUILD_CLI OFF" "BUILD_TESTS OFF"
+	EXCLUDE_FROM_ALL YES
+)
 #target_link_libraries(tirex_tracker PRIVATE libgit2package)
 #target_link_libraries(tirex_tracker_static PRIVATE libgit2package)
 #target_include_directories(tirex_tracker PRIVATE $<TARGET_PROPERTY:libgit2,INCLUDE_DIRECTORIES>)
@@ -129,20 +133,17 @@ target_include_directories(tirex_tracker PRIVATE ${nvml_SOURCE_DIR}/gen/)
 target_include_directories(tirex_tracker_static PRIVATE ${nvml_SOURCE_DIR}/gen/)
 
 # FMT (remove in the future when std::format can be assumed)
-FetchContent_Declare(fmt GIT_REPOSITORY https://github.com/fmtlib/fmt.git GIT_TAG 11.1.3 EXCLUDE_FROM_ALL)
-FetchContent_MakeAvailable(fmt)
+CPMAddPackage(URI "gh:fmtlib/fmt#11.1.3" EXCLUDE_FROM_ALL YES)
 target_link_libraries(tirex_tracker PRIVATE fmt::fmt)
 target_link_libraries(tirex_tracker_static PRIVATE fmt::fmt)
 
 # cpuinfo
-# option(CPUINFO_LOG_TO_STDIO OFF)
-option(CPUINFO_BUILD_TOOLS OFF)
-option(CPUINFO_BUILD_UNIT_TESTS OFF)
-option(CPUINFO_BUILD_MOCK_TESTS OFF)
-option(CPUINFO_BUILD_BENCHMARKS OFF)
-# set(CPUINFO_LOG_LEVEL "debug")
-FetchContent_Declare(cpuinfo GIT_REPOSITORY https://github.com/pytorch/cpuinfo.git GIT_TAG 5e3d2445e6a84d9599bee2bf78edbb4d80865e1d EXCLUDE_FROM_ALL)
-FetchContent_MakeAvailable(cpuinfo)
+CPMAddPackage(
+	URI "gh:pytorch/cpuinfo#5e3d2445e6a84d9599bee2bf78edbb4d80865e1d"
+	OPTIONS "CPUINFO_BUILD_TOOLS OFF" "CPUINFO_BUILD_UNIT_TESTS OFF" "CPUINFO_BUILD_MOCK_TESTS OFF"
+			"CPUINFO_BUILD_BENCHMARKS OFF" # "CPUINFO_LOG_TO_STDIO OFF"
+	EXCLUDE_FROM_ALL YES
+)
 target_link_libraries(tirex_tracker PRIVATE cpuinfo::cpuinfo)
 target_link_libraries(tirex_tracker_static PRIVATE cpuinfo::cpuinfo)
 
