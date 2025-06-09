@@ -5,7 +5,10 @@
 
 #include "../timeseries.hpp"
 
+#if __cpp_concepts
 #include <concepts>
+#endif
+
 #include <functional>
 #include <map>
 #include <memory>
@@ -90,7 +93,11 @@ namespace tirex {
 
 	Stats makeFilteredStats(
 			const std::set<tirexMeasure>& filter,
+#if __cpp_concepts
 			const std::convertible_to<std::pair<tirexMeasure, StatVal>> auto&&... args
+#else
+			const auto&&... args
+#endif
 	) {
 		Stats stats;
 		for (auto&& arg : {std::pair<tirexMeasure, StatVal>(args)...}) {
