@@ -8,7 +8,6 @@
 #include <cstring>
 #include <future>
 #include <iostream>
-#include <ranges>
 #include <sstream>
 #include <thread>
 #include <vector>
