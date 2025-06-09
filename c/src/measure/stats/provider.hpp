@@ -5,7 +5,7 @@
 
 #include "../timeseries.hpp"
 
-#if __cpp_concepts
+#if __cpp_lib_concepts
 #include <concepts>
 #endif
 
@@ -93,7 +93,7 @@ namespace tirex {
 
 	Stats makeFilteredStats(
 			const std::set<tirexMeasure>& filter,
-#if __cpp_concepts
+#if __cpp_lib_concepts
 			const std::convertible_to<std::pair<tirexMeasure, StatVal>> auto&&... args
 #else
 			const auto&&... args
