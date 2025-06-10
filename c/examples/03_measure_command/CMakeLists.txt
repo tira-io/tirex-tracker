@@ -23,7 +23,7 @@ include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
 # spdlog for logging
 CPMAddPackage(
 	URI "gh:gabime/spdlog@1.15.3"
-	OPTIONS "SPDLOG_FMT_EXTERNAL OFF"
+	OPTIONS "SPDLOG_FMT_EXTERNAL ON"
 	EXCLUDE_FROM_ALL YES
 )
 set_property(TARGET spdlog PROPERTY POSITION_INDEPENDENT_CODE ON)  # Is this needed?
