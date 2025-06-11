@@ -46,6 +46,12 @@ docs = [
     "sphinx~=8.1",
     "myst-parser>=4,<4",
 ]
+examples = [
+    "python-terrier~=0.13.0",
+    "pyterrier-anserini~=0.1.3",
+    "pyterrier-pisa~=0.3.0",
+    "seaborn~=0.13.2",
+]
 
 [project.urls]
 "Homepage" = "https://github.com/tira-io/tirex-tracker"
@@ -83,4 +89,4 @@ exclude_dirs = ["build", "venv", "resources"]
 skips = ["**/test_*.py"]
 
 [tool.pytest.ini_options]
-log_cli = "True"
+log_cli = true
