@@ -23,9 +23,9 @@ operator<<(std::basic_stringstream<_CharT, _Traits>& os, const std::chrono::dura
 /** End of compatibility **/
 
 namespace tirex::utils {
-	inline std::string join(const RANGE_CONCEPT auto& range, char delimiter = ',') {
+	inline std::string join(const RANGE_CONCEPT auto& range, std::string_view delimiter = ", ") {
 #ifdef __cpp_lib_ranges_join_with
-		return range | std::join_with(delimiter);
+		return std::ranges::fold_left(range | std::join_with(delimiter), std::string{}, std::plus{});
 #else
 		std::stringstream stream;
 		bool first = true;
