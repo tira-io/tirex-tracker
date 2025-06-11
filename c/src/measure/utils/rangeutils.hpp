@@ -17,7 +17,7 @@ operator<<(std::basic_stringstream<_CharT, _Traits>& os, const std::chrono::dura
 /** End of compatibility **/
 
 namespace tirex::utils {
-	inline std::string join(const std::ranges::range auto& range, char delimiter = ',') {
+	inline std::string join(const std::ranges::range auto& range, std::string delimiter = ", ") {
 #ifdef __cpp_lib_ranges_join_with
 		return range | std::join_with(delimiter);
 #else
