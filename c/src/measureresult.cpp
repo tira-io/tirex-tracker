@@ -53,7 +53,7 @@ static std::string toYAML(const tirex::TimeSeries<T>& timeseries) {
 	return _fmt::format(
 			"{{\"max\": {}, \"min\": {}, \"avg\": {}, \"timeseries\": {{\"timestamps\": [\"{}\"], \"values\": [{}]}}}}",
 			timeseries.maxValue(), timeseries.minValue(), timeseries.avgValue(),
-			tirex::utils::join(timestamps, '\",\"'), tirex::utils::join(values, ',')
+			tirex::utils::join(timestamps, "\", \""), tirex::utils::join(values, ", ")
 	);
 }
 
