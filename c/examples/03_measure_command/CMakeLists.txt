@@ -13,13 +13,6 @@ option(TIREX_TRACKER_BUILD_CMD_DEB "Build the debian package for the measure com
 ##########################################################################################
 # Libraries
 ##########################################################################################
-# Load CPM
-file(
-	DOWNLOAD https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.42.0/CPM.cmake
-	${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
-)
-include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
-
 # spdlog for logging
 CPMAddPackage(
 	URI "gh:gabime/spdlog@1.15.3"

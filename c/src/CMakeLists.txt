@@ -99,14 +99,6 @@ set(BUILD_SHARED_LIBS OFF)
 set_property(TARGET tirex_tracker_static PROPERTY POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# Load CPM
-file(
-	DOWNLOAD https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.42.0/CPM.cmake
-	${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
-)
-include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
-message("Loaded CPM v${CURRENT_CPM_VERSION}")
-
 # CPPJoule
 if (NOT (UNIX AND APPLE)) # CPPJouls does not support macos right now
 	CPMAddPackage(URI "gh:TheMrSheldon/CPPJoules#pcm" EXCLUDE_FROM_ALL YES)
