@@ -105,6 +105,7 @@ file(
 	${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
 )
 include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
+message("Loaded CPM v${CURRENT_CPM_VERSION}")
 
 # CPPJoule
 if (NOT (UNIX AND APPLE)) # CPPJouls does not support macos right now
