@@ -440,7 +440,7 @@ Stats SystemStats::getInfo() {
 			entries.emplace_back(std::move(_fmt::format("\"l{}d\": \"{} KiB\"", cacheIdx, data / 1024)));
 		++cacheIdx;
 	}
-	std::string caches = "{"s + utils::join(entries, ',') + "}";
+	std::string caches = "{"s + utils::join(entries, ", ") + "}";
 
 	return makeFilteredStats(
 			enabled, std::pair{TIREX_OS_NAME, info.osname}, std::pair{TIREX_OS_KERNEL, info.kerneldesc},
