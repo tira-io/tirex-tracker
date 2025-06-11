@@ -49,11 +49,13 @@ static const tirexMeasureInfo measureInfos[]{
 		/*[TIREX_CPU_USED_PROCESS_PERCENT] = */
 		{.description = "CPU usage of the tracked process in percent per logical CPU cores.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "{\"max\": 117, \"min\": 0, \"avg\": 0, \"timeseries\": {\"timestamps\": [\"108ms\"], \"values\": [57]}}"},
+		 .example = "{\"max\": 117, \"min\": 0, \"avg\": 0, \"timeseries\": {\"timestamps\": [\"108ms\"], \"values\": "
+					"[57]}}"},
 		/*[TIREX_CPU_USED_SYSTEM_PERCENT] = */
 		{.description = "CPU usage of the entire system in percent per logical CPU cores.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "{\"max\": 17, \"min\": 0, \"avg\": 0, \"timeseries\": {\"timestamps\": [\"108ms\"], \"values\": [9]}}"},
+		 .example = "{\"max\": 17, \"min\": 0, \"avg\": 0, \"timeseries\": {\"timestamps\": [\"108ms\"], \"values\": "
+					"[9]}}"},
 		/*[TIREX_CPU_AVAILABLE_SYSTEM_CORES] = */
 		{.description = "Number of CPU cores available in the system.",
 		 .datatype = tirexResultType::TIREX_STRING,
@@ -74,7 +76,8 @@ static const tirexMeasureInfo measureInfos[]{
 		/*[TIREX_CPU_FREQUENCY_MHZ] = */
 		{.description = "Current CPU speed in megahertz.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "{\"max\": 0, \"min\": 0, \"avg\": 0, \"timeseries\": {\"timestamps\": [\"108ms\"], \"values\": [0]}}"},
+		 .example = "{\"max\": 0, \"min\": 0, \"avg\": 0, \"timeseries\": {\"timestamps\": [\"108ms\"], \"values\": "
+					"[0]}}"},
 		/*[TIREX_CPU_FREQUENCY_MIN_MHZ] = */
 		{.description = "Minimum possible CPU speed in megahertz.",
 		 .datatype = tirexResultType::TIREX_STRING,
@@ -119,11 +122,13 @@ static const tirexMeasureInfo measureInfos[]{
 		/*[TIREX_RAM_USED_PROCESS_KB] = */
 		{.description = "RAM usage of the tracked process in kilobytes.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "{\"max\": 21630, \"min\": 0, \"avg\": 0, \"timeseries\": {\"timestamps\": [\"108ms\"], \"values\": [21630]}}"},
+		 .example = "{\"max\": 21630, \"min\": 0, \"avg\": 0, \"timeseries\": {\"timestamps\": [\"108ms\"], "
+					"\"values\": [21630]}}"},
 		/*[TIREX_RAM_USED_SYSTEM_MB] = */
 		{.description = "RAM usage of the entire system in megabytes. ",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "{\"max\": 22040, \"min\": 0, \"avg\": 0, \"timeseries\": {\"timestamps\": [\"108ms\"], \"values\": [22040]}}"},
+		 .example = "{\"max\": 22040, \"min\": 0, \"avg\": 0, \"timeseries\": {\"timestamps\": [\"108ms\"], "
+					"\"values\": [22040]}}"},
 		/*[TIREX_RAM_AVAILABLE_SYSTEM_MB] = */
 		{.description = "Amount of RAM available in the system in megabytes.",
 		 .datatype = tirexResultType::TIREX_STRING,
@@ -148,19 +153,23 @@ static const tirexMeasureInfo measureInfos[]{
 		/*[TIREX_GPU_USED_PROCESS_PERCENT] = */
 		{.description = "GPU usage of the tracked process in percent.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "{\"max\": 23, \"min\": 0, \"avg\": 0, \"timeseries\": {\"timestamps\": [\"108ms\"], \"values\": [23]}}"},
+		 .example = "{\"max\": 23, \"min\": 0, \"avg\": 0, \"timeseries\": {\"timestamps\": [\"108ms\"], \"values\": "
+					"[23]}}"},
 		/*[TIREX_GPU_USED_SYSTEM_PERCENT] = */
 		{.description = "GPU utilization of the entire system in percent.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "{\"max\": 23, \"min\": 0, \"avg\": 0, \"timeseries\": {\"timestamps\": [\"108ms\"], \"values\": [23]}}"},
+		 .example = "{\"max\": 23, \"min\": 0, \"avg\": 0, \"timeseries\": {\"timestamps\": [\"108ms\"], \"values\": "
+					"[23]}}"},
 		/*[TIREX_GPU_VRAM_USED_PROCESS_MB] = */
 		{.description = "GPU VRAM usage of the tracked process in megabyte.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "{\"max\": 1557, \"min\": 0, \"avg\": 0, \"timeseries\": {\"timestamps\": [\"105ms\"], \"values\": [1557]}}"},
+		 .example = "{\"max\": 1557, \"min\": 0, \"avg\": 0, \"timeseries\": {\"timestamps\": [\"105ms\"], \"values\": "
+					"[1557]}}"},
 		/*[TIREX_GPU_VRAM_USED_SYSTEM_MB] = */
 		{.description = "GPU VRAM usage of the entire system in megabytes.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "{\"max\": 1557, \"min\": 0, \"avg\": 0, \"timeseries\": {\"timestamps\": [\"105ms\"], \"values\": [1557]}}"},
+		 .example = "{\"max\": 1557, \"min\": 0, \"avg\": 0, \"timeseries\": {\"timestamps\": [\"105ms\"], \"values\": "
+					"[1557]}}"},
 		/*[TIREX_GPU_VRAM_AVAILABLE_SYSTEM_MB] = */
 		{.description = "Amount of GPU VRAM available in the system in megabytes.",
 		 .datatype = tirexResultType::TIREX_STRING,
