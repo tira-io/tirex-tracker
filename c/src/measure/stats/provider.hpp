@@ -7,6 +7,10 @@
 
 #if __cpp_lib_concepts
 #include <concepts>
+
+#define CONVERTIBLE_TO_PAIR_CONCEPT std::convertible_to<std::pair<tirexMeasure, StatVal>>
+#else
+#define CONVERTIBLE_TO_PAIR_CONCEPT
 #endif
 
 #include <functional>
@@ -91,14 +95,7 @@ namespace tirex {
 	std::set<tirexMeasure>
 	initProviders(std::set<tirexMeasure> measures, std::vector<std::unique_ptr<StatsProvider>>& providers);
 
-	Stats makeFilteredStats(
-			const std::set<tirexMeasure>& filter,
-#if __cpp_lib_concepts
-			const std::convertible_to<std::pair<tirexMeasure, StatVal>> auto&&... args
-#else
-			const auto&&... args
-#endif
-	) {
+	Stats makeFilteredStats(const std::set<tirexMeasure>& filter, const CONVERTIBLE_TO_PAIR_CONCEPT auto&&... args) {
 		Stats stats;
 		for (auto&& arg : {std::pair<tirexMeasure, StatVal>(args)...}) {
 			if (filter.contains(arg.first))
