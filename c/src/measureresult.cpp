@@ -51,9 +51,9 @@ static std::string toYAML(const tirex::TimeSeries<T>& timeseries) {
 	const auto& [timestamps, values] = timeseries.timeseries();
 	static_assert(std::is_same_v<decltype(timestamps), const std::vector<std::chrono::milliseconds>&>);
 	return _fmt::format(
-			"{{\"max\": {}, \"min\": {}, \"avg\": {}, \"timeseries\": {{\"timestamps\": [\"{}\"], \"values\": [{}]}}}}", timeseries.maxValue(),
-			timeseries.minValue(), timeseries.avgValue(), tirex::utils::join(timestamps, '\",\"'),
-			tirex::utils::join(values, ',')
+			"{{\"max\": {}, \"min\": {}, \"avg\": {}, \"timeseries\": {{\"timestamps\": [\"{}\"], \"values\": [{}]}}}}",
+			timeseries.maxValue(), timeseries.minValue(), timeseries.avgValue(),
+			tirex::utils::join(timestamps, '\",\"'), tirex::utils::join(values, ',')
 	);
 }
 
