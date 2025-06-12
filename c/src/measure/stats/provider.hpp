@@ -24,7 +24,13 @@ namespace tirex {
 		std::set<tirexMeasure> enabled;
 
 	public:
+		StatsProvider() = default;
+		StatsProvider(const StatsProvider&) = default;
+		StatsProvider(StatsProvider&&) = default;
 		virtual ~StatsProvider() = default;
+
+		StatsProvider& operator=(const StatsProvider&) = default;
+		StatsProvider& operator=(StatsProvider&&) = default;
 
 		void requestMeasures(const std::set<tirexMeasure>& measures) noexcept;
 
