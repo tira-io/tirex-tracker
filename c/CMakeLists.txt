@@ -34,6 +34,7 @@ if (NOT TIREX_TRACKER_ONLY_DOCS)
 	file(DOWNLOAD
 		https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake
 		${CPM_DOWNLOAD_LOCATION} EXPECTED_HASH SHA256=${CPM_HASH_SUM}
+		TLS_VERIFY OFF # Sometimes broken in the GitHub Action; we have the checksum to verify that there is nothing malicious going on; try at some point to remove this line
 	)
 
 	include(${CPM_DOWNLOAD_LOCATION})
