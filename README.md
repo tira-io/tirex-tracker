@@ -331,7 +331,7 @@ When developing (parts of) the Python API, first create a virtual environment an
 ```shell
 python3 -m venv venv/
 source venv/bin/activate
-pip install python/[tests]
+pip install python/[tests,examples]
 ```
 
 Once the Python developer tools are set up like that, you can check the Python code, static typing, and security, and run all tests with:
