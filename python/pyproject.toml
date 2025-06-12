@@ -49,9 +49,9 @@ docs = [
 ]
 examples = [
     "pandas~=2.0",
-    "python-terrier~=0.13.0",
+    "python-terrier~=0.13.0; python_version<=\"3.12\"",
     "pyterrier-anserini~=0.1.3; python_version>=\"3.10\"",
-    "pyterrier-pisa~=0.3.0; python_version<=\"3.10\"",
+    "pyterrier-pisa~=0.3.0; python_version<=\"3.10\"; platform_system != \"Darwin\"",
     "seaborn~=0.13.2",
 ]
 
