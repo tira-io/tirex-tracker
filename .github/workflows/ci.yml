@@ -88,18 +88,21 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: c-library-linux
-          path: c/build/extensions/Release/libtirex_tracker.so
+          if-no-files-found: error
+          path: c/build/extensions/Release/libtirex_tracker.so.*
       - name: 📤 Upload macOS library
         if: matrix.platform.host == 'macos-14' && matrix.compiler == 'gcc-14'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-macos
-          path: c/build/extensions/Release/libtirex_tracker.dylib
+          if-no-files-found: error
+          path: c/build/extensions/Release/libtirex_tracker.*.dylib
       - name: 📤 Upload Windows library
         if: matrix.platform.host == 'windows-2022' && matrix.compiler == 'msvc'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-windows
+          if-no-files-found: error
           path: c/build/extensions/Release/tirex_tracker.dll
   c-check-format:
     name: 🔍 Check C code format
@@ -195,18 +198,21 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-linux
+          if-no-files-found: error
           path: c/build/examples/03_measure_command/Release/measure
       - name: 📤 Upload macOS CLI
         if: matrix.platform.host == 'macos-14' && matrix.compiler == 'gcc-14'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-macos
+          if-no-files-found: error
           path: c/build/examples/03_measure_command/Release/measure
       - name: 📤 Upload Windows CLI
         if: matrix.platform.host == 'windows-2022' && matrix.compiler == 'msvc'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-windows
+          if-no-files-found: error
           path: c/build/examples/03_measure_command/Release/measure.exe
   c-build-debian-package:
     name: 📦 Build Debian package
@@ -246,6 +252,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: c-debian-package
+          if-no-files-found: error
           path: c/build/tirex-tracker-*-Linux.deb
   jvm-build:
     name: 🏗️ Build JVM library
@@ -436,24 +443,28 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jvm-jar
+          if-no-files-found: error
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*.jar
       - name: 📤 Upload JVM sources JAR
         if: matrix.java == '21'
         uses: actions/upload-artifact@v4
         with:
           name: jvm-sources-jar
+          if-no-files-found: error
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*-sources.jar
       - name: 📤 Upload JVM Javadoc JAR
         if: matrix.java == '21'
         uses: actions/upload-artifact@v4
         with:
           name: jvm-javadoc-jar
+          if-no-files-found: error
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*-javadoc.jar
       - name: 📤 Upload JVM HTML docs JAR
         if: matrix.java == '21'
         uses: actions/upload-artifact@v4
         with:
           name: jvm-html-docs-jar
+          if-no-files-found: error
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*-html-docs.jar
       - name: 🚀 Publish JVM library to GitHub Packages
         if: matrix.java == '21'
@@ -519,6 +530,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: python-wheels
+          if-no-files-found: error
           path: python/dist/
   python-check:
     name: 🔍 Check Python code
