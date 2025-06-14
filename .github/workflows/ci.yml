@@ -89,21 +89,21 @@ jobs:
         with:
           name: c-library-linux
           if-no-files-found: error
-          path: c/build/extensions/Release/libtirex_tracker.so.*
+          path: c/build/src/Release/libtirex_tracker.so
       - name: 📤 Upload macOS library
         if: matrix.platform.host == 'macos-14' && matrix.compiler == 'gcc-14'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-macos
           if-no-files-found: error
-          path: c/build/extensions/Release/libtirex_tracker.*.dylib
+          path: c/build/src/Release/libtirex_tracker.dylib
       - name: 📤 Upload Windows library
         if: matrix.platform.host == 'windows-2022' && matrix.compiler == 'msvc'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-windows
           if-no-files-found: error
-          path: c/build/extensions/Release/tirex_tracker.dll
+          path: c/build/src/Release/tirex_tracker.dll
   c-check-format:
     name: 🔍 Check C code format
     runs-on: ubuntu-22.04
