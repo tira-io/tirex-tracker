@@ -38,8 +38,8 @@
                 "TIREX_TRACKER_BUILD_DOCS": "OFF",
                 "TIREX_TRACKER_BUILD_DEB": "OFF",
                 "TIREX_TRACKER_BUILD_EXAMPLES": "OFF",
-                "DTIREX_TRACKER_EXTENSION_IR": "OFF",
-                "DTIREX_TRACKER_BUILD_SHARED_LIB": "ON"
+                "TIREX_TRACKER_EXTENSION_IR": "OFF",
+                "TIREX_TRACKER_BUILD_SHARED_LIB": "ON"
             }
         },
         {
@@ -60,8 +60,8 @@
                 "TIREX_TRACKER_BUILD_DOCS": "OFF",
                 "TIREX_TRACKER_BUILD_DEB": "OFF",
                 "TIREX_TRACKER_BUILD_EXAMPLES": "ON",
-                "DTIREX_TRACKER_EXTENSION_IR": "ON",
-                "DTIREX_TRACKER_BUILD_SHARED_LIB": "OFF"
+                "TIREX_TRACKER_EXTENSION_IR": "ON",
+                "TIREX_TRACKER_BUILD_SHARED_LIB": "OFF"
             }
         }
     ],
