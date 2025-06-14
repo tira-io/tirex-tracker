@@ -1,4 +1,3 @@
-
 add_executable(measure
     main.cpp
     formatters.cpp
@@ -6,7 +5,7 @@ add_executable(measure
 )
 
 target_compile_features(measure PUBLIC cxx_std_20)
-target_link_libraries(measure tirex_tracker_full_static)
+target_link_libraries(measure tirex::tracker)
 
 option(TIREX_TRACKER_BUILD_CMD_DEB "Build the debian package for the measure command" OFF)
 
@@ -14,16 +13,17 @@ option(TIREX_TRACKER_BUILD_CMD_DEB "Build the debian package for the measure com
 ##########################################################################################
 # Libraries
 ##########################################################################################
-include(FetchContent)
 # spdlog for logging
-FetchContent_Declare(spdlog GIT_REPOSITORY https://github.com/gabime/spdlog.git GIT_TAG v1.14.1 EXCLUDE_FROM_ALL)
-FetchContent_MakeAvailable(spdlog)
-set_property(TARGET spdlog PROPERTY POSITION_INDEPENDENT_CODE ON)
+CPMAddPackage(
+	URI "gh:gabime/spdlog@1.15.3"
+	OPTIONS "SPDLOG_FMT_EXTERNAL ON"
+	EXCLUDE_FROM_ALL YES
+)
+set_property(TARGET spdlog PROPERTY POSITION_INDEPENDENT_CODE ON)  # Is this needed?
 target_link_libraries(measure spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 
 # CLI11
-FetchContent_Declare(cli11 GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git GIT_TAG v2.4.2 EXCLUDE_FROM_ALL)
-FetchContent_MakeAvailable(cli11)
+CPMAddPackage(URI "gh:CLIUtils/CLI11@2.4.2" EXCLUDE_FROM_ALL YES)
 target_link_libraries(measure CLI11::CLI11)
 
 

@@ -10,7 +10,6 @@
 #include <fstream>
 #include <future>
 #include <iostream>
-#include <ranges>
 #include <thread>
 
 static std::map<std::string, std::vector<tirexMeasureConf>> confGroups = {

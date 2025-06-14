@@ -15,7 +15,7 @@ add_executable(tests
 
 # file(COPY testfiles ${CMAKE_CURRENT_BINARY_DIR})
 
-target_link_libraries(tests PRIVATE Catch2::Catch2WithMain tirex_tracker)
+target_link_libraries(tests PRIVATE Catch2::Catch2WithMain tirex::tracker)
 target_include_directories(tests PRIVATE ${CMAKE_CURRENT_LIST_DIR}/../src)
 target_compile_features(tests PRIVATE cxx_std_20)
 

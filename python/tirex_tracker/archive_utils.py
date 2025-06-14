@@ -88,39 +88,40 @@ def create_git_zip_archive(
     if repo is None:
         return None
 
-    working_tree_dir = repo.working_tree_dir
-    if working_tree_dir is None:
-        return None
-    working_tree_dir_path = Path(working_tree_dir)
+    with repo:
+        working_tree_dir = repo.working_tree_dir
+        if working_tree_dir is None:
+            return None
+        working_tree_dir_path = Path(working_tree_dir)
 
-    try:
-        repo_items = repo.commit().tree.traverse()
-    except ValueError:
-        return None
+        try:
+            repo_items = repo.commit().tree.traverse()
+        except ValueError:
+            return None
 
-    tracked_paths = (
-        Path(item.abspath)
-        for item in repo_items
-        if isinstance(item, IndexObject)
-    )
-    tracked_paths = (
-        path
-        for path in tracked_paths
-        if path.is_file()
-    )
-    tracked_paths = (
-        path
-        for path in tracked_paths
-        if script_file_path.parent in path.parents
-    )
+        tracked_paths = (
+            Path(item.abspath)
+            for item in repo_items
+            if isinstance(item, IndexObject)
+        )
+        tracked_paths = (
+            path
+            for path in tracked_paths
+            if path.is_file()
+        )
+        tracked_paths = (
+            path
+            for path in tracked_paths
+            if script_file_path.parent in path.parents
+        )
 
-    return _create_zip_archive(
-        metadata_directory_path=metadata_directory_path,
-        base_directory_path=working_tree_dir_path,
-        script_file_path=script_file_path,
-        notebook_file_path=None,
-        other_paths=tracked_paths,
-    )
+        return _create_zip_archive(
+            metadata_directory_path=metadata_directory_path,
+            base_directory_path=working_tree_dir_path,
+            script_file_path=script_file_path,
+            notebook_file_path=None,
+            other_paths=tracked_paths,
+        )
 
 
 def create_code_archive(
