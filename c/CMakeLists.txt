@@ -1,11 +1,26 @@
 cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
 
+include(FeatureSummary)
 option(TIREX_TRACKER_BUILD_DEB "Build debian package" OFF)
 option(TIREX_TRACKER_ONLY_DOCS "Build only documentation -- this disables tests and others" OFF)
 option(TIREX_TRACKER_BUILD_EXAMPLES "Build the examples" OFF)
 option(TIREX_TRACKER_BUILD_DOCS "Build the documentation" OFF)
 option(TIREX_TRACKER_BUILD_TESTS "Build the tests" OFF)
+option(TIREX_TRACKER_BUILD_SHARED_LIB "(possible values: ON/OFF/inherit)" "inherit")
+option(TIREX_TRACKER_EXTENSION_IR "Build the IR extension for TIREx Tracker" ON)
+
+if (TIREX_TRACKER_BUILD_SHARED_LIB EQUAL "inherit")
+	set(TIREX_TRACKER_BUILD_SHARED_LIB BUILD_SHARED_LIBS)
+endif()
+
+add_feature_info(package "TIREX_TRACKER_BUILD_DEB AND NOT TIREX_TRACKER_ONLY_DOCS" "Build debian package")
+add_feature_info(examples "TIREX_TRACKER_BUILD_EXAMPLES AND NOT TIREX_TRACKER_ONLY_DOCS" "Build TIREx tracker examples")
+add_feature_info(documentation TIREX_TRACKER_BUILD_DOCS "Build TIREx tracker documentation")
+add_feature_info(tests "TIREX_TRACKER_BUILD_TESTS AND NOT TIREX_TRACKER_ONLY_DOCS" "Build TIREx tracker tests")
+add_feature_info(extension_ir TIREX_TRACKER_EXTENSION_IR "Build the IR extension for TIREx Tracker")
+feature_summary(WHAT ALL)
+
 
 set(TIREX_TRACKER_VER_MAJOR "0")
 set(TIREX_TRACKER_VER_MINOR "2")
@@ -40,9 +55,10 @@ if (NOT TIREX_TRACKER_ONLY_DOCS)
 	include(${CPM_DOWNLOAD_LOCATION})
 	message("Loaded CPM v${CURRENT_CPM_VERSION}")
 
+	# Populates the TIREX_EXT_INCLUDE_DIRS, TIREX_EXT_INCLUDE_FILES, and TIREX_EXT_SOURCES variables
+    add_subdirectory(extensions)
 	# Add Source code
     add_subdirectory(src)
-    add_subdirectory(extensions)
 
 	if (TIREX_TRACKER_BUILD_EXAMPLES)
 		add_subdirectory(examples)

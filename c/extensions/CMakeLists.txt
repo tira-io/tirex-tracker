@@ -1,25 +1,12 @@
-add_library(measureext_ir
-    irtracker.cpp
-)
-target_include_directories(measureext_ir PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-target_link_libraries(measureext_ir PUBLIC tirex_tracker)
+set(TIREX_EXT_INCLUDE_DIRS "" PARENT_SCOPE)
+set(TIREX_EXT_INCLUDE_FILES "" PARENT_SCOPE)
+set(TIREX_EXT_SOURCES "" PARENT_SCOPE)
 
-
-add_library(tirex_tracker_full SHARED
-    irtracker.cpp
-)
-target_include_directories(tirex_tracker_full PUBLIC ${CMAKE_CURRENT_LIST_DIR} $<TARGET_PROPERTY:tirex_tracker_static,INCLUDE_DIRECTORIES>)
-# For now see if the LINK_LIBRARY generator works with old systems (requires 3.24). If it is too new, uncomment the
-# following line:
-# target_link_libraries(tirex_tracker_full PRIVATE "-Wl,--whole-archive" tirex_tracker_static "-Wl,--no-whole-archive")
-target_link_libraries(tirex_tracker_full PRIVATE "$<LINK_LIBRARY:WHOLE_ARCHIVE,tirex_tracker_static>")
-
-add_library(tirex_tracker_full_static STATIC
-    irtracker.cpp
-)
-target_include_directories(tirex_tracker_full_static PUBLIC ${CMAKE_CURRENT_LIST_DIR} $<TARGET_PROPERTY:tirex_tracker_static,INCLUDE_DIRECTORIES>)
-# For now see if the LINK_LIBRARY generator works with old systems (requires 3.24). If it is too new, uncomment the
-# following line:
-# target_link_libraries(tirex_tracker_full_static PRIVATE "-Wl,--whole-archive" tirex_tracker_static "-Wl,--no-whole-archive")
-target_link_libraries(tirex_tracker_full_static PRIVATE "$<LINK_LIBRARY:WHOLE_ARCHIVE,tirex_tracker_static>")
-target_compile_definitions(tirex_tracker_full_static PUBLIC TIREX_TRACKER_STATIC_DEFINE)
+if (TIREX_TRACKER_EXTENSION_IR)
+    list(APPEND TIREX_EXT_INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR})
+    list(APPEND TIREX_EXT_INCLUDE_FILES ${CMAKE_CURRENT_LIST_DIR}/irtracker.h)
+    list(APPEND TIREX_EXT_SOURCES ${CMAKE_CURRENT_LIST_DIR}/irtracker.cpp)
+    set(TIREX_EXT_INCLUDE_DIRS "${TIREX_EXT_INCLUDE_DIRS}" PARENT_SCOPE)
+    set(TIREX_EXT_INCLUDE_FILES "${TIREX_EXT_INCLUDE_FILES}" PARENT_SCOPE)
+    set(TIREX_EXT_SOURCES "${TIREX_EXT_SOURCES}" PARENT_SCOPE)
+endif()

@@ -8,9 +8,9 @@
 [![Code coverage](https://img.shields.io/codecov/c/github/tira-io/tirex-tracker?style=flat-square)](https://codecov.io/github/tira-io/tirex-tracker/)
 \
 [![Release](https://img.shields.io/github/v/tag/tira-io/tirex-tracker?style=flat-square&label=library)](https://github.com/tira-io/tirex-tracker/releases/)
-[![Ubuntu](https://img.shields.io/badge/ubuntu-22.04_%7C_24.04-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
-[![macOS](https://img.shields.io/badge/macos-13_%7C_14-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
-[![Windows](https://img.shields.io/badge/windows-2019_%7C_2022_%7C_2025-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
+[![Ubuntu](https://img.shields.io/badge/ubuntu-18.04_%7C_20.04_%7C_22.04_%7C_24.04_%7C_25.04-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
+[![macOS](https://img.shields.io/badge/macos-13_%7C_14_%7C_15-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
+[![Windows](https://img.shields.io/badge/windows-2022_%7C_2025-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
 \
 [![PyPi](https://img.shields.io/pypi/v/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/)
 [![Python](https://img.shields.io/pypi/pyversions/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/)
