@@ -284,23 +284,20 @@ cmake -S c/ -B c/build/ \
 To build the library, run
 
 ```shell
-cmake --build c/build/ --config Release --target tirex_tracker_full
+cmake --build c/build/ --config Release --target tirex_tracker
 ```
 
-Under Linux, this will compile the C API into a statically linked library at `c/build/extensions/libtirex_tracker_full.so`. The supported targets are:
+Under Linux, this will compile the C API into a statically linked library at `c/build/extensions/libtirex_tracker.so`. The supported targets are:
 
 | Target                 | Type          | Description                                                                                   |
 |:-----------------------|:--------------|:----------------------------------------------------------------------------------------------|
-| `tirex_tracker_full`   | library       | A shared library containing `tirex_tracker` and all extensions.                               |
-| `measureext_ir`        | library       | A shared library containing only the IR extension. `tirex_tracker` must be loaded separately. |
-| `tirex_tracker`        | library       | The `tirex_tracker` shared library.                                                           |
-| `tirex_tracker_static` | library       | The `tirex_tracker` static library.                                                           |
-| `measure`              | executable    | The `measure` command.                                                                          |
+| `tirex_tracker`        | library       | A shared library containing `tirex_tracker` and all extensions.                               |
+| `measure`              | executable    | The `measure` command.                                                                        |
 | `01_tracking`          | executable    | Example 01: demonstrating basic tracking.                                                     |
 | `02_list_measures`     | executable    | Example 02: demonstrating how to fetch meta information through the API.                      |
 | `04_ir_extension`      | executable    | Example 04: demonstrating the IR extension (`measureext_ir`).                                 |
 | `tirex_tracker_docs`   | documentation | The library documentation (only available if Doxygen is installed).                           |
-| `package`              | package       | The Debian package contining the `measure` command.                                             |
+| `package`              | package       | The Debian package contining the `measure` command.                                           |
 
 That means, to build the Debian package, run:
 

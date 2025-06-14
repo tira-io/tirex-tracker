@@ -560,11 +560,11 @@ class _TirexTrackerLibrary(CDLL):
 def _find_library() -> Path:
     path: str
     if platform == "linux":
-        path = "libtirex_tracker_full.so"
+        path = "libtirex_tracker.so"
     elif platform == "darwin":
-        path = "libtirex_tracker_full.dylib"
+        path = "libtirex_tracker.dylib"
     elif platform == "win32":
-        path = "tirex_tracker_full.dll"
+        path = "tirex_tracker.dll"
     else:
         raise RuntimeError("Unsupported platform.")
     return files(__name__) / path
