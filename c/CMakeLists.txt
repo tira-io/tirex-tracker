@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
-
+##########################################################################################
+# Package Features
+##########################################################################################
 include(FeatureSummary)
 option(TIREX_TRACKER_BUILD_DEB "Build debian package" OFF)
 option(TIREX_TRACKER_ONLY_DOCS "Build only documentation -- this disables tests and others" OFF)
@@ -22,12 +24,40 @@ add_feature_info(extension_ir TIREX_TRACKER_EXTENSION_IR "Build the IR extension
 feature_summary(WHAT ALL)
 
 
-set(TIREX_TRACKER_VER_MAJOR "0")
-set(TIREX_TRACKER_VER_MINOR "2")
-set(TIREX_TRACKER_VER_PATCH "15")
+##########################################################################################
+# Versioning
+##########################################################################################
+find_package(Git)
+
+if(GIT_EXECUTABLE)
+	execute_process(
+		COMMAND ${GIT_EXECUTABLE} describe --tags
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+		OUTPUT_VARIABLE GIT_DESCRIBE_VERSION
+		RESULT_VARIABLE GIT_DESCRIBE_ERROR_CODE
+		OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+	string(REGEX MATCH "([0-9]+).([0-9]+).([0-9]+)(-.+)?" _ ${GIT_DESCRIBE_VERSION})
+	set(TIREX_TRACKER_VER_MAJOR ${CMAKE_MATCH_1} CACHE INTERNAL "")
+	set(TIREX_TRACKER_VER_MINOR ${CMAKE_MATCH_2} CACHE INTERNAL "")
+	set(TIREX_TRACKER_VER_PATCH ${CMAKE_MATCH_3} CACHE INTERNAL "")
+	set(TIREX_TRACKER_VER_META  ${CMAKE_MATCH_4} CACHE INTERNAL "")
+else()
+	message(WARNING "I failed to read the current version from the latest git tag.")
+
+	set(TIREX_TRACKER_VER_MAJOR "0" CACHE INTERNAL "")
+	set(TIREX_TRACKER_VER_MINOR "0" CACHE INTERNAL "")
+	set(TIREX_TRACKER_VER_PATCH "0" CACHE INTERNAL "")
+	set(TIREX_TRACKER_VER_META  "-dev" CACHE INTERNAL "")  # https://semver.org/#spec-item-10
+endif()
+
+# Does not include the meta component since this will be used in places where CMake expects the form X.X.X
 set(TIREX_TRACKER_VERSION "${TIREX_TRACKER_VER_MAJOR}.${TIREX_TRACKER_VER_MINOR}.${TIREX_TRACKER_VER_PATCH}")
 
 
+##########################################################################################
+# Project Setup
+##########################################################################################
 project(tirex_tracker VERSION ${TIREX_TRACKER_VERSION} LANGUAGES C CXX)
 
 if (NOT TIREX_TRACKER_ONLY_DOCS)
@@ -64,6 +94,7 @@ if (NOT TIREX_TRACKER_ONLY_DOCS)
 		add_subdirectory(examples)
 	endif()
 endif()
+
 
 ##########################################################################################
 # Tests
