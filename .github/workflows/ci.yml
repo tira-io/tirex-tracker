@@ -80,7 +80,9 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 📥 Fetch tags
-        run: git fetch --prune --unshallow --tags
+        run: |
+          git config --global safe.directory '*'
+          git fetch --prune --unshallow --tags
         working-directory: ${{github.workspace}}
       - name: 🔧 Configure CMake
         run: cmake -S c/ -B c/build/ ${{ (matrix.compiler != 'msvc') && '-G "Ninja Multi-Config"' || ''}} --preset=conf-release-full-shared-lib-static-deps
@@ -192,7 +194,9 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 📥 Fetch tags
-        run: git fetch --prune --unshallow --tags
+        run: |
+          git config --global safe.directory '*'
+          git fetch --prune --unshallow --tags
         working-directory: ${{github.workspace}}
       - name: 🔧 Configure CMake
         run: |
@@ -252,8 +256,7 @@ jobs:
         uses: actions/checkout@v4
       - name: 📥 Fetch tags
         run: |
-          echo "PWD is $(pwd)"
-          ls -la
+          git config --global safe.directory '*'
           git fetch --prune --unshallow --tags
         working-directory: ${{github.workspace}}
       - name: 🔧 Configure CMake
