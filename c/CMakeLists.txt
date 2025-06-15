@@ -30,7 +30,6 @@ feature_summary(WHAT ALL)
 find_package(Git)
 
 if(GIT_EXECUTABLE)
-	message(STATUS "Fetching tags from ${CMAKE_CURRENT_LIST_DIR}")
 	execute_process(
 		COMMAND ${GIT_EXECUTABLE} describe --tags --dirty
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}

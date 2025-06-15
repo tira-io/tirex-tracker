@@ -68,6 +68,8 @@ jobs:
           tar -C /__e/node20 -x --strip-components=1 -f /tmp/$NODE_TAR_FILE
       - name: 📥 Check-out
         uses: actions/checkout@v4
+      - name: 📥 Fetch tags
+        run: git fetch --prune --unshallow --tags
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
@@ -177,6 +179,8 @@ jobs:
           tar -C /__e/node20 -x --strip-components=1 -f /tmp/$NODE_TAR_FILE
       - name: 📥 Check-out
         uses: actions/checkout@v4
+      - name: 📥 Fetch tags
+        run: git fetch --prune --unshallow --tags
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
@@ -234,6 +238,8 @@ jobs:
           tar -C /__e/node20 -x --strip-components=1 -f /tmp/$NODE_TAR_FILE
       - name: 📥 Check-out
         uses: actions/checkout@v4
+      - name: 📥 Fetch tags
+        run: git fetch --prune --unshallow --tags
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
