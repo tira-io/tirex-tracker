@@ -478,7 +478,7 @@ private interface TrackerLibrary : Library {
 }
 
 private val LIBRARY = Native.load(
-    "tirex_tracker_full",
+    "tirex_tracker",
     TrackerLibrary::class.java,
     mapOf(Library.OPTION_STRING_ENCODING to ENCODING),
 )
