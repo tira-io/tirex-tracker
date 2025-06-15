@@ -66,8 +66,6 @@ jobs:
           NODE_URL=https://unofficial-builds.nodejs.org/download/release/$NODE_VERSION/$NODE_TAR_FILE &&
           curl -Lo /tmp/$NODE_TAR_FILE $NODE_URL &&
           tar -C /__e/node20 -x --strip-components=1 -f /tmp/$NODE_TAR_FILE
-      - name: 📥 Check-out
-        uses: actions/checkout@v4
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
@@ -79,6 +77,8 @@ jobs:
           gcovr: false
           opencppcoverage: false
           git: true
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
       - name: 📥 Fetch tags
         run: git fetch --prune --unshallow --tags
         working-directory: ${{github.workspace}}
@@ -111,14 +111,14 @@ jobs:
     name: 🔍 Check C code format
     runs-on: ubuntu-22.04
     steps:
-      - name: 📥 Check-out
-        uses: actions/checkout@v4
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
           clang-format: "19.1.0"
           clangtidy: true
           setup-cpp: false
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
       - name: 🔍 Check Codestyle
         working-directory: ${{github.workspace}}/c/
         run: find src/ include/ -type f -iregex '^.*\.\(c\|h\|cpp\|hpp\|cc\|hh\)$' | xargs clang-format-19 --dry-run --Werror --Wno-error=unknown
@@ -178,8 +178,6 @@ jobs:
           NODE_URL=https://unofficial-builds.nodejs.org/download/release/$NODE_VERSION/$NODE_TAR_FILE &&
           curl -Lo /tmp/$NODE_TAR_FILE $NODE_URL &&
           tar -C /__e/node20 -x --strip-components=1 -f /tmp/$NODE_TAR_FILE
-      - name: 📥 Check-out
-        uses: actions/checkout@v4
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
@@ -191,6 +189,8 @@ jobs:
           gcovr: false
           opencppcoverage: false
           git: true
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
       - name: 📥 Fetch tags
         run: git fetch --prune --unshallow --tags
         working-directory: ${{github.workspace}}
@@ -238,8 +238,6 @@ jobs:
           NODE_URL=https://unofficial-builds.nodejs.org/download/release/$NODE_VERSION/$NODE_TAR_FILE &&
           curl -Lo /tmp/$NODE_TAR_FILE $NODE_URL &&
           tar -C /__e/node20 -x --strip-components=1 -f /tmp/$NODE_TAR_FILE
-      - name: 📥 Check-out
-        uses: actions/checkout@v4
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
@@ -250,6 +248,8 @@ jobs:
           gcovr: false
           opencppcoverage: false
           git: true
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
       - name: 📥 Fetch tags
         run: |
           echo "PWD is $(pwd)"
