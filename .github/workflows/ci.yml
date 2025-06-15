@@ -251,7 +251,10 @@ jobs:
           opencppcoverage: false
           git: true
       - name: 📥 Fetch tags
-        run: git fetch --prune --unshallow --tags
+        run: |
+          echo "PWD is $(pwd)"
+          ls -la
+          git fetch --prune --unshallow --tags
         working-directory: ${{github.workspace}}
       - name: 🔧 Configure CMake
         run: cmake -S c/ -B c/build/ -G "Ninja Multi-Config" -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=YES -D TIREX_TRACKER_BUILD_EXAMPLES=NO -DTIREX_TRACKER_EXTENSION_IR=YES
