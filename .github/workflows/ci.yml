@@ -227,7 +227,7 @@ jobs:
           if-no-files-found: error
           path: c/build/examples/03_measure_command/Release/measure.exe
   c-build-debian-package:
-    name: 📦 Build Debian package
+    name: 🏗️ Build Debian package
     runs-on: ubuntu-latest
     container:
       image: ubuntu:20.04
