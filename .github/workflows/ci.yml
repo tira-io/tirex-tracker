@@ -68,8 +68,6 @@ jobs:
           tar -C /__e/node20 -x --strip-components=1 -f /tmp/$NODE_TAR_FILE
       - name: 📥 Check-out
         uses: actions/checkout@v4
-      - name: 📥 Fetch tags
-        run: git fetch --prune --unshallow --tags
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
@@ -81,6 +79,8 @@ jobs:
           gcovr: false
           opencppcoverage: false
           git: true
+      - name: 📥 Fetch tags
+        run: git fetch --prune --unshallow --tags
       - name: 🔧 Configure CMake
         run: cmake -S c/ -B c/build/ ${{ (matrix.compiler != 'msvc') && '-G "Ninja Multi-Config"' || ''}} --preset=conf-release-full-shared-lib-static-deps
       - name: 🏗️ Build library
@@ -179,8 +179,6 @@ jobs:
           tar -C /__e/node20 -x --strip-components=1 -f /tmp/$NODE_TAR_FILE
       - name: 📥 Check-out
         uses: actions/checkout@v4
-      - name: 📥 Fetch tags
-        run: git fetch --prune --unshallow --tags
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
@@ -192,6 +190,8 @@ jobs:
           gcovr: false
           opencppcoverage: false
           git: true
+      - name: 📥 Fetch tags
+        run: git fetch --prune --unshallow --tags
       - name: 🔧 Configure CMake
         run: |
           cmake -S c/ -B c/build/ ${{ (matrix.compiler != 'msvc') && '-G "Ninja Multi-Config"' || ''}} --preset=conf-release-cli
@@ -238,8 +238,6 @@ jobs:
           tar -C /__e/node20 -x --strip-components=1 -f /tmp/$NODE_TAR_FILE
       - name: 📥 Check-out
         uses: actions/checkout@v4
-      - name: 📥 Fetch tags
-        run: git fetch --prune --unshallow --tags
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
@@ -250,6 +248,8 @@ jobs:
           gcovr: false
           opencppcoverage: false
           git: true
+      - name: 📥 Fetch tags
+        run: git fetch --prune --unshallow --tags
       - name: 🔧 Configure CMake
         run: cmake -S c/ -B c/build/ -G "Ninja Multi-Config" -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=YES -D TIREX_TRACKER_BUILD_EXAMPLES=NO -DTIREX_TRACKER_EXTENSION_IR=YES
       - name: 🏗️ Build Debian package
