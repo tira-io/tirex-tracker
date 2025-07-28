@@ -1,12 +1,15 @@
 #include <tirex_tracker.h>
 
-#include <ranges>
-
 #include "measure/stats/provider.hpp"
 
 size_t tirexDataProviderGetAll(tirexDataProvider* buf, size_t bufsize) {
 	if (buf != nullptr) {
-		for (const auto& [key, value] : tirex::providers | std::views::take(bufsize)) {
+		// When ranges support can be assumed:
+		// for (const auto& [key, value] : tirex::providers | std::views::take(bufsize)) {
+		size_t i = 0;
+		for (const auto& [key, value] : tirex::providers) {
+			if (i++ >= bufsize)
+				break;
 			*buf = {.name = key.c_str(), .description = value.description, .version = value.version};
 			++buf;
 		}
