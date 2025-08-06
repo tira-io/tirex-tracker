@@ -19,6 +19,7 @@ extern "C" {
 
 /**
  * @defgroup error Error handling
+ * @brief Functions and constants for error handling.
  * @details
  * @{
  */
@@ -154,9 +155,9 @@ typedef struct tirexResult_st tirexResult;
  * @brief Holds a result entry, i.e., a key-value pair of a name (string) and a value (tirexResult).
  */
 typedef struct tirexResultEntry_st {
-	tirexMeasure source;
-	const void* value;
-	tirexResultType type;
+	tirexMeasure source;  /**< @brief The measure that the result is associated with. **/
+	const void* value;	  /**< @brief The value of the result (the type depends on tirexResultEntry_st::type). **/
+	tirexResultType type; /**< @brief The datatype of the stored result. **/
 } tirexResultEntry;
 
 /**
@@ -191,8 +192,8 @@ TIREX_TRACKER_EXPORT void tirexResultFree(tirexResult* result);
  * @brief 
  */
 typedef struct tirexMeasureConf_st {
-	tirexMeasure source;		/**< @details The measurement to be configured. */
-	tirexAggregateFn aggregate; /**< @details The type of aggregation to use. */
+	tirexMeasure source;		/**< @brief The measurement to be configured. **/
+	tirexAggregateFn aggregate; /**< @brief The type of aggregation to use. **/
 } tirexMeasureConf;
 
 /**
@@ -221,7 +222,7 @@ TIREX_TRACKER_EXPORT tirexError tirexFetchInfo(const tirexMeasureConf* measures,
  * @param measures 
  * @param pollIntervalMs 
  * @param[out] handle a handle to the running measurement.
- * @return TIREX_SUCCESS on success or an error code. 
+ * @return TIREX_SUCCESS on success or an error code.
  * 
  * @see tirexStopTracking
  */
@@ -232,8 +233,11 @@ tirexStartTracking(const tirexMeasureConf* measures, size_t pollIntervalMs, tire
  * @brief Stops the measurement and deinitializes the data providers.
  * @details This function **must** be called **exactly once** for each measurement job.
  * 
- * @param measure The handle of the running measurement that should be stopped.
- * @return a handle to the result tree of the measurement. Must be freed by the caller using tirexResultFree(tirexResult*)
+ * @param handle The handle of the running measurement that should be stopped.
+ * @param[out] result a handle to the result tree of the measurement. Must be freed by the caller using
+ * tirexResultFree(tirexResult*)
+ * @return TIREX_SUCCESS on success or an error code.
+ * 
  * @see tirexStartTracking
  */
 TIREX_TRACKER_EXPORT tirexError tirexStopTracking(tirexMeasureHandle* handle, tirexResult** result);
@@ -241,6 +245,7 @@ TIREX_TRACKER_EXPORT tirexError tirexStopTracking(tirexMeasureHandle* handle, ti
 
 /**
  * @defgroup logging Logging
+ * @brief Functions and constants for logging.
  * @details Definitions and functions relevant for telling measure where to log information to.
  * @{
  */
@@ -281,9 +286,12 @@ TIREX_TRACKER_EXPORT void tirexSetLogCallback(tirexLogCallback callback);
  * @details Data providers are modules tasked with collecting associated metrics about the program.
  */
 typedef struct tirexDataProvider_st {
-	const char* name;		 /**< The human legible name of the data provider **/
-	const char* description; /**< The humand legible description of the data provider **/
-	const char* version; /**< A textual representation of the provider's version. May contain linefeeds. May be NULL **/
+	const char* name;		 /**< @brief The human legible name of the data provider **/
+	const char* description; /**< @brief The humand legible description of the data provider **/
+	/**
+	 * @brief A textual representation of the provider's version. May contain linefeeds. May be NULL.
+	 */
+	const char* version;
 } tirexDataProvider;
 
 /**
@@ -317,7 +325,7 @@ TIREX_TRACKER_EXPORT size_t tirexDataProviderGetAll(tirexDataProvider* providers
  */
 typedef struct tirexMeasureInfo_st {
 	const char* description;  /**< @brief A human legible description of the measurement. **/
-	tirexResultType datatype; /**< @brief The datatype of the measurment **/
+	tirexResultType datatype; /**< @brief The datatype of the measurment. **/
 	const char* example;	  /**< @brief An example value of what a value may look like. **/
 } tirexMeasureInfo;
 
