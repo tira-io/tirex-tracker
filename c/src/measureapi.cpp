@@ -8,7 +8,6 @@
 #include <cstring>
 #include <future>
 #include <iostream>
-#include <ranges>
 #include <sstream>
 #include <thread>
 #include <vector>
@@ -38,23 +37,26 @@ struct tirexMeasureHandle_st final {
 		monitorthread.join();
 
 		// Stop measuring
-		for (auto& provider : providers | std::views::reverse)
-			provider->stop();
+		// Uncomment once range support can be assumed
+		// for (auto& provider : providers | std::views::reverse)
+		//	provider->stop();
+		for (auto it = providers.rbegin(); it != providers.rend(); ++it)
+			(*it)->stop();
 
 		// Collect statistics and print them
 		tirex::Stats stats{};
 		for (auto& provider : providers)
-			stats.merge(provider->getStats());
+			stats.merge(std::move(provider->getStats()));
 		return stats;
 	}
 
 	static void monitorThread(tirexMeasureHandle_st* self) {
 		auto future = self->signal.get_future();
 		std::chrono::milliseconds intervall{self->pollIntervalMs};
-		while (future.wait_for(intervall) != std::future_status::ready) {
+		do {
 			for (auto& provider : self->providers)
 				provider->step();
-		}
+		} while (future.wait_for(intervall) != std::future_status::ready);
 	}
 };
 
@@ -102,7 +104,7 @@ tirexError tirexStopTracking(tirexMeasureHandle* measure, tirexResult** result) 
 	if (measure == nullptr)
 		return TIREX_INVALID_ARGUMENT;
 	auto res = measure->stop();
-	delete measure;
 	*result = createMsrResultFromStats(std::move(res));
+	delete measure;
 	return TIREX_SUCCESS;
 }

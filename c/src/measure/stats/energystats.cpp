@@ -41,9 +41,11 @@ Stats EnergyStats::getStats() {
 	auto results = tracker.calculate_energy().energy;
 	for (auto& [device, result] : results)
 		tirex::log::debug("cppjoules", "[{}] {}", device, result);
+	// Divide by 1000'000 since CPPJoules reports micro Joule (uJ)
 	return makeFilteredStats(
-			enabled, std::pair{TIREX_CPU_ENERGY_SYSTEM_JOULES, std::to_string(getOrDefault(results, "core-0", 0))},
-			std::pair{TIREX_RAM_ENERGY_SYSTEM_JOULES, std::to_string(getOrDefault(results, "dram-0", 0))},
+			enabled,
+			std::pair{TIREX_CPU_ENERGY_SYSTEM_JOULES, std::to_string(getOrDefault(results, "core-0", 0) / 1000'000)},
+			std::pair{TIREX_RAM_ENERGY_SYSTEM_JOULES, std::to_string(getOrDefault(results, "dram-0", 0) / 1000'000)},
 			std::pair{TIREX_GPU_ENERGY_SYSTEM_JOULES, std::to_string(getOrDefault(results, "nvidia_gpu_0", 0))}
 	);
 }

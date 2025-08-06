@@ -14,6 +14,7 @@ from ctypes import (
 from dataclasses import dataclass
 from enum import IntEnum, Enum
 from functools import wraps
+from gzip import open as gzip_open
 from importlib_metadata import distributions, version
 from importlib_resources import files
 from io import BytesIO
@@ -22,6 +23,7 @@ from pathlib import Path
 from sys import modules as sys_modules, executable, argv, platform, version_info
 from traceback import extract_stack
 from typing import (
+    IO,
     ItemsView,
     Iterator,
     KeysView,
@@ -47,7 +49,7 @@ from typing import (
 
 from IPython import get_ipython
 from typing_extensions import ParamSpec, Self, TypeAlias  # type: ignore
-from ruamel.yaml import YAML
+from yaml import safe_load as yaml_safe_load, safe_dump as yaml_safe_dump
 
 from tirex_tracker.archive_utils import create_code_archive, git_repo_or_none
 
@@ -72,6 +74,8 @@ class Error(IntEnum):
 class Measure(IntEnum):
     OS_NAME = 0
     OS_KERNEL = 1
+    TIME_START = 44
+    TIME_STOP = 45
     TIME_ELAPSED_WALL_CLOCK_MS = 2
     TIME_ELAPSED_USER_MS = 3
     TIME_ELAPSED_SYSTEM_MS = 4
@@ -556,11 +560,11 @@ class _TirexTrackerLibrary(CDLL):
 def _find_library() -> Path:
     path: str
     if platform == "linux":
-        path = "libtirex_tracker_full.so"
+        path = "libtirex_tracker.so"
     elif platform == "darwin":
-        path = "libtirex_tracker_full.dylib"
+        path = "libtirex_tracker.dylib"
     elif platform == "win32":
-        path = "tirex_tracker_full.dll"
+        path = "tirex_tracker.dll"
     else:
         raise RuntimeError("Unsupported platform.")
     return files(__name__) / path
@@ -717,7 +721,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
     def start(
         cls,
         measures: Iterable[Measure] = ALL_MEASURES,
-        poll_intervall_ms: int = 1000,
+        poll_intervall_ms: int = 100,
         system_name: Optional[str] = None,
         system_description: Optional[str] = None,
         export_file_path: Optional[PathLike] = None,
@@ -809,11 +813,39 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         if self._export_file_path is None:
             return
         elif self._export_format is None:
-            return
+            self._export_guessed_format(result)
         elif self._export_format == ExportFormat.IR_METADATA:
             self._export_ir_metadata(result)
         else:
             raise ValueError("Invalid export format.")
+
+    def _export_guessed_format(self, result: "Pointer[_Result]") -> None:
+        if self._export_file_path is None:
+            return
+        elif any(
+            Path(self._export_file_path).name.endswith(extension)
+            for extension in [
+                "ir_metadata",
+                "ir-metadata",
+                "irmetadata",
+                "ir_metadata.yml",
+                "ir-metadata.yml",
+                "irmetadata.yml",
+                "ir_metadata.yaml",
+                "ir-metadata.yaml",
+                "irmetadata.yaml",
+                "ir_metadata.gz",
+                "ir-metadata.gz",
+                "irmetadata.gz",
+                "ir_metadata.yml.gz",
+                "ir-metadata.yml.gz",
+                "irmetadata.yml.gz",
+                "ir_metadata.yaml.gz",
+                "ir-metadata.yaml.gz",
+                "irmetadata.yaml.gz",
+            ]
+        ):
+            self._export_ir_metadata(result)
 
     def _export_ir_metadata(self, result: "Pointer[_Result]") -> None:
         if self._export_file_path is None:
@@ -837,15 +869,8 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         if buffer.endswith(b"ir_metadata.end\n"):
             buffer = buffer[: -len(b"ir_metadata.end\n")]
 
-        # FIXME: There's a bug in the YAML output format that we work around here:
-        from re import sub
-
-        buffer = sub(rb"caches: (.*),", rb"caches: {\1}", buffer)
-
         with BytesIO(buffer) as yaml_file:
-            yaml = YAML(typ="safe")
-            tmp_ir_metadata = yaml.load(yaml_file)
-
+            tmp_ir_metadata = yaml_safe_load(yaml_file)
         ir_metadata = _recursive_defaultdict()
 
         # Add user-provided metadata.
@@ -898,22 +923,44 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         ir_metadata = _recursive_undefaultdict(ir_metadata)
 
         # Serialize the updated ir_metadata.
-        with export_file_path.open("wt") as file:
-            file.write("ir_metadata.start\n")
+        file_open: Callable[[], IO[str]]
+        if export_file_path.suffix == ".gz":
 
-            yaml = YAML(typ="safe", pure=True)
-            yaml.width = 10_000
-            yaml.dump(
+            def file_open() -> IO[str]:
+                return gzip_open(export_file_path, "wt")
+        else:
+
+            def file_open() -> IO[str]:
+                return export_file_path.open("wt")
+
+        write_prefix_suffix = any(
+            Path(self._export_file_path).name.endswith(extension)
+            for extension in [
+                "ir_metadata",
+                "ir-metadata",
+                "irmetadata",
+                "ir_metadata.gz",
+                "ir-metadata.gz",
+                "irmetadata.gz",
+            ]
+        )
+        with file_open() as file:
+            if write_prefix_suffix:
+                file.write("ir_metadata.start\n")
+
+            yaml_safe_dump(
                 data=ir_metadata,
                 stream=file,
+                encoding="utf-8",
             )
-            file.write("ir_metadata.end\n")
+            if write_prefix_suffix:
+                file.write("ir_metadata.end\n")
 
 
 # TODO: Add aggregation(s) (mapping) parameter.
 def start_tracking(
     measures: Iterable[Measure] = ALL_MEASURES,
-    poll_intervall_ms: int = 1000,
+    poll_intervall_ms: int = 100,
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
@@ -938,7 +985,7 @@ def stop_tracking(
 # TODO: Add aggregation(s) (mapping) parameter.
 def tracking(
     measures: Iterable[Measure] = ALL_MEASURES,
-    poll_intervall_ms: int = 1000,
+    poll_intervall_ms: int = 100,
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
@@ -958,7 +1005,7 @@ def tracking(
 def track(
     block: Callable[[], None],
     measures: Iterable[Measure] = ALL_MEASURES,
-    poll_intervall_ms: int = 1000,
+    poll_intervall_ms: int = 100,
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
@@ -996,7 +1043,7 @@ def tracked(
 # TODO: Add aggregation(s) (mapping) parameter.
 def tracked(
     f_or_measures: Union[Callable[P, T], Iterable[Measure]] = ALL_MEASURES,
-    poll_intervall_ms: int = 1000,
+    poll_intervall_ms: int = 100,
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,

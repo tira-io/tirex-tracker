@@ -12,6 +12,7 @@ import org.yaml.snakeyaml.Yaml
 import java.io.Closeable
 import java.io.File
 import java.nio.file.Path
+import java.util.zip.GZIPOutputStream
 
 private const val ENCODING = "ascii"
 
@@ -30,41 +31,72 @@ enum class Error(val value: Int) {
 }
 
 enum class Measure(val value: Int) {
-    OS_NAME(0), OS_KERNEL(1), TIME_ELAPSED_WALL_CLOCK_MS(2), TIME_ELAPSED_USER_MS(3), TIME_ELAPSED_SYSTEM_MS(4), CPU_USED_PROCESS_PERCENT(
-        5
-    ),
-    CPU_USED_SYSTEM_PERCENT(6), CPU_AVAILABLE_SYSTEM_CORES(7), CPU_ENERGY_SYSTEM_JOULES(8), CPU_FEATURES(9), CPU_FREQUENCY_MHZ(
-        10
-    ),
-    CPU_FREQUENCY_MIN_MHZ(11), CPU_FREQUENCY_MAX_MHZ(12), CPU_VENDOR_ID(13), CPU_BYTE_ORDER(14), CPU_ARCHITECTURE(15), CPU_MODEL_NAME(
-        16
-    ),
-    CPU_CORES_PER_SOCKET(17), CPU_THREADS_PER_CORE(18), CPU_CACHES(19), CPU_VIRTUALIZATION(20), RAM_USED_PROCESS_KB(21), RAM_USED_SYSTEM_MB(
-        22
-    ),
-    RAM_AVAILABLE_SYSTEM_MB(23), RAM_ENERGY_SYSTEM_JOULES(24), GPU_SUPPORTED(25), GPU_MODEL_NAME(26), GPU_AVAILABLE_SYSTEM_CORES(
-        27
-    ), // aka. GPU_NUM_CORES
-    GPU_USED_PROCESS_PERCENT(28), GPU_USED_SYSTEM_PERCENT(29), GPU_VRAM_USED_PROCESS_MB(30), GPU_VRAM_USED_SYSTEM_MB(31), GPU_VRAM_AVAILABLE_SYSTEM_MB(
-        32
-    ),
-    GPU_ENERGY_SYSTEM_JOULES(33), GIT_IS_REPO(34), GIT_HASH(35), GIT_LAST_COMMIT_HASH(36), GIT_BRANCH(37), GIT_BRANCH_UPSTREAM(
-        38
-    ),
-    GIT_TAGS(39), GIT_REMOTE_ORIGIN(40), GIT_UNCOMMITTED_CHANGES(41), GIT_UNPUSHED_CHANGES(42), GIT_UNCHECKED_FILES(43), JAVA_VERSION(
-        2001
-    ),
-    JAVA_VERSION_DATE(2002), JAVA_VENDOR(2003), JAVA_VENDOR_URL(2004), JAVA_VENDOR_VERSION(2005), JAVA_HOME(2006), JAVA_VM_SPECIFICATION_VERSION(
-        2007
-    ),
-
-    JAVA_VM_SPECIFICATION_VENDOR(2008), JAVA_VM_SPECIFICATION_NAME(2009), JAVA_VM_VERSION(2010), JAVA_VM_VENDOR(2011), JAVA_VM_NAME(
-        2012
-    ),
-    JAVA_SPECIFICATION_VERSION(2013), JAVA_SPECIFICATION_MAINTENANCE_VERSION(2014), JAVA_SPECIFICATION_VENDOR(2015), JAVA_SPECIFICATION_NAME(
-        2016
-    ),
-    JAVA_CLASS_VERSION(2017), JAVA_CLASS_PATH(2018), JAVA_LIBRARY_PATH(2019), JAVA_IO_TMPDIR(2020);
+    OS_NAME(0), // Note: Empty comments to ensure line-breaks when formating the file.
+    OS_KERNEL(1), //
+    TIME_START(44), //
+    TIME_STOP(45), //
+    TIME_ELAPSED_WALL_CLOCK_MS(2), //
+    TIME_ELAPSED_USER_MS(3), //
+    TIME_ELAPSED_SYSTEM_MS(4), //
+    CPU_USED_PROCESS_PERCENT(5), //
+    CPU_USED_SYSTEM_PERCENT(6), //
+    CPU_AVAILABLE_SYSTEM_CORES(7), //
+    CPU_ENERGY_SYSTEM_JOULES(8), //
+    CPU_FEATURES(9), //
+    CPU_FREQUENCY_MHZ(10), //
+    CPU_FREQUENCY_MIN_MHZ(11), //
+    CPU_FREQUENCY_MAX_MHZ(12), //
+    CPU_VENDOR_ID(13), //
+    CPU_BYTE_ORDER(14), //
+    CPU_ARCHITECTURE(15), //
+    CPU_MODEL_NAME(16), //
+    CPU_CORES_PER_SOCKET(17), //
+    CPU_THREADS_PER_CORE(18), //
+    CPU_CACHES(19), //
+    CPU_VIRTUALIZATION(20), //
+    RAM_USED_PROCESS_KB(21), //
+    RAM_USED_SYSTEM_MB(22), //
+    RAM_AVAILABLE_SYSTEM_MB(23), //
+    RAM_ENERGY_SYSTEM_JOULES(24), //
+    GPU_SUPPORTED(25), //
+    GPU_MODEL_NAME(26), //
+    GPU_AVAILABLE_SYSTEM_CORES(27), // aka. GPU_NUM_CORES
+    GPU_USED_PROCESS_PERCENT(28), //
+    GPU_USED_SYSTEM_PERCENT(29), //
+    GPU_VRAM_USED_PROCESS_MB(30), //
+    GPU_VRAM_USED_SYSTEM_MB(31), //
+    GPU_VRAM_AVAILABLE_SYSTEM_MB(32), //
+    GPU_ENERGY_SYSTEM_JOULES(33), //
+    GIT_IS_REPO(34), //
+    GIT_HASH(35), //
+    GIT_LAST_COMMIT_HASH(36), //
+    GIT_BRANCH(37), //
+    GIT_BRANCH_UPSTREAM(38), //
+    GIT_TAGS(39), //
+    GIT_REMOTE_ORIGIN(40), //
+    GIT_UNCOMMITTED_CHANGES(41), //
+    GIT_UNPUSHED_CHANGES(42), //
+    GIT_UNCHECKED_FILES(43), //
+    JAVA_VERSION(2001),
+    JAVA_VERSION_DATE(2002), //
+    JAVA_VENDOR(2003), //
+    JAVA_VENDOR_URL(2004), //
+    JAVA_VENDOR_VERSION(2005), //
+    JAVA_HOME(2006), //
+    JAVA_VM_SPECIFICATION_VERSION(2007), //
+    JAVA_VM_SPECIFICATION_VENDOR(2008), //
+    JAVA_VM_SPECIFICATION_NAME(2009), //
+    JAVA_VM_VERSION(2010), //
+    JAVA_VM_VENDOR(2011), //
+    JAVA_VM_NAME(2012),
+    JAVA_SPECIFICATION_VERSION(2013), //
+    JAVA_SPECIFICATION_MAINTENANCE_VERSION(2014), //
+    JAVA_SPECIFICATION_VENDOR(2015), //
+    JAVA_SPECIFICATION_NAME(2016),
+    JAVA_CLASS_VERSION(2017), //
+    JAVA_CLASS_PATH(2018), //
+    JAVA_LIBRARY_PATH(2019), //
+    JAVA_IO_TMPDIR(2020);
 
     companion object {
         internal fun fromValue(value: Int): Measure {
@@ -446,7 +478,7 @@ private interface TrackerLibrary : Library {
 }
 
 private val LIBRARY = Native.load(
-    "tirex_tracker_full",
+    "tirex_tracker",
     TrackerLibrary::class.java,
     mapOf(Library.OPTION_STRING_ENCODING to ENCODING),
 )
@@ -671,9 +703,35 @@ class TrackingHandle private constructor(
     private fun export(result: Pointer) {
         if (exportFilePath == null) return
         when (exportFormat) {
-            null -> return
+            null -> exportGuessedFormat(result)
             ExportFormat.IR_METADATA -> exportIrMetadata(result)
         }
+    }
+
+    private fun exportGuessedFormat(result: Pointer) {
+        if (exportFilePath == null) return
+        else if (
+            listOf(
+                "ir_metadata",
+                "ir-metadata",
+                "irmetadata",
+                "ir_metadata.yml",
+                "ir-metadata.yml",
+                "irmetadata.yml",
+                "ir_metadata.yaml",
+                "ir-metadata.yaml",
+                "irmetadata.yaml",
+                "ir_metadata.gz",
+                "ir-metadata.gz",
+                "irmetadata.gz",
+                "ir_metadata.yml.gz",
+                "ir-metadata.yml.gz",
+                "irmetadata.yml.gz",
+                "ir_metadata.yaml.gz",
+                "ir-metadata.yaml.gz",
+                "irmetadata.yaml.gz",
+            ).any { exportFilePath.name.endsWith(it) }
+        ) exportIrMetadata(result)
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -699,16 +757,10 @@ class TrackingHandle private constructor(
                 defaultFlowStyle = DumperOptions.FlowStyle.AUTO
             },
         )
-        val irMetadataString = exportFilePath.useLines { lines ->
-            lines.dropWhile {
-                it != "ir_metadata.start"
-            }.drop(1).takeWhile {
-                it != "ir_metadata.end"
-            }.joinToString("\n")
-            // FIXME: There's a bug in the YAML output format that we work around here:
-        }.replace(Regex("""caches: (.*),"""), """caches: {\1}""")
-        val irMetadata: MutableMap<String, Any?> = yaml.load<MutableMap<String, Any?>>(irMetadataString)
-
+        val irMetadataYamlString = exportFilePath.readText()
+            .removePrefix("ir_metadata.start\n") // Remove optional ir_metadata prefix line.
+            .removeSuffix("ir_metadata.end\n") // Remove optional ir_metadata suffix line.
+        val irMetadata: MutableMap<String, Any?> = yaml.load<MutableMap<String, Any?>>(irMetadataYamlString)
 
         // Add user-provided metadata.
         val method: MutableMap<String, Any?> =
@@ -763,8 +815,28 @@ class TrackingHandle private constructor(
             javaInfo.getValue(Measure.JAVA_SPECIFICATION_NAME).value?.let { json.decodeFromString<String?>(it) }
 
         // Serialize the updated ir_metadata.
-        exportFilePath.outputStream().bufferedWriter().use { writer ->
+        val stream = exportFilePath.outputStream().let {
+            if (exportFilePath.name.endsWith(".gz")) {
+                GZIPOutputStream(it)
+            } else it
+        }
+        val writePrefixSuffix = listOf(
+            "ir_metadata",
+            "ir-metadata",
+            "irmetadata",
+            "ir_metadata.gz",
+            "ir-metadata.gz",
+            "irmetadata.gz",
+        ).any { exportFilePath.name.endsWith(it) }
+        stream.bufferedWriter().use { writer ->
+            if (writePrefixSuffix) {
+                writer.write("ir_metadata.start\n")
+            }
             yaml.dump(irMetadata, writer)
+            if (writePrefixSuffix) {
+                writer.write("\n")
+                writer.write("ir_metadata.end\n")
+            }
         }
     }
 }

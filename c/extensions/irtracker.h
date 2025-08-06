@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-TIREX_EXPORT tirexError
+TIREX_TRACKER_EXPORT tirexError
 tirexResultExportIrMetadata(const tirexResult* info, const tirexResult* result, const char* filepath);
 
 #ifdef __cplusplus

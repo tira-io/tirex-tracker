@@ -15,91 +15,114 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runs-on:
-          - ubuntu-20.04
-          - ubuntu-22.04
-          - ubuntu-24.04
-          - macos-13
-          - macos-14
-          - macos-15
-          - windows-2019
-          - windows-2022
-          - windows-2025
+        platform:
+          - {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}
+          - {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}
+          - {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}
+          - {host: ubuntu-22.04}
+          - {host: ubuntu-24.04}
+          - {host: macos-13}
+          - {host: macos-14}
+          - {host: macos-15}
+          - {host: windows-2022}
+          - {host: windows-2025}
         compiler:
           - gcc-13
           - gcc-14
-          - clang-19.1.0
+          - llvm-19
+          - llvm-20
           - msvc
         exclude:
-          - {runs-on: ubuntu-20.04, compiler: msvc}  # MSVC only supported windows
-          - {runs-on: ubuntu-22.04, compiler: msvc}  # MSVC only supported windows
-          - {runs-on: ubuntu-24.04, compiler: msvc}  # MSVC only supported windows
-          - {runs-on: macos-13,     compiler: msvc}  # MSVC only supported windows
-          - {runs-on: macos-14,     compiler: msvc}  # MSVC only supported windows
-          - {runs-on: macos-15,     compiler: msvc}  # MSVC only supported windows
-          - {runs-on: windows-2019, compiler: msvc}  # Internal error of the MSVC parser
-          - runs-on: ubuntu-20.04
-            compiler: gcc-14 # Cannot be installed.
-          - runs-on: ubuntu-22.04
-            compiler: gcc-14 # Cannot be installed.
-          - runs-on: macos-13
-            compiler: gcc-13 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - runs-on: macos-13
-            compiler: gcc-14 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - runs-on: macos-13
-            compiler: clang-19.1.0 # setup-cpp fails to setup
-          - runs-on: macos-14
-            compiler: gcc-13 # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
-          - runs-on: macos-14
-            compiler: clang-19.1.0 # setup-cpp fails to setup
-          - runs-on: macos-15
-            compiler: clang-19.1.0 # Known issue with clang (https://github.com/llvm/llvm-project/issues/109549)
-          - {runs-on: windows-2019, compiler: clang-19.1.0}  # Wrongly configured by the action TODO: reenable once fixed
-          - {runs-on: windows-2022, compiler: clang-19.1.0}  # Wrongly configured by the action TODO: reenable once fixed
-          - {runs-on: windows-2025, compiler: clang-19.1.0}  # Wrongly configured by the action TODO: reenable once fixed
-    runs-on: ${{ matrix.runs-on }}
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-19}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-20}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-22.04}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-24.04}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: macos-13},     compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: macos-14},     compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: macos-15},     compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-22.04}, compiler:  gcc-14}  # Cannot be installed.
+          - {platform: {host: macos-13},     compiler:  gcc-13}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
+          - {platform: {host: macos-13},     compiler:  gcc-14}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
+          - {platform: {host: macos-14},     compiler:  gcc-13}  # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
+          - {platform: {host: macos-15},     compiler:  gcc-13}  # /opt/homebrew/Cellar/gcc@13/13.4.0/lib/gcc/13/gcc/aarch64-apple-darwin24/13/include-fixed/_stdio.h:78:10: fatal error: _bounds.h: No such file or directory
+          - {platform: {host: macos-15},     compiler:  gcc-14}  # Known issue (https://github.com/munich-quantum-toolkit/core/issues/979, https://stackoverflow.com/questions/79641443/c-bounds-h-not-found-after-upgrading-to-gcc-15)
+          - {platform: {host: windows-2022}, compiler: llvm-19}  # libgit2 does not seem to support this
+          - {platform: {host: windows-2025}, compiler: llvm-19}  # libgit2 does not seem to support this
+    runs-on: ${{ matrix.platform.host }}
+    container: ${{ matrix.platform.container }}
     steps:
-      - name: 📥 Check-out
-        uses: actions/checkout@v4
+      - name: Install node.js for GitHub Actions  # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
+        if: matrix.platform.container != null
+        run: |
+          apt-get update &&
+          apt-get install -y curl ca-certificates &&
+          # Install a Node.js version that works in older Ubuntu containers (read: does not require very recent glibc)
+          NODE_VERSION=v20.18.1 &&
+          NODE_TAR_FILE=node-$NODE_VERSION-linux-x64-glibc-217.tar.gz &&
+          NODE_URL=https://unofficial-builds.nodejs.org/download/release/$NODE_VERSION/$NODE_TAR_FILE &&
+          curl -Lo /tmp/$NODE_TAR_FILE $NODE_URL &&
+          tar -C /__e/node20 -x --strip-components=1 -f /tmp/$NODE_TAR_FILE
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
           compiler: ${{ matrix.compiler }}
-          cmake: "3.31.6"
-          setup-cpp: false
+          vcvarsall: ${{ contains(matrix.platform.host, 'windows' )}}
+          cmake: true
+          ninja: true
+          cppcheck: true
+          gcovr: false
+          opencppcoverage: false
+          git: true
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+      - name: 📥 Fetch tags
+        continue-on-error: true
+        run: |
+          git config --global safe.directory '*'
+          git fetch --prune --unshallow --tags
+        working-directory: ${{github.workspace}}
       - name: 🔧 Configure CMake
-        run: cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=NO
+        run: cmake -S c/ -B c/build/ ${{ (matrix.compiler != 'msvc') && '-G "Ninja Multi-Config"' || ''}} --preset=conf-release-full-shared-lib-static-deps
       - name: 🏗️ Build library
-        run: cmake --build c/build/ --config Release --target tirex_tracker_full
+        run: cmake --build c/build/ --config Release --target tirex_tracker -j 16
       - name: 📤 Upload Linux library
-        if: matrix.runs-on == 'ubuntu-20.04' && matrix.compiler == 'clang-19.1.0'
+        if: matrix.platform.host == 'ubuntu-latest' && matrix.platform.container.image == 'ubuntu:20.04' && matrix.compiler == 'llvm-19'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-linux
-          path: c/build/extensions/libtirex_tracker_full.so
+          if-no-files-found: error
+          path: c/build/src/Release/libtirex_tracker.so
       - name: 📤 Upload macOS library
-        if: matrix.runs-on == 'macos-14' && matrix.compiler == 'gcc-14'
+        if: matrix.platform.host == 'macos-14' && matrix.compiler == 'gcc-14'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-macos
-          path: c/build/extensions/libtirex_tracker_full.dylib
+          if-no-files-found: error
+          path: c/build/src/Release/libtirex_tracker.dylib
       - name: 📤 Upload Windows library
-        if: matrix.runs-on == 'windows-2022' && matrix.compiler == 'msvc'
+        if: matrix.platform.host == 'windows-2022' && matrix.compiler == 'msvc'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-windows
-          path: c/build/extensions/Release/tirex_tracker_full.dll
+          if-no-files-found: error
+          path: c/build/src/Release/tirex_tracker.dll
   c-check-format:
     name: 🔍 Check C code format
     runs-on: ubuntu-22.04
     steps:
-      - name: 📥 Check-out
-        uses: actions/checkout@v4
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
           clang-format: "19.1.0"
+          clangtidy: true
           setup-cpp: false
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
       - name: 🔍 Check Codestyle
         working-directory: ${{github.workspace}}/c/
         run: find src/ include/ -type f -iregex '^.*\.\(c\|h\|cpp\|hpp\|cc\|hh\)$' | xargs clang-format-19 --dry-run --Werror --Wno-error=unknown
@@ -108,101 +131,148 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runs-on:
-          - ubuntu-20.04
-          - ubuntu-22.04
-          - ubuntu-24.04
-          - macos-13
-          - macos-14
-          - macos-15
-          - windows-2019
-          - windows-2022
-          - windows-2025
+        platform:
+          - {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}
+          - {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}
+          - {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}
+          - {host: ubuntu-22.04}
+          - {host: ubuntu-24.04}
+          - {host: macos-13}
+          - {host: macos-14}
+          - {host: macos-15}
+          - {host: windows-2022}
+          - {host: windows-2025}
         compiler:
           - gcc-13
           - gcc-14
-          - clang-19.1.0
+          - llvm-19
+          - llvm-20
           - msvc
         exclude:
-          - {runs-on: ubuntu-20.04, compiler: msvc}  # MSVC only supported windows
-          - {runs-on: ubuntu-22.04, compiler: msvc}  # MSVC only supported windows
-          - {runs-on: ubuntu-24.04, compiler: msvc}  # MSVC only supported windows
-          - {runs-on: macos-13,     compiler: msvc}  # MSVC only supported windows
-          - {runs-on: macos-14,     compiler: msvc}  # MSVC only supported windows
-          - {runs-on: macos-15,     compiler: msvc}  # MSVC only supported windows
-          - {runs-on: windows-2019, compiler: msvc}  # Internal error of the MSVC parser
-          - runs-on: ubuntu-20.04
-            compiler: gcc-14 # Cannot be installed.
-          - runs-on: ubuntu-22.04
-            compiler: gcc-14 # Cannot be installed.
-          - runs-on: macos-13
-            compiler: gcc-13 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - runs-on: macos-13
-            compiler: gcc-14 # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - runs-on: macos-13
-            compiler: clang-19.1.0 # setup-cpp fails to setup
-          - runs-on: macos-14
-            compiler: gcc-13 # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
-          - runs-on: macos-14
-            compiler: clang-19.1.0 # setup-cpp fails to setup
-          - runs-on: macos-15
-            compiler: clang-19.1.0 # Known issue with clang (https://github.com/llvm/llvm-project/issues/109549)
-          - {runs-on: windows-2019, compiler: clang-19.1.0}  # Wrongly configured by the action TODO: reenable once fixed
-          - {runs-on: windows-2022, compiler: clang-19.1.0}  # Wrongly configured by the action TODO: reenable once fixed
-          - {runs-on: windows-2025, compiler: clang-19.1.0}  # Wrongly configured by the action TODO: reenable once fixed
-    runs-on: ${{ matrix.runs-on }}
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-19}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-20}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-22.04}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-24.04}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: macos-13},     compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: macos-14},     compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: macos-15},     compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-22.04}, compiler:  gcc-14}  # Cannot be installed.
+          - {platform: {host: macos-13},     compiler:  gcc-13}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
+          - {platform: {host: macos-13},     compiler:  gcc-14}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
+          - {platform: {host: macos-14},     compiler:  gcc-13}  # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
+          - {platform: {host: macos-15},     compiler:  gcc-13}  # /opt/homebrew/Cellar/gcc@13/13.4.0/lib/gcc/13/gcc/aarch64-apple-darwin24/13/include-fixed/_stdio.h:78:10: fatal error: _bounds.h: No such file or directory
+          - {platform: {host: macos-15},     compiler:  gcc-14}  # Known issue (https://github.com/munich-quantum-toolkit/core/issues/979, https://stackoverflow.com/questions/79641443/c-bounds-h-not-found-after-upgrading-to-gcc-15)
+          - {platform: {host: windows-2022}, compiler: llvm-19}  # libgit2 does not seem to support this
+          - {platform: {host: windows-2025}, compiler: llvm-19}  # libgit2 does not seem to support this
+    runs-on: ${{ matrix.platform.host }}
+    container: ${{ matrix.platform.container }}
     steps:
-      - name: 📥 Check-out
-        uses: actions/checkout@v4
+      - name: Install node.js for GitHub Actions  # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
+        if: matrix.platform.container != null
+        run: |
+          apt-get update &&
+          apt-get install -y curl ca-certificates &&
+          # Install a Node.js version that works in older Ubuntu containers (read: does not require very recent glibc)
+          NODE_VERSION=v20.18.1 &&
+          NODE_TAR_FILE=node-$NODE_VERSION-linux-x64-glibc-217.tar.gz &&
+          NODE_URL=https://unofficial-builds.nodejs.org/download/release/$NODE_VERSION/$NODE_TAR_FILE &&
+          curl -Lo /tmp/$NODE_TAR_FILE $NODE_URL &&
+          tar -C /__e/node20 -x --strip-components=1 -f /tmp/$NODE_TAR_FILE
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
           compiler: ${{ matrix.compiler }}
-          cmake: "3.31.6"
-          setup-cpp: false
+          vcvarsall: ${{ contains(matrix.platform.host, 'windows' )}}
+          cmake: true
+          ninja: true
+          cppcheck: true
+          gcovr: false
+          opencppcoverage: false
+          git: true
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+      - name: 📥 Fetch tags
+        continue-on-error: true
+        run: |
+          git config --global safe.directory '*'
+          git fetch --prune --unshallow --tags
+        working-directory: ${{github.workspace}}
       - name: 🔧 Configure CMake
         run: |
-          cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=NO -D TIREX_TRACKER_BUILD_EXAMPLES=YES
+          cmake -S c/ -B c/build/ ${{ (matrix.compiler != 'msvc') && '-G "Ninja Multi-Config"' || ''}} --preset=conf-release-cli
       - name: 🏗️ Build CLI
-        run: cmake --build c/build/ --config Release --target measure
+        run: cmake --build c/build/ --config Release --target measure -j 16
       - name: 📤 Upload Linux CLI
-        if: matrix.runs-on == 'ubuntu-20.04' && matrix.compiler == 'clang-19.1.0'
+        if: matrix.platform.host == 'ubuntu-latest' && matrix.platform.container.image == 'ubuntu:20.04' && matrix.compiler == 'llvm-19'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-linux
-          path: c/build/examples/03_measure_command/measure
+          if-no-files-found: error
+          path: c/build/examples/03_measure_command/Release/measure
       - name: 📤 Upload macOS CLI
-        if: matrix.runs-on == 'macos-14' && matrix.compiler == 'gcc-14'
+        if: matrix.platform.host == 'macos-14' && matrix.compiler == 'gcc-14'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-macos
-          path: c/build/examples/03_measure_command/measure
+          if-no-files-found: error
+          path: c/build/examples/03_measure_command/Release/measure
       - name: 📤 Upload Windows CLI
-        if: matrix.runs-on == 'windows-2022' && matrix.compiler == 'msvc'
+        if: matrix.platform.host == 'windows-2022' && matrix.compiler == 'msvc'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-windows
+          if-no-files-found: error
           path: c/build/examples/03_measure_command/Release/measure.exe
   c-build-debian-package:
     name: 🏗️ Build Debian package
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:20.04
+      volumes:
+        - /tmp:/__e/node20
     steps:
-      - name: 📥 Check-out
-        uses: actions/checkout@v4
+      - name: Install node.js for GitHub Actions  # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
+        run: |
+          apt-get update &&
+          apt-get install -y curl ca-certificates &&
+          # Install a Node.js version that works in older Ubuntu containers (read: does not require very recent glibc)
+          NODE_VERSION=v20.18.1 &&
+          NODE_TAR_FILE=node-$NODE_VERSION-linux-x64-glibc-217.tar.gz &&
+          NODE_URL=https://unofficial-builds.nodejs.org/download/release/$NODE_VERSION/$NODE_TAR_FILE &&
+          curl -Lo /tmp/$NODE_TAR_FILE $NODE_URL &&
+          tar -C /__e/node20 -x --strip-components=1 -f /tmp/$NODE_TAR_FILE
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
-          compiler: clang-19.1.0
+          compiler: llvm-19
           cmake: true
-      - name: 🔧 Configure CMake
+          ninja: true
+          cppcheck: true
+          gcovr: false
+          opencppcoverage: false
+          git: true
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+      - name: 📥 Fetch tags
+        continue-on-error: true
         run: |
-          cmake -S c/ -B c/build/ -D CMAKE_BUILD_TYPE=Release -D LLVM_ENABLE_ZLIB=OFF -D LLVM_ENABLE_ZSTD=OFF -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=YES -D TIREX_TRACKER_BUILD_EXAMPLES=NO
+          git config --global safe.directory '*'
+          git fetch --prune --unshallow --tags
+        working-directory: ${{github.workspace}}
+      - name: 🔧 Configure CMake
+        run: cmake -S c/ -B c/build/ -G "Ninja Multi-Config" -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=NO -D TIREX_TRACKER_BUILD_DOCS=NO -D TIREX_TRACKER_BUILD_DEB=YES -D TIREX_TRACKER_BUILD_EXAMPLES=NO -DTIREX_TRACKER_EXTENSION_IR=YES
       - name: 🏗️ Build Debian package
-        run: cmake --build c/build/ --config Release --target package
+        run: cmake --build c/build/ --config Release --target package -j 16
       - name: 📤 Upload Debian package
         uses: actions/upload-artifact@v4
         with:
           name: c-debian-package
+          if-no-files-found: error
           path: c/build/tirex-tracker-*-Linux.deb
   jvm-build:
     name: 🏗️ Build JVM library
@@ -267,13 +337,11 @@ jobs:
           - "17"
           - "21"
         runs-on:
-          - ubuntu-20.04
           - ubuntu-22.04
           # - ubuntu-24.04 # FIXME: Re-enable
           # - macos-13
           # - macos-14 # FIXME: JDK 8 cannot be installed.
           # - macos-15 # FIXME: JDK 8 cannot be installed.
-          # - windows-2019 # FIXME: Re-enable
           - windows-2022
           # - windows-2025 # FIXME: Re-enable
         exclude:
@@ -395,24 +463,28 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jvm-jar
+          if-no-files-found: error
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*.jar
       - name: 📤 Upload JVM sources JAR
         if: matrix.java == '21'
         uses: actions/upload-artifact@v4
         with:
           name: jvm-sources-jar
+          if-no-files-found: error
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*-sources.jar
       - name: 📤 Upload JVM Javadoc JAR
         if: matrix.java == '21'
         uses: actions/upload-artifact@v4
         with:
           name: jvm-javadoc-jar
+          if-no-files-found: error
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*-javadoc.jar
       - name: 📤 Upload JVM HTML docs JAR
         if: matrix.java == '21'
         uses: actions/upload-artifact@v4
         with:
           name: jvm-html-docs-jar
+          if-no-files-found: error
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*-html-docs.jar
       - name: 🚀 Publish JVM library to GitHub Packages
         if: matrix.java == '21'
@@ -478,6 +550,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: python-wheels
+          if-no-files-found: error
           path: python/dist/
   python-check:
     name: 🔍 Check Python code
@@ -625,26 +698,11 @@ jobs:
           - "3.13"
         runs-on:
           - ubuntu-22.04
-          # - ubuntu-24.04 # FIXME: Re-enable
-          # - macos-13
+          - ubuntu-24.04
           - macos-14
-          # - macos-15 # FIXME: Re-enable
-          # - windows-2019 # FIXME: Re-enable
-          - windows-2022
-          # - windows-2025 # FIXME: Re-enable
-        exclude:
-          - python: "3.8" # FIXME: Linking errors, e.g., function 'tirexResultEntryGetByIndex' not found.
-            runs-on: windows-2022
-          - python: "3.9" # FIXME: Linking errors, e.g., function 'tirexResultEntryGetByIndex' not found.
-            runs-on: windows-2022
-          - python: "3.10" # FIXME: Linking errors, e.g., function 'tirexResultEntryGetByIndex' not found.
-            runs-on: windows-2022
-          - python: "3.11" # FIXME: Linking errors, e.g., function 'tirexResultEntryGetByIndex' not found.
-            runs-on: windows-2022
-          - python: "3.12" # FIXME: Linking errors, e.g., function 'tirexResultEntryGetByIndex' not found.
-            runs-on: windows-2022
-          - python: "3.13" # FIXME: Linking errors, e.g., function 'tirexResultEntryGetByIndex' not found.
-            runs-on: windows-2022
+          - macos-15
+          # - windows-2022  # FIXME: does not seem to work right now
+          # - windows-2025  # FIXME: does not seem to work right now
     runs-on: ${{ matrix.runs-on }}
     needs:
       - c-build-library

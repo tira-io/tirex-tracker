@@ -1,18 +1,31 @@
-<!-- TODO: Add badges. -->
-
 <img width="100%" src="assets/banner.jpeg" alt="TIREx tracker banner image">
 <h1 align="center">TIREx Tracker</h1>
 <p align="center">Automatic resource and metadata tracking for information retrieval experiments.</p>
 <div align="center">
 
 [![CI](https://img.shields.io/github/actions/workflow/status/tira-io/tirex-tracker/ci.yml?branch=master&style=flat-square)](https://github.com/tira-io/tirex-tracker/actions/workflows/ci.yml)
-[![Maintenance](https://img.shields.io/maintenance/yes/2025?style=flat-square)](https://github.com/tira-io/tirex-tracker/graphs/contributors) [![Code coverage](https://img.shields.io/codecov/c/github/tira-io/tirex-tracker?style=flat-square)](https://codecov.io/github/tira-io/tirex-tracker/) \
-[![Release](https://img.shields.io/github/v/tag/tira-io/tirex-tracker?style=flat-square&label=library)](https://github.com/tira-io/tirex-tracker/releases/) [![Ubuntu](https://img.shields.io/badge/ubuntu-22.04_%7C_24.04-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/) [![macOS](https://img.shields.io/badge/macos-13_%7C_14-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/) [![Windows](https://img.shields.io/badge/windows-2019_%7C_2022-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/) \
-[![PyPi](https://img.shields.io/pypi/v/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Python](https://img.shields.io/pypi/pyversions/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Downloads](https://img.shields.io/pypi/dm/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Read the Docs](https://img.shields.io/readthedocs/tirex-tracker?style=flat-square)](https://tirex-tracker.readthedocs.io/) \
-[![Maven](https://img.shields.io/maven-central/v/io.tira/tirex-tracker?style=flat-square)](https://central.sonatype.com/artifact/io.tira/tirex-tracker) [![Java](https://img.shields.io/badge/java-8_%7C_11_%7C_17_%7C_21-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/packages/)  [![Javadoc](https://javadoc.io/badge2/io.tira/tirex-tracker/javadoc.svg?style=flat-square)](https://javadoc.io/doc/io.tira/tirex-tracker)  \
-[![Issues](https://img.shields.io/github/issues/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/issues) [![Commit activity](https://img.shields.io/github/commit-activity/m/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/commits) [![License](https://img.shields.io/github/license/tira-io/tirex-tracker?style=flat-square)](LICENSE)
+[![Maintenance](https://img.shields.io/maintenance/yes/2025?style=flat-square)](https://github.com/tira-io/tirex-tracker/graphs/contributors)
+[![Code coverage](https://img.shields.io/codecov/c/github/tira-io/tirex-tracker?style=flat-square)](https://codecov.io/github/tira-io/tirex-tracker/)
+\
+[![Release](https://img.shields.io/github/v/tag/tira-io/tirex-tracker?style=flat-square&label=library)](https://github.com/tira-io/tirex-tracker/releases/)
+[![Ubuntu](https://img.shields.io/badge/ubuntu-18.04_%7C_20.04_%7C_22.04_%7C_24.04_%7C_25.04-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
+[![macOS](https://img.shields.io/badge/macos-13_%7C_14_%7C_15-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
+[![Windows](https://img.shields.io/badge/windows-2022_%7C_2025-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
+\
+[![PyPi](https://img.shields.io/pypi/v/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/)
+[![Python](https://img.shields.io/pypi/pyversions/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/)
+[![Downloads](https://img.shields.io/pypi/dm/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/)
+[![Read the Docs](https://img.shields.io/readthedocs/tirex-tracker?style=flat-square)](https://tirex-tracker.readthedocs.io/)
+\
+[![Maven](https://img.shields.io/maven-central/v/io.tira/tirex-tracker?style=flat-square)](https://central.sonatype.com/artifact/io.tira/tirex-tracker)
+[![Java](https://img.shields.io/badge/java-8_%7C_11_%7C_17_%7C_21-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/packages/)
+[![Javadoc](https://javadoc.io/badge2/io.tira/tirex-tracker/javadoc.svg?style=flat-square)](https://javadoc.io/doc/io.tira/tirex-tracker)
+\
+[![Issues](https://img.shields.io/github/issues/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/issues)
+[![Commit activity](https://img.shields.io/github/commit-activity/m/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/commits)
+[![License](https://img.shields.io/github/license/tira-io/tirex-tracker?style=flat-square)](LICENSE)
 
-[CLI](#command-line-tool) • [C/C++ API](#cc-api) • [Python API](#python-api) • [Java/Kotlin API](#javakotlinjvm-api) • [Citation](#citation)
+[CLI](#command-line-tool)&emsp;•&emsp;[C/C++ API](#cc-api)&emsp;•&emsp;[Python API](#python-api)&emsp;•&emsp;[Java/Kotlin API](#javakotlinjvm-api)&emsp;•&emsp;[Citation](#citation)
 
 </div>
 
@@ -243,7 +256,7 @@ fun main() {
 ### `ir_metadata` Extension
 
 The resources, hardware specifications, and metadata tracked by the TIREx tracker can easily be exported to an [`ir_metadata`](https://ir-metadata.org/) file.
-Not all of our extensive metadata fits well into the current `ir_metadata` specification [version 0.1](https://ir-metadata.org/metadata/overview/). We therefore extend the specification and propose `ir_metadata` 0.2-beta: 
+Not all of our extensive metadata fits well into the current `ir_metadata` specification [version 0.1](https://ir-metadata.org/metadata/overview/). We therefore extend the specification and propose `ir_metadata` 0.2-beta:
 
 <!-- TODO: List all added fields compared to the `ir_metadata` 0.1 specification. -->
 
@@ -262,13 +275,13 @@ The further steps will depend on which part of the TIREx tracker's API you work 
 ### C development
 
 > [!TIP]
-> If you are not familiar with CMake, we highly recommend using the [CMake VSCode extension](https://github.com/microsoft/vscode-cmake-tools/blob/main/docs/how-to.md#configure-a-project).
+> If you are not familiar with CMake, we highly recommend using the [CMake Visual Studio Code extension](https://github.com/microsoft/vscode-cmake-tools/blob/main/docs/how-to.md#configure-a-project).
 
 We use the meta-build tool [CMake](https://cmake.org/) to configure the project. Different build targets are used so that you can select what to build.
 [Doxygen](https://doxygen.nl/) is used to generate the documentation for the C API.
 If you haven't installed CMake and/or Doxygen, please install it as described [here for CMake](https://cmake.org/download/) and [here for Doxygen](https://doxygen.nl/download.html)
 
-First, configure CMake enable desired build targets by running the following. Here, we use [GCC](https://gcc.gnu.org/) but any **C++20 compliant** compiler also works.
+First, configure CMake enable desired build targets by running the following. Here, we use [GCC](https://gcc.gnu.org/) but any C++20 compliant compiler also works.
 
 ```shell
 cmake -S c/ -B c/build/ \
@@ -285,25 +298,22 @@ cmake -S c/ -B c/build/ \
 > If you do not want to generate the documentation and have not installed Doxygen, you can disable it by setting `TIREX_TRACKER_BUILD_DOCS=NO`.
 
 To build the library, run
-```shell
-cmake --build c/build/ --config Release --target tirex_tracker_full
-```
-Under Linux, this will compile the C API into a statically linked library at `c/build/extensions/libtirex_tracker_full.so`.
 
-The supported targets are<br/>
-Target                   | Type          | Description
--------------------------|---------------|-----------------------------------------------------------------------------------------------
-**tirex_tracker_full**   | Library       | A shared library containing `tirex_tracker` and all extensions.
-**measureext_ir**        | Library       | A shared library containing only the IR extension. `tirex_tracker´ must be loaded separately.
-**tirex_tracker**        | Library       | The `tirex_tracker´ shared library.
-**tirex_tracker_static** | Library       | The `tirex_tracker´ static library.
-**measure**              | Executable    | The measure command.
-**01_tracking**          | Executable    | Example 01: demonstrating basic tracking
-**02_list_measures**     | Executable    | Example 02: demonstrating how to fetch meta information through the API.
-**04_ir_extension**      | Executable    | Example 04: demonstrating the IR extension (`measureext_ir`).
-**tirex_tracker_docs**   | Documentation | Builds the documentation; Is only available if Doxygen is installed.
-**package**              | Package       | Builds a debian package.
-=======
+```shell
+cmake --build c/build/ --config Release --target tirex_tracker
+```
+
+Under Linux, this will compile the C API into a statically linked library at `c/build/extensions/libtirex_tracker.so`. The supported targets are:
+
+| Target                 | Type          | Description                                                                                   |
+|:-----------------------|:--------------|:----------------------------------------------------------------------------------------------|
+| `tirex_tracker`        | library       | A shared library containing `tirex_tracker` and all extensions.                               |
+| `measure`              | executable    | The `measure` command.                                                                        |
+| `01_tracking`          | executable    | Example 01: demonstrating basic tracking.                                                     |
+| `02_list_measures`     | executable    | Example 02: demonstrating how to fetch meta information through the API.                      |
+| `04_ir_extension`      | executable    | Example 04: demonstrating the IR extension (`measureext_ir`).                                 |
+| `tirex_tracker_docs`   | documentation | The library documentation (only available if Doxygen is installed).                           |
+| `package`              | package       | The Debian package contining the `measure` command.                                           |
 
 That means, to build the Debian package, run:
 
@@ -314,13 +324,16 @@ cmake --build c/build/ --config Release --target package
 You will find the compiled Debian package file at `c/build/tirex-tracker-*-Linux.deb` (where `*` is the version).
 
 #### CMake Options
-Option                         | Description                                                                                         | Default
--------------------------------|-----------------------------------------------------------------------------------------------------|---------
-`TIREX_TRACKER_ONLY_DOCS`      | Build only documentation -- this disables tests and others                                          | OFF
-`TIREX_TRACKER_BUILD_EXAMPLES` | Build the examples                                                                                  | OFF
-`TIREX_TRACKER_BUILD_DEB`      | Build debian package                                                                                | OFF
-`TIREX_TRACKER_BUILD_DOCS`     | Build the documentation                                                                             | OFF
-`TIREX_TRACKER_BUILD_CMD_DEB`  | Build the debian package for the measure command (`requires TIREX_TRACKER_BUILD_EXAMPLES` to be ON) | OFF
+
+The below CMake options are used to include/exclude certain features from the build, which can improve the build time.
+
+| Option                         | Description                                                                                             | Default |
+|:-------------------------------|:--------------------------------------------------------------------------------------------------------|:-------:|
+| `TIREX_TRACKER_ONLY_DOCS`      | Build only the documentation (disables tests and others).                                               | `OFF`   |
+| `TIREX_TRACKER_BUILD_EXAMPLES` | Build the examples.                                                                                     | `OFF`   |
+| `TIREX_TRACKER_BUILD_DEB`      | Build the Debian package.                                                                               | `OFF`   |
+| `TIREX_TRACKER_BUILD_DOCS`     | Build the documentation.                                                                                | `OFF`   |
+| `TIREX_TRACKER_BUILD_CMD_DEB`  | Build the Debian package for the `measure` command (requires `TIREX_TRACKER_BUILD_EXAMPLES` to be `ON`) | `OFF`   |
 
 <!-- TODO: C test instructions. -->
 
@@ -365,9 +378,20 @@ jvm/gradlew --project-dir jvm/ check
 
 ## Citation
 
-The TIREx tracker's accompanying paper is under review. We will add citation instructions once it is published.
+If you find our work useful and reference or use it in a paper, please cite us.
 
-<!-- TODO: Add citation (written out and as BibTeX). -->
+```bibtex
+@inproceedings{tirextracker2025,
+    author = {Hagen, Tim and Fr{\"o}be, Maik and Merker, Jan Heinrich and Scells, Harrisen and Hagen, Matthias and Potthast, Martin},
+    booktitle = {48th International ACM SIGIR Conference on Research and Development in Information Retrieval (SIGIR 2025)},
+    month = jul,
+    publisher = {ACM},
+    title = {{TIREx Tracker: The Information Retrieval Experiment Tracker}},
+    year = {2025}
+}
+```
+
+You can also use the [`CITATION.cff`](./CITATION.cff) to generate a citation in other formats.
 
 ## License
 
@@ -376,4 +400,4 @@ If you use the TIREx tracker in your experiments, we would appreciate you [citin
 
 ## Abstract
 
-> The reproducibility and transparency of retrieval experiments heavily depends on properly provided information on the experimental setup and conditions. But as manually curating such experiment metadata can be tedious, error-prone, and inconsistent, metadata should be systematically collected in an automatic way—similar to the collection of Python and git-specific settings in the `ir_metadata` reference implementation. To enable a platform-independent automatic metadata collection following the `ir_metadata` specification, we introduce the TIREx tracker: a tool realized via a lightweight C binary, pre-compiled with all dependencies for all major platforms to track hardware configurations, usage of power/CPUs/RAM/GPUs, and experiment/system versions. The TIREx tracker seamlessly integrates into Python, Java, or C/C++ workflows and can be easily incorporated in run submissions of shared tasks, which we showcase for the TIRA/TIREx platform. Code, binaries, and documentation are publicly available at <https://github.com/tira-io/tirex-tracker>.
+> The reproducibility and transparency of retrieval experiments heavily depends on properly provided information on the experimental setup and conditions. But as manually curating such experiment metadata can be tedious, error-prone, and inconsistent, metadata should be systematically collected in an automatic way—similar to the collection of Python and git-specific settings in the `ir_metadata` reference implementation. To enable a platform-independent automatic metadata collection following the `ir_metadata` specification, we introduce the TIREx tracker: a tool realized via a lightweight C binary, pre-compiled with all dependencies for all major platforms to track hardware configurations, usage of power/CPUs/RAM/GPUs, and experiment/system versions. The TIREx tracker seamlessly integrates into Python, Java, or C/C++ workflows and can be easily incorporated in run submissions of shared tasks, which we showcase for the TIRA/TIREx platform.

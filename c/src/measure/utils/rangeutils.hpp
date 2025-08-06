@@ -1,7 +1,13 @@
 #ifndef MEASURE_UTILS_RANGEUTILS_HPP
 #define MEASURE_UTILS_RANGEUTILS_HPP
 
+#if __cpp_lib_ranges
 #include <ranges>
+#define RANGE_CONCEPT std::ranges::range
+#else
+#define RANGE_CONCEPT
+#endif
+
 #include <sstream>
 #include <string>
 
@@ -26,9 +32,9 @@ namespace tirex::utils {
 	 * @param delimiter The delimiter to be placed between values.
 	 * @return A string representation of the range, where the delimiter is placed between entries.
 	 */
-	inline std::string join(const std::ranges::range auto& range, char delimiter = ',') {
+	inline std::string join(const RANGE_CONCEPT auto& range, std::string_view delimiter = ", ") {
 #ifdef __cpp_lib_ranges_join_with
-		return range | std::join_with(delimiter);
+		return std::ranges::fold_left(range | std::join_with(delimiter), std::string{}, std::plus{});
 #else
 		std::stringstream stream;
 		bool first = true;
@@ -40,7 +46,7 @@ namespace tirex::utils {
 		}
 		return stream.str();
 #endif
-	}
+	} // namespace tirex::utils
 } // namespace tirex::utils
 
 #endif

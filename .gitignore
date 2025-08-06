@@ -573,3 +573,4 @@ build
 .vscode
 __pycache__
 build
+.venv*/
