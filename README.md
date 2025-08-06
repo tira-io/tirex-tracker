@@ -63,7 +63,7 @@ target_link_libraries(<yourtarget> tirex_tracker::tirex_tracker)
 This will link the TIREx tracker C API to your binaries.
 Take a look at the [examples](c/examples/) to see how our C API can be used.
 
-A minimal example would is shown below:
+A minimal example is shown below:
 
 ```c
 #include <tirex_tracker.h>
