@@ -49,6 +49,7 @@ jobs:
           - {platform: {host: macos-13},     compiler:  gcc-13}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
           - {platform: {host: macos-13},     compiler:  gcc-14}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
           - {platform: {host: macos-14},     compiler:  gcc-13}  # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
+          - {platform: {host: macos-15},     compiler:  gcc-13}  # /opt/homebrew/Cellar/gcc@13/13.4.0/lib/gcc/13/gcc/aarch64-apple-darwin24/13/include-fixed/_stdio.h:78:10: fatal error: _bounds.h: No such file or directory
           - {platform: {host: macos-15},     compiler:  gcc-14}  # Known issue (https://github.com/munich-quantum-toolkit/core/issues/979, https://stackoverflow.com/questions/79641443/c-bounds-h-not-found-after-upgrading-to-gcc-15)
           - {platform: {host: windows-2022}, compiler: llvm-19}  # libgit2 does not seem to support this
           - {platform: {host: windows-2025}, compiler: llvm-19}  # libgit2 does not seem to support this
@@ -164,6 +165,7 @@ jobs:
           - {platform: {host: macos-13},     compiler:  gcc-13}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
           - {platform: {host: macos-13},     compiler:  gcc-14}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
           - {platform: {host: macos-14},     compiler:  gcc-13}  # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
+          - {platform: {host: macos-15},     compiler:  gcc-13}  # /opt/homebrew/Cellar/gcc@13/13.4.0/lib/gcc/13/gcc/aarch64-apple-darwin24/13/include-fixed/_stdio.h:78:10: fatal error: _bounds.h: No such file or directory
           - {platform: {host: macos-15},     compiler:  gcc-14}  # Known issue (https://github.com/munich-quantum-toolkit/core/issues/979, https://stackoverflow.com/questions/79641443/c-bounds-h-not-found-after-upgrading-to-gcc-15)
           - {platform: {host: windows-2022}, compiler: llvm-19}  # libgit2 does not seem to support this
           - {platform: {host: windows-2025}, compiler: llvm-19}  # libgit2 does not seem to support this
