@@ -28,6 +28,7 @@ target_sources(tirex_tracker
 		logging.cpp
 		measure/stats/provider.cpp
 
+		measure/stats/devcontainerstats.cpp
 		measure/stats/energystats.cpp
 		measure/stats/gitstats.cpp
 		measure/stats/nvmlstats.cpp

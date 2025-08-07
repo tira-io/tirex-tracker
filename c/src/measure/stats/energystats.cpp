@@ -16,7 +16,6 @@ static V getOrDefault(const C& m, K const& key, const V& defval) {
 }
 
 const char* EnergyStats::version = nullptr;
-/** \todo check which are available and only report thos that are available to be supported **/
 const std::set<tirexMeasure> EnergyStats::measures{
 		TIREX_CPU_ENERGY_SYSTEM_JOULES, TIREX_RAM_ENERGY_SYSTEM_JOULES, TIREX_GPU_ENERGY_SYSTEM_JOULES
 };

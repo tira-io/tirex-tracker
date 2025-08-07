@@ -61,7 +61,8 @@ static const std::map<std::string, std::set<tirexMeasure>> measuresPerVersion{
 		  TIREX_GIT_REMOTE_ORIGIN,
 		  TIREX_GIT_UNCOMMITTED_CHANGES,
 		  TIREX_GIT_UNPUSHED_CHANGES,
-		  TIREX_GIT_UNCHECKED_FILES}}
+		  TIREX_GIT_UNCHECKED_FILES,
+		  TIREX_DEVCONTAINER_CONF_PATHS}}
 };
 
 static std::function<bool(const tirexResultEntry&)> versionFilter(const std::string& version) {
