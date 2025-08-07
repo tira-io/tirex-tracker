@@ -99,6 +99,13 @@ namespace tirex {
 		static size_t tickToMs(size_t tick);
 
 		uint8_t getProcCPUUtilization();
+
+		/**
+		 * @brief Gets the command line arguments of the invocation of the tracked process.
+		 * 
+		 * @return A vector of strings, where the i-th entry corresponds to `argv[i]` passed to the program.
+		 */
+		std::vector<std::string> getInvocationCmd();
 #if __linux__
 		pid_t pid; /**< The process identifier of the tracked process. */
 		size_t lastIdle = 0;

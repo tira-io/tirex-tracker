@@ -48,7 +48,9 @@ static const char* measureToName[] = {
 		/*[TIREX_GIT_REMOTE_ORIGIN] =*/"git remote origin",
 		/*[TIREX_GIT_UNCOMMITTED_CHANGES] =*/"git uncommitted changes",
 		/*[TIREX_GIT_UNPUSHED_CHANGES] =*/"git unpushed changes",
-		/*[TIREX_GIT_UNCHECKED_FILES] =*/"git unchecked files"
+		/*[TIREX_GIT_UNCHECKED_FILES] =*/"git unchecked files",
+		/*[TIREX_VERSION_MEASURE] =*/"version",
+		/*[TIREX_INVOCATION] =*/"invocation"
 };
 static_assert((sizeof(measureToName) / sizeof(*measureToName)) == TIREX_MEASURE_COUNT);
 

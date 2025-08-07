@@ -10,11 +10,13 @@ using ResultMap = std::map<tirexMeasure, std::string>;
 
 static const std::map<std::string, std::set<tirexMeasure>> measuresPerVersion{
 		{"0.1",
-		 {TIREX_CPU_MODEL_NAME, TIREX_CPU_ARCHITECTURE, TIREX_CPU_CORES_PER_SOCKET, TIREX_GPU_MODEL_NAME,
-		  TIREX_GPU_VRAM_AVAILABLE_SYSTEM_MB, TIREX_GPU_NUM_CORES, TIREX_OS_KERNEL, TIREX_OS_NAME,
-		  TIREX_GIT_REMOTE_ORIGIN, TIREX_GIT_LAST_COMMIT_HASH}},
+		 {TIREX_VERSION_MEASURE, TIREX_INVOCATION, TIREX_CPU_MODEL_NAME, TIREX_CPU_ARCHITECTURE,
+		  TIREX_CPU_CORES_PER_SOCKET, TIREX_GPU_MODEL_NAME, TIREX_GPU_VRAM_AVAILABLE_SYSTEM_MB, TIREX_GPU_NUM_CORES,
+		  TIREX_OS_KERNEL, TIREX_OS_NAME, TIREX_GIT_REMOTE_ORIGIN, TIREX_GIT_LAST_COMMIT_HASH}},
 		{"0.2",
-		 {TIREX_OS_NAME,
+		 {TIREX_VERSION_MEASURE,
+		  TIREX_INVOCATION,
+		  TIREX_OS_NAME,
 		  TIREX_OS_KERNEL,
 		  TIREX_TIME_START,
 		  TIREX_TIME_STOP,
@@ -154,7 +156,9 @@ static void writePlatform(const ResultMap& results, std::ostream& stream) {
 		stream << "    kernel: " << it->second << '\n';
 	if (ResultMap::const_iterator it; (it = results.find(TIREX_OS_NAME)) != results.end())
 		stream << "    distribution: " << it->second << '\n';
-	stream << "  software: {}\n";
+	stream << "  software:\n";
+	if (ResultMap::const_iterator it; (it = results.find(TIREX_VERSION_MEASURE)) != results.end())
+		stream << "    tirex-tracker: " << it->second << '\n';
 }
 
 /**
@@ -167,7 +171,8 @@ static void writePlatform(const ResultMap& results, std::ostream& stream) {
 static void writeImplementation(const ResultMap& results, std::ostream& stream) {
 	stream << "implementation:\n";
 	stream << "  executable:\n";
-	//stream << "      cmd:\n"; /** \todo add support **/
+	if (ResultMap::const_iterator it; (it = results.find(TIREX_INVOCATION)) != results.end())
+		stream << "      cmd: " << it->second << '\n';
 	stream << "  source:\n";
 	stream << "    lang: null\n"; /** unsupported **/
 	if (ResultMap::const_iterator it; (it = results.find(TIREX_GIT_REMOTE_ORIGIN)) != results.end())

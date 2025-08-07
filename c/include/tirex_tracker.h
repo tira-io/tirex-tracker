@@ -105,6 +105,9 @@ typedef enum tirexMeasure_enum {
 	TIREX_TIME_START = 44, /**< Timestamp when the tracking was started. */
 	TIREX_TIME_STOP = 45,  /**< Timestamp when the tracking was started. */
 
+	TIREX_VERSION_MEASURE = 46, /**< Reports the version of the TIREx Tracker that was used to collect the metadata. */
+	TIREX_INVOCATION = 47,		/**< Reports the command that was used to spawn the tracked process. */
+
 	/**
 	 * @brief The total number of supported measures.
 	 * @details It can be assumed that every number in the range `[0, TIREX_MEASURE_COUNT]` is a valid enum value.
