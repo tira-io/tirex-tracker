@@ -87,17 +87,12 @@ CPMAddPackage(
 target_link_libraries(tirex_tracker PRIVATE libgit2 libgit2package)
 
 # libzip
-set(ENABLE_OPENSSL OFF CACHE BOOL "" FORCE)
-set(BUILD_TOOLS OFF CACHE BOOL "" FORCE)
-set(BUILD_REGRESS OFF CACHE BOOL "" FORCE)
-set(BUILD_OSSFUZZ OFF CACHE BOOL "" FORCE)
-set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-set(BUILD_DOC OFF CACHE BOOL "" FORCE)
-FetchContent_Declare(zip GIT_REPOSITORY https://github.com/nih-at/libzip.git GIT_TAG v1.11.3 EXCLUDE_FROM_ALL)
-FetchContent_MakeAvailable(zip)
-set_property(TARGET zip PROPERTY POSITION_INDEPENDENT_CODE ON)
+CPMAddPackage(
+	URI "gh:nih-at/libzip@1.11.3"
+	OPTIONS "ENABLE_OPENSSL OFF" "BUILD_TOOLS OFF" "BUILD_REGRESS OFF" "BUILD_OSSFUZZ OFF" "BUILD_EXAMPLES OFF" "BUILD_DOC OFF"
+	EXCLUDE_FROM_ALL YES
+)
 target_link_libraries(tirex_tracker PRIVATE zip)
-target_link_libraries(tirex_tracker_static PRIVATE zip)
 
 
 # NVML (We load the go-nvml bindings since there does not seem to be a repo with just the header)
