@@ -74,8 +74,12 @@ std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
 
 const char* SystemStats::version = nullptr;
 const std::set<tirexMeasure> SystemStats::measures{
+		TIREX_VERSION_MEASURE,
+
 		TIREX_OS_NAME,
 		TIREX_OS_KERNEL,
+
+		TIREX_INVOCATION,
 
 		TIREX_TIME_START,
 		TIREX_TIME_STOP,
@@ -443,7 +447,9 @@ Stats SystemStats::getInfo() {
 	std::string caches = "{"s + utils::join(entries, ", ") + "}";
 
 	return makeFilteredStats(
-			enabled, std::pair{TIREX_OS_NAME, info.osname}, std::pair{TIREX_OS_KERNEL, info.kerneldesc},
+			enabled, std::pair{TIREX_VERSION_MEASURE, TIREX_VERSION}, std::pair{TIREX_OS_NAME, info.osname},
+			std::pair{TIREX_OS_KERNEL, info.kerneldesc},
+			std::pair{TIREX_INVOCATION, "["s + utils::join(getInvocationCmd(), ", ") + "]"},
 			std::pair{TIREX_CPU_AVAILABLE_SYSTEM_CORES, std::to_string(cpuInfo.numCores)},
 			std::pair{TIREX_CPU_FEATURES, cpuInfo.flags},
 			std::pair{TIREX_CPU_FREQUENCY_MIN_MHZ, std::to_string(cpuInfo.frequency_min)},

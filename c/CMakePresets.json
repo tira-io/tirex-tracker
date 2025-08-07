@@ -63,6 +63,21 @@
                 "TIREX_TRACKER_EXTENSION_IR": "ON",
                 "TIREX_TRACKER_BUILD_SHARED_LIB": "OFF"
             }
+        },
+        {
+            "name": "conf-dev",
+            "description": "Settings for development",
+            "inherits": "conf-common",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "BUILD_SHARED_LIBS": "ON",
+                "TIREX_TRACKER_ONLY_DOCS": "OFF",
+                "TIREX_TRACKER_BUILD_DOCS": "ON",
+                "TIREX_TRACKER_BUILD_DEB": "ON",
+                "TIREX_TRACKER_BUILD_EXAMPLES": "ON",
+                "TIREX_TRACKER_EXTENSION_IR": "ON",
+                "TIREX_TRACKER_BUILD_SHARED_LIB": "ON"
+            }
         }
     ],
     "testPresets": []

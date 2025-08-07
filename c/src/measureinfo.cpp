@@ -221,6 +221,18 @@ static const tirexMeasureInfo measureInfos[]{
 						"into the repository; 0 otherwise.",
 		 .datatype = tirexResultType::TIREX_STRING,
 		 .example = "1"},
+		/*[TIREX_VERSION_MEASURE] = */
+		{.description = "Reports the version of the TIREx Tracker that was used to collect the metadata.",
+		 .datatype = tirexResultType::TIREX_STRING,
+		 .example = TIREX_VERSION},
+		/*[TIREX_INVOCATION] = */
+		{.description = "Reports the command that was used to spawn the tracked process.",
+		 .datatype = tirexResultType::TIREX_STRING,
+		 .example = "sleep 50"},
+		/*[TIREX_DEVCONTAINER_CONF_PATHS] = */
+		{.description = "Searches for devcontainer configuration files and reports their location.",
+		 .datatype = tirexResultType::TIREX_STRING,
+		 .example = "[\"folder/.devcontainer/devcontainer.json\"]"},
 };
 static_assert((sizeof(measureInfos) / sizeof(*measureInfos)) == TIREX_MEASURE_COUNT);
 
