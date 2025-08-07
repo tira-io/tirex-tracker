@@ -28,12 +28,12 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("net.java.dev.jna:jna-platform:5.17.0")
     api("net.java.dev.jna:jna:5.17.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     implementation("org.yaml:snakeyaml:2.4")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.12.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.13.4")
 }
 
 val javaLanguageVersionCompile = JavaLanguageVersion.of(8)

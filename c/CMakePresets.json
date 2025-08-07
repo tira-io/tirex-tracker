@@ -1,0 +1,69 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 24,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "conf-common",
+            "description": "General settings that apply to all configurations",
+            "hidden": true
+        },
+        {
+            "name": "conf-release-common",
+            "description": "General settings that apply to all configurations",
+            "hidden": true,
+            "inherits": "conf-common",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "conf-docs-only",
+            "description": "Settings for building only the documentation",
+            "inherits": "conf-release-common",
+            "cacheVariables": {
+                "TIREX_TRACKER_ONLY_DOCS": "ON"
+            }
+        },
+        {
+            "name": "conf-release-shared-lib-static-deps",
+            "description": "Settings for building the shared TIREx tracker library with statically linked dependencies",
+            "inherits": "conf-release-common",
+            "cacheVariables": {
+                "BUILD_SHARED_LIBS": "OFF",
+                "TIREX_TRACKER_ONLY_DOCS": "OFF",
+                "TIREX_TRACKER_BUILD_DOCS": "OFF",
+                "TIREX_TRACKER_BUILD_DEB": "OFF",
+                "TIREX_TRACKER_BUILD_EXAMPLES": "OFF",
+                "TIREX_TRACKER_EXTENSION_IR": "OFF",
+                "TIREX_TRACKER_BUILD_SHARED_LIB": "ON"
+            }
+        },
+        {
+            "name": "conf-release-full-shared-lib-static-deps",
+            "description": "Settings for building the shared TIREx tracker library with all extensions with statically linked dependencies",
+            "inherits": "conf-release-shared-lib-static-deps",
+            "cacheVariables": {
+                "TIREX_TRACKER_EXTENSION_IR": "ON"
+            }
+        },
+        {
+            "name": "conf-release-cli",
+            "description": "Settings for building the TIREx tracker CLI",
+            "inherits": "conf-release-common",
+            "cacheVariables": {
+                "BUILD_SHARED_LIBS": "OFF",
+                "TIREX_TRACKER_ONLY_DOCS": "OFF",
+                "TIREX_TRACKER_BUILD_DOCS": "OFF",
+                "TIREX_TRACKER_BUILD_DEB": "OFF",
+                "TIREX_TRACKER_BUILD_EXAMPLES": "ON",
+                "TIREX_TRACKER_EXTENSION_IR": "ON",
+                "TIREX_TRACKER_BUILD_SHARED_LIB": "OFF"
+            }
+        }
+    ],
+    "testPresets": []
+}

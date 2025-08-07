@@ -27,7 +27,6 @@ namespace std23 {
 
 #include <filesystem>
 #include <fstream>
-#include <ranges>
 #include <string>
 #include <tuple>
 
@@ -292,7 +291,7 @@ Stats GitStats::getInfo() {
 				enabled, std::pair{TIREX_GIT_IS_REPO, "1"s}, std::pair{TIREX_GIT_HASH, hashAllFiles(repo)},
 				std::pair{TIREX_GIT_LAST_COMMIT_HASH, getLastCommitHash(repo)}, std::pair{TIREX_GIT_BRANCH, local},
 				std::pair{TIREX_GIT_BRANCH_UPSTREAM, remote},
-				std::pair{TIREX_GIT_TAGS, "["s + tirex::utils::join(getTags(repo), ',') + "]"s},
+				std::pair{TIREX_GIT_TAGS, "["s + tirex::utils::join(getTags(repo), ", ") + "]"s},
 				std::pair{TIREX_GIT_REMOTE_ORIGIN, getRemoteOrigin(repo)},
 				std::pair{TIREX_GIT_UNCOMMITTED_CHANGES, (status.numModified != 0) ? "1"s : "0"s},
 				std::pair{TIREX_GIT_UNPUSHED_CHANGES, ((status.ahead != 0) || remote.empty()) ? "1"s : "0"s},
