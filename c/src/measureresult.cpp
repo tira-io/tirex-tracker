@@ -12,20 +12,40 @@ namespace _fmt = fmt;
 #endif
 
 #include <iostream>
+#include <variant>
+
+template <class... Ts>
+struct overloaded : Ts... {
+	using Ts::operator()...;
+};
+
+template <class... Ts>
+overloaded(Ts...) -> overloaded<Ts...>;
 
 struct tirexResult_st {
 public:
-	std::vector<std::pair<tirexMeasure, std::string>> value;
+	using ValueType = std::vector<std::pair<tirexMeasure, std::variant<std::string, tirex::TmpFile>>>;
+	ValueType value;
 
 public:
-	explicit tirexResult_st(std::vector<std::pair<tirexMeasure, std::string>>&& val) : value(std::move(val)) {}
+	explicit tirexResult_st(ValueType&& val) : value(std::move(val)) {}
 };
 
 tirexError tirexResultEntryGetByIndex(const tirexResult* result, size_t index, tirexResultEntry* entry) {
 	if (result == nullptr || index >= result->value.size())
 		return tirexError::TIREX_INVALID_ARGUMENT;
 	const auto& [source, value] = result->value.at(index);
-	*entry = {.source = source, .value = value.c_str(), .type = tirexResultType::TIREX_STRING};
+	std::visit(
+			overloaded{
+					[&](const std::string& str) {
+						*entry = {.source = source, .value = str.c_str(), .type = tirexResultType::TIREX_STRING};
+					},
+					[&](const tirex::TmpFile& file) {
+						*entry = {.source = source, .value = file.path.c_str(), .type = tirexResultType::TIREX_STRING};
+					},
+			},
+			value
+	);
 	return tirexError::TIREX_SUCCESS;
 }
 
@@ -37,14 +57,6 @@ tirexError tirexResultEntryNum(const tirexResult* result, size_t* num) {
 }
 
 void tirexResultFree(tirexResult* result) { delete result; }
-
-template <class... Ts>
-struct overloaded : Ts... {
-	using Ts::operator()...;
-};
-
-template <class... Ts>
-overloaded(Ts...) -> overloaded<Ts...>;
 
 template <typename T>
 static std::string toYAML(const tirex::TimeSeries<T>& timeseries) {
@@ -58,16 +70,18 @@ static std::string toYAML(const tirex::TimeSeries<T>& timeseries) {
 }
 
 extern tirexResult_st* tirex::createMsrResultFromStats(tirex::Stats&& stats) {
-	std::vector<std::pair<tirexMeasure, std::string>> result;
-	for (const auto& [key, value] : stats) {
+	tirexResult_st::ValueType result;
+	for (auto it = std::make_move_iterator(stats.begin()), end = std::make_move_iterator(stats.end()); it != end;
+		 ++it) {
 		std::visit(
 				overloaded{
-						[&](const std::string& str) { result.emplace_back(key, std::move(str)); },
+						[&](const std::string& str) { result.emplace_back(it->first, std::move(str)); },
+						[&](tirex::TmpFile&& file) { result.emplace_back(it->first, std::move(file)); },
 						[&](const tirex::TimeSeries<unsigned>& timeseries) {
-							result.emplace_back(key, toYAML(timeseries));
+							result.emplace_back(it->first, toYAML(timeseries));
 						}
 				},
-				value
+				std::move(it->second)
 		);
 	}
 	return new tirexResult_st(std::move(result));

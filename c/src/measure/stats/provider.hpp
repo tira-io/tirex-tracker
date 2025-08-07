@@ -13,6 +13,7 @@
 #define CONVERTIBLE_TO_PAIR_CONCEPT
 #endif
 
+#include <filesystem>
 #include <functional>
 #include <map>
 #include <memory>
@@ -20,8 +21,22 @@
 #include <string>
 #include <variant>
 
+namespace fs = std::filesystem;
+
 namespace tirex {
-	using StatVal = std::variant<std::string, std::reference_wrapper<const tirex::TimeSeries<unsigned>>>;
+	struct TmpFile {
+		fs::path path;
+
+		TmpFile(fs::path path) : path(path) {}
+		TmpFile(const TmpFile&) = delete;
+		TmpFile(TmpFile&&) = default;
+		TmpFile& operator=(const TmpFile&) = delete;
+		TmpFile& operator=(TmpFile&&) = default;
+
+		~TmpFile() { fs::remove(path); }
+	};
+
+	using StatVal = std::variant<std::string, TmpFile, std::reference_wrapper<const tirex::TimeSeries<unsigned>>>;
 	using Stats = std::map<tirexMeasure, StatVal>;
 
 	tirexResult_st* createMsrResultFromStats(Stats&& stats);
@@ -101,12 +116,13 @@ namespace tirex {
 	std::set<tirexMeasure>
 	initProviders(std::set<tirexMeasure> measures, std::vector<std::unique_ptr<StatsProvider>>& providers);
 
-	Stats makeFilteredStats(const std::set<tirexMeasure>& filter, const CONVERTIBLE_TO_PAIR_CONCEPT auto&&... args) {
+	Stats makeFilteredStats(const std::set<tirexMeasure>& filter, CONVERTIBLE_TO_PAIR_CONCEPT auto&&... args) {
 		Stats stats;
-		for (auto&& arg : {std::pair<tirexMeasure, StatVal>(args)...}) {
-			if (filter.contains(arg.first))
-				stats.insert(std::move(arg));
-		}
+		auto func = [&](CONVERTIBLE_TO_PAIR_CONCEPT auto&& val) {
+			if (filter.contains(val.first))
+				stats.insert(std::move(val));
+		};
+		(..., func(std::move(args)));
 		return stats;
 	}
 } // namespace tirex

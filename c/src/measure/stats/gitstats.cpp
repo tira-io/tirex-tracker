@@ -296,7 +296,8 @@ Stats GitStats::getInfo() {
 				std::pair{TIREX_GIT_UNCOMMITTED_CHANGES, (status.numModified != 0) ? "1"s : "0"s},
 				std::pair{TIREX_GIT_UNPUSHED_CHANGES, ((status.ahead != 0) || remote.empty()) ? "1"s : "0"s},
 				std::pair{TIREX_GIT_UNCHECKED_FILES, (status.numNew != 0) ? "1"s : "0"s},
-				std::pair{TIREX_GIT_ROOT, git_repository_workdir(repo)}, std::pair{TIREX_GIT_ARCHIVE_PATH, tmpfile}
+				std::pair{TIREX_GIT_ROOT, git_repository_workdir(repo)},
+				std::pair{TIREX_GIT_ARCHIVE_PATH, TmpFile{tmpfile}}
 		);
 	} else {
 		return makeFilteredStats(enabled, std::pair{TIREX_GIT_IS_REPO, "0"s});
