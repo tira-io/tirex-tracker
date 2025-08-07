@@ -105,12 +105,12 @@ CPMAddPackage(URI "gh:fmtlib/fmt#11.1.3" EXCLUDE_FROM_ALL YES)
 target_link_libraries(tirex_tracker PRIVATE fmt::fmt)
 
 # expected (remove in the future when std::expected can be assumed)
-set(EXPECTED_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(EXPECTED_BUILD_PACKAGE_DEB OFF CACHE BOOL "" FORCE)
-FetchContent_Declare(expected GIT_REPOSITORY https://github.com/TartanLlama/expected.git GIT_TAG v1.1.0 EXCLUDE_FROM_ALL)
-FetchContent_MakeAvailable(expected)
+CPMAddPackage(
+	URI "gh:TartanLlama/expected@1.1.0"
+	OPTIONS "EXPECTED_BUILD_TESTS OFF" "EXPECTED_BUILD_PACKAGE_DEB OFF"
+	EXCLUDE_FROM_ALL YES
+)
 target_link_libraries(tirex_tracker PRIVATE tl::expected)
-target_link_libraries(tirex_tracker_static PRIVATE tl::expected)
 
 
 # cpuinfo
