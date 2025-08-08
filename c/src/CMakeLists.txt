@@ -77,7 +77,12 @@ if (NOT (UNIX AND APPLE)) # CPPJouls does not support macos right now
 endif()
 
 # zlib (required by libgit and libzip)
-CPMAddPackage(URI "gh:madler/zlib@1.3.1" OPTIONS "ZLIB_BUILD_STATIC ON")
+CPMAddPackage(
+	URI "gh:madler/zlib#5a82f71ed1dfc0bec044d9702463dbdf84ea3b71" # "gh:madler/zlib@1.3.1"
+	OPTIONS "ZLIB_BUILD_TESTING OFF" "ZLIB_BUILD_SHARED OFF" "ZLIB_BUILD_STATIC ON" "ZLIB_BUILD_MINIZIP OFF"
+	EXCLUDE_FROM_ALL YES
+)
+add_library(zlib ALIAS zlibstatic)
 add_library(ZLIB::ZLIB ALIAS zlibstatic)  # ALIAS ZLIB::ZLIB to static since we want to link it statically to libzip
 
 # LibGit
@@ -89,15 +94,6 @@ CPMAddPackage(
 #target_link_libraries(tirex_tracker PRIVATE libgit2package)
 #target_include_directories(tirex_tracker PRIVATE $<TARGET_PROPERTY:libgit2,INCLUDE_DIRECTORIES>)
 target_link_libraries(tirex_tracker PRIVATE libgit2 libgit2package)
-
-find_package(ZLIB)
-get_target_property(ZLIB_INCLUDE_DIRS ZLIB::ZLIB INTERFACE_INCLUDE_DIRECTORIES)
-get_target_property(ZLIB_LIBRARIES    ZLIB::ZLIB IMPORTED_LOCATION)
-
-find_package(ZLIB)
-message(::::${ZLIB_FOUND})
-message(::::${ZLIB_INCLUDE_DIRS})
-message(::::${ZLIB_LIBRARIES})
 
 # libzip
 CPMAddPackage(
