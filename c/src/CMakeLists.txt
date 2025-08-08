@@ -82,7 +82,7 @@ CPMAddPackage(
 	OPTIONS "ZLIB_BUILD_TESTING OFF" "ZLIB_BUILD_SHARED OFF" "ZLIB_BUILD_STATIC ON" "ZLIB_BUILD_MINIZIP OFF"
 	EXCLUDE_FROM_ALL YES
 )
-add_library(zlib ALIAS zlibstatic)
+set(ZLIB_LIBRARIES "zlibstatic")
 add_library(ZLIB::ZLIB ALIAS zlibstatic)  # ALIAS ZLIB::ZLIB to static since we want to link it statically to libzip
 
 # LibGit
@@ -91,8 +91,6 @@ CPMAddPackage(
 	OPTIONS "USE_SSH OFF" "USE_HTTPS OFF" "REGEX_BACKEND builtin" "USE_BUNDLED_ZLIB OFF" "BUILD_CLI OFF" "BUILD_TESTS OFF" "DEPRECATE_HARD OFF"
 	EXCLUDE_FROM_ALL YES
 )
-#target_link_libraries(tirex_tracker PRIVATE libgit2package)
-#target_include_directories(tirex_tracker PRIVATE $<TARGET_PROPERTY:libgit2,INCLUDE_DIRECTORIES>)
 target_link_libraries(tirex_tracker PRIVATE libgit2 libgit2package)
 
 # libzip
