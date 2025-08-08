@@ -83,6 +83,7 @@ CPMAddPackage(
 	EXCLUDE_FROM_ALL YES
 )
 set(ZLIB_LIBRARIES "zlibstatic")
+get_target_property(ZLIB_INCLUDE_DIRS zlibstatic INTERFACE_INCLUDE_DIRECTORIES)
 add_library(ZLIB::ZLIB ALIAS zlibstatic)  # ALIAS ZLIB::ZLIB to static since we want to link it statically to libzip
 
 # LibGit
