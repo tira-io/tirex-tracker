@@ -24,16 +24,28 @@
 namespace fs = std::filesystem;
 
 namespace tirex {
+	/**
+	 * @brief Represents a temporary file that is automatically deleted on destruction.
+	 * @details The TmpFile class encapsulates a filesystem path to a temporary file. When an instance of TmpFile goes
+	 * out of scope, its destructor removes the file from the filesystem. This ensures automatic cleanup of temporary
+	 * files without requiring explicit deletion by the caller.
+	 */
 	struct TmpFile {
-		fs::path path;
+		fs::path path; /**< @brief Path of the temporary file. */
 
-		TmpFile(fs::path path) : path(path) {}
+		explicit TmpFile(fs::path path) : path(path) {}
 		TmpFile(const TmpFile&) = delete;
 		TmpFile(TmpFile&&) = default;
 		TmpFile& operator=(const TmpFile&) = delete;
 		TmpFile& operator=(TmpFile&&) = default;
 
-		~TmpFile() { fs::remove(path); }
+		/**
+		 * @brief Deletes the managed temporary file.
+		 */
+		~TmpFile() {
+			if (!path.string().empty())
+				fs::remove(path);
+		}
 	};
 
 	using StatVal = std::variant<std::string, TmpFile, std::reference_wrapper<const tirex::TimeSeries<unsigned>>>;
