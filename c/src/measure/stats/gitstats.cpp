@@ -183,7 +183,7 @@ repoToArchive(git_repository* repo, const std::filesystem::path& archive) noexce
 		zip_error_init_with_code(&error, err);
 		tirex::log::error("gitstats", "Failed to create zip archive: {}", zip_error_strerror(&error));
 		zip_error_fini(&error);
-		return std23::unexpected{"Failed to archive repo"};
+		return std23::unexpected<std::string>{"Failed to archive repo"};
 	}
 	git_status_list* list;
 	git_status_options opts = GIT_STATUS_OPTIONS_INIT;
@@ -196,7 +196,7 @@ repoToArchive(git_repository* repo, const std::filesystem::path& archive) noexce
 		/** \todo root / entry->index_to_workdir->new_file.path may be a directory and this case is not yet handled correctly **/
 		if (!std::filesystem::is_regular_file(path)) {
 			tirex::log::critical("gitstats", "I can not yet archive correctly if there are unchecked folders");
-			return std23::unexpected{
+			return std23::unexpected<std::string>{
 					"Repositories containing unchecked folders are currently unsupported by GIT_ARCHIVE_PATH"
 			};
 		}
@@ -213,7 +213,7 @@ repoToArchive(git_repository* repo, const std::filesystem::path& archive) noexce
 	git_status_list_free(list);
 	if (zip_close(handle) < 0) {
 		tirex::log::error("gitstats", "Failed to write out archive: {}", zip_strerror(handle));
-		return std23::unexpected{"Failed to write out archive"};
+		return std23::unexpected<std::string>{"Failed to write out archive"};
 	}
 	return {};
 }

@@ -76,10 +76,14 @@ if (NOT (UNIX AND APPLE)) # CPPJouls does not support macos right now
 	target_link_libraries(tirex_tracker PRIVATE CPP_Joules)
 endif()
 
+# zlib (required by libgit and libzip)
+CPMAddPackage(URI "gh:madler/zlib@1.3.1" OPTIONS "ZLIB_BUILD_STATIC ON")
+add_library(ZLIB::ZLIB ALIAS zlibstatic)  # ALIAS ZLIB::ZLIB to static since we want to link it statically to libzip
+
 # LibGit
 CPMAddPackage(
 	URI "gh:libgit2/libgit2@1.8.4"
-	OPTIONS "USE_SSH OFF" "USE_HTTPS OFF" "REGEX_BACKEND builtin" "USE_BUNDLED_ZLIB ON" "BUILD_CLI OFF" "BUILD_TESTS OFF" "DEPRECATE_HARD OFF"
+	OPTIONS "USE_SSH OFF" "USE_HTTPS OFF" "REGEX_BACKEND builtin" "USE_BUNDLED_ZLIB OFF" "BUILD_CLI OFF" "BUILD_TESTS OFF" "DEPRECATE_HARD OFF"
 	EXCLUDE_FROM_ALL YES
 )
 #target_link_libraries(tirex_tracker PRIVATE libgit2package)
@@ -89,7 +93,7 @@ target_link_libraries(tirex_tracker PRIVATE libgit2 libgit2package)
 # libzip
 CPMAddPackage(
 	URI "gh:nih-at/libzip@1.11.3"
-	OPTIONS "ENABLE_OPENSSL OFF" "BUILD_TOOLS OFF" "BUILD_REGRESS OFF" "BUILD_OSSFUZZ OFF" "BUILD_EXAMPLES OFF" "BUILD_DOC OFF"
+	OPTIONS "LIBZIP_DO_INSTALL OFF" "ENABLE_OPENSSL OFF" "BUILD_TOOLS OFF" "BUILD_REGRESS OFF" "BUILD_OSSFUZZ OFF" "BUILD_EXAMPLES OFF" "BUILD_DOC OFF"
 	EXCLUDE_FROM_ALL YES
 )
 target_link_libraries(tirex_tracker PRIVATE zip)
