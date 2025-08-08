@@ -90,10 +90,19 @@ CPMAddPackage(
 #target_include_directories(tirex_tracker PRIVATE $<TARGET_PROPERTY:libgit2,INCLUDE_DIRECTORIES>)
 target_link_libraries(tirex_tracker PRIVATE libgit2 libgit2package)
 
+find_package(ZLIB)
+get_target_property(ZLIB_INCLUDE_DIRS ZLIB::ZLIB INTERFACE_INCLUDE_DIRECTORIES)
+get_target_property(ZLIB_LIBRARIES    ZLIB::ZLIB IMPORTED_LOCATION)
+
+find_package(ZLIB)
+message(::::${ZLIB_FOUND})
+message(::::${ZLIB_INCLUDE_DIRS})
+message(::::${ZLIB_LIBRARIES})
+
 # libzip
 CPMAddPackage(
 	URI "gh:nih-at/libzip@1.11.3"
-	OPTIONS "LIBZIP_DO_INSTALL OFF" "ENABLE_OPENSSL OFF" "BUILD_TOOLS OFF" "BUILD_REGRESS OFF" "BUILD_OSSFUZZ OFF" "BUILD_EXAMPLES OFF" "BUILD_DOC OFF"
+	OPTIONS "LIBZIP_DO_INSTALL OFF" "ENABLE_ZSTD OFF" "ENABLE_OPENSSL OFF" "BUILD_TOOLS OFF" "BUILD_REGRESS OFF" "BUILD_OSSFUZZ OFF" "BUILD_EXAMPLES OFF" "BUILD_DOC OFF"
 	EXCLUDE_FROM_ALL YES
 )
 target_link_libraries(tirex_tracker PRIVATE zip)
