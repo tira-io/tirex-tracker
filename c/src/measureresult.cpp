@@ -41,7 +41,7 @@ tirexError tirexResultEntryGetByIndex(const tirexResult* result, size_t index, t
 						*entry = {.source = source, .value = str.c_str(), .type = tirexResultType::TIREX_STRING};
 					},
 					[&](const tirex::TmpFile& file) {
-						*entry = {.source = source, .value = file.path.c_str(), .type = tirexResultType::TIREX_STRING};
+						*entry = {.source = source, .value = file.path.string().c_str(), .type = tirexResultType::TIREX_STRING};
 					},
 			},
 			value

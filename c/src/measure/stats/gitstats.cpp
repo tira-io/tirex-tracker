@@ -175,9 +175,9 @@ static std::string hashAllFiles(git_repository* repo) {
 static std23::expected<void, std::string>
 repoToArchive(git_repository* repo, const std::filesystem::path& archive) noexcept {
 	std::filesystem::path root = git_repository_workdir(repo);
-	tirex::log::debug("gitstats", "Archiving git repo at root {} to {}", root.c_str(), archive.c_str());
+	tirex::log::debug("gitstats", "Archiving git repo at root {} to {}", root.string().c_str(), archive.string().c_str());
 	int err;
-	auto handle = zip_open(archive.c_str(), ZIP_CREATE, &err);
+	auto handle = zip_open(archive.string().c_str(), ZIP_CREATE, &err);
 	if (handle == nullptr) {
 		zip_error_t error;
 		zip_error_init_with_code(&error, err);
@@ -200,7 +200,7 @@ repoToArchive(git_repository* repo, const std::filesystem::path& archive) noexce
 					"Repositories containing unchecked folders are currently unsupported by GIT_ARCHIVE_PATH"
 			};
 		}
-		auto source = zip_source_file(handle, path.c_str(), 0, 0);
+		auto source = zip_source_file(handle, path.string().c_str(), 0, 0);
 		if (source == nullptr) {
 			tirex::log::error("gitstats", "Error reading file: {}", entry->index_to_workdir->new_file.path);
 			continue; /** \todo handle pedantic? **/
