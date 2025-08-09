@@ -79,13 +79,13 @@ extern tirexResult_st* tirex::createMsrResultFromStats(tirex::Stats&& stats) {
 		 ++it) {
 		std::visit(
 				overloaded{
-						[&](const std::string& str) { result.emplace_back(it->first, std::move(str)); },
-						[&](tirex::TmpFile&& file) { result.emplace_back(it->first, std::move(file)); },
+						[&](const std::string& str) { result.emplace_back((*it).first, std::move(str)); },
+						[&](tirex::TmpFile&& file) { result.emplace_back((*it).first, std::move(file)); },
 						[&](const tirex::TimeSeries<unsigned>& timeseries) {
 							result.emplace_back(it->first, toYAML(timeseries));
 						}
 				},
-				std::move(it->second)
+				std::move((*it).second)
 		);
 	}
 	return new tirexResult_st(std::move(result));
