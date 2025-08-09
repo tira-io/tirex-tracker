@@ -82,7 +82,7 @@ extern tirexResult_st* tirex::createMsrResultFromStats(tirex::Stats&& stats) {
 						[&](const std::string& str) { result.emplace_back((*it).first, std::move(str)); },
 						[&](tirex::TmpFile&& file) { result.emplace_back((*it).first, std::move(file)); },
 						[&](const tirex::TimeSeries<unsigned>& timeseries) {
-							result.emplace_back(it->first, toYAML(timeseries));
+							result.emplace_back((*it).first, toYAML(timeseries));
 						}
 				},
 				std::move((*it).second)
