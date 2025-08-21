@@ -5,6 +5,25 @@
 
 #include <git2.h>
 #include <sha1.h>
+#include <zip.h>
+
+#if __cpp_lib_expected
+#include <expected>
+namespace std23 {
+	template <class T, class E>
+	using expected = std::expected<T, E>;
+	template <class E>
+	using unexpected = std::unexpected<E>;
+} // namespace std23
+#else
+#include <tl/expected.hpp>
+namespace std23 {
+	template <class T, class E>
+	using expected = tl::expected<T, E>;
+	template <class E>
+	using unexpected = tl::unexpected<E>;
+} // namespace std23
+#endif
 
 #include <filesystem>
 #include <fstream>
@@ -17,11 +36,20 @@ using tirex::GitStats;
 using tirex::Stats;
 
 const char* GitStats::version = "libgit v." LIBGIT2_VERSION;
-const std::set<tirexMeasure> GitStats::measures{TIREX_GIT_IS_REPO,			TIREX_GIT_HASH,
-												TIREX_GIT_LAST_COMMIT_HASH, TIREX_GIT_BRANCH,
-												TIREX_GIT_BRANCH_UPSTREAM,	TIREX_GIT_TAGS,
-												TIREX_GIT_REMOTE_ORIGIN,	TIREX_GIT_UNCOMMITTED_CHANGES,
-												TIREX_GIT_UNPUSHED_CHANGES, TIREX_GIT_UNCHECKED_FILES};
+const std::set<tirexMeasure> GitStats::measures{
+		TIREX_GIT_IS_REPO,
+		TIREX_GIT_HASH,
+		TIREX_GIT_LAST_COMMIT_HASH,
+		TIREX_GIT_BRANCH,
+		TIREX_GIT_BRANCH_UPSTREAM,
+		TIREX_GIT_TAGS,
+		TIREX_GIT_REMOTE_ORIGIN,
+		TIREX_GIT_UNCOMMITTED_CHANGES,
+		TIREX_GIT_UNPUSHED_CHANGES,
+		TIREX_GIT_UNCHECKED_FILES,
+		TIREX_GIT_ROOT,
+		TIREX_GIT_ARCHIVE_PATH
+};
 
 static std::string getLastCommitHash(git_repository* repo) {
 	git_oid id;
@@ -77,7 +105,7 @@ static std::string getRemoteOrigin(git_repository* repo) {
 }
 
 template <typename T>
-static int wrap(const char* name, git_oid* oid, void* payload) {
+static constexpr int wrap(const char* name, git_oid* oid, void* payload) {
 	auto& fn = *static_cast<T*>(payload);
 	return fn(name, oid);
 }
@@ -127,6 +155,11 @@ static std::string hashAllFiles(git_repository* repo) {
 	std::filesystem::path root = git_repository_workdir(repo);
 	for (size_t i = 0; i < changes; ++i) {
 		auto entry = git_status_byindex(list, i);
+		/** \todo root / entry->index_to_workdir->new_file.path may be a directory and this case is not yet handled correctly **/
+		if (!std::filesystem::is_regular_file(root / entry->index_to_workdir->new_file.path)) {
+			tirex::log::critical("gitstats", "I can not yet compute the hash correctly if there are unchecked folders");
+			abort();
+		}
 		std::ifstream is(root / entry->index_to_workdir->new_file.path, std::ios::binary);
 		if (!is) {
 			tirex::log::error("gitstats", "Error opening file: {}", entry->index_to_workdir->new_file.path);
@@ -137,6 +170,54 @@ static std::string hashAllFiles(git_repository* repo) {
 	}
 	git_status_list_free(list);
 	return hash.finalize().toString();
+}
+
+static std23::expected<void, std::string>
+repoToArchive(git_repository* repo, const std::filesystem::path& archive) noexcept {
+	std::filesystem::path root = git_repository_workdir(repo);
+	tirex::log::debug(
+			"gitstats", "Archiving git repo at root {} to {}", root.string().c_str(), archive.string().c_str()
+	);
+	int err;
+	auto handle = zip_open(archive.string().c_str(), ZIP_CREATE, &err);
+	if (handle == nullptr) {
+		zip_error_t error;
+		zip_error_init_with_code(&error, err);
+		tirex::log::error("gitstats", "Failed to create zip archive: {}", zip_error_strerror(&error));
+		zip_error_fini(&error);
+		return std23::unexpected<std::string>{"Failed to archive repo"};
+	}
+	git_status_list* list;
+	git_status_options opts = GIT_STATUS_OPTIONS_INIT;
+	opts.flags = GIT_STATUS_OPT_INCLUDE_UNTRACKED | GIT_STATUS_OPT_INCLUDE_UNMODIFIED;
+	git_status_list_new(&list, repo, &opts);
+	auto changes = git_status_list_entrycount(list);
+	for (size_t i = 0; i < changes; ++i) {
+		auto entry = git_status_byindex(list, i);
+		auto path = root / entry->index_to_workdir->new_file.path;
+		/** \todo root / entry->index_to_workdir->new_file.path may be a directory and this case is not yet handled correctly **/
+		if (!std::filesystem::is_regular_file(path)) {
+			tirex::log::critical("gitstats", "I can not yet archive correctly if there are unchecked folders");
+			return std23::unexpected<std::string>{
+					"Repositories containing unchecked folders are currently unsupported by GIT_ARCHIVE_PATH"
+			};
+		}
+		auto source = zip_source_file(handle, path.string().c_str(), 0, 0);
+		if (source == nullptr) {
+			tirex::log::error("gitstats", "Error reading file: {}", entry->index_to_workdir->new_file.path);
+			continue; /** \todo handle pedantic? **/
+		}
+		if (zip_file_add(handle, entry->index_to_workdir->new_file.path, source, ZIP_FL_OVERWRITE) < 0) {
+			tirex::log::error("gitstats", "Error adding file to archive: {}", entry->index_to_workdir->new_file.path);
+			continue; /** \todo handle pedantic? **/
+		}
+	}
+	git_status_list_free(list);
+	if (zip_close(handle) < 0) {
+		tirex::log::error("gitstats", "Failed to write out archive: {}", zip_strerror(handle));
+		return std23::unexpected<std::string>{"Failed to write out archive"};
+	}
+	return {};
 }
 
 struct GitStatusStats {
@@ -203,6 +284,10 @@ Stats GitStats::getInfo() {
 				status.numNew
 		);
 		tirex::log::info("gitstats", "Local is {} commits ahead and {} behind upstream", status.ahead, status.behind);
+		std::filesystem::path tmpfile{std::tmpnam(nullptr)};
+		if (enabled.contains(TIREX_GIT_ARCHIVE_PATH)) {
+			repoToArchive(repo, tmpfile);
+		}
 		auto [local, remote] = getBranchName(repo);
 		return makeFilteredStats(
 				enabled, std::pair{TIREX_GIT_IS_REPO, "1"s}, std::pair{TIREX_GIT_HASH, hashAllFiles(repo)},
@@ -212,7 +297,9 @@ Stats GitStats::getInfo() {
 				std::pair{TIREX_GIT_REMOTE_ORIGIN, getRemoteOrigin(repo)},
 				std::pair{TIREX_GIT_UNCOMMITTED_CHANGES, (status.numModified != 0) ? "1"s : "0"s},
 				std::pair{TIREX_GIT_UNPUSHED_CHANGES, ((status.ahead != 0) || remote.empty()) ? "1"s : "0"s},
-				std::pair{TIREX_GIT_UNCHECKED_FILES, (status.numNew != 0) ? "1"s : "0"s}
+				std::pair{TIREX_GIT_UNCHECKED_FILES, (status.numNew != 0) ? "1"s : "0"s},
+				std::pair{TIREX_GIT_ROOT, git_repository_workdir(repo)},
+				std::pair{TIREX_GIT_ARCHIVE_PATH, TmpFile{tmpfile}}
 		);
 	} else {
 		return makeFilteredStats(enabled, std::pair{TIREX_GIT_IS_REPO, "0"s});
