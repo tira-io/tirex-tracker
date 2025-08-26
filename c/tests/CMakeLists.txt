@@ -10,6 +10,7 @@ FetchContent_MakeAvailable(catch)
 
 add_executable(tests
 	# Add test files here
+	tracker.cpp
     measure/timeseries.cpp
 )
 

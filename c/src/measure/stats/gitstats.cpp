@@ -175,9 +175,7 @@ static std::string hashAllFiles(git_repository* repo) {
 static std23::expected<void, std::string>
 repoToArchive(git_repository* repo, const std::filesystem::path& archive) noexcept {
 	std::filesystem::path root = git_repository_workdir(repo);
-	tirex::log::debug(
-			"gitstats", "Archiving git repo at root {} to {}", root.string().c_str(), archive.string().c_str()
-	);
+	tirex::log::debug("gitstats", "Archiving git repo at root {} to {}", root.string(), archive.string());
 	int err;
 	auto handle = zip_open(archive.string().c_str(), ZIP_CREATE, &err);
 	if (handle == nullptr) {

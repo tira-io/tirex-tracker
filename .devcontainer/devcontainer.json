@@ -21,7 +21,13 @@
 				"ms-vscode.cpptools-extension-pack",
 				"jbenden.c-cpp-flylint",
 				"ms-vscode.live-server",
-				"cschlosser.doxdocgen"
+				"cschlosser.doxdocgen",
+				"ms-python.debugpy",
+				"ms-python.python",
+				"ms-python.black-formatter",
+				"ms-python.flake8",
+				"ms-python.mypy-type-checker",
+				"ms-python.isort"
 			],
 			"settings": {
 				"editor.rulers": [

@@ -527,9 +527,9 @@ def _recursive_defaultdict() -> dict:
 
 def _recursive_undefaultdict(dict: dict) -> dict:
     return {
-        key: _recursive_undefaultdict(value)
-        if isinstance(value, defaultdict)
-        else value
+        key: (
+            _recursive_undefaultdict(value) if isinstance(value, defaultdict) else value
+        )
         for key, value in dict.items()
     }
 
@@ -661,6 +661,7 @@ def measure_infos() -> Mapping[Measure, MeasureInfo]:
 
 
 def _parse_results(result: "Pointer[_Result]") -> Mapping[Measure, ResultEntry]:
+    print(f"Parse & Free {result}")
     num_entries_pointer = pointer(c_size_t())
     error_int = _LIBRARY.tirexResultEntryNum(result, num_entries_pointer)
     _handle_error(error_int)
@@ -852,6 +853,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
             self._export_ir_metadata(result)
 
     def _export_ir_metadata(self, result: "Pointer[_Result]") -> None:
+        print(f"Export {result}")
         if self._export_file_path is None:
             return
 
@@ -866,14 +868,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
             c_char_p(str(export_file_path.resolve()).encode(_ENCODING)),
         )
 
-        # Parse the initial ir_metadata.
-        buffer = Path(export_file_path).read_bytes()
-        if buffer.startswith(b"ir_metadata.start\n"):
-            buffer = buffer[len(b"ir_metadata.start\n") :]
-        if buffer.endswith(b"ir_metadata.end\n"):
-            buffer = buffer[: -len(b"ir_metadata.end\n")]
-
-        with BytesIO(buffer) as yaml_file:
+        with Path(export_file_path).open("rb") as yaml_file:
             tmp_ir_metadata = yaml_safe_load(yaml_file)
         ir_metadata = _recursive_defaultdict()
 
@@ -932,6 +927,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
 
             def file_open() -> IO[str]:
                 return gzip_open(export_file_path, "wt")
+
         else:
 
             def file_open() -> IO[str]:
