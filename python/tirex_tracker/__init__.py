@@ -17,7 +17,6 @@ from functools import wraps
 from gzip import open as gzip_open
 from importlib_metadata import distributions, version
 from importlib_resources import files
-from io import BytesIO
 from json import dumps, loads
 from pathlib import Path
 from sys import modules as sys_modules, executable, argv, platform, version_info
