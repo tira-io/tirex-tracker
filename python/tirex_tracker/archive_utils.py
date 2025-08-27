@@ -1,10 +1,10 @@
 from contextlib import redirect_stdout
 from pathlib import Path
 from traceback import extract_stack
-from typing import NamedTuple, Iterable, Optional
+from typing import Iterable, NamedTuple, Optional
 from zipfile import ZIP_DEFLATED, ZipFile
 
-from git import InvalidGitRepositoryError, Repo, IndexObject
+from git import IndexObject, InvalidGitRepositoryError, Repo
 from IPython import InteractiveShell, get_ipython
 
 
@@ -38,11 +38,7 @@ def _create_zip_archive(
         notebook_file_path=notebook_file_path,
         zip_file_path=zip_file_path,
         script_file_path_in_zip=script_file_path.relative_to(base_directory_path),
-        notebook_file_path_in_zip=(
-            notebook_file_path.relative_to(base_directory_path)
-            if notebook_file_path
-            else None
-        ),
+        notebook_file_path_in_zip=(notebook_file_path.relative_to(base_directory_path) if notebook_file_path else None),
     )
 
 
@@ -99,21 +95,9 @@ def create_git_zip_archive(
         except ValueError:
             return None
 
-        tracked_paths = (
-            Path(item.abspath)
-            for item in repo_items
-            if isinstance(item, IndexObject)
-        )
-        tracked_paths = (
-            path
-            for path in tracked_paths
-            if path.is_file()
-        )
-        tracked_paths = (
-            path
-            for path in tracked_paths
-            if script_file_path.parent in path.parents
-        )
+        tracked_paths = (Path(item.abspath) for item in repo_items if isinstance(item, IndexObject))
+        tracked_paths = (path for path in tracked_paths if path.is_file())
+        tracked_paths = (path for path in tracked_paths if script_file_path.parent in path.parents)
 
         return _create_zip_archive(
             metadata_directory_path=metadata_directory_path,

@@ -5,19 +5,19 @@ from time import sleep
 from typing import Collection, Mapping
 
 from tirex_tracker import (
-    provider_infos,
-    measure_infos,
-    fetch_info,
-    start_tracking,
-    stop_tracking,
-    tracking,
-    tracked,
-    track,
+    ALL_MEASURES,
+    ExportFormat,
     Measure,
     ResultEntry,
     ResultType,
-    ALL_MEASURES,
-    ExportFormat,
+    fetch_info,
+    measure_infos,
+    provider_infos,
+    start_tracking,
+    stop_tracking,
+    track,
+    tracked,
+    tracking,
 )
 
 faulthandler_enable()

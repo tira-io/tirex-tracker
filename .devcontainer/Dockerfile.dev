@@ -2,22 +2,44 @@
 FROM ghcr.io/tira-io/measure:dev-0.0.1
 # FROM ubuntu:focal
 
+ARG DEBIAN_FRONTEND=noninteractive
 
 ########################################################################################################################
 # Install Dependencies                                                                                                 #
 ########################################################################################################################
 USER root
-ARG DEBIAN_FRONTEND=noninteractive
 RUN <<EOF
 set -e
 apt-get update
 apt-get -y install clang-18 cmake git sudo
 
 # Needed for the dev environment
-apt-get -y install build-essential cppcheck flawfinder doxygen graphviz gdb clang-tidy clang-format python3-pip python3
+apt-get -y install build-essential cppcheck flawfinder doxygen graphviz gdb clang-tidy clang-format
 
 # Dependencies (libssl-dev needed for libgit)
 apt-get -y install libssl-dev
+EOF
+
+########################################################################################################################
+# Python Development                                                                                                   #
+########################################################################################################################
+USER root
+RUN <<EOF
+set -e
+apt-get update
+apt-get -y install python3-pip python3
+EOF
+
+
+########################################################################################################################
+# Kotlin Development                                                                                                   #
+########################################################################################################################
+USER root
+RUN <<EOF
+set -e
+apt-get update
+apt-get -y install openjdk-21-jdk
+# TODO: install kotlin
 EOF
 
 ########################################################################################################################

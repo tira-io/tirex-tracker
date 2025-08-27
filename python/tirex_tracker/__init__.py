@@ -1,60 +1,53 @@
 from collections import defaultdict
-from ctypes import (
-    cdll,
-    CDLL,
-    c_char_p,
-    c_size_t,
-    c_void_p,
-    c_int,
-    Structure,
-    pointer,
-    POINTER,
-    CFUNCTYPE,
-)
+from ctypes import CDLL, CFUNCTYPE, POINTER, Structure, c_char_p, c_int, c_size_t, c_void_p, cdll, pointer
 from dataclasses import dataclass
-from enum import IntEnum, Enum
+from enum import Enum, IntEnum
 from functools import wraps
 from gzip import open as gzip_open
-from importlib_metadata import distributions, version
-from importlib_resources import files
 from json import dumps, loads
 from pathlib import Path
-from sys import modules as sys_modules, executable, argv, platform, version_info
+from sys import argv, executable
+from sys import modules as sys_modules
+from sys import platform, version_info
 from traceback import extract_stack
 from typing import (
     IO,
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Collection,
+    ContextManager,
     ItemsView,
+    Iterable,
     Iterator,
     KeysView,
+    List,
+    Mapping,
+    MutableMapping,
     NamedTuple,
     Optional,
-    Callable,
+    Protocol,
+    Tuple,
+    TypeVar,
+    Union,
     ValuesView,
     cast,
-    Collection,
-    Iterable,
-    Protocol,
-    Mapping,
-    Any,
-    TYPE_CHECKING,
-    TypeVar,
-    List,
     overload,
-    Union,
-    MutableMapping,
-    Tuple,
-    ContextManager,
 )
 
+from importlib_metadata import distributions, version
+from importlib_resources import files
 from IPython import get_ipython
 from typing_extensions import ParamSpec, Self, TypeAlias  # type: ignore
-from yaml import safe_load as yaml_safe_load, safe_dump as yaml_safe_dump
+from yaml import safe_dump as yaml_safe_dump
+from yaml import safe_load as yaml_safe_load
 
 from tirex_tracker.archive_utils import create_code_archive, git_repo_or_none
 
-
 if TYPE_CHECKING:
-    from ctypes import _Pointer as Pointer, _CFunctionType as CFunctionType, Array  # type: ignore
+    from ctypes import Array
+    from ctypes import _CFunctionType as CFunctionType
+    from ctypes import _Pointer as Pointer  # type: ignore
 
 PathLike: TypeAlias = Optional[Union[str, Path]]
 
@@ -215,9 +208,7 @@ class _MeasureConfiguration(Structure):
     ]
 
 
-_NULL_MEASURE_CONFIGURATION = _MeasureConfiguration(
-    _INVALID_MEASURE, _INVALID_AGGREGATION
-)
+_NULL_MEASURE_CONFIGURATION = _MeasureConfiguration(_INVALID_MEASURE, _INVALID_AGGREGATION)
 
 
 class LogLevel(IntEnum):
@@ -283,9 +274,7 @@ class _ProviderInfo(Structure):
         return ProviderInfo(
             name=self.name.decode(_ENCODING),
             description=self.description.decode(_ENCODING),
-            version=(
-                self.version.decode(_ENCODING) if self.version is not None else None
-            ),
+            version=(self.version.decode(_ENCODING) if self.version is not None else None),
         )
 
 
@@ -422,25 +411,14 @@ def _get_python_info(
         measures=measures,
         value=argv,
     )
-    modules = sorted(
-        {
-            module.split(".")[0]
-            for module in sys_modules.keys()
-            if not module.startswith("_")
-        }
-    )
+    modules = sorted({module.split(".")[0] for module in sys_modules.keys() if not module.startswith("_")})
     _add_python_result_entry(
         results=results,
         measure=Measure.PYTHON_MODULES,
         measures=measures,
         value=modules,
     )
-    installed_packages = sorted(
-        {
-            f"{distribution.name}=={distribution.version}"
-            for distribution in distributions()
-        }
-    )
+    installed_packages = sorted({f"{distribution.name}=={distribution.version}" for distribution in distributions()})
     _add_python_result_entry(
         results=results,
         measure=Measure.PYTHON_INSTALLED_PACKAGES,
@@ -500,20 +478,14 @@ def _get_python_info(
                 value=str(archive_paths.notebook_file_path_in_zip),
             )
 
-    measures = {
-        measure for measure in measures if measure not in _PYTHON_MEASURES.keys()
-    }
+    measures = {measure for measure in measures if measure not in _PYTHON_MEASURES.keys()}
 
     return results, measures
 
 
 def _deep_merge(dict1: dict, dict2: dict) -> dict:
     for key in dict2:
-        if (
-            key in dict1
-            and isinstance(dict1[key], dict)
-            and isinstance(dict2[key], dict)
-        ):
+        if key in dict1 and isinstance(dict1[key], dict) and isinstance(dict2[key], dict):
             _deep_merge(dict1[key], dict2[key])
         else:
             dict1[key] = dict2[key]
@@ -526,9 +498,7 @@ def _recursive_defaultdict() -> dict:
 
 def _recursive_undefaultdict(dict: dict) -> dict:
     return {
-        key: (
-            _recursive_undefaultdict(value) if isinstance(value, defaultdict) else value
-        )
+        key: (_recursive_undefaultdict(value) if isinstance(value, defaultdict) else value)
         for key, value in dict.items()
     }
 
@@ -538,26 +508,16 @@ class ExportFormat(Enum):
 
 
 class _TirexTrackerLibrary(CDLL):
-    tirexResultEntryGetByIndex: Callable[
-        ["Pointer[_Result]", c_size_t, "Pointer[_ResultEntry]"], int
-    ]
+    tirexResultEntryGetByIndex: Callable[["Pointer[_Result]", c_size_t, "Pointer[_ResultEntry]"], int]
     tirexResultEntryNum: Callable[["Pointer[_Result]", "Pointer[c_size_t]"], int]
     tirexResultFree: Callable[["Pointer[_Result]"], None]
-    tirexFetchInfo: Callable[
-        ["Array[_MeasureConfiguration]", "Pointer[Pointer[_Result]]"], int
-    ]
-    tirexStartTracking: Callable[
-        ["Array[_MeasureConfiguration]", int, "Pointer[Pointer[_TrackingHandle]]"], int
-    ]
-    tirexStopTracking: Callable[
-        ["Pointer[_TrackingHandle]", "Pointer[Pointer[_Result]]"], int
-    ]
+    tirexFetchInfo: Callable[["Array[_MeasureConfiguration]", "Pointer[Pointer[_Result]]"], int]
+    tirexStartTracking: Callable[["Array[_MeasureConfiguration]", int, "Pointer[Pointer[_TrackingHandle]]"], int]
+    tirexStopTracking: Callable[["Pointer[_TrackingHandle]", "Pointer[Pointer[_Result]]"], int]
     tirexSetLogCallback: Callable[["CFunctionType"], None]
     tirexDataProviderGetAll: Callable[["Array[_ProviderInfo]", int], int]
     tirexMeasureInfoGet: Callable[[int, "Pointer[Pointer[_MeasureInfo]]"], int]
-    tirexResultExportIrMetadata: Callable[
-        ["Pointer[_Result]", "Pointer[_Result]", c_char_p], int
-    ]
+    tirexResultExportIrMetadata: Callable[["Pointer[_Result]", "Pointer[_Result]", c_char_p], int]
 
 
 def _find_library() -> Path:
@@ -637,12 +597,8 @@ def provider_infos() -> Collection[ProviderInfo]:
         return []
     providers: "Array[_ProviderInfo]" = (_ProviderInfo * num_providers)()
     _LIBRARY.tirexDataProviderGetAll(providers, num_providers)
-    providers_iterable: Iterable[_ProviderInfo] = cast(
-        Iterable[_ProviderInfo], providers
-    )
-    return [provider.to_provider() for provider in providers_iterable] + [
-        _PYTHON_PROVIDER
-    ]
+    providers_iterable: Iterable[_ProviderInfo] = cast(Iterable[_ProviderInfo], providers)
+    return [provider.to_provider() for provider in providers_iterable] + [_PYTHON_PROVIDER]
 
 
 def measure_infos() -> Mapping[Measure, MeasureInfo]:
@@ -668,9 +624,7 @@ def _parse_results(result: "Pointer[_Result]") -> Mapping[Measure, ResultEntry]:
     entries: List[ResultEntry] = []
     for index in range(num_entries):
         entry_pointer = pointer(_ResultEntry())
-        error_int = _LIBRARY.tirexResultEntryGetByIndex(
-            result, c_size_t(index), entry_pointer
-        )
+        error_int = _LIBRARY.tirexResultEntryGetByIndex(result, c_size_t(index), entry_pointer)
         _handle_error(error_int)
         entries.append(entry_pointer.contents.to_result_entry())
     _LIBRARY.tirexResultFree(result)
@@ -681,10 +635,9 @@ def _parse_results(result: "Pointer[_Result]") -> Mapping[Measure, ResultEntry]:
 def _prepare_measure_configurations(
     measures: Iterable[Measure],
 ) -> "Array[_MeasureConfiguration]":
-    configs = [
-        _MeasureConfiguration(measure.value, Aggregation.NO.value)
-        for measure in measures
-    ] + [_NULL_MEASURE_CONFIGURATION]
+    configs = [_MeasureConfiguration(measure.value, Aggregation.NO.value) for measure in measures] + [
+        _NULL_MEASURE_CONFIGURATION
+    ]
     configs_array = (_MeasureConfiguration * (len(configs)))(*configs)
     return configs_array
 
@@ -732,9 +685,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         export_format: Optional[ExportFormat] = None,
     ) -> Self:
         # Get Python info first, and then strip Python measures from the list.
-        python_info, measures = _get_python_info(
-            measures=measures, export_file_path=export_file_path
-        )
+        python_info, measures = _get_python_info(measures=measures, export_file_path=export_file_path)
 
         # Prepare the measure configurations.
         configs_array = _prepare_measure_configurations(measures)
@@ -747,9 +698,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
 
         # Start the tracking.
         tracking_handle_pointer = pointer(pointer(_TrackingHandle()))
-        error_int = _LIBRARY.tirexStartTracking(
-            configs_array, poll_intervall_ms, tracking_handle_pointer
-        )
+        error_int = _LIBRARY.tirexStartTracking(configs_array, poll_intervall_ms, tracking_handle_pointer)
         _handle_error(error_int)
         tracking_handle = tracking_handle_pointer.contents
 
@@ -793,9 +742,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
 
     @overload
     def get(self, key: Measure, default: T) -> Union[ResultEntry, T]: ...
-    def get(
-        self, key: Measure, default: Optional[T] = None
-    ) -> Optional[Union[ResultEntry, T]]:
+    def get(self, key: Measure, default: Optional[T] = None) -> Optional[Union[ResultEntry, T]]:
         return self.results.get(key, default)
 
     def __contains__(self, key) -> bool:
@@ -878,18 +825,10 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
             ir_metadata["method"]["description"] = self._system_description
 
         # Add Python-specific metadata.
-        ir_metadata["implementation"]["executable"]["cmd"] = loads(
-            self._python_info[Measure.PYTHON_EXECUTABLE].value
-        )
-        ir_metadata["implementation"]["executable"]["args"] = loads(
-            self._python_info[Measure.PYTHON_ARGUMENTS].value
-        )
-        ir_metadata["implementation"]["executable"]["version"] = loads(
-            self._python_info[Measure.PYTHON_VERSION].value
-        )
-        ir_metadata["implementation"]["python"]["modules"] = loads(
-            self._python_info[Measure.PYTHON_VERSION].value
-        )
+        ir_metadata["implementation"]["executable"]["cmd"] = loads(self._python_info[Measure.PYTHON_EXECUTABLE].value)
+        ir_metadata["implementation"]["executable"]["args"] = loads(self._python_info[Measure.PYTHON_ARGUMENTS].value)
+        ir_metadata["implementation"]["executable"]["version"] = loads(self._python_info[Measure.PYTHON_VERSION].value)
+        ir_metadata["implementation"]["python"]["modules"] = loads(self._python_info[Measure.PYTHON_VERSION].value)
         ir_metadata["implementation"]["python"]["packages"] = loads(
             self._python_info[Measure.PYTHON_INSTALLED_PACKAGES].value
         )
@@ -912,9 +851,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         )
         if Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE in self._python_info:
             ir_metadata["implementation"]["source"]["archive"]["notebook path"] = loads(
-                self._python_info[
-                    Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE
-                ].value
+                self._python_info[Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE].value
             )
 
         ir_metadata = _deep_merge(ir_metadata, tmp_ir_metadata)
