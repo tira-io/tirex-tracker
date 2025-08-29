@@ -1,6 +1,6 @@
 # docker build -t ghcr.io/tira-io/measure:dev-0.0.2 -f .devcontainer/Dockerfile.dev .
-FROM ghcr.io/tira-io/measure:dev-0.0.1
-# FROM ubuntu:focal
+# FROM ghcr.io/tira-io/measure:dev-0.0.1
+FROM ubuntu:noble
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -38,15 +38,16 @@ USER root
 RUN <<EOF
 set -e
 apt-get update
-apt-get -y install openjdk-21-jdk
+apt-get -y install openjdk-8-jdk openjdk-17-jdk openjdk-21-jdk
 # TODO: install kotlin
 EOF
+
 
 ########################################################################################################################
 # Create User                                                                                                          #
 ########################################################################################################################
 # Change root Password to 1234
-#RUN echo 'root:1234' | chpasswd
+RUN echo 'root:1234' | chpasswd
 # Create new user: "dev"
-#RUN useradd -ms /bin/bash dev
+RUN useradd -ms /bin/bash dev
 USER dev

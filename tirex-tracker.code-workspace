@@ -1,0 +1,20 @@
+{
+    "folders": [
+        {
+            "name": "C API & Implementation",
+            "path": "c"
+        },
+        {
+            "name": "Python API",
+            "path": "python"
+        },
+        {
+            "name": "JVM API",
+            "path": "jvm"
+        },
+        {
+            "name": "Root",
+            "path": "."
+        },
+    ],
+}

@@ -77,10 +77,8 @@ enum class Measure(val value: Int) {
     GIT_UNCOMMITTED_CHANGES(41), //
     GIT_UNPUSHED_CHANGES(42), //
     GIT_UNCHECKED_FILES(43), //
-    TIREX_TIME_START(44), //
-    TIREX_TIME_STOP(45), //
-    TIREX_GIT_ROOT(46), //
-    TIREX_GIT_ARCHIVE_PATH(47), //
+    GIT_ROOT(46), //
+    GIT_ARCHIVE_PATH(47), //
     JAVA_VERSION(2001),
     JAVA_VERSION_DATE(2002), //
     JAVA_VENDOR(2003), //
