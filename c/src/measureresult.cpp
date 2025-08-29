@@ -38,7 +38,11 @@ tirexError tirexResultEntryGetByIndex(const tirexResult* result, size_t index, t
 	std::visit(
 			overloaded{
 					[&](const std::string& str) {
-						*entry = {.source = source, .value = str.c_str(), .type = tirex::utils::getResultType<decltype(str.c_str())>()};
+						*entry = {
+								.source = source,
+								.value = str.c_str(),
+								.type = tirex::utils::getResultType<decltype(str.c_str())>()
+						};
 					},
 					[&](const tirex::TmpFile& file) {
 						*entry = {

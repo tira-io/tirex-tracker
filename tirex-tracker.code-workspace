@@ -18,6 +18,7 @@
         },
     ],
     "settings": {
-        "C_Cpp.autoAddFileAssociations": false
+        "C_Cpp.autoAddFileAssociations": false,
+        "editor.formatOnSave": true
     },
 }
