@@ -21,7 +21,6 @@ public class JavaTrackerTest {
 
     @Test
     public void testProviderInfos() {
-        System.out.println("Hello World");
         Collection<ProviderInfo> actual = getProviderInfos();
 
         assertNotNull(actual);
