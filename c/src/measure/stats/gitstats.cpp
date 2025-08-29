@@ -155,10 +155,17 @@ static std::string hashAllFiles(git_repository* repo) {
 	std::filesystem::path root = git_repository_workdir(repo);
 	for (size_t i = 0; i < changes; ++i) {
 		auto entry = git_status_byindex(list, i);
-		/** \todo root / entry->index_to_workdir->new_file.path may be a directory and this case is not yet handled correctly **/
 		if (!std::filesystem::is_regular_file(root / entry->index_to_workdir->new_file.path)) {
-			tirex::log::critical("gitstats", "I can not yet compute the hash correctly if there are unchecked folders");
-			abort();
+			tirex::log::warn(
+					"gitstats", "The folder {} is not checked into the repository nor ignored!",
+					entry->index_to_workdir->new_file.path
+			);
+			tirex::log::warn(
+					"gitstats", "I will not include it in the hash. Please add it to the .gitignore if is not part of "
+								"your codebase or check it into the repository if it should be."
+			);
+			/** \todo if pedantic abort here **/
+			// abort();
 		}
 		std::ifstream is(root / entry->index_to_workdir->new_file.path, std::ios::binary);
 		if (!is) {
@@ -193,12 +200,19 @@ repoToArchive(git_repository* repo, const std::filesystem::path& archive) noexce
 	for (size_t i = 0; i < changes; ++i) {
 		auto entry = git_status_byindex(list, i);
 		auto path = root / entry->index_to_workdir->new_file.path;
-		/** \todo root / entry->index_to_workdir->new_file.path may be a directory and this case is not yet handled correctly **/
 		if (!std::filesystem::is_regular_file(path)) {
-			tirex::log::critical("gitstats", "I can not yet archive correctly if there are unchecked folders");
-			return std23::unexpected<std::string>{
-					"Repositories containing unchecked folders are currently unsupported by GIT_ARCHIVE_PATH"
-			};
+			tirex::log::warn(
+					"gitstats", "The folder {} is not checked into the repository nor ignored!",
+					entry->index_to_workdir->new_file.path
+			);
+			tirex::log::warn(
+					"gitstats", "I will not include it in the archive. Please add it to the .gitignore if is not part "
+								"of your codebase or check it into the repository if it should be."
+			);
+			/** \todo return unexpected if pedantic **/
+			/*return std23::unexpected<std::string>{
+					"The repositories contains an unchecked folder. Add it to .gitignore or check it into the repository."
+			};*/
 		}
 		auto source = zip_source_file(handle, path.string().c_str(), 0, 0);
 		if (source == nullptr) {
@@ -282,7 +296,21 @@ Stats GitStats::getInfo() {
 				status.numNew
 		);
 		tirex::log::info("gitstats", "Local is {} commits ahead and {} behind upstream", status.ahead, status.behind);
+		/**
+		 * clang complains that std::tmpnam is deprecated. [cppreference](https://en.cppreference.com/w/cpp/io/c/tmpnam)
+		 * does not seem to know about its deprecation. The C pendant, tmpnam, seems to be deprecated though
+		 * (https://www.man7.org/linux/man-pages/man3/tmpnam.3.html). However luckily we are not using C. The suggested
+		 * alternatives are mkstemp (POSIX and not standard C) or tmpnam. tmpnam does not do what we need since it
+		 * directly opens and manages the file for us but we need a *path* to a temporary file. std::tmpnam is
+		 * discouraged since there is a slight chance that someone else could get the same name with std::tmpnam and
+		 * create the same temporary file as well (a race condition). One way to make the chance of this happening even
+		 * lower could be to directly create the file afterwards but we can't entirely remove the risk and the chances
+		 * are quite low anyway.
+		 */
+		#pragma clang diagnostic push
+		#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 		std::filesystem::path tmpfile{std::tmpnam(nullptr)};
+		#pragma clang diagnostic pop
 		if (enabled.contains(TIREX_GIT_ARCHIVE_PATH)) {
 			repoToArchive(repo, tmpfile);
 		}
