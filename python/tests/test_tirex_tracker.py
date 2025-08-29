@@ -13,7 +13,6 @@ from tirex_tracker import (
     fetch_info,
     measure_infos,
     provider_infos,
-    set_log_callback,
     start_tracking,
     stop_tracking,
     track,
