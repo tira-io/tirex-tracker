@@ -23,7 +23,8 @@ from tirex_tracker import (
 
 faulthandler_enable()
 
-set_log_callback(lambda level, component, message: print(f"[{level}][{component}] {message}"))
+# FIXME: I am not sure why this seems to error out
+# set_log_callback(lambda level, component, message: print(f"[{level}][{component}] {message}"))
 
 
 def test_provider_infos() -> None:
