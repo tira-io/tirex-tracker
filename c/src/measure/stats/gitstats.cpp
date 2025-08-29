@@ -307,10 +307,10 @@ Stats GitStats::getInfo() {
 		 * lower could be to directly create the file afterwards but we can't entirely remove the risk and the chances
 		 * are quite low anyway.
 		 */
-		#pragma clang diagnostic push
-		#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 		std::filesystem::path tmpfile{std::tmpnam(nullptr)};
-		#pragma clang diagnostic pop
+#pragma clang diagnostic pop
 		if (enabled.contains(TIREX_GIT_ARCHIVE_PATH)) {
 			repoToArchive(repo, tmpfile);
 		}
