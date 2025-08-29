@@ -46,7 +46,7 @@ from tirex_tracker.archive_utils import create_code_archive, git_repo_or_none
 
 if TYPE_CHECKING:
     from ctypes import Array
-    from ctypes import _CFunctionType as CFunctionType
+    from ctypes import _CFunctionType as CFunctionType  # type: ignore
     from ctypes import _Pointer as Pointer  # type: ignore
 
 PathLike: TypeAlias = Optional[Union[str, Path]]

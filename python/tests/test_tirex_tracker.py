@@ -13,6 +13,7 @@ from tirex_tracker import (
     fetch_info,
     measure_infos,
     provider_infos,
+    set_log_callback,
     start_tracking,
     stop_tracking,
     track,
@@ -21,6 +22,8 @@ from tirex_tracker import (
 )
 
 faulthandler_enable()
+
+set_log_callback(lambda level, component, message: print(f"[{level}][{component}] {message}"))
 
 
 def test_provider_infos() -> None:
