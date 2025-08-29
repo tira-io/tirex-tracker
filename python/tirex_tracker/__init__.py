@@ -614,7 +614,6 @@ def measure_infos() -> Mapping[Measure, MeasureInfo]:
 
 
 def _parse_results(result: "Pointer[_Result]") -> Mapping[Measure, ResultEntry]:
-    print(f"Parse & Free {result}")
     num_entries_pointer = pointer(c_size_t())
     error_int = _LIBRARY.tirexResultEntryNum(result, num_entries_pointer)
     _handle_error(error_int)
@@ -797,7 +796,6 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
             self._export_ir_metadata(result)
 
     def _export_ir_metadata(self, result: "Pointer[_Result]") -> None:
-        print(f"Export {result}")
         if self._export_file_path is None:
             return
 
