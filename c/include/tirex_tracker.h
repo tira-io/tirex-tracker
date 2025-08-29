@@ -153,7 +153,36 @@ typedef struct tirexMeasureHandle_st tirexMeasureHandle;
  * @brief 
  * @details Note: Currently unused
  */
-typedef enum tirexResultType_enum { TIREX_STRING = 0, TIREX_INTEGER = 1, TIREX_FLOATING = 2 } tirexResultType;
+typedef enum tirexResultType_enum {
+	TIREX_STRING = 0,
+	TIREX_INTEGER = 1,
+	TIREX_FLOATING = 2,
+	TIREX_BOOLEAN = 3,
+	TIREX_WSTRING = 4,
+	/**
+	 * @brief Denotes a list type. TIREX_LIST itself is not a valid datatype but can be used to check if a type is an
+	 * aggregate via `int islist = (type & TIREX_LIST) != 0;`.
+	 */
+	TIREX_LIST = 1 << 7,
+	TIREX_STRING_LIST = TIREX_STRING | TIREX_LIST,
+	TIREX_INTEGER_LIST = TIREX_INTEGER | TIREX_LIST,
+	TIREX_FLOATING_LIST = TIREX_FLOATING | TIREX_LIST,
+	TIREX_BOOLEAN_LIST = TIREX_BOOLEAN | TIREX_LIST,
+	TIREX_WSTRING_LIST = TIREX_WSTRING | TIREX_LIST,
+} tirexResultType;
+
+#if __cplusplus || __STDC_VERSION__ >= 202311L
+// Do nothing since static_assert does not need to be included
+#elif __STDC_VERSION__ >= 201112L
+#include <assert.h>
+#else
+// Static assertions are not possible so ignore them
+#ifndef static_assert
+#define static_assert(cond, msg)
+#endif
+#endif
+
+static_assert(sizeof(tirexResultType) == 4);
 
 /**
  * @brief Holds a handle to the results of a measurement.

@@ -154,8 +154,13 @@ class ResultType(IntEnum):
     STRING = 0
     INTEGER = 1
     FLOATING = 2
-    STRING_LIST = 3
-    BOOLEAN = 4
+    BOOLEAN = 3
+    WSTRING = 4
+    STRING_LIST = STRING | 1 << 7
+    INTEGER_LIST = INTEGER | 1 << 7
+    FLOATING_LIST = FLOATING | 1 << 7
+    BOOLEAN_LIST = BOOLEAN | 1 << 7
+    WSTRING_LIST = WSTRING | 1 << 7
 
 
 class _Result(Structure):

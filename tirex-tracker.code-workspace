@@ -17,4 +17,7 @@
             "path": "."
         },
     ],
+    "settings": {
+        "C_Cpp.autoAddFileAssociations": false
+    },
 }

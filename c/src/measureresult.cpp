@@ -2,6 +2,7 @@
 
 #include "measure/stats/provider.hpp"
 #include "measure/utils/rangeutils.hpp"
+#include "measure/utils/tirexutils.hpp"
 
 #if __cpp_lib_format and __cplusplus >= 202207L // __cplusplus >= 202207L required for std::format_string
 #include <format>
@@ -37,11 +38,14 @@ tirexError tirexResultEntryGetByIndex(const tirexResult* result, size_t index, t
 	std::visit(
 			overloaded{
 					[&](const std::string& str) {
-						*entry = {.source = source, .value = str.c_str(), .type = tirexResultType::TIREX_STRING};
+						*entry = {.source = source, .value = str.c_str(), .type = tirex::utils::getResultType<decltype(str.c_str())>()};
 					},
 					[&](const tirex::TmpFile& file) {
-						/** FIXME: this will be problematic under windows since windows uses wchar paths instead of char */
-						*entry = {.source = source, .value = file.path.c_str(), .type = tirexResultType::TIREX_STRING};
+						*entry = {
+								.source = source,
+								.value = file.path.c_str(),
+								.type = tirex::utils::getResultType<decltype(file.path.c_str())>()
+						};
 					},
 			},
 			value

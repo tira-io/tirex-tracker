@@ -701,8 +701,8 @@ jobs:
           - ubuntu-24.04
           - macos-14
           - macos-15
-          # - windows-2022  # FIXME: does not seem to work right now
-          # - windows-2025  # FIXME: does not seem to work right now
+          - windows-2022  # FIXME: does not seem to work right now
+          - windows-2025  # FIXME: does not seem to work right now
     runs-on: ${{ matrix.runs-on }}
     needs:
       - c-build-library
