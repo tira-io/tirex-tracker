@@ -2,7 +2,10 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 
+from tirex_tracker import set_log_callback
 from tirex_tracker.archive_utils import create_git_zip_archive
+
+set_log_callback(lambda level, component, message: print(f"[{level}][{component}] {message}"))
 
 _EXAMPLE_GIT_REPOSITORY_PATH = Path(__file__).parent / "resources" / "example-git-repositories.zip"
 

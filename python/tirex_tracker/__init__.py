@@ -184,13 +184,6 @@ class _ResultEntry(Structure):
         ("type", c_int),
     ]
 
-    def to_result_entry(self) -> ResultEntry:
-        return ResultEntry(
-            source=Measure(self.source),
-            value=self.value.decode(_ENCODING),
-            type=ResultType(self.type),
-        )
-
 
 class ResultsAccessor(Protocol):
     results: Mapping[Measure, ResultEntry]
@@ -226,34 +219,6 @@ class LogLevel(IntEnum):
 class LogCallback(Protocol):
     def __call__(self, level: LogLevel, component: str, message: str) -> None:
         pass
-
-
-def _noop_log_callback(level: LogLevel, component: str, message: str):
-    return None
-
-
-def _to_native_log_callback(log_callback: LogCallback) -> "CFunctionType":
-    @CFUNCTYPE(c_void_p, c_int, c_char_p, c_char_p)
-    def _log_callback(level: c_int, component: c_char_p, message: c_char_p) -> c_void_p:
-        if log_callback is _noop_log_callback:
-            return c_void_p()  # Do nothing.
-
-        component_bytes = component.value
-        if component_bytes is None:
-            raise ValueError("Component not set.")
-        message_bytes = message.value
-        if message_bytes is None:
-            raise ValueError("Message not set.")
-
-        log_callback(
-            LogLevel(level.value),
-            component_bytes.decode(_ENCODING),
-            message_bytes.decode(_ENCODING),
-        )
-
-        return c_void_p()
-
-    return _log_callback
 
 
 class ProviderInfo(NamedTuple):
@@ -590,8 +555,18 @@ def _handle_error(error_int: int) -> None:
         raise ValueError("Invalid argument in native call.")
 
 
-def set_log_callback(log_callback: LogCallback = _noop_log_callback) -> None:
-    _LIBRARY.tirexSetLogCallback(_to_native_log_callback(log_callback))
+def set_log_callback(log_callback: Optional[LogCallback] = None) -> None:
+    def _to_native_log_callback(log_callback: LogCallback):
+        @CFUNCTYPE(None, c_int, c_char_p, c_char_p)
+        def _log_callback(level: int, component: bytes, message: bytes) -> None:
+            log_callback(LogLevel(level), component.decode(_ENCODING), message.decode(_ENCODING))
+
+        return _log_callback
+
+    global callback  # We need to store a reference to the callback to avoid deletion through GC
+    callback = _to_native_log_callback(log_callback) if log_callback is not None else None
+
+    _LIBRARY.tirexSetLogCallback(callback)
 
 
 def provider_infos() -> Collection[ProviderInfo]:
@@ -619,6 +594,8 @@ def measure_infos() -> Mapping[Measure, MeasureInfo]:
 
 
 def _parse_results(result: "Pointer[_Result]") -> Mapping[Measure, ResultEntry]:
+    from ._utils.results import resultEntryToPython  # avoid circular imports
+
     num_entries_pointer = pointer(c_size_t())
     error_int = _LIBRARY.tirexResultEntryNum(result, num_entries_pointer)
     _handle_error(error_int)
@@ -628,7 +605,7 @@ def _parse_results(result: "Pointer[_Result]") -> Mapping[Measure, ResultEntry]:
         entry_pointer = pointer(_ResultEntry())
         error_int = _LIBRARY.tirexResultEntryGetByIndex(result, c_size_t(index), entry_pointer)
         _handle_error(error_int)
-        entries.append(entry_pointer.contents.to_result_entry())
+        entries.append(resultEntryToPython(entry_pointer.contents))
     _LIBRARY.tirexResultFree(result)
     results = {entry.source: entry for entry in entries}
     return results
