@@ -79,7 +79,7 @@ jobs:
           opencppcoverage: false
           git: true
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 📥 Fetch tags
         continue-on-error: true
         run: |
@@ -122,7 +122,7 @@ jobs:
           clangtidy: true
           setup-cpp: false
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 🔍 Check Codestyle
         working-directory: ${{github.workspace}}/c/
         run: find src/ include/ -type f -iregex '^.*\.\(c\|h\|cpp\|hpp\|cc\|hh\)$' | xargs clang-format-19 --dry-run --Werror --Wno-error=unknown
@@ -195,7 +195,7 @@ jobs:
           opencppcoverage: false
           git: true
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 📥 Fetch tags
         continue-on-error: true
         run: |
@@ -257,7 +257,7 @@ jobs:
           opencppcoverage: false
           git: true
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 📥 Fetch tags
         continue-on-error: true
         run: |
@@ -290,7 +290,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 🧰 Install JDK 8 (for compiling)
         uses: actions/setup-java@v4
         with:
@@ -359,7 +359,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 🧰 Install JDK 8 (for compiling)
         uses: actions/setup-java@v4
         with:
@@ -422,7 +422,7 @@ jobs:
       - jvm-check
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 🧰 Install JDK 8 (for compiling)
         uses: actions/setup-java@v4
         with:
@@ -519,7 +519,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
@@ -570,7 +570,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
@@ -614,7 +614,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
@@ -658,7 +658,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
@@ -709,7 +709,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 🧰 Install Python
         uses: actions/setup-python@v5
         with:
@@ -757,7 +757,7 @@ jobs:
       id-token: write
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 📥 Download Python wheels
         uses: actions/download-artifact@v4
         with:
@@ -787,7 +787,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 📥 Download Linux library
         uses: actions/download-artifact@v4
         with:
