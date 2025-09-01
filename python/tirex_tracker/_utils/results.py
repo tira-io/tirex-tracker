@@ -1,4 +1,4 @@
-from ctypes import c_char_p, c_void_p, c_wchar_p, cast
+from ctypes import c_char_p, c_wchar_p, cast
 from typing import TYPE_CHECKING
 
 from .. import Measure, ResultEntry, ResultType
@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from typing import Any, Callable
 
 
-_to_python_type: "dict[ResultType, Callable[[c_void_p], Any]]" = {
+_to_python_type: "dict[ResultType, Callable[[int], Any]]" = {
     ResultType.STRING: lambda ptr: cast(ptr, c_char_p).value,
     # ResultType.INTEGER: TODO,
     # ResultType.FLOATING: TODO,

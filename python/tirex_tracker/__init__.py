@@ -175,12 +175,12 @@ class ResultEntry(NamedTuple):
 
 class _ResultEntry(Structure):
     source: int
-    value: bytes
+    value: int
     type: int
 
     _fields_ = [
         ("source", c_int),
-        ("value", c_char_p),
+        ("value", c_void_p),
         ("type", c_int),
     ]
 
@@ -482,7 +482,7 @@ class _TirexTrackerLibrary(CDLL):
     tirexFetchInfo: Callable[["Array[_MeasureConfiguration]", "Pointer[Pointer[_Result]]"], int]
     tirexStartTracking: Callable[["Array[_MeasureConfiguration]", int, "Pointer[Pointer[_TrackingHandle]]"], int]
     tirexStopTracking: Callable[["Pointer[_TrackingHandle]", "Pointer[Pointer[_Result]]"], int]
-    tirexSetLogCallback: Callable[["CFunctionType"], None]
+    tirexSetLogCallback: Callable[["Optional[CFunctionType]"], None]
     tirexDataProviderGetAll: Callable[["Array[_ProviderInfo]", int], int]
     tirexMeasureInfoGet: Callable[[int, "Pointer[Pointer[_MeasureInfo]]"], int]
     tirexResultExportIrMetadata: Callable[["Pointer[_Result]", "Pointer[_Result]", c_char_p], int]
@@ -555,6 +555,9 @@ def _handle_error(error_int: int) -> None:
         raise ValueError("Invalid argument in native call.")
 
 
+__callback: "Optional[CFunctionType]"
+
+
 def set_log_callback(log_callback: Optional[LogCallback] = None) -> None:
     def _to_native_log_callback(log_callback: LogCallback):
         @CFUNCTYPE(None, c_int, c_char_p, c_char_p)
@@ -563,10 +566,10 @@ def set_log_callback(log_callback: Optional[LogCallback] = None) -> None:
 
         return _log_callback
 
-    global callback  # We need to store a reference to the callback to avoid deletion through GC
-    callback = _to_native_log_callback(log_callback) if log_callback is not None else None
+    global __callback  # We need to store a reference to the callback to avoid deletion through GC
+    __callback = _to_native_log_callback(log_callback) if log_callback is not None else None
 
-    _LIBRARY.tirexSetLogCallback(callback)
+    _LIBRARY.tirexSetLogCallback(__callback)
 
 
 def provider_infos() -> Collection[ProviderInfo]:
@@ -721,6 +724,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
 
     @overload
     def get(self, key: Measure, default: T) -> Union[ResultEntry, T]: ...
+
     def get(self, key: Measure, default: Optional[T] = None) -> Optional[Union[ResultEntry, T]]:
         return self.results.get(key, default)
 
@@ -973,7 +977,6 @@ def tracked(
 
         @wraps(f)
         def wrapper(*args, **kwds):
-            nonlocal results
             handle = TrackingHandle.start()
             try:
                 return f(*args, **kwds)
@@ -994,7 +997,6 @@ def tracked(
 
             @wraps(f)
             def wrapper(*args, **kwds):
-                nonlocal results
                 handle = TrackingHandle.start(
                     measures=measures,
                     poll_intervall_ms=poll_intervall_ms,
