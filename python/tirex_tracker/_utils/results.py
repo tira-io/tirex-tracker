@@ -5,10 +5,10 @@ from .. import Measure, ResultEntry, ResultType
 from .. import _ResultEntry as NativeResultEntry
 
 if TYPE_CHECKING:
-    from typing import Any, Callable
+    from typing import Any, Callable, Dict
 
 
-_to_python_type: "dict[ResultType, Callable[[int], Any]]" = {
+_to_python_type: "Dict[ResultType, Callable[[int], Any]]" = {
     ResultType.STRING: lambda ptr: cast(ptr, c_char_p).value,
     # ResultType.INTEGER: TODO,
     # ResultType.FLOATING: TODO,
