@@ -302,8 +302,10 @@ jobs:
         uses: actions/checkout@v4
       - name: 🔧 Configure CMake
         run: cmake -S c/ -B c/build/ -G "Ninja Multi-Config" --preset=conf-dev -D TIREX_TRACKER_BUILD_DOCS=NO
+      - name: 🏗️ Build tests
+        run: cmake --build c/build/ --target tests -j 16
       - name: 🧪 Test C/++ code
-        working-directory: ${{github.workspace}}/c/build/conf-dev
+        working-directory: ${{github.workspace}}/c/build
         run: ctest
   jvm-build:
     name: 🏗️ Build JVM library
