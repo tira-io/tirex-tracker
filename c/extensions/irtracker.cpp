@@ -245,7 +245,8 @@ static void writeResources(const ResultMap& results, std::ostream& stream) {
 }
 
 // Not static because internally the measurecommand calls this. Not pretty :(
-tirexError writeIrMetadata(const tirexResult* info, const tirexResult* result, std::ostream& stream) {
+TIREX_TRACKER_EXPORT tirexError
+writeIrMetadata(const tirexResult* info, const tirexResult* result, std::ostream& stream) {
 	std::string version = "0.2";
 	ResultMap map;
 	if (info != nullptr)

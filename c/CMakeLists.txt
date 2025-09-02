@@ -105,6 +105,7 @@ endif()
 # Tests
 ##########################################################################################
 if (TIREX_TRACKER_BUILD_TESTS AND NOT TIREX_TRACKER_ONLY_DOCS)
+	enable_testing()
 	add_subdirectory(tests)
 endif()
 

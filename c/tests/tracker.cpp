@@ -8,6 +8,9 @@
 #include <iostream>
 
 TEST_CASE("Tracker", "[Archive]") {
+	tirexSetLogCallback(+[](tirexLogLevel lvl, const char* component, const char* msg) {
+		std::cout << "[" << lvl << "][" << component << "] " << msg << std::endl;
+	});
 	{
 		tirexMeasureConf conf[]{{TIREX_GIT_ARCHIVE_PATH, TIREX_AGG_NO}, tirexNullConf};
 		tirexResult* result;

@@ -164,6 +164,7 @@ static std::string hashAllFiles(git_repository* repo) {
 					"gitstats", "I will not include it in the hash. Please add it to the .gitignore if is not part of "
 								"your codebase or check it into the repository if it should be."
 			);
+			continue;
 			/** \todo if pedantic abort here **/
 			// abort();
 		}
@@ -209,6 +210,7 @@ repoToArchive(git_repository* repo, const std::filesystem::path& archive) noexce
 					"gitstats", "I will not include it in the archive. Please add it to the .gitignore if is not part "
 								"of your codebase or check it into the repository if it should be."
 			);
+			continue;
 			/** \todo return unexpected if pedantic **/
 			/*return std23::unexpected<std::string>{
 					"The repositories contains an unchecked folder. Add it to .gitignore or check it into the repository."

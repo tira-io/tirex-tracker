@@ -274,6 +274,37 @@ jobs:
           name: c-debian-package
           if-no-files-found: error
           path: c/build/tirex-tracker-*-Linux.deb
+  c-test:
+    name: 🧪 Test C/++ code
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on:
+          - ubuntu-22.04
+          - ubuntu-24.04
+          - macos-14
+          - macos-15
+          - windows-2022
+          - windows-2025
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - name: 🧰 Install compiler
+        uses: aminya/setup-cpp@v1
+        with:
+          vcvarsall: ${{ contains(matrix.platform.host, 'windows' )}}
+          cmake: true
+          ninja: true
+          cppcheck: false
+          gcovr: true
+          opencppcoverage: false
+          git: true
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+      - name: 🔧 Configure CMake
+        run: cmake -S c/ -B c/build/ -G "Ninja Multi-Config" --preset=conf-dev
+      - name: 🧪 Test C/++ code
+        working-directory: ${{github.workspace}}/c/build/conf-dev
+        run: ctest
   jvm-build:
     name: 🏗️ Build JVM library
     strategy:

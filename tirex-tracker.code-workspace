@@ -19,6 +19,7 @@
     ],
     "settings": {
         "C_Cpp.autoAddFileAssociations": false,
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
+        "cmake.sourceDirectory": "${workspaceFolder:C API & Implementation}"
     },
 }
