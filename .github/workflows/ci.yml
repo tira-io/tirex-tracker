@@ -306,7 +306,7 @@ jobs:
         run: cmake --build c/build/ --target tests -j 16
       - name: 🧪 Test C/++ code
         working-directory: ${{github.workspace}}/c/build
-        run: ctest
+        run: ctest -C Debug --output-on-failure
   jvm-build:
     name: 🏗️ Build JVM library
     strategy:
