@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from enum import Enum, IntEnum
 from functools import wraps
 from gzip import open as gzip_open
+from io import BytesIO
 from json import dumps, loads
 from pathlib import Path
 from sys import argv, executable
@@ -597,7 +598,7 @@ def measure_infos() -> Mapping[Measure, MeasureInfo]:
 
 
 def _parse_results(result: "Pointer[_Result]") -> Mapping[Measure, ResultEntry]:
-    from ._utils.results import resultEntryToPython  # avoid circular imports
+    from ._utils.results import parse_native_result_entry  # avoid circular imports
 
     num_entries_pointer = pointer(c_size_t())
     error_int = _LIBRARY.tirexResultEntryNum(result, num_entries_pointer)
@@ -608,7 +609,7 @@ def _parse_results(result: "Pointer[_Result]") -> Mapping[Measure, ResultEntry]:
         entry_pointer = pointer(_ResultEntry())
         error_int = _LIBRARY.tirexResultEntryGetByIndex(result, c_size_t(index), entry_pointer)
         _handle_error(error_int)
-        entries.append(resultEntryToPython(entry_pointer.contents))
+        entries.append(parse_native_result_entry(entry_pointer.contents))
     _LIBRARY.tirexResultFree(result)
     results = {entry.source: entry for entry in entries}
     return results
@@ -796,7 +797,14 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
             c_char_p(str(export_file_path.resolve()).encode(_ENCODING)),
         )
 
-        with Path(export_file_path).open("rb") as yaml_file:
+        # Parse the initial ir_metadata.
+        buffer = Path(export_file_path).read_bytes()
+        if buffer.startswith(b"ir_metadata.start\n"):
+            buffer = buffer[len(b"ir_metadata.start\n") :]
+        if buffer.endswith(b"ir_metadata.end\n"):
+            buffer = buffer[: -len(b"ir_metadata.end\n")]
+
+        with BytesIO(buffer) as yaml_file:
             tmp_ir_metadata = yaml_safe_load(yaml_file)
         ir_metadata = _recursive_defaultdict()
 

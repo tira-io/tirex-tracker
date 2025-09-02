@@ -22,7 +22,7 @@ _to_python_type: "Dict[ResultType, Callable[[int], Any]]" = {
 }
 
 
-def resultEntryToPython(entry: NativeResultEntry) -> ResultEntry:
+def parse_native_result_entry(entry: NativeResultEntry) -> ResultEntry:
     rtype = ResultType(entry.type)
     value = _to_python_type[rtype](entry.value)
     return ResultEntry(source=Measure(entry.source), value=value, type=rtype)
