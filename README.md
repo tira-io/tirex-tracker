@@ -15,9 +15,11 @@
 [![PyPi](https://img.shields.io/pypi/v/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/)
 [![Python](https://img.shields.io/pypi/pyversions/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/)
 [![Downloads](https://img.shields.io/pypi/dm/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/)
+[![Read the Docs](https://img.shields.io/readthedocs/tirex-tracker?style=flat-square)](https://tirex-tracker.readthedocs.io/)
 \
 [![Maven](https://img.shields.io/maven-central/v/io.tira/tirex-tracker?style=flat-square)](https://central.sonatype.com/artifact/io.tira/tirex-tracker)
 [![Java](https://img.shields.io/badge/java-8_%7C_11_%7C_17_%7C_21-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/packages/)
+[![Javadoc](https://javadoc.io/badge2/io.tira/tirex-tracker/javadoc.svg?style=flat-square)](https://javadoc.io/doc/io.tira/tirex-tracker)
 \
 [![Issues](https://img.shields.io/github/issues/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/issues)
 [![Commit activity](https://img.shields.io/github/commit-activity/m/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/commits)
@@ -61,7 +63,7 @@ target_link_libraries(<yourtarget> tirex_tracker::tirex_tracker)
 This will link the TIREx tracker C API to your binaries.
 Take a look at the [examples](c/examples/) to see how our C API can be used.
 
-A minimal example would is shown below:
+A minimal example is shown below:
 
 ```c
 #include <tirex_tracker.h>
@@ -94,11 +96,21 @@ You can customize the measures to track by adjusting the `conf` array in the exa
 
 ## Python API
 
+The Python API can be [installed](#pip-dependency) via Pip from [PyPI](https://pypi.org/project/tirex-tracker/).
+After installing the package, you can use the TIREx tracker in your [Python](#python-usage).
+
+### Pip Dependency
+
 First, install the TIREx tracker Python package from [PyPI](https://pypi.org/project/tirex-tracker/):
 
 ```shell
 pip install tirex-tracker
 ```
+
+### Python Usage
+
+> [!TIP]
+> An exhaustive documentation of the TIREx tracker's Python API can be found on [Read the Docs](https://tirex-tracker.readthedocs.io/).
 
 Now, you can track the hardware metrics and metadata of your Python code by using the [context manager](https://geeksforgeeks.org/context-manager-in-python/):
 
@@ -182,6 +194,9 @@ Replace the version placeholder (`x.x.x`) with the [latest available version tag
 You can now use the TIREx tracker JVM API in your [Java](#java-usage) or [Kotlin](#kotlin-usage) projects.
 
 ### Java Usage
+
+> [!TIP]
+> An exhaustive documentation of the TIREx tracker's Java API can be found in its [Javadoc](https://javadoc.io/doc/io.tira/tirex-tracker).
 
 For pure Java projects, the easiest way is to use the `track` function and pass your code to be tracked as a lambda like this:
 
@@ -279,7 +294,8 @@ cmake -S c/ -B c/build/ \
   -D TIREX_TRACKER_BUILD_EXAMPLES=YES
 ```
 
-(Hint: If you do not want to generate the documentation and have not installed Doxygen, you can disable it by setting `TIREX_TRACKER_BUILD_DOCS=NO`.)
+> [!TIP]
+> If you do not want to generate the documentation and have not installed Doxygen, you can disable it by setting `TIREX_TRACKER_BUILD_DOCS=NO`.
 
 To build the library, run
 
