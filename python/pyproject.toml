@@ -70,15 +70,10 @@ root = "../"
 
 [tool.ruff]
 exclude = ["build", "venv", "resources"]
-
-[tool.black]
 line-length = 120
 
-[tool.isort]
-profile = "black"
-multi_line_output = 3
-line_length = 120
-include_trailing_comma = true
+[tool.ruff.lint]
+select = ["E", "F", "B", "SIM", "I"]
 
 [tool.mypy]
 exclude = ["build", "venv", "resources"]

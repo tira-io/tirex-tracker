@@ -41,7 +41,7 @@ def test_measure_infos() -> None:
     assert isinstance(actual, Mapping)
     assert len(actual) > 0
     for measure in ALL_MEASURES:
-        assert measure in actual.keys()
+        assert measure in actual
 
 
 def test_fetch_info() -> None:
@@ -50,11 +50,11 @@ def test_fetch_info() -> None:
     assert actual is not None
     assert isinstance(actual, Mapping)
     assert len(actual) > 0
-    for key in actual.keys():
+    for key in actual:
         assert isinstance(key, Measure)
     for value in actual.values():
         assert isinstance(value, ResultEntry)
-    assert Measure.OS_NAME in actual.keys()
+    assert Measure.OS_NAME in actual
     result_entry = actual[Measure.OS_NAME]
     assert result_entry is not None
     assert result_entry.source is not None
@@ -75,11 +75,11 @@ def test_measure_start_and_stop() -> None:
     assert actual is not None
     assert isinstance(actual, Mapping)
     assert len(actual) > 0
-    for key in actual.keys():
+    for key in actual:
         assert isinstance(key, Measure)
     for value in actual.values():
         assert isinstance(value, ResultEntry)
-    assert Measure.TIME_ELAPSED_WALL_CLOCK_MS in actual.keys()
+    assert Measure.TIME_ELAPSED_WALL_CLOCK_MS in actual
     result_entry = actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS]
     assert result_entry is not None
     assert result_entry.source is not None
@@ -96,11 +96,11 @@ def test_measure_using_with_statement() -> None:
     with tracking([Measure.TIME_ELAPSED_WALL_CLOCK_MS]) as actual:
         sleep(0.1)
 
-    for key in actual.keys():
+    for key in actual:
         assert isinstance(key, Measure)
     for value in actual.values():
         assert isinstance(value, ResultEntry)
-    assert Measure.TIME_ELAPSED_WALL_CLOCK_MS in actual.keys()
+    assert Measure.TIME_ELAPSED_WALL_CLOCK_MS in actual
     result_entry = actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS]
     assert result_entry is not None
     assert result_entry.source is not None
@@ -116,11 +116,11 @@ def test_measure_using_with_statement() -> None:
 def test_measure_using_lambda() -> None:
     actual = track(lambda: sleep(0.1), [Measure.TIME_ELAPSED_WALL_CLOCK_MS])
 
-    for key in actual.keys():
+    for key in actual:
         assert isinstance(key, Measure)
     for value in actual.values():
         assert isinstance(value, ResultEntry)
-    assert Measure.TIME_ELAPSED_WALL_CLOCK_MS in actual.keys()
+    assert Measure.TIME_ELAPSED_WALL_CLOCK_MS in actual
     result_entry = actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS]
     assert result_entry is not None
     assert result_entry.source is not None
@@ -145,11 +145,11 @@ def test_measure_using_function_decorator() -> None:
     assert actual is not None
     assert isinstance(actual, Mapping)
     assert len(actual) > 0
-    for key in actual.keys():
+    for key in actual:
         assert isinstance(key, Measure)
     for value in actual.values():
         assert isinstance(value, ResultEntry)
-    assert Measure.TIME_ELAPSED_WALL_CLOCK_MS in actual.keys()
+    assert Measure.TIME_ELAPSED_WALL_CLOCK_MS in actual
     result_entry = actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS]
     assert result_entry is not None
     assert result_entry.source is not None
@@ -177,11 +177,11 @@ def test_tracking_export_ir_metadata() -> None:
         ) as actual:
             sleep(0.1)
 
-        for key in actual.keys():
+        for key in actual:
             assert isinstance(key, Measure)
         for value in actual.values():
             assert isinstance(value, ResultEntry)
-        assert Measure.TIME_ELAPSED_WALL_CLOCK_MS in actual.keys()
+        assert Measure.TIME_ELAPSED_WALL_CLOCK_MS in actual
         result_entry = actual[Measure.TIME_ELAPSED_WALL_CLOCK_MS]
         assert result_entry is not None
         assert result_entry.source is not None

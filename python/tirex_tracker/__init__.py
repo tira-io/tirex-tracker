@@ -7,9 +7,8 @@ from gzip import open as gzip_open
 from io import BytesIO
 from json import dumps, loads
 from pathlib import Path
-from sys import argv, executable
+from sys import argv, executable, platform, version_info
 from sys import modules as sys_modules
-from sys import platform, version_info
 from traceback import extract_stack
 from typing import (
     IO,
@@ -380,7 +379,7 @@ def _get_python_info(
         measures=measures,
         value=argv,
     )
-    modules = sorted({module.split(".")[0] for module in sys_modules.keys() if not module.startswith("_")})
+    modules = sorted({module.split(".")[0] for module in sys_modules if not module.startswith("_")})
     _add_python_result_entry(
         results=results,
         measure=Measure.PYTHON_MODULES,
@@ -447,7 +446,7 @@ def _get_python_info(
                 value=str(archive_paths.notebook_file_path_in_zip),
             )
 
-    measures = {measure for measure in measures if measure not in _PYTHON_MEASURES.keys()}
+    measures = {measure for measure in measures if measure not in _PYTHON_MEASURES}
 
     return results, measures
 

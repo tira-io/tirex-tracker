@@ -23,10 +23,8 @@
 				"ms-vscode.live-server",
 				"cschlosser.doxdocgen",
 				"ms-python.python",
-				"ms-python.black-formatter",
-				"ms-python.flake8",
+				"charliermarsh.ruff",
 				"ms-python.mypy-type-checker",
-				"ms-python.isort",
 				"mathiasfrohlich.Kotlin",
 				"vscjava.vscode-java-pack"
 			]
