@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections import defaultdict
 from ctypes import CDLL, CFUNCTYPE, POINTER, Structure, c_char_p, c_int, c_size_t, c_void_p, cdll, pointer
 from dataclasses import dataclass

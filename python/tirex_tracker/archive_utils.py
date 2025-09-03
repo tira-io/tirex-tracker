@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from contextlib import redirect_stdout
 from pathlib import Path
 from traceback import extract_stack

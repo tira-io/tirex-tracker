@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from ctypes import c_char_p, c_wchar_p, cast
 from typing import TYPE_CHECKING
 
@@ -8,7 +10,7 @@ if TYPE_CHECKING:
     from typing import Any, Callable, Dict
 
 
-_to_python_type: "Dict[ResultType, Callable[[int], Any]]" = {
+_to_python_type: Dict[ResultType, Callable[[int], Any]] = {
     ResultType.STRING: lambda ptr: cast(ptr, c_char_p).value,
     # ResultType.INTEGER: TODO,
     # ResultType.FLOATING: TODO,
