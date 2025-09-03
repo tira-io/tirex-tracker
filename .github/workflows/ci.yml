@@ -292,7 +292,7 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Install JDK 8 (for compiling)
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: 8
           distribution: temurin
@@ -301,7 +301,7 @@ jobs:
             jvm/example/build.gradle.kts
             jvm/library/build.gradle.kts
       - name: 🧰 Install JDK (for checks)
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: ${{ matrix.java }}
           distribution: temurin
@@ -361,7 +361,7 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Install JDK 8 (for compiling)
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: 8
           distribution: temurin
@@ -370,7 +370,7 @@ jobs:
             jvm/example/build.gradle.kts
             jvm/library/build.gradle.kts
       - name: 🧰 Install JDK (for checks)
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: ${{ matrix.java }}
           distribution: temurin
@@ -424,7 +424,7 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Install JDK 8 (for compiling)
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: 8
           distribution: temurin
@@ -433,7 +433,7 @@ jobs:
             jvm/example/build.gradle.kts
             jvm/library/build.gradle.kts
       - name: 🧰 Install JDK (for checks)
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: ${{ matrix.java }}
           distribution: temurin
