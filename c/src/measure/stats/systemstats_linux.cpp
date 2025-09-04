@@ -78,7 +78,17 @@ SystemStats::SysInfo SystemStats::getSysInfo() {
 			.totalRamMB = ((std::uint64_t)info.totalram * info.mem_unit) / 1000 / 1000};
 }
 
+std::vector<std::string> SystemStats::getInvocationCmd() {
+	std::ifstream fstream(_fmt::format("/proc/{}/cmdline", pid), std::ios::in | std::ios::binary);
+	std::vector<std::string> args;
+	for (std::string line; std::getline(fstream, line, '\0');)
+		args.emplace_back(std::move(line));
+	return args;
+}
+
 void SystemStats::start() {
+	for (auto tmp : getInvocationCmd())
+		tirex::log::info("linuxstats", "{}", tmp);
 	tirex::log::info("linuxstats", "Collecting resources for Process {}", pid);
 	starttimer = steady_clock::now();
 	startTimepoint = system_clock::now();
