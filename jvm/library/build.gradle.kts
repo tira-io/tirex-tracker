@@ -76,6 +76,7 @@ tasks {
         testLogging {
             exceptionFormat = TestExceptionFormat.FULL
             events("passed", "failed", "skipped")
+            showStandardStreams = true
         }
     }
 

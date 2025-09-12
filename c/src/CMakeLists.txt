@@ -54,13 +54,17 @@ if (NOT TIREX_TRACKER_BUILD_SHARED_LIB)
 	target_compile_definitions(tirex_tracker PUBLIC TIREX_TRACKER_STATIC_DEFINE)
 endif()
 
-set_target_properties(tirex_tracker PROPERTIES
-	SOVERSION ${TIREX_TRACKER_VER_MAJOR}
-	VERSION   ${TIREX_TRACKER_VERSION}
-	CXX_VISIBILITY_PRESET hidden
-	C_VISIBILITY_PRESET hidden
-	VISIBILITY_INLINES_HIDDEN YES
-)
+if (NOT TIREX_TRACKER_BUILD_TESTS)
+	# The tests need to link against internal routines so that we only configure visibility and versioning for non-test
+	# builds.
+	set_target_properties(tirex_tracker PROPERTIES
+		SOVERSION ${TIREX_TRACKER_VER_MAJOR}
+		VERSION   ${TIREX_TRACKER_VERSION}
+		CXX_VISIBILITY_PRESET hidden
+		C_VISIBILITY_PRESET hidden
+		VISIBILITY_INLINES_HIDDEN YES
+	)
+endif()
 
 ##########################################################################################
 # Libraries
@@ -76,15 +80,32 @@ if (NOT (UNIX AND APPLE)) # CPPJouls does not support macos right now
 	target_link_libraries(tirex_tracker PRIVATE CPP_Joules)
 endif()
 
+# zlib (required by libgit and libzip)
+CPMAddPackage(
+	URI "gh:madler/zlib#5a82f71ed1dfc0bec044d9702463dbdf84ea3b71" # "gh:madler/zlib@1.3.1"
+	OPTIONS "ZLIB_BUILD_TESTING OFF" "ZLIB_BUILD_SHARED OFF" "ZLIB_BUILD_STATIC ON" "ZLIB_BUILD_MINIZIP OFF"
+	EXCLUDE_FROM_ALL YES
+)
+set(ZLIB_LIBRARIES "zlibstatic")
+get_target_property(ZLIB_INCLUDE_DIRS zlibstatic INTERFACE_INCLUDE_DIRECTORIES)
+add_library(ZLIB::ZLIB ALIAS zlibstatic)  # ALIAS ZLIB::ZLIB to static since we want to link it statically to libzip
+
 # LibGit
 CPMAddPackage(
 	URI "gh:libgit2/libgit2@1.8.4"
-	OPTIONS "USE_SSH OFF" "USE_HTTPS OFF" "REGEX_BACKEND builtin" "BUILD_CLI OFF" "BUILD_TESTS OFF" "DEPRECATE_HARD OFF"
+	OPTIONS "USE_SSH OFF" "USE_HTTPS OFF" "REGEX_BACKEND builtin" "USE_BUNDLED_ZLIB OFF" "BUILD_CLI OFF" "BUILD_TESTS OFF" "DEPRECATE_HARD OFF"
 	EXCLUDE_FROM_ALL YES
 )
-#target_link_libraries(tirex_tracker PRIVATE libgit2package)
-#target_include_directories(tirex_tracker PRIVATE $<TARGET_PROPERTY:libgit2,INCLUDE_DIRECTORIES>)
 target_link_libraries(tirex_tracker PRIVATE libgit2 libgit2package)
+
+# libzip
+CPMAddPackage(
+	URI "gh:nih-at/libzip@1.11.3"
+	OPTIONS "LIBZIP_DO_INSTALL OFF" "ENABLE_ZSTD OFF" "ENABLE_OPENSSL OFF" "BUILD_TOOLS OFF" "BUILD_REGRESS OFF" "BUILD_OSSFUZZ OFF" "BUILD_EXAMPLES OFF" "BUILD_DOC OFF"
+	EXCLUDE_FROM_ALL YES
+)
+target_link_libraries(tirex_tracker PRIVATE zip)
+
 
 # NVML (We load the go-nvml bindings since there does not seem to be a repo with just the header)
 FetchContent_Declare(nvml GIT_REPOSITORY https://github.com/NVIDIA/go-nvml.git GIT_TAG v0.12.4-0 EXCLUDE_FROM_ALL)
@@ -94,6 +115,15 @@ target_include_directories(tirex_tracker PRIVATE ${nvml_SOURCE_DIR}/gen/)
 # FMT (remove in the future when std::format can be assumed)
 CPMAddPackage(URI "gh:fmtlib/fmt#11.1.3" EXCLUDE_FROM_ALL YES)
 target_link_libraries(tirex_tracker PRIVATE fmt::fmt)
+
+# expected (remove in the future when std::expected can be assumed)
+CPMAddPackage(
+	URI "gh:TartanLlama/expected@1.1.0"
+	OPTIONS "EXPECTED_BUILD_TESTS OFF" "EXPECTED_BUILD_PACKAGE_DEB OFF"
+	EXCLUDE_FROM_ALL YES
+)
+target_link_libraries(tirex_tracker PRIVATE tl::expected)
+
 
 # cpuinfo
 CPMAddPackage(

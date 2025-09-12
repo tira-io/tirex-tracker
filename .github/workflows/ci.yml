@@ -274,6 +274,39 @@ jobs:
           name: c-debian-package
           if-no-files-found: error
           path: c/build/tirex-tracker-*-Linux.deb
+  c-test:
+    name: 🧪 Test C/++ code
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on:
+          - ubuntu-22.04
+          - ubuntu-24.04
+          - macos-14
+          - macos-15
+          # - windows-2022  # re-enable me later together with the python tests; something is wrong currently
+          # - windows-2025  # re-enable me later together with the python tests; something is wrong currently
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - name: 🧰 Install compiler
+        uses: aminya/setup-cpp@v1
+        with:
+          vcvarsall: ${{ contains(matrix.platform.host, 'windows' )}}
+          cmake: true
+          ninja: true
+          cppcheck: false
+          gcovr: true
+          opencppcoverage: false
+          git: true
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+      - name: 🔧 Configure CMake
+        run: cmake -S c/ -B c/build/ -G "Ninja Multi-Config" --preset=conf-dev -D TIREX_TRACKER_BUILD_DOCS=NO
+      - name: 🏗️ Build tests
+        run: cmake --build c/build/ --target tests -j 16
+      - name: 🧪 Test C/++ code
+        working-directory: ${{github.workspace}}/c/build
+        run: ctest -C Debug --output-on-failure
   jvm-build:
     name: 🏗️ Build JVM library
     strategy:
@@ -292,7 +325,7 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Install JDK 8 (for compiling)
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: 8
           distribution: temurin
@@ -301,7 +334,7 @@ jobs:
             jvm/example/build.gradle.kts
             jvm/library/build.gradle.kts
       - name: 🧰 Install JDK (for checks)
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: ${{ matrix.java }}
           distribution: temurin
@@ -310,17 +343,17 @@ jobs:
             jvm/example/build.gradle.kts
             jvm/library/build.gradle.kts
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-linux
           path: jvm/library/src/main/resources/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-macos
           path: jvm/library/src/main/resources/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-windows
           path: jvm/library/src/main/resources/
@@ -361,7 +394,7 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Install JDK 8 (for compiling)
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: 8
           distribution: temurin
@@ -370,7 +403,7 @@ jobs:
             jvm/example/build.gradle.kts
             jvm/library/build.gradle.kts
       - name: 🧰 Install JDK (for checks)
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: ${{ matrix.java }}
           distribution: temurin
@@ -379,17 +412,17 @@ jobs:
             jvm/example/build.gradle.kts
             jvm/library/build.gradle.kts
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-linux
           path: jvm/library/src/main/resources/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-macos
           path: jvm/library/src/main/resources/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-windows
           path: jvm/library/src/main/resources/
@@ -424,7 +457,7 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 🧰 Install JDK 8 (for compiling)
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: 8
           distribution: temurin
@@ -433,7 +466,7 @@ jobs:
             jvm/example/build.gradle.kts
             jvm/library/build.gradle.kts
       - name: 🧰 Install JDK (for checks)
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: ${{ matrix.java }}
           distribution: temurin
@@ -442,17 +475,17 @@ jobs:
             jvm/example/build.gradle.kts
             jvm/library/build.gradle.kts
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-linux
           path: jvm/library/src/main/resources/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-macos
           path: jvm/library/src/main/resources/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-windows
           path: jvm/library/src/main/resources/
@@ -525,17 +558,17 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-linux
           path: python/tirex_tracker/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-macos
           path: python/tirex_tracker/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-windows
           path: python/tirex_tracker/
@@ -578,17 +611,17 @@ jobs:
           cache: pip
           cache-dependency-path: python/pyproject.toml
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-linux
           path: python/tirex_tracker/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-macos
           path: python/tirex_tracker/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-windows
           path: python/tirex_tracker/
@@ -622,17 +655,17 @@ jobs:
           cache: pip
           cache-dependency-path: python/pyproject.toml
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-linux
           path: python/tirex_tracker/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-macos
           path: python/tirex_tracker/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-windows
           path: python/tirex_tracker/
@@ -666,17 +699,17 @@ jobs:
           cache: pip
           cache-dependency-path: python/pyproject.toml
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-linux
           path: python/tirex_tracker/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-macos
           path: python/tirex_tracker/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-windows
           path: python/tirex_tracker/
@@ -717,17 +750,17 @@ jobs:
           cache: pip
           cache-dependency-path: python/pyproject.toml
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-linux
           path: python/tirex_tracker/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-macos
           path: python/tirex_tracker/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-library-windows
           path: python/tirex_tracker/
@@ -759,7 +792,7 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 📥 Download Python wheels
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: python-wheels
           path: dist
@@ -788,71 +821,48 @@ jobs:
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
-      - name: 📥 Download Linux library
-        uses: actions/download-artifact@v4
+      - name: 📥 Download Native Libraries
+        uses: actions/download-artifact@v5
         with:
-          name: c-library-linux
-          path: tmp/c/
-      - name: 📥 Download macOS library
-        uses: actions/download-artifact@v4
-        with:
-          name: c-library-macos
-          path: tmp/c/
-      - name: 📥 Download Windows library
-        uses: actions/download-artifact@v4
-        with:
-          name: c-library-windows
+          pattern: c-library-*
+          merge-multiple: true
           path: tmp/c/
       - name: 📥 Download Linux CLI
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-cli-linux
           path: tmp/c/
       - name: ✏️ Rename Linux CLI
         run: mv tmp/c/measure tmp/c/measure-${{ github.ref_name }}-linux
       - name: 📥 Download macOS CLI
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-cli-macos
           path: tmp/c/
       - name: ✏️ Rename macOS CLI
         run: mv tmp/c/measure tmp/c/measure-${{ github.ref_name }}-macos
       - name: 📥 Download Windows CLI
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-cli-windows
           path: tmp/c/
       - name: ✏️ Rename Windows CLI
         run: mv tmp/c/measure.exe tmp/c/measure-${{ github.ref_name }}-windows.exe
       - name: 📥 Download Debian package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: c-debian-package
           path: tmp/c/
       - name: 📥 Download Python wheels
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: python-wheels
           path: tmp/python/dist/
-      - name: 📥 Download JVM JAR
-        uses: actions/download-artifact@v4
+      - name: 📥 Download JVM Artifacts
+        uses: actions/download-artifact@v5
         with:
-          name: jvm-jar
-          path: tmp/jvm/
-      - name: 📥 Download JVM sources JAR
-        uses: actions/download-artifact@v4
-        with:
-          name: jvm-sources-jar
-          path: tmp/jvm/
-      - name: 📥 Download JVM Javadoc JAR
-        uses: actions/download-artifact@v4
-        with:
-          name: jvm-javadoc-jar
-          path: tmp/jvm/
-      - name: 📥 Download JVM HTML docs JAR
-        uses: actions/download-artifact@v4
-        with:
-          name: jvm-html-docs-jar
+          pattern: jvm-*
+          merge-multiple: true
           path: tmp/jvm/
       - name: 🚀 Create GitHub release
         uses: softprops/action-gh-release@v2

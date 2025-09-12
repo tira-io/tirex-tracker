@@ -21,64 +21,13 @@
 				"ms-vscode.cpptools-extension-pack",
 				"jbenden.c-cpp-flylint",
 				"ms-vscode.live-server",
-				"cschlosser.doxdocgen"
-			],
-			"settings": {
-				"editor.rulers": [
-					120
-				],
-				"C_Cpp.autoAddFileAssociations": false,
-				"files.exclude": {
-					"build": true
-				},
-				"editor.formatOnSave": true,
-				"C_Cpp.codeAnalysis.clangTidy.enabled": true,
-				"C_Cpp.codeAnalysis.clangTidy.args": [
-					"-p ${workspaceFolder}/build/compile_commands.json"
-				],
-				"cmake.configureSettings": {
-					"TIREX_TRACKER_BUILD_EXAMPLES": true,
-					"TIREX_TRACKER_BUILD_DOCS": true,
-					"TIREX_TRACKER_BUILD_TESTS": true
-				},
-				"launch": {
-					"version": "0.2.0",
-					"configurations": [
-						{
-							"name": "(gdb) measure -vvv --format=json \"echo hello world\"",
-							"type": "cppdbg",
-							"request": "launch",
-							// Resolved by CMake Tools:
-							"program": "${command:cmake.launchTargetPath}",
-							"args": [
-								"-vvv",
-								"--format=json",
-								"echo hello world"
-							],
-							"stopAtEntry": false,
-							"cwd": "${workspaceFolder}",
-							"environment": [
-								{
-									// add the directory where our target was built to the PATHs
-									// it gets resolved by CMake Tools:
-									"name": "PATH",
-									"value": "$PATH:${command:cmake.launchTargetDirectory}"
-								}
-							],
-							/* "externalConsole": true, */
-							"MIMode": "gdb",
-							"setupCommands": [
-								{
-									"description": "Enable pretty-printing for gdb",
-									"text": "-enable-pretty-printing",
-									"ignoreFailures": true
-								}
-							]
-						}
-					],
-					"compounds": []
-				}
-			}
+				"cschlosser.doxdocgen",
+				"ms-python.python",
+				"charliermarsh.ruff",
+				"ms-python.mypy-type-checker",
+				"mathiasfrohlich.Kotlin",
+				"vscjava.vscode-java-pack"
+			]
 		}
 	}
 	// Uncomment to connect as an existing user other than the container default. More info: https://aka.ms/dev-containers-non-root.

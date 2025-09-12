@@ -73,6 +73,10 @@ root = "../"
 
 [tool.ruff]
 exclude = ["build", "venv", "resources"]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "B", "SIM", "I"]
 
 [tool.mypy]
 exclude = ["build", "venv", "resources"]
