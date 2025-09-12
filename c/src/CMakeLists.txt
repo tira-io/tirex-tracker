@@ -54,13 +54,17 @@ if (NOT TIREX_TRACKER_BUILD_SHARED_LIB)
 	target_compile_definitions(tirex_tracker PUBLIC TIREX_TRACKER_STATIC_DEFINE)
 endif()
 
-set_target_properties(tirex_tracker PROPERTIES
-	SOVERSION ${TIREX_TRACKER_VER_MAJOR}
-	VERSION   ${TIREX_TRACKER_VERSION}
-	CXX_VISIBILITY_PRESET hidden
-	C_VISIBILITY_PRESET hidden
-	VISIBILITY_INLINES_HIDDEN YES
-)
+if (NOT TIREX_TRACKER_BUILD_TESTS)
+	# The tests need to link against internal routines so that we only configure visibility and versioning for non-test
+	# builds.
+	set_target_properties(tirex_tracker PROPERTIES
+		SOVERSION ${TIREX_TRACKER_VER_MAJOR}
+		VERSION   ${TIREX_TRACKER_VERSION}
+		CXX_VISIBILITY_PRESET hidden
+		C_VISIBILITY_PRESET hidden
+		VISIBILITY_INLINES_HIDDEN YES
+	)
+endif()
 
 ##########################################################################################
 # Libraries

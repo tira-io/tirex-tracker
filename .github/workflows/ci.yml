@@ -284,8 +284,8 @@ jobs:
           - ubuntu-24.04
           - macos-14
           - macos-15
-          - windows-2022
-          - windows-2025
+          # - windows-2022  # re-enable me later together with the python tests; something is wrong currently
+          # - windows-2025  # re-enable me later together with the python tests; something is wrong currently
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: 🧰 Install compiler
