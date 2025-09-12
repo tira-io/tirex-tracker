@@ -26,8 +26,8 @@ static constexpr const char* compiler = "unknown compiler";
 static std::string buildVersionString() {
 	// Uncomment and use std::format once we can assume enough adoption
 	// auto versionString = std::format("{}\nBuilt with {} for C++ {}", tirex::getVersionStr(), compiler, __cplusplus);
-	auto versionString = std::string(tirex::getVersionStr()) + "\nBuilt with " + compiler + " for C++ " +
-						 std::to_string(__cplusplus);
+	auto versionString = TIREX_VERSION "\n" + std::string(tirex::getVersionStr()) + "\nBuilt with " + compiler +
+						 " for C++ " + std::to_string(__cplusplus);
 	auto numProviders = tirexDataProviderGetAll(nullptr, 0);
 	std::vector<tirexDataProvider> buf{numProviders};
 	tirexDataProviderGetAll(buf.data(), buf.size());
