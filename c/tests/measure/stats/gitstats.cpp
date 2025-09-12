@@ -60,7 +60,6 @@ TEST_CASE("Git Stats", "[Archive]") {
 				REQUIRE(std::holds_alternative<TmpFile>(entry));
 				TmpFile& file = std::get<TmpFile>(entry);
 				REQUIRE(std::filesystem::exists(file.path));
-				// TODO: check contents
 
 				zip_t* archive;
 				REQUIRE((archive = zip_open(file.path.c_str(), 0, nullptr)) != nullptr);
