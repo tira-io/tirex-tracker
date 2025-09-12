@@ -10,12 +10,14 @@ FetchContent_MakeAvailable(catch)
 
 add_executable(tests
 	# Add test files here
+	tracker.cpp
     measure/timeseries.cpp
+	measure/stats/gitstats.cpp
 )
 
 # file(COPY testfiles ${CMAKE_CURRENT_BINARY_DIR})
 
-target_link_libraries(tests PRIVATE Catch2::Catch2WithMain tirex::tracker)
+target_link_libraries(tests PRIVATE Catch2::Catch2WithMain tirex::tracker libgit2 libgit2package zip)
 target_include_directories(tests PRIVATE ${CMAKE_CURRENT_LIST_DIR}/../src)
 target_compile_features(tests PRIVATE cxx_std_20)
 

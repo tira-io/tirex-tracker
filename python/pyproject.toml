@@ -60,7 +60,7 @@ examples = [
 "Bug Tracker" = "https://github.com/tira-io/tirex-tracker/issues"
 
 [build-system]
-requires = ["setuptools>=75,<81", "setuptools-scm~=8.0"]
+requires = ["setuptools>=75,<81", "setuptools-scm>=8,<10"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
@@ -78,6 +78,10 @@ root = "../"
 
 [tool.ruff]
 exclude = ["build", "venv", "resources"]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "B", "SIM", "I"]
 
 [tool.mypy]
 exclude = ["build", "venv", "resources"]

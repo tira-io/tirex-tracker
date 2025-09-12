@@ -1,5 +1,7 @@
 #include <measure/timeseries.hpp>
 
+#include <tirex_tracker.h>
+
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_range_equals.hpp>
 
@@ -11,6 +13,9 @@ using namespace std::chrono_literals;
 #include <iostream>
 
 TEST_CASE("Timeseries", "[Batched]") {
+	tirexSetLogCallback(+[](tirexLogLevel lvl, const char* component, const char* msg) {
+		std::cout << "[" << lvl << "][" << component << "] " << msg << std::endl;
+	});
 	{
 		auto timeseries = store<unsigned>() | Batched(10ms, TIREX_AGG_MEAN, 2);
 		CHECK(timeseries.size() == 0);
