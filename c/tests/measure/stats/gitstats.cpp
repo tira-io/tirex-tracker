@@ -66,7 +66,7 @@ TEST_CASE("Git Stats", "[Archive]") {
 				auto numEntries = zip_get_num_entries(archive, 0);
 				CHECK(numEntries == 4);
 
-				auto check = [&](std::string_view path, std::string_view content) {
+				auto check = [&](std::string_view path, const std::string& content) {
 					zip_file_t* fd;
 					REQUIRE((fd = zip_fopen(archive, path.data(), 0)) != nullptr);
 					std::string actual;
@@ -74,6 +74,7 @@ TEST_CASE("Git Stats", "[Archive]") {
 					for (size_t n = 0; (n = zip_fread(fd, buffer, sizeof(buffer))) > 0;)
 						actual += std::string_view{buffer, buffer + n};
 					zip_fclose(fd);
+					// Under macOS Catch2 does not seem to like std::string_view inside CHECK(...)
 					CHECK(content == actual);
 				};
 				check("a.txt", "file a");
