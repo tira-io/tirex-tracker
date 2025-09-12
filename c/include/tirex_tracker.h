@@ -101,9 +101,22 @@ typedef enum tirexMeasure_enum {
 	TIREX_GIT_UNPUSHED_CHANGES = 42,
 	TIREX_GIT_UNCHECKED_FILES = 43,
 
-	// Note: The `TIREX_TIME_START`/`TIREX_TIME_STOP` measures were added later, and hence, have new enum values (for backwards compatibility).
+	// Note: The `TIREX_TIME_START`/`TIREX_TIME_STOP` measures were added later, and hence, have new enum values (for
+	// backwards compatibility).
 	TIREX_TIME_START = 44, /**< Timestamp when the tracking was started. */
 	TIREX_TIME_STOP = 45,  /**< Timestamp when the tracking was started. */
+
+	/**
+	 * @brief The "working directory" of the repository (i.e. the path at which the root of the repository's file tree
+	 * is located). Empty, if the repository is bare.
+	 */
+	TIREX_GIT_ROOT = 46,
+	/**
+	 * @brief If requested, a zip archive is created that contains all files inside the repository that are not ignored
+	 * by the gitignore. The path to the archive is returned as the value for this measure. The archive is created in a
+	 * temporary location and is automatically deleted when the result object is freed.
+	 */
+	TIREX_GIT_ARCHIVE_PATH = 47,
 
 	/**
 	 * @brief The total number of supported measures.
@@ -140,7 +153,36 @@ typedef struct tirexMeasureHandle_st tirexMeasureHandle;
  * @brief 
  * @details Note: Currently unused
  */
-typedef enum tirexResultType_enum { TIREX_STRING = 0, TIREX_INTEGER = 1, TIREX_FLOATING = 2 } tirexResultType;
+typedef enum tirexResultType_enum {
+	TIREX_STRING = 0,
+	TIREX_INTEGER = 1,
+	TIREX_FLOATING = 2,
+	TIREX_BOOLEAN = 3,
+	TIREX_WSTRING = 4,
+	/**
+	 * @brief Denotes a list type. TIREX_LIST itself is not a valid datatype but can be used to check if a type is an
+	 * aggregate via `int islist = (type & TIREX_LIST) != 0;`.
+	 */
+	TIREX_LIST = 1 << 7,
+	TIREX_STRING_LIST = TIREX_STRING | TIREX_LIST,
+	TIREX_INTEGER_LIST = TIREX_INTEGER | TIREX_LIST,
+	TIREX_FLOATING_LIST = TIREX_FLOATING | TIREX_LIST,
+	TIREX_BOOLEAN_LIST = TIREX_BOOLEAN | TIREX_LIST,
+	TIREX_WSTRING_LIST = TIREX_WSTRING | TIREX_LIST,
+} tirexResultType;
+
+#if __cplusplus || __STDC_VERSION__ >= 202311L
+// Do nothing since static_assert does not need to be included
+#elif __STDC_VERSION__ >= 201112L
+#include <assert.h>
+#else
+// Static assertions are not possible so ignore them
+#ifndef static_assert
+#define static_assert(cond, msg)
+#endif
+#endif
+
+static_assert(sizeof(tirexResultType) == 4);
 
 /**
  * @brief Holds a handle to the results of a measurement.

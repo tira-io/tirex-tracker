@@ -274,6 +274,39 @@ jobs:
           name: c-debian-package
           if-no-files-found: error
           path: c/build/tirex-tracker-*-Linux.deb
+  c-test:
+    name: 🧪 Test C/++ code
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on:
+          - ubuntu-22.04
+          - ubuntu-24.04
+          - macos-14
+          - macos-15
+          # - windows-2022  # re-enable me later together with the python tests; something is wrong currently
+          # - windows-2025  # re-enable me later together with the python tests; something is wrong currently
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - name: 🧰 Install compiler
+        uses: aminya/setup-cpp@v1
+        with:
+          vcvarsall: ${{ contains(matrix.platform.host, 'windows' )}}
+          cmake: true
+          ninja: true
+          cppcheck: false
+          gcovr: true
+          opencppcoverage: false
+          git: true
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+      - name: 🔧 Configure CMake
+        run: cmake -S c/ -B c/build/ -G "Ninja Multi-Config" --preset=conf-dev -D TIREX_TRACKER_BUILD_DOCS=NO
+      - name: 🏗️ Build tests
+        run: cmake --build c/build/ --target tests -j 16
+      - name: 🧪 Test C/++ code
+        working-directory: ${{github.workspace}}/c/build
+        run: ctest -C Debug --output-on-failure
   jvm-build:
     name: 🏗️ Build JVM library
     strategy:
@@ -788,20 +821,11 @@ jobs:
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
-      - name: 📥 Download Linux library
+      - name: 📥 Download Native Libraries
         uses: actions/download-artifact@v5
         with:
-          name: c-library-linux
-          path: tmp/c/
-      - name: 📥 Download macOS library
-        uses: actions/download-artifact@v5
-        with:
-          name: c-library-macos
-          path: tmp/c/
-      - name: 📥 Download Windows library
-        uses: actions/download-artifact@v5
-        with:
-          name: c-library-windows
+          pattern: c-library-*
+          merge-multiple: true
           path: tmp/c/
       - name: 📥 Download Linux CLI
         uses: actions/download-artifact@v5
@@ -834,25 +858,11 @@ jobs:
         with:
           name: python-wheels
           path: tmp/python/dist/
-      - name: 📥 Download JVM JAR
+      - name: 📥 Download JVM Artifacts
         uses: actions/download-artifact@v5
         with:
-          name: jvm-jar
-          path: tmp/jvm/
-      - name: 📥 Download JVM sources JAR
-        uses: actions/download-artifact@v5
-        with:
-          name: jvm-sources-jar
-          path: tmp/jvm/
-      - name: 📥 Download JVM Javadoc JAR
-        uses: actions/download-artifact@v5
-        with:
-          name: jvm-javadoc-jar
-          path: tmp/jvm/
-      - name: 📥 Download JVM HTML docs JAR
-        uses: actions/download-artifact@v5
-        with:
-          name: jvm-html-docs-jar
+          pattern: jvm-*
+          merge-multiple: true
           path: tmp/jvm/
       - name: 🚀 Create GitHub release
         uses: softprops/action-gh-release@v2

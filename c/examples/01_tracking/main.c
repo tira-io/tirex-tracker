@@ -85,7 +85,9 @@ static const char* measureToName[] = {
 		[TIREX_GIT_REMOTE_ORIGIN] = "git remote origin",
 		[TIREX_GIT_UNCOMMITTED_CHANGES] = "git uncommitted changes",
 		[TIREX_GIT_UNPUSHED_CHANGES] = "git unpushed changes",
-		[TIREX_GIT_UNCHECKED_FILES] = "git unchecked files"
+		[TIREX_GIT_UNCHECKED_FILES] = "git unchecked files",
+		[TIREX_GIT_ROOT] = "git root",
+		[TIREX_GIT_ARCHIVE_PATH] = "git archive path"
 };
 static_assert((sizeof(measureToName) / sizeof(*measureToName)) == TIREX_MEASURE_COUNT);
 
@@ -159,6 +161,8 @@ int main(int argc, char* argv[]) {
 			{TIREX_GIT_UNCOMMITTED_CHANGES, TIREX_AGG_NO},
 			{TIREX_GIT_UNPUSHED_CHANGES, TIREX_AGG_NO},
 			{TIREX_GIT_UNCHECKED_FILES, TIREX_AGG_NO},
+			{TIREX_GIT_ROOT, TIREX_AGG_NO},
+			{TIREX_GIT_ARCHIVE_PATH, TIREX_AGG_NO},
 			tirexNullConf
 	};
 	tirexSetLogCallback(logcallback);
