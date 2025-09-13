@@ -51,6 +51,8 @@ if TYPE_CHECKING:
     from ctypes import _CFunctionType as CFunctionType  # type: ignore
     from ctypes import _Pointer as Pointer  # type: ignore
 
+from ._custom_metrics import RegisterTIRExInfo, deregisterInfo, registerInfo
+
 PathLike: TypeAlias = Optional[Union[str, Path]]
 
 P = ParamSpec("P")
