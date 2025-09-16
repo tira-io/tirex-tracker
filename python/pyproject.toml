@@ -44,7 +44,7 @@ tests = [
 ]
 docs = [
     "sphinx~=8.1",
-    "myst-parser>=4,<4",
+    "myst-parser~=4.0",
 ]
 
 [project.urls]
