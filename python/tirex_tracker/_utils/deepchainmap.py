@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from typing import _KT, _VT, Mapping
 
 
-class DeepChainMap(ChainMap["_KT", "_VT"]):
+class DeepChainMap(ChainMap):
     """Variant of ChainMap that allows direct updates to inner scopes.
 
     Base on: https://docs.python.org/3/library/collections.html#chainmap-examples-and-recipes

@@ -51,7 +51,7 @@ if TYPE_CHECKING:
     from ctypes import _CFunctionType as CFunctionType  # type: ignore
     from ctypes import _Pointer as Pointer  # type: ignore
 
-from ._custom_metrics import RegisterTIRExInfo, deregister_info, register_info
+from ._custom_metrics import RegisterTIRExInfo, deregister_info, register_info, get_info
 
 PathLike: TypeAlias = Optional[Union[str, Path]]
 
@@ -811,13 +811,8 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
             tmp_ir_metadata = yaml_safe_load(yaml_file)
         ir_metadata = _recursive_defaultdict()
 
-        # Add user-provided metadata.
-        if self._system_name is not None:
-            ir_metadata["method"]["name"] = self._system_name
-        if self._system_description is not None:
-            ir_metadata["method"]["description"] = self._system_description
-
         # Add Python-specific metadata.
+        # TODO(?): make these metrics use register_info
         ir_metadata["implementation"]["executable"]["cmd"] = loads(self._python_info[Measure.PYTHON_EXECUTABLE].value)
         ir_metadata["implementation"]["executable"]["args"] = loads(self._python_info[Measure.PYTHON_ARGUMENTS].value)
         ir_metadata["implementation"]["executable"]["version"] = loads(self._python_info[Measure.PYTHON_VERSION].value)
@@ -846,6 +841,14 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
             ir_metadata["implementation"]["source"]["archive"]["notebook path"] = loads(
                 self._python_info[Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE].value
             )
+
+        # Add user-provided metadata.
+        # TODO(?): make method/name and method/description use register_info
+        if self._system_name is not None:
+            ir_metadata["method"]["name"] = self._system_name
+        if self._system_description is not None:
+            ir_metadata["method"]["description"] = self._system_description
+        ir_metadata = _deep_merge(ir_metadata, get_info())
 
         ir_metadata = _deep_merge(ir_metadata, tmp_ir_metadata)
         ir_metadata = _recursive_undefaultdict(ir_metadata)

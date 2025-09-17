@@ -97,4 +97,4 @@ def get_info() -> Mapping[str, VALUE]:
     Returns:
         the current user-provided information.
     """
-    return __info
+    return __info.to_dict()

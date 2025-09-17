@@ -25,43 +25,43 @@ class CustomMetricTestCase(unittest.TestCase):
         set_log_callback(None)
 
     def testContextManager(self):
-        self.assertDictEqual(get_info().to_dict(), {})
+        self.assertDictEqual(get_info(), {})
         with RegisterTIRExInfo({"key": "value"}):
             # fetch_info()
-            self.assertDictEqual(get_info().to_dict(), {"key": "value"})
-        self.assertDictEqual(get_info().to_dict(), {})
+            self.assertDictEqual(get_info(), {"key": "value"})
+        self.assertDictEqual(get_info(), {})
 
     def testLowLevelRegistration(self):
-        self.assertDictEqual(get_info().to_dict(), {})
+        self.assertDictEqual(get_info(), {})
         register_info({"key": "value"})
-        self.assertDictEqual(get_info().to_dict(), {"key": "value"})
+        self.assertDictEqual(get_info(), {"key": "value"})
         deregister_info(["key"])
-        self.assertDictEqual(get_info().to_dict(), {})
+        self.assertDictEqual(get_info(), {})
 
     def testNestedContext(self):
-        self.assertDictEqual(get_info().to_dict(), {})
+        self.assertDictEqual(get_info(), {})
         with RegisterTIRExInfo({"k1": "v1", "k2": "v2"}):
-            self.assertDictEqual(get_info().to_dict(), {"k1": "v1", "k2": "v2"})
+            self.assertDictEqual(get_info(), {"k1": "v1", "k2": "v2"})
             with RegisterTIRExInfo({"k2": "v3"}):
-                self.assertDictEqual(get_info().to_dict(), {"k1": "v1", "k2": "v3"})
+                self.assertDictEqual(get_info(), {"k1": "v1", "k2": "v3"})
                 with RegisterTIRExInfo({"k1": "v4", "k2": "v5"}):
-                    self.assertDictEqual(get_info().to_dict(), {"k1": "v4", "k2": "v5"})
-                self.assertDictEqual(get_info().to_dict(), {"k1": "v1", "k2": "v3"})
-            self.assertDictEqual(get_info().to_dict(), {"k1": "v1", "k2": "v2"})
-        self.assertDictEqual(get_info().to_dict(), {})
+                    self.assertDictEqual(get_info(), {"k1": "v4", "k2": "v5"})
+                self.assertDictEqual(get_info(), {"k1": "v1", "k2": "v3"})
+            self.assertDictEqual(get_info(), {"k1": "v1", "k2": "v2"})
+        self.assertDictEqual(get_info(), {})
 
     def testPathKeys(self):
-        self.assertDictEqual(get_info().to_dict(), {})
+        self.assertDictEqual(get_info(), {})
         with RegisterTIRExInfo({"parent": {"child1": "v1", "child2": "v2"}}):
-            self.assertDictEqual(get_info().to_dict(), {"parent": {"child1": "v1", "child2": "v2"}})
+            self.assertDictEqual(get_info(), {"parent": {"child1": "v1", "child2": "v2"}})
             with RegisterTIRExInfo({("parent", "child1"): "v3"}):
-                self.assertDictEqual(get_info().to_dict(), {"parent": {"child1": "v3", "child2": "v2"}})
-            self.assertDictEqual(get_info().to_dict(), {"parent": {"child1": "v1", "child2": "v2"}})
-        self.assertDictEqual(get_info().to_dict(), {})
+                self.assertDictEqual(get_info(), {"parent": {"child1": "v3", "child2": "v2"}})
+            self.assertDictEqual(get_info(), {"parent": {"child1": "v1", "child2": "v2"}})
+        self.assertDictEqual(get_info(), {})
 
     def testIRMetadata(self):
         with TemporaryDirectory() as tmpdir, ChangeWorkingDir(tmpdir):
-            with RegisterTIRExInfo({"key": "value"}), tracking(
+            with RegisterTIRExInfo({"key": "value", ("parent", "child"): "nested-value"}), tracking(
                 measures=[
                     Measure.PYTHON_VERSION,
                     Measure.PYTHON_EXECUTABLE,
@@ -82,4 +82,8 @@ class CustomMetricTestCase(unittest.TestCase):
             with open("./ir_metadata.yml") as file:
                 metadata = yaml.safe_load(file)
             print(metadata)
-            # TODO: test if the metadata is contained
+            self.assertIn("key", metadata)
+            self.assertEqual(metadata["key"], "value")
+            self.assertIn("parent", metadata)
+            self.assertIn("child", metadata["parent"])
+            self.assertEqual(metadata["parent"]["child"], "nested-value")
