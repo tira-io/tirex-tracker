@@ -3,6 +3,8 @@ from __future__ import annotations
 from collections import ChainMap
 from typing import TYPE_CHECKING
 
+from box import Box
+
 if TYPE_CHECKING:
     from typing import _KT, _VT, Mapping
 
@@ -22,6 +24,15 @@ class DeepChainMap(ChainMap["_KT", "_VT"]):
             map (Mapping[_KT, _VT]): The mapping that is added to the top of the ChainMap.
         """
         self.maps.insert(0, map)
+
+    def __iter__(self):
+        return self.__dict__().to_dict()
+
+    def to_dict(self) -> dict:
+        d = Box()
+        for mapping in reversed(self.maps):
+            d += mapping
+        return d.to_dict()
 
     def __setitem__(self, key: _KT, value: _VT) -> None:
         """Adds a new item to the ChainMap by modifying the "topmost" (i.e. last added) dictionary that was added to the
@@ -59,7 +70,8 @@ class DeepChainMap(ChainMap["_KT", "_VT"]):
         """
         for mapping in self.maps:
             if key in mapping:
-                del mapping[key]
+                # del mapping[key]
+                mapping.pop(key)
                 # TODO: if mapping is empty now, remove it from self.maps
                 return
         raise KeyError(key)
