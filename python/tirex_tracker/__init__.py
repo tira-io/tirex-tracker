@@ -51,7 +51,7 @@ if TYPE_CHECKING:
     from ctypes import _CFunctionType as CFunctionType  # type: ignore
     from ctypes import _Pointer as Pointer  # type: ignore
 
-from ._custom_metrics import RegisterTIRExInfo, deregister_info, register_info, get_info
+from ._custom_metrics import RegisterTIRExInfo, deregister_info, get_info, register_info
 
 PathLike: TypeAlias = Optional[Union[str, Path]]
 
@@ -455,7 +455,7 @@ def _get_python_info(
     return results, measures
 
 
-def _deep_merge(dict1: dict, dict2: dict) -> dict:
+def _deep_merge(dict1: dict, dict2: Mapping) -> dict:
     for key in dict2:
         if key in dict1 and isinstance(dict1[key], dict) and isinstance(dict2[key], dict):
             _deep_merge(dict1[key], dict2[key])

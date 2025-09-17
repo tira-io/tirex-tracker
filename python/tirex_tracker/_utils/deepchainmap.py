@@ -1,21 +1,21 @@
 from __future__ import annotations
 
 from collections import ChainMap
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Generic
 
 from box import Box
 
 if TYPE_CHECKING:
-    from typing import _KT, _VT, Mapping
+    from typing import _KT, _VT, MutableMapping
 
 
-class DeepChainMap(ChainMap):
+class DeepChainMap(ChainMap, Generic[_KT, _VT]):
     """Variant of ChainMap that allows direct updates to inner scopes.
 
     Base on: https://docs.python.org/3/library/collections.html#chainmap-examples-and-recipes
     """
 
-    def push(self, map: Mapping[_KT, _VT]) -> None:
+    def push(self, map: MutableMapping[_KT, _VT]) -> None:
         """Adds the given map as the "topmost" element in the stack of mappings. If keys are requested from the
         ChainMap, the maps are iterated from top to bottom and the value of the first dictionary that contains that key
         is returned.

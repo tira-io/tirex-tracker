@@ -9,7 +9,7 @@ from box import Box
 from ._utils.deepchainmap import DeepChainMap
 
 if TYPE_CHECKING:
-    from typing import Iterable, Union
+    from typing import Iterable, MutableMapping, Union
 
     VALUE = Union[Mapping[str, "VALUE"], str]
 
@@ -17,7 +17,8 @@ __info: DeepChainMap[str, VALUE] = DeepChainMap()
 
 
 def register_info(info: dict[Union[str, tuple[str, ...]], VALUE]) -> None:
-    """TODO: summary
+    """Registers the provided information. If the key is a tuple, it is considered to be a "path". The ir_metadata
+    export will use the exact path to place the metadata into the export.
 
     Unless absoluteley necessary, it is recommended to use `RegisterTIRExInfo` instead of `register_info` and
     `deregister_info`.
@@ -26,7 +27,7 @@ def register_info(info: dict[Union[str, tuple[str, ...]], VALUE]) -> None:
         >>> registerInfo({"hello": "world", "foo": "bar"})
         >>> deregisterInfo(["hello", "foo"])
     """
-    ndict: Box[str, str] = Box()
+    ndict: Box = Box()
     for keys, v in info.items():
         if isinstance(keys, tuple):
             cur = ndict
@@ -42,7 +43,7 @@ def register_info(info: dict[Union[str, tuple[str, ...]], VALUE]) -> None:
     __info.push(ndict)
 
 
-def deregister_info(keys: Iterable[str]) -> None:
+def deregister_info(keys: Iterable[Union[str, tuple[str, ...]]]) -> None:
     """Removes the last registered occurence of each key. Every info that is registered must equally often be
     deregistered. If a key is registered twice (first for value `v1`, then for value `v2`) then it will hold the value
     of its last registration (`v2`). Deregistration "pops" the last value such that it holds the value of the
@@ -55,7 +56,7 @@ def deregister_info(keys: Iterable[str]) -> None:
         keys (Iterable[str]): The keys that should be deregistered.
     """
 
-    def _rec_remove(dic: Mapping, key: Union[str, tuple[str, ...]]) -> None:
+    def _rec_remove(dic: MutableMapping, key: Union[str, tuple[str, ...]]) -> None:
         if isinstance(key, tuple) and len(key) == 1:
             key = key[0]
         if isinstance(key, str):
@@ -71,14 +72,14 @@ def deregister_info(keys: Iterable[str]) -> None:
 
 
 class RegisterTIRExInfo:
-    """TODO: summary
+    """Registers and deregisters the provided metrics.
 
     Examples:
-        >>> with RegisterTIRExInfo({"/data/test collection/ir_datasets": "trec-2019-train", "foo": "bar"}):
+        >>> with RegisterTIRExInfo({("data", "test collection", "ir_datasets"): "trec-2019-train", "foo": "bar"}):
         >>>   pass  # Do tracking here and save to ir-datasets file
     """
 
-    def __init__(self, info: dict[str, VALUE]) -> None:
+    def __init__(self, info: dict[Union[str, tuple[str, ...]], VALUE]) -> None:
         self._info = info
 
     def __enter__(self) -> None:
