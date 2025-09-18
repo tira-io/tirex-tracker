@@ -253,10 +253,17 @@ class _ProviderInfo(Structure):
         )
 
 
+try:
+    provider_version = version("tirex-tracker")
+except:
+    # if the TIREx tracker is not installed via pip
+    provider_version = "unpublished"
+
+
 _PYTHON_PROVIDER = ProviderInfo(
     name="Python",
     description="Python-specific measures.",
-    version=version("tirex-tracker"),
+    version=provider_version,
 )
 
 
