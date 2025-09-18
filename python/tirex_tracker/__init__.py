@@ -9,6 +9,7 @@ from gzip import open as gzip_open
 from io import BytesIO
 from json import dumps, loads
 from pathlib import Path
+import shutil
 from sys import argv, executable, platform, version_info
 from sys import modules as sys_modules
 from traceback import extract_stack
@@ -19,6 +20,7 @@ from typing import (
     Callable,
     Collection,
     ContextManager,
+    Dict,
     ItemsView,
     Iterable,
     Iterator,
@@ -58,6 +60,9 @@ T = TypeVar("T")
 
 
 _ENCODING = "ascii"
+
+REGISTERED_METADATA = {}
+REGISTERED_FILES = []
 
 
 class Error(IntEnum):
@@ -848,6 +853,15 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         ir_metadata = _deep_merge(ir_metadata, tmp_ir_metadata)
         ir_metadata = _recursive_undefaultdict(ir_metadata)
 
+        global REGISTERED_METADATA
+        if REGISTERED_METADATA:
+            ir_metadata.update(REGISTERED_METADATA)
+
+        for r_resolve_dir, r_file in REGISTERED_FILES:
+            target_file = self._export_file_path.parent / r_file
+            target_file.parent.mkdir(exist_ok=True, parents=True)
+            shutil.copy(r_resolve_dir/r_file, target_file)
+
         # Serialize the updated ir_metadata.
         file_open: Callable[[], IO[str]]
         if export_file_path.suffix == ".gz":
@@ -891,7 +905,7 @@ def start_tracking(
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
-    export_format: Optional[ExportFormat] = None,
+    export_format: Optional[ExportFormat] = ExportFormat.IR_METADATA,
 ) -> TrackingHandle:
     return TrackingHandle.start(
         measures=measures,
@@ -916,7 +930,7 @@ def tracking(
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
-    export_format: Optional[ExportFormat] = None,
+    export_format: Optional[ExportFormat] = ExportFormat.IR_METADATA,
 ) -> TrackingHandle:
     return TrackingHandle.start(
         measures=measures,
@@ -936,7 +950,7 @@ def track(
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
-    export_format: Optional[ExportFormat] = None,
+    export_format: Optional[ExportFormat] = ExportFormat.IR_METADATA,
 ) -> Mapping[Measure, ResultEntry]:
     with tracking(
         measures=measures,
@@ -974,7 +988,7 @@ def tracked(
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
-    export_format: Optional[ExportFormat] = None,
+    export_format: Optional[ExportFormat] = ExportFormat.IR_METADATA,
 ) -> Union[
     Union[Callable[P, T], ResultsAccessor],
     Callable[[Callable[P, T]], Union[Callable[P, T], ResultsAccessor]],
@@ -1026,3 +1040,23 @@ def tracked(
             return results_wrapper
 
         return decorator
+
+def clear_metadata_register() -> None:
+    global REGISTERED_METADATA
+    REGISTERED_METADATA = {}
+
+def register_metadata(metadata: Dict) -> None:
+    global REGISTERED_METADATA
+    REGISTERED_METADATA.update(metadata)
+
+def clear_file_register() -> None:
+    global REGISTERED_FILES
+    REGISTERED_FILES = []
+
+def register_file(resolve_to: Path, file: Path) -> None:
+    if not resolve_to.is_dir():
+        raise ValueError(f"Tirex-tracker resolve_to should point to an directory, got {resolve_to}")
+    if not (resolve_to / file).is_file():
+        raise ValueError(f"Tirex-tracker resolve_to/file should exist, got {resolve_to/file}")
+
+    REGISTERED_FILES.append((resolve_to, file))
