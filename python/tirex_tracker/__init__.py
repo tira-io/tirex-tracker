@@ -864,8 +864,11 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         if REGISTERED_METADATA:
             ir_metadata.update(REGISTERED_METADATA)
 
-        for r_resolve_dir, r_file in REGISTERED_FILES:
-            target_file = self._export_file_path.parent / r_file
+        for r_resolve_dir, r_file, subdir in REGISTERED_FILES:
+            if subdir is None:
+                target_file = self._export_file_path.parent / r_file
+            else:
+                target_file = self._export_file_path.parent / subdir / r_file
             target_file.parent.mkdir(exist_ok=True, parents=True)
             shutil.copy(r_resolve_dir/r_file, target_file)
 
@@ -1060,10 +1063,10 @@ def clear_file_register() -> None:
     global REGISTERED_FILES
     REGISTERED_FILES = []
 
-def register_file(resolve_to: Path, file: Path) -> None:
+def register_file(resolve_to: Path, file: Path, subdirectory: "Optional[str]"=None) -> None:
     if not resolve_to.is_dir():
         raise ValueError(f"Tirex-tracker resolve_to should point to an directory, got {resolve_to}")
     if not (resolve_to / file).is_file():
         raise ValueError(f"Tirex-tracker resolve_to/file should exist, got {resolve_to/file}")
 
-    REGISTERED_FILES.append((resolve_to, file))
+    REGISTERED_FILES.append((resolve_to, file, subdirectory))
