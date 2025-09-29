@@ -775,21 +775,13 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
                 "ir_metadata",
                 "ir-metadata",
                 "irmetadata",
-                "ir_metadata.yml",
-                "ir-metadata.yml",
-                "irmetadata.yml",
-                "ir_metadata.yaml",
-                "ir-metadata.yaml",
-                "irmetadata.yaml",
+                ".yml",
+                ".yaml",
                 "ir_metadata.gz",
                 "ir-metadata.gz",
                 "irmetadata.gz",
-                "ir_metadata.yml.gz",
-                "ir-metadata.yml.gz",
-                "irmetadata.yml.gz",
-                "ir_metadata.yaml.gz",
-                "ir-metadata.yaml.gz",
-                "irmetadata.yaml.gz",
+                ".yml.gz",
+                ".yaml.gz",
             ]
         ):
             self._export_ir_metadata(result)
@@ -914,7 +906,7 @@ def start_tracking(
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
-    export_format: Optional[ExportFormat] = ExportFormat.IR_METADATA,
+    export_format: Optional[ExportFormat] = None,
 ) -> TrackingHandle:
     return TrackingHandle.start(
         measures=measures,
@@ -939,7 +931,7 @@ def tracking(
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
-    export_format: Optional[ExportFormat] = ExportFormat.IR_METADATA,
+    export_format: Optional[ExportFormat] = None,
 ) -> TrackingHandle:
     return TrackingHandle.start(
         measures=measures,
@@ -959,7 +951,7 @@ def track(
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
-    export_format: Optional[ExportFormat] = ExportFormat.IR_METADATA,
+    export_format: Optional[ExportFormat] = None,
 ) -> Mapping[Measure, ResultEntry]:
     with tracking(
         measures=measures,
@@ -997,7 +989,7 @@ def tracked(
     system_name: Optional[str] = None,
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
-    export_format: Optional[ExportFormat] = ExportFormat.IR_METADATA,
+    export_format: Optional[ExportFormat] = None,
 ) -> Union[
     Union[Callable[P, T], ResultsAccessor],
     Callable[[Callable[P, T]], Union[Callable[P, T], ResultsAccessor]],
