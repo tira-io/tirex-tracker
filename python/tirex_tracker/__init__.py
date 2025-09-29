@@ -9,7 +9,7 @@ from gzip import open as gzip_open
 from io import BytesIO
 from json import dumps, loads
 from pathlib import Path
-import shutil
+from shutil import copy
 from sys import argv, executable, platform, version_info
 from sys import modules as sys_modules
 from traceback import extract_stack
@@ -20,7 +20,6 @@ from typing import (
     Callable,
     Collection,
     ContextManager,
-    Dict,
     ItemsView,
     Iterable,
     Iterator,
@@ -39,7 +38,7 @@ from typing import (
     overload,
 )
 
-from importlib_metadata import distributions, version, PackageNotFoundError
+from importlib_metadata import PackageNotFoundError, distributions, version
 from importlib_resources import files
 from IPython import get_ipython
 from typing_extensions import ParamSpec, Self, TypeAlias  # type: ignore
@@ -866,11 +865,11 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
 
         for r_resolve_dir, r_file, subdir in _REGISTERED_FILES:
             if subdir is None:
-                target_file = self._export_file_path.parent / r_file
+                target_file = export_file_path.parent / r_file
             else:
-                target_file = self._export_file_path.parent / subdir / r_file
+                target_file = export_file_path.parent / subdir / r_file
             target_file.parent.mkdir(exist_ok=True, parents=True)
-            shutil.copy(r_resolve_dir/r_file, target_file)
+            copy(r_resolve_dir / r_file, target_file)
 
         # Serialize the updated ir_metadata.
         file_open: Callable[[], IO[str]]
@@ -1067,10 +1066,10 @@ def clear_file_register() -> None:
     _REGISTERED_FILES = []
 
 
-def register_file(resolve_to: Path, file: Path, subdirectory: Optional[str] = None) -> None:
+def register_file(resolve_to: Path, file: Path, subdirectory: str = ".") -> None:
     if not resolve_to.is_dir():
         raise ValueError(f"Tirex-tracker resolve_to should point to an directory, got {resolve_to}")
     if not (resolve_to / file).is_file():
-        raise ValueError(f"Tirex-tracker resolve_to/file should exist, got {resolve_to/file}")
+        raise ValueError(f"Tirex-tracker resolve_to/file should exist, got {resolve_to / file}")
 
     _REGISTERED_FILES.append((resolve_to, file, subdirectory))
