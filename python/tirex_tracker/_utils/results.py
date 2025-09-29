@@ -3,8 +3,8 @@ from __future__ import annotations
 from ctypes import c_char_p, c_wchar_p, cast
 from typing import TYPE_CHECKING
 
-from .. import Measure, ResultEntry, ResultType
-from .. import _ResultEntry as NativeResultEntry
+from tirex_tracker import Measure, ResultEntry, ResultType
+from tirex_tracker import _ResultEntry as NativeResultEntry
 
 if TYPE_CHECKING:
     from typing import Any, Callable, Dict

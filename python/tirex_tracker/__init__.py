@@ -9,6 +9,7 @@ from gzip import open as gzip_open
 from io import BytesIO
 from json import dumps, loads
 from pathlib import Path
+from shutil import copy
 from sys import argv, executable, platform, version_info
 from sys import modules as sys_modules
 from traceback import extract_stack
@@ -37,9 +38,9 @@ from typing import (
     overload,
 )
 
-from importlib_metadata import distributions, version
+from importlib_metadata import PackageNotFoundError, distributions, version
 from importlib_resources import files
-from IPython import get_ipython
+from IPython.core.getipython import get_ipython
 from typing_extensions import ParamSpec, Self, TypeAlias  # type: ignore
 from yaml import safe_dump as yaml_safe_dump
 from yaml import safe_load as yaml_safe_load
@@ -58,6 +59,9 @@ T = TypeVar("T")
 
 
 _ENCODING = "ascii"
+
+_REGISTERED_METADATA: MutableMapping[str, Any] = {}
+_REGISTERED_FILES: List[Tuple[Path, Path, str]] = []
 
 
 class Error(IntEnum):
@@ -248,10 +252,17 @@ class _ProviderInfo(Structure):
         )
 
 
+try:
+    provider_version = version("tirex-tracker")
+except PackageNotFoundError:
+    # if the TIREx tracker is not installed via pip
+    provider_version = "unpublished"
+
+
 _PYTHON_PROVIDER = ProviderInfo(
     name="Python",
     description="Python-specific measures.",
-    version=version("tirex-tracker"),
+    version=provider_version,
 )
 
 
@@ -500,7 +511,7 @@ def _find_library() -> Path:
         path = "tirex_tracker.dll"
     else:
         raise RuntimeError("Unsupported platform.")
-    return files(__name__) / path
+    return Path(str(files(__name__) / path))
 
 
 def _load_library() -> _TirexTrackerLibrary:
@@ -599,7 +610,7 @@ def measure_infos() -> Mapping[Measure, MeasureInfo]:
 
 
 def _parse_results(result: "Pointer[_Result]") -> Mapping[Measure, ResultEntry]:
-    from ._utils.results import parse_native_result_entry  # avoid circular imports
+    from tirex_tracker._utils.results import parse_native_result_entry  # avoid circular imports
 
     num_entries_pointer = pointer(c_size_t())
     error_int = _LIBRARY.tirexResultEntryNum(result, num_entries_pointer)
@@ -727,7 +738,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
     @overload
     def get(self, key: Measure, default: T) -> Union[ResultEntry, T]: ...
 
-    def get(self, key: Measure, default: Optional[T] = None) -> Optional[Union[ResultEntry, T]]:
+    def get(self, key: Measure, default: Optional[T] = None) -> Optional[Union[ResultEntry, T]]:  # type: ignore[overload]
         return self.results.get(key, default)
 
     def __contains__(self, key) -> bool:
@@ -764,21 +775,13 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
                 "ir_metadata",
                 "ir-metadata",
                 "irmetadata",
-                "ir_metadata.yml",
-                "ir-metadata.yml",
-                "irmetadata.yml",
-                "ir_metadata.yaml",
-                "ir-metadata.yaml",
-                "irmetadata.yaml",
+                ".yml",
+                ".yaml",
                 "ir_metadata.gz",
                 "ir-metadata.gz",
                 "irmetadata.gz",
-                "ir_metadata.yml.gz",
-                "ir-metadata.yml.gz",
-                "irmetadata.yml.gz",
-                "ir_metadata.yaml.gz",
-                "ir-metadata.yaml.gz",
-                "irmetadata.yaml.gz",
+                ".yml.gz",
+                ".yaml.gz",
             ]
         ):
             self._export_ir_metadata(result)
@@ -847,6 +850,18 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
 
         ir_metadata = _deep_merge(ir_metadata, tmp_ir_metadata)
         ir_metadata = _recursive_undefaultdict(ir_metadata)
+
+        global _REGISTERED_METADATA
+        if _REGISTERED_METADATA:
+            ir_metadata.update(_REGISTERED_METADATA)
+
+        for registered_resolve_to, registered_file, subdir in _REGISTERED_FILES:
+            if subdir is None:
+                target_file = export_file_path.parent / registered_file
+            else:
+                target_file = export_file_path.parent / subdir / registered_file
+            target_file.parent.mkdir(exist_ok=True, parents=True)
+            copy(registered_resolve_to / registered_file, target_file)
 
         # Serialize the updated ir_metadata.
         file_open: Callable[[], IO[str]]
@@ -1026,3 +1041,27 @@ def tracked(
             return results_wrapper
 
         return decorator
+
+
+def clear_metadata_register() -> None:
+    global _REGISTERED_METADATA
+    _REGISTERED_METADATA = {}
+
+
+def register_metadata(metadata: Mapping[str, Any]) -> None:
+    global _REGISTERED_METADATA
+    _REGISTERED_METADATA.update(metadata)
+
+
+def clear_file_register() -> None:
+    global _REGISTERED_FILES
+    _REGISTERED_FILES = []
+
+
+def register_file(resolve_to: Path, file: Path, subdirectory: str = ".") -> None:
+    if not resolve_to.is_dir():
+        raise ValueError(f"Tirex-tracker resolve_to should point to an directory, got {resolve_to}")
+    if not (resolve_to / file).is_file():
+        raise ValueError(f"Tirex-tracker resolve_to/file should exist, got {resolve_to / file}")
+
+    _REGISTERED_FILES.append((resolve_to, file, subdirectory))
