@@ -610,7 +610,7 @@ def measure_infos() -> Mapping[Measure, MeasureInfo]:
 
 
 def _parse_results(result: "Pointer[_Result]") -> Mapping[Measure, ResultEntry]:
-    from ._utils.results import parse_native_result_entry  # avoid circular imports
+    from tirex_tracker._utils.results import parse_native_result_entry  # avoid circular imports
 
     num_entries_pointer = pointer(c_size_t())
     error_int = _LIBRARY.tirexResultEntryNum(result, num_entries_pointer)
