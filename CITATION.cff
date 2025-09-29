@@ -12,15 +12,15 @@ preferred-citation:
   month: 7
   publisher:
     name: ACM
-  doi: # Add a doi here when we got it
-  url: # Add a doi here when we got it
+  doi: 10.1145/3726302.3730297
+  url: https://doi.org/10.1145/3726302.3730297
   authors:
     - given-names: Tim
       family-names: Hagen
       affiliation: University of Kassel and hessian.AI
       orcid: 'https://orcid.org/0009-0000-4854-7249'
     - given-names: Maik
-      family-names: 'Fr{\"o}be'
+      family-names: Fröbe
       affiliation: Friedrich-Schiller-Universität Jena
       orcid: 'https://orcid.org/0000-0002-1003-981X'
     - given-names: Jan Heinrich
