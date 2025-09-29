@@ -28,6 +28,7 @@ dependencies = [
     "ipython",
     "pyyaml~=6.0",
     "gitpython~=3.1",
+    "python-box~=7.0",
 ]
 dynamic = ["version"]
 
@@ -44,7 +45,7 @@ tests = [
 ]
 docs = [
     "sphinx~=8.1",
-    "myst-parser>=4,<4",
+    "myst-parser~=4.0",
 ]
 
 [project.urls]
@@ -73,7 +74,8 @@ exclude = ["build", "venv", "resources"]
 line-length = 120
 
 [tool.ruff.lint]
-select = ["E", "F", "B", "SIM", "I"]
+select = ["E", "F", "B", "SIM", "I", "S"]
+ignore = ["S101"]
 
 [tool.mypy]
 exclude = ["build", "venv", "resources"]
@@ -82,9 +84,7 @@ follow_imports = "silent"
 
 [tool.bandit]
 exclude_dirs = ["build", "venv", "resources"]
-
-[tool.bandit.assert_used]
-skips = ["**/test_*.py"]
+skips = ["B101"]
 
 [tool.pytest.ini_options]
 log_cli = "True"
