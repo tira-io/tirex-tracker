@@ -1,16 +1,18 @@
 from tirex_tracker.utils import is_pyterrier_installed
 
 if is_pyterrier_installed():
-    from typing import Iterable, Optional, Mapping, Final, Union, Iterator, Tuple
+    from typing import Final, Iterable, Iterator, Mapping, Optional, Tuple, Union
+
     from pandas import DataFrame
     from pyterrier import Transformer
     from pyterrier.model import IterDict
+
     from tirex_tracker import (
         ALL_MEASURES,
         ExportFormat,
+        Measure,
         PathLike,
         ResultEntry,
-        Measure,
         tracking,
     )
 
