@@ -87,4 +87,4 @@ exclude_dirs = ["build", "venv", "resources"]
 skips = ["**/test_*.py"]
 
 [tool.pytest.ini_options]
-log_cli = "True"
+log_cli = true
