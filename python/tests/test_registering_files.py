@@ -9,7 +9,7 @@ class TestRegisteredMetadata(unittest.TestCase):
         expected = ["metadata.yml"]
         clear_file_register()
 
-        with tempfile.TemporaryDirectory(delete=False) as tmp:
+        with tempfile.TemporaryDirectory() as tmp:
             with tracking(export_file_path=Path(tmp)/"metadata.yml", export_format=ExportFormat.IR_METADATA):
                 print("hello world")
             actual = [i.split('/')[-1] for i in glob(f"{tmp}/*")]
@@ -21,7 +21,7 @@ class TestRegisteredMetadata(unittest.TestCase):
         clear_file_register()
         register_file(Path(__file__).parent, Path("test_integration.py"))
 
-        with tempfile.TemporaryDirectory(delete=False) as tmp:
+        with tempfile.TemporaryDirectory() as tmp:
             with tracking(export_file_path=Path(tmp)/"metadata.yml", export_format=ExportFormat.IR_METADATA):
                 print("hello world")
             actual = set([i.split('/')[-1] for i in glob(f"{tmp}/*")])
@@ -33,7 +33,7 @@ class TestRegisteredMetadata(unittest.TestCase):
         clear_file_register()
         register_file(Path(__file__).parent, Path("test_integration.py"), "subdir")
 
-        with tempfile.TemporaryDirectory(delete=False) as tmp:
+        with tempfile.TemporaryDirectory() as tmp:
             with tracking(export_file_path=Path(tmp)/"metadata.yml", export_format=ExportFormat.IR_METADATA):
                 print("hello world")
             actual = set([i.split('/')[-1] for i in glob(f"{tmp}/subdir/*")])

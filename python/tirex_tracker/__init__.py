@@ -39,7 +39,7 @@ from typing import (
     overload,
 )
 
-from importlib_metadata import distributions, version
+from importlib_metadata import distributions, version, PackageNotFoundError
 from importlib_resources import files
 from IPython import get_ipython
 from typing_extensions import ParamSpec, Self, TypeAlias  # type: ignore
@@ -255,7 +255,7 @@ class _ProviderInfo(Structure):
 
 try:
     provider_version = version("tirex-tracker")
-except:
+except PackageNotFoundError:
     # if the TIREx tracker is not installed via pip
     provider_version = "unpublished"
 
