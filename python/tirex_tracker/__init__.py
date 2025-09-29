@@ -40,7 +40,7 @@ from typing import (
 
 from importlib_metadata import PackageNotFoundError, distributions, version
 from importlib_resources import files
-from IPython import get_ipython
+from IPython.core.getipython import get_ipython
 from typing_extensions import ParamSpec, Self, TypeAlias  # type: ignore
 from yaml import safe_dump as yaml_safe_dump
 from yaml import safe_load as yaml_safe_load
@@ -738,7 +738,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
     @overload
     def get(self, key: Measure, default: T) -> Union[ResultEntry, T]: ...
 
-    def get(self, key: Measure, default: Optional[T] = None) -> Optional[Union[ResultEntry, T]]:
+    def get(self, key: Measure, default: Optional[T] = None) -> Optional[Union[ResultEntry, T]]:  # type: ignore[overload]
         return self.results.get(key, default)
 
     def __contains__(self, key) -> bool:
