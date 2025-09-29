@@ -863,13 +863,13 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         if _REGISTERED_METADATA:
             ir_metadata.update(_REGISTERED_METADATA)
 
-        for r_resolve_dir, r_file, subdir in _REGISTERED_FILES:
+        for registered_resolve_to, registered_file, subdir in _REGISTERED_FILES:
             if subdir is None:
-                target_file = export_file_path.parent / r_file
+                target_file = export_file_path.parent / registered_file
             else:
-                target_file = export_file_path.parent / subdir / r_file
+                target_file = export_file_path.parent / subdir / registered_file
             target_file.parent.mkdir(exist_ok=True, parents=True)
-            copy(r_resolve_dir / r_file, target_file)
+            copy(registered_resolve_to / registered_file, target_file)
 
         # Serialize the updated ir_metadata.
         file_open: Callable[[], IO[str]]
