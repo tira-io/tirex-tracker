@@ -43,10 +43,8 @@ tests = [
     "types-pyyaml~=6.0",
     "jupyter~=1.1",
 ]
-docs = [
-    "sphinx~=8.1",
-    "myst-parser>=4,<4",
-]
+tests-codecarbon = ["codecarbon~=3.0"]
+docs = ["sphinx~=8.1", "myst-parser>=4,<4"]
 examples = [
     "pandas~=2.0",
     "python-terrier~=0.13.0; python_version <= \"3.12\"",
@@ -67,11 +65,7 @@ build-backend = "setuptools.build_meta"
 exclude = ["build", "venv"]
 
 [tool.setuptools.package-data]
-"*" = [
-    "*.so",
-    "*.dll",
-    "*.dylib",
-]
+"*" = ["*.so", "*.dll", "*.dylib"]
 
 [tool.setuptools_scm]
 root = "../"
@@ -85,6 +79,10 @@ select = ["E", "F", "B", "SIM", "I"]
 
 [tool.mypy]
 exclude = ["build", "venv", "resources"]
+
+[[tool.mypy.overrides]]
+module = ["codecarbon.*"]
+follow_untyped_imports = true
 
 [tool.bandit]
 exclude_dirs = ["build", "venv", "resources"]
