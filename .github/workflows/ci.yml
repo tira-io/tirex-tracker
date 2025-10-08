@@ -60,6 +60,7 @@ jobs:
     runs-on: ${{ contains(matrix.os, ':') && 'ubuntu-latest' || matrix.os }}
     container: 
       image: ${{ contains(matrix.os, ':') && matrix.os || null }}
+      volumes: ${{ contains(matrix.os, ':') && fromJSON('["/tmp:/__e/node20"]') || fromJSON('[]') }}
     steps:
       - name: 🧰 Install legacy Node.js
         # See: https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
@@ -176,7 +177,9 @@ jobs:
           # - {os: windows-2025, compiler: llvm-19}
           - { os: windows-2025, compiler: llvm-20 }
     runs-on: ${{ contains(matrix.os, ':') && 'ubuntu-latest' || matrix.os }}
-    container: ${{ contains(matrix.os, ':') && matrix.os || null }}
+    container: 
+      image: ${{ contains(matrix.os, ':') && matrix.os || null }}
+      volumes: ${{ contains(matrix.os, ':') && fromJSON('["/tmp:/__e/node20"]') || fromJSON('[]') }}
     steps:
       - name: 🧰 Install legacy Node.js
         # See: https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
@@ -255,7 +258,9 @@ jobs:
           - { os: ubuntu-24.04, compiler: llvm-19 }
           - { os: ubuntu-24.04, compiler: llvm-20 }
     runs-on: ${{ contains(matrix.os, ':') && 'ubuntu-latest' || matrix.os }}
-    container: ${{ contains(matrix.os, ':') && matrix.os || null }}
+    container: 
+      image: ${{ contains(matrix.os, ':') && matrix.os || null }}
+      volumes: ${{ contains(matrix.os, ':') && fromJSON('["/tmp:/__e/node20"]') || fromJSON('[]') }}
     steps:
       - name: 🧰 Install legacy Node.js
         # See: https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
@@ -342,7 +347,9 @@ jobs:
           # - {os: windows-2025, compiler: llvm-19}
           - { os: windows-2025, compiler: llvm-20 }
     runs-on: ${{ contains(matrix.os, ':') && 'ubuntu-latest' || matrix.os }}
-    container: ${{ contains(matrix.os, ':') && matrix.os || null }}
+    container: 
+      image: ${{ contains(matrix.os, ':') && matrix.os || null }}
+      volumes: ${{ contains(matrix.os, ':') && fromJSON('["/tmp:/__e/node20"]') || fromJSON('[]') }}
     steps:
       - name: 🧰 Install legacy Node.js
         # See: https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
@@ -470,7 +477,9 @@ jobs:
           - { os: windows-2025, java: "17" }
           - { os: windows-2025, java: "21" }
     runs-on: ${{ contains(matrix.os, ':') && 'ubuntu-latest' || matrix.os }}
-    container: ${{ contains(matrix.os, ':') && matrix.os || null }}
+    container: 
+      image: ${{ contains(matrix.os, ':') && matrix.os || null }}
+      volumes: ${{ contains(matrix.os, ':') && fromJSON('["/tmp:/__e/node20"]') || fromJSON('[]') }}
     needs:
       - c-build-library
       - c-check-format
@@ -815,7 +824,9 @@ jobs:
           - { os: windows-2025, python: "3.12" }
           - { os: windows-2025, python: "3.13" }
     runs-on: ${{ contains(matrix.os, ':') && 'ubuntu-latest' || matrix.os }}
-    container: ${{ contains(matrix.os, ':') && matrix.os || null }}
+    container: 
+      image: ${{ contains(matrix.os, ':') && matrix.os || null }}
+      volumes: ${{ contains(matrix.os, ':') && fromJSON('["/tmp:/__e/node20"]') || fromJSON('[]') }}
     needs:
       - c-build-library
       - c-check-format
