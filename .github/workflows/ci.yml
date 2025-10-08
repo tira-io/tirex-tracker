@@ -707,6 +707,19 @@ jobs:
           - macos-15
           # - windows-2022  # FIXME: does not seem to work right now
           # - windows-2025  # FIXME: does not seem to work right now
+        exclude:
+          - {python: "3.8",  codecarbon: true, runs-on: macos-14}  # CodeCarbon does not support macOS
+          - {python: "3.9",  codecarbon: true, runs-on: macos-14}  # CodeCarbon does not support macOS
+          - {python: "3.10", codecarbon: true, runs-on: macos-14}  # CodeCarbon does not support macOS
+          - {python: "3.11", codecarbon: true, runs-on: macos-14}  # CodeCarbon does not support macOS
+          - {python: "3.12", codecarbon: true, runs-on: macos-14}  # CodeCarbon does not support macOS
+          - {python: "3.13", codecarbon: true, runs-on: macos-14}  # CodeCarbon does not support macOS
+          - {python: "3.8",  codecarbon: true, runs-on: macos-15}  # CodeCarbon does not support macOS
+          - {python: "3.9",  codecarbon: true, runs-on: macos-15}  # CodeCarbon does not support macOS
+          - {python: "3.10", codecarbon: true, runs-on: macos-15}  # CodeCarbon does not support macOS
+          - {python: "3.11", codecarbon: true, runs-on: macos-15}  # CodeCarbon does not support macOS
+          - {python: "3.12", codecarbon: true, runs-on: macos-15}  # CodeCarbon does not support macOS
+          - {python: "3.13", codecarbon: true, runs-on: macos-15}  # CodeCarbon does not support macOS
     runs-on: ${{ matrix.runs-on }}
     needs:
       - c-build-library
