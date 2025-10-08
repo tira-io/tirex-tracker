@@ -58,8 +58,17 @@ jobs:
           # - {os: windows-2025, compiler: llvm-19}
           - { os: windows-2025, compiler: llvm-20 }
     runs-on: ${{ contains(matrix.os, ':') && 'ubuntu-latest' || matrix.os }}
-    container: ${{ contains(matrix.os, ':') && matrix.os || null }}
+    container: 
+      image: ${{ contains(matrix.os, ':') && matrix.os || null }}
     steps:
+      - name: 🧰 Install legacy Node.js
+        # See: https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
+        if: contains(matrix.os, ':')
+        run: |
+          apt-get update && apt-get install -y curl ca-certificates &&
+          curl -Lo node.tar.gz https://unofficial-builds.nodejs.org/download/release/v20.19.5/node-v20.19.5-linux-x64-glibc-217.tar.gz &&
+          tar -C /__e/node20 -x --strip-components=1 -f node.tar.gz &&
+          rm node.tar.gz
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
@@ -73,10 +82,6 @@ jobs:
           git: true
       - name: 📥 Check-out
         uses: actions/checkout@v4
-        if: ! contains(matrix.os, ':')
-      - name: 📥 Check-out (legacy)
-        uses: actions/checkout@v3
-        if: contains(matrix.os, ':')
       - name: 📥 Fetch tags
         continue-on-error: true
         run: |
@@ -173,6 +178,14 @@ jobs:
     runs-on: ${{ contains(matrix.os, ':') && 'ubuntu-latest' || matrix.os }}
     container: ${{ contains(matrix.os, ':') && matrix.os || null }}
     steps:
+      - name: 🧰 Install legacy Node.js
+        # See: https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
+        if: contains(matrix.os, ':')
+        run: |
+          apt-get update && apt-get install -y curl ca-certificates &&
+          curl -Lo node.tar.gz https://unofficial-builds.nodejs.org/download/release/v20.19.5/node-v20.19.5-linux-x64-glibc-217.tar.gz &&
+          tar -C /__e/node20 -x --strip-components=1 -f node.tar.gz &&
+          rm node.tar.gz
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
@@ -186,10 +199,6 @@ jobs:
           git: true
       - name: 📥 Check-out
         uses: actions/checkout@v4
-        if: ! contains(matrix.os, ':')
-      - name: 📥 Check-out (legacy)
-        uses: actions/checkout@v3
-        if: contains(matrix.os, ':')
       - name: 📥 Fetch tags
         continue-on-error: true
         run: |
@@ -248,6 +257,14 @@ jobs:
     runs-on: ${{ contains(matrix.os, ':') && 'ubuntu-latest' || matrix.os }}
     container: ${{ contains(matrix.os, ':') && matrix.os || null }}
     steps:
+      - name: 🧰 Install legacy Node.js
+        # See: https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
+        if: contains(matrix.os, ':')
+        run: |
+          apt-get update && apt-get install -y curl ca-certificates &&
+          curl -Lo node.tar.gz https://unofficial-builds.nodejs.org/download/release/v20.19.5/node-v20.19.5-linux-x64-glibc-217.tar.gz &&
+          tar -C /__e/node20 -x --strip-components=1 -f node.tar.gz &&
+          rm node.tar.gz
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
@@ -261,10 +278,6 @@ jobs:
           git: true
       - name: 📥 Check-out
         uses: actions/checkout@v4
-        if: ! contains(matrix.os, ':')
-      - name: 📥 Check-out (legacy)
-        uses: actions/checkout@v3
-        if: contains(matrix.os, ':')
       - name: 📥 Fetch tags
         continue-on-error: true
         run: |
@@ -331,6 +344,14 @@ jobs:
     runs-on: ${{ contains(matrix.os, ':') && 'ubuntu-latest' || matrix.os }}
     container: ${{ contains(matrix.os, ':') && matrix.os || null }}
     steps:
+      - name: 🧰 Install legacy Node.js
+        # See: https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
+        if: contains(matrix.os, ':')
+        run: |
+          apt-get update && apt-get install -y curl ca-certificates &&
+          curl -Lo node.tar.gz https://unofficial-builds.nodejs.org/download/release/v20.19.5/node-v20.19.5-linux-x64-glibc-217.tar.gz &&
+          tar -C /__e/node20 -x --strip-components=1 -f node.tar.gz &&
+          rm node.tar.gz
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
@@ -344,10 +365,6 @@ jobs:
           git: true
       - name: 📥 Check-out
         uses: actions/checkout@v4
-        if: ! contains(matrix.os, ':')
-      - name: 📥 Check-out (legacy)
-        uses: actions/checkout@v3
-        if: contains(matrix.os, ':')
       - name: 🔧 Configure CMake
         run: cmake -S c/ -B c/build/ -G "Ninja Multi-Config" --preset=conf-dev -D TIREX_TRACKER_BUILD_DOCS=NO
       - name: 🏗️ Build tests
@@ -458,12 +475,16 @@ jobs:
       - c-build-library
       - c-check-format
     steps:
+      - name: 🧰 Install legacy Node.js
+        # See: https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
+        if: contains(matrix.os, ':')
+        run: |
+          apt-get update && apt-get install -y curl ca-certificates &&
+          curl -Lo node.tar.gz https://unofficial-builds.nodejs.org/download/release/v20.19.5/node-v20.19.5-linux-x64-glibc-217.tar.gz &&
+          tar -C /__e/node20 -x --strip-components=1 -f node.tar.gz &&
+          rm node.tar.gz
       - name: 📥 Check-out
         uses: actions/checkout@v4
-        if: ! contains(matrix.os, ':')
-      - name: 📥 Check-out (legacy)
-        uses: actions/checkout@v3
-        if: contains(matrix.os, ':')
       - name: 🧰 Install JDK 8 (for compiling)
         uses: actions/setup-java@v5
         with:
@@ -799,12 +820,16 @@ jobs:
       - c-build-library
       - c-check-format
     steps:
+      - name: 🧰 Install legacy Node.js
+        # See: https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
+        if: contains(matrix.os, ':')
+        run: |
+          apt-get update && apt-get install -y curl ca-certificates &&
+          curl -Lo node.tar.gz https://unofficial-builds.nodejs.org/download/release/v20.19.5/node-v20.19.5-linux-x64-glibc-217.tar.gz &&
+          tar -C /__e/node20 -x --strip-components=1 -f node.tar.gz &&
+          rm node.tar.gz
       - name: 📥 Check-out
         uses: actions/checkout@v4
-        if: ! contains(matrix.os, ':')
-      - name: 📥 Check-out (legacy)
-        uses: actions/checkout@v3
-        if: contains(matrix.os, ':')
       - name: 🧰 Install Python
         uses: actions/setup-python@v6
         with:
