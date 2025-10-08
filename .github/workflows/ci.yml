@@ -67,7 +67,7 @@ jobs:
         run: |
           apt-get update && apt-get install -y curl ca-certificates &&
           curl -Lo node.tar.gz https://unofficial-builds.nodejs.org/download/release/v20.19.5/node-v20.19.5-linux-x64-glibc-217.tar.gz &&
-          tar -C /__e/node20 -x --strip-components=1 -f node.tar.gz &&
+          tar --directory /__e/node20 --extract --overwrite --strip-components 1 --file node.tar.gz &&
           rm node.tar.gz
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
@@ -184,7 +184,7 @@ jobs:
         run: |
           apt-get update && apt-get install -y curl ca-certificates &&
           curl -Lo node.tar.gz https://unofficial-builds.nodejs.org/download/release/v20.19.5/node-v20.19.5-linux-x64-glibc-217.tar.gz &&
-          tar -C /__e/node20 -x --strip-components=1 -f node.tar.gz &&
+          tar --directory /__e/node20 --extract --overwrite --strip-components 1 --file node.tar.gz &&
           rm node.tar.gz
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
@@ -263,7 +263,7 @@ jobs:
         run: |
           apt-get update && apt-get install -y curl ca-certificates &&
           curl -Lo node.tar.gz https://unofficial-builds.nodejs.org/download/release/v20.19.5/node-v20.19.5-linux-x64-glibc-217.tar.gz &&
-          tar -C /__e/node20 -x --strip-components=1 -f node.tar.gz &&
+          tar --directory /__e/node20 --extract --overwrite --strip-components 1 --file node.tar.gz &&
           rm node.tar.gz
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
@@ -350,7 +350,7 @@ jobs:
         run: |
           apt-get update && apt-get install -y curl ca-certificates &&
           curl -Lo node.tar.gz https://unofficial-builds.nodejs.org/download/release/v20.19.5/node-v20.19.5-linux-x64-glibc-217.tar.gz &&
-          tar -C /__e/node20 -x --strip-components=1 -f node.tar.gz &&
+          tar --directory /__e/node20 --extract --overwrite --strip-components 1 --file node.tar.gz &&
           rm node.tar.gz
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
@@ -481,7 +481,7 @@ jobs:
         run: |
           apt-get update && apt-get install -y curl ca-certificates &&
           curl -Lo node.tar.gz https://unofficial-builds.nodejs.org/download/release/v20.19.5/node-v20.19.5-linux-x64-glibc-217.tar.gz &&
-          tar -C /__e/node20 -x --strip-components=1 -f node.tar.gz &&
+          tar --directory /__e/node20 --extract --overwrite --strip-components 1 --file node.tar.gz &&
           rm node.tar.gz
       - name: 📥 Check-out
         uses: actions/checkout@v4
@@ -826,7 +826,7 @@ jobs:
         run: |
           apt-get update && apt-get install -y curl ca-certificates &&
           curl -Lo node.tar.gz https://unofficial-builds.nodejs.org/download/release/v20.19.5/node-v20.19.5-linux-x64-glibc-217.tar.gz &&
-          tar -C /__e/node20 -x --strip-components=1 -f node.tar.gz &&
+          tar --directory /__e/node20 --extract --overwrite --strip-components 1 --file node.tar.gz &&
           rm node.tar.gz
       - name: 📥 Check-out
         uses: actions/checkout@v4
