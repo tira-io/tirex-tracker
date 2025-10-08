@@ -33,7 +33,6 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 tests = [
-    "bandit[toml]~=1.7",
     "mypy~=1.5",
     "pandas-stubs~=2.0",
     "pytest~=8.0",
@@ -75,7 +74,10 @@ exclude = ["build", "venv", "resources"]
 line-length = 120
 
 [tool.ruff.lint]
-select = ["E", "F", "B", "SIM", "I"]
+select = ["E", "F", "B", "SIM", "I", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/test_*.py" = ["S101"]
 
 [tool.mypy]
 exclude = ["build", "venv", "resources"]
@@ -83,12 +85,6 @@ exclude = ["build", "venv", "resources"]
 [[tool.mypy.overrides]]
 module = ["codecarbon.*"]
 follow_untyped_imports = true
-
-[tool.bandit]
-exclude_dirs = ["build", "venv", "resources"]
-
-[tool.bandit.assert_used]
-skips = ["**/test_*.py"]
 
 [tool.pytest.ini_options]
 log_cli = true
