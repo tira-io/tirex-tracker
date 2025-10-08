@@ -45,7 +45,7 @@ from typing_extensions import ParamSpec, Self, TypeAlias  # type: ignore
 from yaml import safe_dump as yaml_safe_dump
 from yaml import safe_load as yaml_safe_load
 
-from tirex_tracker.archive_utils import create_code_archive, git_repo_or_none
+from tirex_tracker.archive_utils import create_code_archive
 
 if TYPE_CHECKING:
     from ctypes import Array
@@ -333,16 +333,18 @@ _PYTHON_MEASURES: Mapping[Measure, MeasureInfo] = {
         example=dumps("/path/to/notebook.ipynb"),
     ),
     Measure.PYTHON_CODE_ARCHIVE_PATH: MeasureInfo(
-        description="The archive that contains a snapshot of the code.",
+        description=f"DEPRECATED! Use the {Measure.GIT_ARCHIVE_PATH.name} measure instead.",
         data_type=ResultType.STRING,
         example=dumps("/path/to/code.zip"),
     ),
     Measure.PYTHON_SCRIPT_FILE_PATH_IN_CODE_ARCHIVE: MeasureInfo(
+        # TODO
         description="The script that was executed in the code archive.",
         data_type=ResultType.STRING,
         example=dumps("script.py"),
     ),
     Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE: MeasureInfo(
+        # TODO
         description="The notebook that was executed in the code archive.",
         data_type=ResultType.STRING,
         example=dumps("notebook.ipynb"),
@@ -370,8 +372,10 @@ def _add_python_result_entry(
 
 
 def _get_python_info(
-    measures: Iterable[Measure], export_file_path: Optional[PathLike] = None
-) -> Tuple[Mapping[Measure, ResultEntry], Iterable[Measure]]:
+    measures: Iterable[Measure],
+    fetched_info: Mapping[Measure, ResultEntry],
+    export_file_path: Optional[PathLike] = None,
+) -> Mapping[Measure, ResultEntry]:
     results: MutableMapping[Measure, ResultEntry] = {}
 
     _add_python_result_entry(
@@ -418,9 +422,6 @@ def _get_python_info(
 
     if ipython is None:
         script_file_path = Path(extract_stack()[0].filename).resolve()
-        repo = git_repo_or_none(script_file_path)
-        if repo is not None and repo.working_tree_dir is not None:
-            script_file_path = script_file_path.relative_to(repo.working_tree_dir)
         _add_python_result_entry(
             results=results,
             measure=Measure.PYTHON_SCRIPT_FILE_PATH,
@@ -428,7 +429,12 @@ def _get_python_info(
             value=str(script_file_path),
         )
 
-    if export_file_path is not None:
+    if export_file_path is not None and Measure.GIT_ARCHIVE_PATH in measures:
+        git_archive_path = Path(loads(fetched_info[Measure.GIT_ARCHIVE_PATH].value))
+
+        # TODO: Relative to which directory is the Git archive created (Git root)?
+        # We would need this to add the relative paths.
+
         # Create a utility directory as a sibling to the export file, containing the code archive.
         metadata_directory_path = Path(export_file_path).parent / ".tirex-tracker"
 
@@ -437,31 +443,34 @@ def _get_python_info(
             metadata_directory_path.rmdir()
         metadata_directory_path.mkdir(parents=True)
 
-        archive_paths = create_code_archive(metadata_directory_path)
+        archive_paths = create_code_archive(
+            metadata_directory_path=metadata_directory_path,
+            git_archive_path=git_archive_path,
+            git_root_path=NotImplemented,
+        )
 
         _add_python_result_entry(
             results=results,
             measure=Measure.PYTHON_CODE_ARCHIVE_PATH,
             measures=measures,
-            value=str(archive_paths.zip_file_path),
+            value=str(git_archive_path),
         )
-        _add_python_result_entry(
-            results=results,
-            measure=Measure.PYTHON_SCRIPT_FILE_PATH_IN_CODE_ARCHIVE,
-            measures=measures,
-            value=str(archive_paths.script_file_path_in_zip),
-        )
-        if archive_paths.notebook_file_path_in_zip is not None:
+        if archive_paths.script_file_path_in_git_archive is not None:
+            _add_python_result_entry(
+                results=results,
+                measure=Measure.PYTHON_SCRIPT_FILE_PATH_IN_CODE_ARCHIVE,
+                measures=measures,
+                value=str(archive_paths.script_file_path_in_git_archive),
+            )
+        if archive_paths.notebook_file_path_in_git_archive is not None:
             _add_python_result_entry(
                 results=results,
                 measure=Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE,
                 measures=measures,
-                value=str(archive_paths.notebook_file_path_in_zip),
+                value=str(archive_paths.notebook_file_path_in_git_archive),
             )
 
-    measures = {measure for measure in measures if measure not in _PYTHON_MEASURES}
-
-    return results, measures
+    return results
 
 
 def _deep_merge(dict1: dict, dict2: dict) -> dict:
@@ -630,38 +639,61 @@ def _parse_results(result: "Pointer[_Result]") -> Mapping[Measure, ResultEntry]:
 def _prepare_measure_configurations(
     measures: Iterable[Measure],
 ) -> "Array[_MeasureConfiguration]":
-    configs = [_MeasureConfiguration(measure.value, Aggregation.NO.value) for measure in measures] + [
-        _NULL_MEASURE_CONFIGURATION
-    ]
+    configs = [
+        _MeasureConfiguration(measure.value, Aggregation.NO.value)
+        for measure in measures
+        if measure not in _PYTHON_MEASURES
+    ] + [_NULL_MEASURE_CONFIGURATION]
     configs_array = (_MeasureConfiguration * (len(configs)))(*configs)
     return configs_array
+
+
+class _FetchedInfos(NamedTuple):
+    result_pointer: "Pointer[_Result]"
+    python_info: Mapping[Measure, ResultEntry]
+
+
+def _fetch_info(
+    measures: Iterable[Measure] = ALL_MEASURES,
+    export_file_path: Optional[PathLike] = None,
+) -> _FetchedInfos:
+    # Prepare the measure configurations.
+    configs_array = _prepare_measure_configurations(measures)
+
+    # Get general info.
+    result_pointer = pointer(pointer(_Result()))
+    error_int = _LIBRARY.tirexFetchInfo(configs_array, result_pointer)
+    _handle_error(error_int)
+    fetched_info = _parse_results(result_pointer.contents)
+
+    # Get Python info.
+    python_info = _get_python_info(
+        measures=measures,
+        fetched_info=fetched_info,
+        export_file_path=export_file_path,
+    )
+
+    return _FetchedInfos(
+        result_pointer=result_pointer.contents,
+        python_info=python_info,
+    )
 
 
 # TODO: Add aggregation(s) (mapping) parameter.
 def fetch_info(
     measures: Iterable[Measure] = ALL_MEASURES,
 ) -> Mapping[Measure, ResultEntry]:
-    # Get Python info first, and then strip Python measures from the list.
-    python_info, remaining_measures = _get_python_info(measures)
-
-    # Prepare the measure configurations.
-    configs_array = _prepare_measure_configurations(remaining_measures)
-
-    result_pointer = pointer(pointer(_Result()))
-    error_int = _LIBRARY.tirexFetchInfo(configs_array, result_pointer)
-    _handle_error(error_int)
-
+    fetched_infos = _fetch_info(measures=measures)
     return {
-        **_parse_results(result_pointer.contents),
-        **python_info,
+        **_parse_results(fetched_infos.result_pointer),
+        **fetched_infos.python_info,
     }
 
 
 @dataclass(frozen=True)
 class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEntry]):
-    _fetch_info_result: "Pointer[_Result]"
+    _fetched_infos: _FetchedInfos
     _tracking_handle: "Pointer[_TrackingHandle]"
-    _python_info: Mapping[Measure, ResultEntry]
     _system_name: Optional[str]
     _system_description: Optional[str]
     _export_file_path: Optional[PathLike]
@@ -679,17 +711,11 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         export_file_path: Optional[PathLike] = None,
         export_format: Optional[ExportFormat] = None,
     ) -> Self:
-        # Get Python info first, and then strip Python measures from the list.
-        python_info, measures = _get_python_info(measures=measures, export_file_path=export_file_path)
-
         # Prepare the measure configurations.
         configs_array = _prepare_measure_configurations(measures)
 
-        # Get other info, first, before starting the tracking.
-        result_pointer = pointer(pointer(_Result()))
-        error_int = _LIBRARY.tirexFetchInfo(configs_array, result_pointer)
-        _handle_error(error_int)
-        fetch_info_result = result_pointer.contents
+        # Get info before starting the tracking.
+        fetched_infos = _fetch_info(measures=measures)
 
         # Start the tracking.
         tracking_handle_pointer = pointer(pointer(_TrackingHandle()))
@@ -698,9 +724,8 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         tracking_handle = tracking_handle_pointer.contents
 
         return cls(
-            _fetch_info_result=fetch_info_result,
+            _fetched_infos=fetched_infos,
             _tracking_handle=tracking_handle,
-            _python_info=python_info,
             _system_name=system_name,
             _system_description=system_description,
             _export_file_path=export_file_path,
@@ -715,8 +740,8 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
 
         self._export(result_pointer.contents)
 
-        self.results.update(_parse_results(self._fetch_info_result))
-        self.results.update(self._python_info)
+        self.results.update(_parse_results(self._fetched_infos.result_pointer))
+        self.results.update(self._fetched_infos.python_info)
         self.results.update(_parse_results(result_pointer.contents))
         return self.results
 
@@ -796,7 +821,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
 
         # Run the C-internal ir_metadata export.
         _LIBRARY.tirexResultExportIrMetadata(
-            self._fetch_info_result,
+            self._fetched_infos.result_pointer,
             result,
             c_char_p(str(export_file_path.resolve()).encode(_ENCODING)),
         )
@@ -819,33 +844,41 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
             ir_metadata["method"]["description"] = self._system_description
 
         # Add Python-specific metadata.
-        ir_metadata["implementation"]["executable"]["cmd"] = loads(self._python_info[Measure.PYTHON_EXECUTABLE].value)
-        ir_metadata["implementation"]["executable"]["args"] = loads(self._python_info[Measure.PYTHON_ARGUMENTS].value)
-        ir_metadata["implementation"]["executable"]["version"] = loads(self._python_info[Measure.PYTHON_VERSION].value)
-        ir_metadata["implementation"]["python"]["modules"] = loads(self._python_info[Measure.PYTHON_VERSION].value)
+        ir_metadata["implementation"]["executable"]["cmd"] = loads(
+            self._fetched_infos.python_info[Measure.PYTHON_EXECUTABLE].value
+        )
+        ir_metadata["implementation"]["executable"]["args"] = loads(
+            self._fetched_infos.python_info[Measure.PYTHON_ARGUMENTS].value
+        )
+        ir_metadata["implementation"]["executable"]["version"] = loads(
+            self._fetched_infos.python_info[Measure.PYTHON_VERSION].value
+        )
+        ir_metadata["implementation"]["python"]["modules"] = loads(
+            self._fetched_infos.python_info[Measure.PYTHON_VERSION].value
+        )
         ir_metadata["implementation"]["python"]["packages"] = loads(
-            self._python_info[Measure.PYTHON_INSTALLED_PACKAGES].value
+            self._fetched_infos.python_info[Measure.PYTHON_INSTALLED_PACKAGES].value
         )
         ir_metadata["implementation"]["python"]["interactive"] = loads(
-            self._python_info[Measure.PYTHON_IS_INTERACTIVE].value
+            self._fetched_infos.python_info[Measure.PYTHON_IS_INTERACTIVE].value
         )
-        if Measure.PYTHON_SCRIPT_FILE_PATH in self._python_info:
+        if Measure.PYTHON_SCRIPT_FILE_PATH in self._fetched_infos.python_info:
             ir_metadata["implementation"]["script"]["path"] = loads(
-                self._python_info[Measure.PYTHON_SCRIPT_FILE_PATH].value
+                self._fetched_infos.python_info[Measure.PYTHON_SCRIPT_FILE_PATH].value
             )
-        if Measure.PYTHON_NOTEBOOK_FILE_PATH in self._python_info:
+        if Measure.PYTHON_NOTEBOOK_FILE_PATH in self._fetched_infos.python_info:
             ir_metadata["implementation"]["notebook"]["path"] = loads(
-                self._python_info[Measure.PYTHON_NOTEBOOK_FILE_PATH].value
+                self._fetched_infos.python_info[Measure.PYTHON_NOTEBOOK_FILE_PATH].value
             )
         ir_metadata["implementation"]["source"]["archive"]["path"] = loads(
-            self._python_info[Measure.PYTHON_CODE_ARCHIVE_PATH].value
+            self._fetched_infos.python_info[Measure.PYTHON_CODE_ARCHIVE_PATH].value
         )
         ir_metadata["implementation"]["source"]["archive"]["script path"] = loads(
-            self._python_info[Measure.PYTHON_SCRIPT_FILE_PATH_IN_CODE_ARCHIVE].value
+            self._fetched_infos.python_info[Measure.PYTHON_SCRIPT_FILE_PATH_IN_CODE_ARCHIVE].value
         )
-        if Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE in self._python_info:
+        if Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE in self._fetched_infos.python_info:
             ir_metadata["implementation"]["source"]["archive"]["notebook path"] = loads(
-                self._python_info[Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE].value
+                self._fetched_infos.python_info[Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE].value
             )
 
         ir_metadata = _deep_merge(ir_metadata, tmp_ir_metadata)
