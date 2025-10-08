@@ -214,14 +214,14 @@ jobs:
       - name: 🏗️ Build CLI
         run: cmake --build c/build/ --config Release --target measure -j 16
       - name: 📤 Upload Linux CLI
-        if: matrix.os == 'ubuntu:20.04' && matrix.compiler == 'llvm-19'
+        if: matrix.os == 'ubuntu:18.04' && matrix.compiler == 'gcc-13'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-linux
           if-no-files-found: error
           path: c/build/examples/03_measure_command/Release/measure
       - name: 📤 Upload macOS CLI
-        if: matrix.os == 'macos-14' && matrix.compiler == 'gcc-14'
+        if: matrix.os == 'macos-13' && matrix.compiler == 'llvm-19'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-macos
@@ -294,6 +294,7 @@ jobs:
       - name: 🏗️ Build Debian package
         run: cmake --build c/build/ --config Release --target package -j 16
       - name: 📤 Upload Debian package
+        if: matrix.os == 'ubuntu:18.04' && matrix.compiler == 'gcc-13'
         uses: actions/upload-artifact@v4
         with:
           name: c-debian-package
