@@ -15,63 +15,56 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform:
-          - {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}
-          - {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}
-          - {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}
-          - {host: ubuntu-22.04}
-          - {host: ubuntu-24.04}
-          - {host: macos-13}
-          - {host: macos-14}
-          - {host: macos-15}
-          - {host: windows-2022}
-          - {host: windows-2025}
-        compiler:
-          - gcc-13
-          - gcc-14
-          - llvm-19
-          - llvm-20
-          - msvc
-        exclude:
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-19}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-20}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: ubuntu-22.04}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: ubuntu-24.04}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: macos-13},     compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: macos-14},     compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: macos-15},     compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: ubuntu-22.04}, compiler:  gcc-14}  # Cannot be installed.
-          - {platform: {host: macos-13},     compiler:  gcc-13}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - {platform: {host: macos-13},     compiler:  gcc-14}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - {platform: {host: macos-14},     compiler:  gcc-13}  # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
-          - {platform: {host: macos-15},     compiler:  gcc-13}  # /opt/homebrew/Cellar/gcc@13/13.4.0/lib/gcc/13/gcc/aarch64-apple-darwin24/13/include-fixed/_stdio.h:78:10: fatal error: _bounds.h: No such file or directory
-          - {platform: {host: macos-15},     compiler:  gcc-14}  # Known issue (https://github.com/munich-quantum-toolkit/core/issues/979, https://stackoverflow.com/questions/79641443/c-bounds-h-not-found-after-upgrading-to-gcc-15)
-          - {platform: {host: windows-2022}, compiler: llvm-19}  # libgit2 does not seem to support this
-          - {platform: {host: windows-2025}, compiler: llvm-19}  # libgit2 does not seem to support this
-    runs-on: ${{ matrix.platform.host }}
-    container: ${{ matrix.platform.container }}
+        include:
+          # Supported compilers on Ubuntu LTS versions >=18.04: GCC 13/14, LLVM 19/20
+          - { os: ubuntu:18.04, compiler: gcc-13 }
+          # - {os: ubuntu:18.04, compiler: gcc-14}
+          # - {os: ubuntu:18.04, compiler: llvm-19}
+          # - {os: ubuntu:18.04, compiler: llvm-20}
+          - { os: ubuntu:20.04, compiler: gcc-13 }
+          # - {os: ubuntu:20.04, compiler: gcc-14}
+          - { os: ubuntu:20.04, compiler: llvm-19 }
+          - { os: ubuntu:20.04, compiler: llvm-20 }
+          - { os: ubuntu-22.04, compiler: gcc-13 }
+          # - {os: ubuntu-22.04, compiler: gcc-14}
+          - { os: ubuntu-22.04, compiler: llvm-19 }
+          - { os: ubuntu-22.04, compiler: llvm-20 }
+          - { os: ubuntu-24.04, compiler: gcc-13 }
+          - { os: ubuntu-24.04, compiler: gcc-14 }
+          - { os: ubuntu-24.04, compiler: llvm-19 }
+          - { os: ubuntu-24.04, compiler: llvm-20 }
+          # Supported compilers on macOS versions >=13: GCC 13/14, LLVM 19/20
+          # - {os: macos-13, compiler: gcc-13}
+          # - {os: macos-13, compiler: gcc-14}
+          - { os: macos-13, compiler: llvm-19 }
+          - { os: macos-13, compiler: llvm-20 }
+          # - {os: macos-14, compiler: gcc-13}
+          - { os: macos-14, compiler: gcc-14 }
+          - { os: macos-14, compiler: llvm-19 }
+          - { os: macos-14, compiler: llvm-20 }
+          # - {os: macos-15, compiler: gcc-13}
+          # - {os: macos-15, compiler: gcc-14}
+          - { os: macos-15, compiler: llvm-19 }
+          - { os: macos-15, compiler: llvm-20 }
+          # Supported compilers on Windows versions >=2022: MSVC, GCC 13/14
+          - { os: windows-2022, compiler: msvc }
+          - { os: windows-2022, compiler: gcc-13 }
+          - { os: windows-2022, compiler: gcc-14 }
+          # - {os: windows-2022, compiler: llvm-19}
+          - { os: windows-2022, compiler: llvm-20 }
+          - { os: windows-2025, compiler: msvc }
+          - { os: windows-2025, compiler: gcc-13 }
+          - { os: windows-2025, compiler: gcc-14 }
+          # - {os: windows-2025, compiler: llvm-19}
+          - { os: windows-2025, compiler: llvm-20 }
+    runs-on: ${{ contains(matrix.os, ':') && 'ubuntu-latest' || matrix.os }}
+    container: ${{ contains(matrix.os, ':') && matrix.os || null }}
     steps:
-      - name: Install node.js for GitHub Actions  # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
-        if: matrix.platform.container != null
-        run: |
-          apt-get update &&
-          apt-get install -y curl ca-certificates &&
-          # Install a Node.js version that works in older Ubuntu containers (read: does not require very recent glibc)
-          NODE_VERSION=v20.18.1 &&
-          NODE_TAR_FILE=node-$NODE_VERSION-linux-x64-glibc-217.tar.gz &&
-          NODE_URL=https://unofficial-builds.nodejs.org/download/release/$NODE_VERSION/$NODE_TAR_FILE &&
-          curl -Lo /tmp/$NODE_TAR_FILE $NODE_URL &&
-          tar -C /__e/node20 -x --strip-components=1 -f /tmp/$NODE_TAR_FILE
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
           compiler: ${{ matrix.compiler }}
-          vcvarsall: ${{ contains(matrix.platform.host, 'windows' )}}
+          vcvarsall: ${{ contains(matrix.os, 'windows' )}}
           cmake: true
           ninja: true
           cppcheck: true
@@ -80,6 +73,10 @@ jobs:
           git: true
       - name: 📥 Check-out
         uses: actions/checkout@v4
+        if: ! contains(matrix.os, ':')
+      - name: 📥 Check-out (legacy)
+        uses: actions/checkout@v3
+        if: contains(matrix.os, ':')
       - name: 📥 Fetch tags
         continue-on-error: true
         run: |
@@ -91,21 +88,21 @@ jobs:
       - name: 🏗️ Build library
         run: cmake --build c/build/ --config Release --target tirex_tracker -j 16
       - name: 📤 Upload Linux library
-        if: matrix.platform.host == 'ubuntu-latest' && matrix.platform.container.image == 'ubuntu:20.04' && matrix.compiler == 'llvm-19'
+        if: matrix.os == 'ubuntu:18.04' && matrix.compiler == 'gcc-13'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-linux
           if-no-files-found: error
           path: c/build/src/Release/libtirex_tracker.so
       - name: 📤 Upload macOS library
-        if: matrix.platform.host == 'macos-14' && matrix.compiler == 'gcc-14'
+        if: matrix.os == 'macos-13' && matrix.compiler == 'llvm-19'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-macos
           if-no-files-found: error
           path: c/build/src/Release/libtirex_tracker.dylib
       - name: 📤 Upload Windows library
-        if: matrix.platform.host == 'windows-2022' && matrix.compiler == 'msvc'
+        if: matrix.os == 'windows-2022' && matrix.compiler == 'msvc'
         uses: actions/upload-artifact@v4
         with:
           name: c-library-windows
@@ -131,63 +128,56 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform:
-          - {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}
-          - {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}
-          - {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}
-          - {host: ubuntu-22.04}
-          - {host: ubuntu-24.04}
-          - {host: macos-13}
-          - {host: macos-14}
-          - {host: macos-15}
-          - {host: windows-2022}
-          - {host: windows-2025}
-        compiler:
-          - gcc-13
-          - gcc-14
-          - llvm-19
-          - llvm-20
-          - msvc
-        exclude:
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-19}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-20}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: ubuntu-22.04}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: ubuntu-24.04}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: macos-13},     compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: macos-14},     compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: macos-15},     compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: ubuntu-22.04}, compiler:  gcc-14}  # Cannot be installed.
-          - {platform: {host: macos-13},     compiler:  gcc-13}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - {platform: {host: macos-13},     compiler:  gcc-14}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - {platform: {host: macos-14},     compiler:  gcc-13}  # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
-          - {platform: {host: macos-15},     compiler:  gcc-13}  # /opt/homebrew/Cellar/gcc@13/13.4.0/lib/gcc/13/gcc/aarch64-apple-darwin24/13/include-fixed/_stdio.h:78:10: fatal error: _bounds.h: No such file or directory
-          - {platform: {host: macos-15},     compiler:  gcc-14}  # Known issue (https://github.com/munich-quantum-toolkit/core/issues/979, https://stackoverflow.com/questions/79641443/c-bounds-h-not-found-after-upgrading-to-gcc-15)
-          - {platform: {host: windows-2022}, compiler: llvm-19}  # libgit2 does not seem to support this
-          - {platform: {host: windows-2025}, compiler: llvm-19}  # libgit2 does not seem to support this
-    runs-on: ${{ matrix.platform.host }}
-    container: ${{ matrix.platform.container }}
+        include:
+          # Supported compilers on Ubuntu LTS versions >=18.04: GCC 13/14, LLVM 19/20
+          - { os: ubuntu:18.04, compiler: gcc-13 }
+          # - {os: ubuntu:18.04, compiler: gcc-14}
+          # - {os: ubuntu:18.04, compiler: llvm-19}
+          # - {os: ubuntu:18.04, compiler: llvm-20}
+          - { os: ubuntu:20.04, compiler: gcc-13 }
+          # - {os: ubuntu:20.04, compiler: gcc-14}
+          - { os: ubuntu:20.04, compiler: llvm-19 }
+          - { os: ubuntu:20.04, compiler: llvm-20 }
+          - { os: ubuntu-22.04, compiler: gcc-13 }
+          # - {os: ubuntu-22.04, compiler: gcc-14}
+          - { os: ubuntu-22.04, compiler: llvm-19 }
+          - { os: ubuntu-22.04, compiler: llvm-20 }
+          - { os: ubuntu-24.04, compiler: gcc-13 }
+          - { os: ubuntu-24.04, compiler: gcc-14 }
+          - { os: ubuntu-24.04, compiler: llvm-19 }
+          - { os: ubuntu-24.04, compiler: llvm-20 }
+          # Supported compilers on macOS versions >=13: GCC 13/14, LLVM 19/20
+          # - {os: macos-13, compiler: gcc-13}
+          # - {os: macos-13, compiler: gcc-14}
+          - { os: macos-13, compiler: llvm-19 }
+          - { os: macos-13, compiler: llvm-20 }
+          # - {os: macos-14, compiler: gcc-13}
+          - { os: macos-14, compiler: gcc-14 }
+          - { os: macos-14, compiler: llvm-19 }
+          - { os: macos-14, compiler: llvm-20 }
+          # - {os: macos-15, compiler: gcc-13}
+          # - {os: macos-15, compiler: gcc-14}
+          - { os: macos-15, compiler: llvm-19 }
+          - { os: macos-15, compiler: llvm-20 }
+          # Supported compilers on Windows versions >=2022: MSVC, GCC 13/14
+          - { os: windows-2022, compiler: msvc }
+          - { os: windows-2022, compiler: gcc-13 }
+          - { os: windows-2022, compiler: gcc-14 }
+          # - {os: windows-2022, compiler: llvm-19}
+          - { os: windows-2022, compiler: llvm-20 }
+          - { os: windows-2025, compiler: msvc }
+          - { os: windows-2025, compiler: gcc-13 }
+          - { os: windows-2025, compiler: gcc-14 }
+          # - {os: windows-2025, compiler: llvm-19}
+          - { os: windows-2025, compiler: llvm-20 }
+    runs-on: ${{ contains(matrix.os, ':') && 'ubuntu-latest' || matrix.os }}
+    container: ${{ contains(matrix.os, ':') && matrix.os || null }}
     steps:
-      - name: Install node.js for GitHub Actions  # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
-        if: matrix.platform.container != null
-        run: |
-          apt-get update &&
-          apt-get install -y curl ca-certificates &&
-          # Install a Node.js version that works in older Ubuntu containers (read: does not require very recent glibc)
-          NODE_VERSION=v20.18.1 &&
-          NODE_TAR_FILE=node-$NODE_VERSION-linux-x64-glibc-217.tar.gz &&
-          NODE_URL=https://unofficial-builds.nodejs.org/download/release/$NODE_VERSION/$NODE_TAR_FILE &&
-          curl -Lo /tmp/$NODE_TAR_FILE $NODE_URL &&
-          tar -C /__e/node20 -x --strip-components=1 -f /tmp/$NODE_TAR_FILE
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
           compiler: ${{ matrix.compiler }}
-          vcvarsall: ${{ contains(matrix.platform.host, 'windows' )}}
+          vcvarsall: ${{ contains(matrix.os, 'windows' )}}
           cmake: true
           ninja: true
           cppcheck: true
@@ -196,6 +186,10 @@ jobs:
           git: true
       - name: 📥 Check-out
         uses: actions/checkout@v4
+        if: ! contains(matrix.os, ':')
+      - name: 📥 Check-out (legacy)
+        uses: actions/checkout@v3
+        if: contains(matrix.os, ':')
       - name: 📥 Fetch tags
         continue-on-error: true
         run: |
@@ -208,21 +202,21 @@ jobs:
       - name: 🏗️ Build CLI
         run: cmake --build c/build/ --config Release --target measure -j 16
       - name: 📤 Upload Linux CLI
-        if: matrix.platform.host == 'ubuntu-latest' && matrix.platform.container.image == 'ubuntu:20.04' && matrix.compiler == 'llvm-19'
+        if: matrix.os == 'ubuntu:20.04' && matrix.compiler == 'llvm-19'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-linux
           if-no-files-found: error
           path: c/build/examples/03_measure_command/Release/measure
       - name: 📤 Upload macOS CLI
-        if: matrix.platform.host == 'macos-14' && matrix.compiler == 'gcc-14'
+        if: matrix.os == 'macos-14' && matrix.compiler == 'gcc-14'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-macos
           if-no-files-found: error
           path: c/build/examples/03_measure_command/Release/measure
       - name: 📤 Upload Windows CLI
-        if: matrix.platform.host == 'windows-2022' && matrix.compiler == 'msvc'
+        if: matrix.os == 'windows-2022' && matrix.compiler == 'msvc'
         uses: actions/upload-artifact@v4
         with:
           name: c-cli-windows
@@ -230,26 +224,35 @@ jobs:
           path: c/build/examples/03_measure_command/Release/measure.exe
   c-build-debian-package:
     name: 🏗️ Build Debian package
-    runs-on: ubuntu-latest
-    container:
-      image: ubuntu:20.04
-      volumes:
-        - /tmp:/__e/node20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Supported compilers on Ubuntu LTS versions >=18.04: GCC 13/14, LLVM 19/20
+          - { os: ubuntu:18.04, compiler: gcc-13 }
+          # - {os: ubuntu:18.04, compiler: gcc-14}
+          # - {os: ubuntu:18.04, compiler: llvm-19}
+          # - {os: ubuntu:18.04, compiler: llvm-20}
+          - { os: ubuntu:20.04, compiler: gcc-13 }
+          # - {os: ubuntu:20.04, compiler: gcc-14}
+          - { os: ubuntu:20.04, compiler: llvm-19 }
+          - { os: ubuntu:20.04, compiler: llvm-20 }
+          - { os: ubuntu-22.04, compiler: gcc-13 }
+          # - {os: ubuntu-22.04, compiler: gcc-14}
+          - { os: ubuntu-22.04, compiler: llvm-19 }
+          - { os: ubuntu-22.04, compiler: llvm-20 }
+          - { os: ubuntu-24.04, compiler: gcc-13 }
+          - { os: ubuntu-24.04, compiler: gcc-14 }
+          - { os: ubuntu-24.04, compiler: llvm-19 }
+          - { os: ubuntu-24.04, compiler: llvm-20 }
+    runs-on: ${{ contains(matrix.os, ':') && 'ubuntu-latest' || matrix.os }}
+    container: ${{ contains(matrix.os, ':') && matrix.os || null }}
     steps:
-      - name: Install node.js for GitHub Actions  # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
-        run: |
-          apt-get update &&
-          apt-get install -y curl ca-certificates &&
-          # Install a Node.js version that works in older Ubuntu containers (read: does not require very recent glibc)
-          NODE_VERSION=v20.18.1 &&
-          NODE_TAR_FILE=node-$NODE_VERSION-linux-x64-glibc-217.tar.gz &&
-          NODE_URL=https://unofficial-builds.nodejs.org/download/release/$NODE_VERSION/$NODE_TAR_FILE &&
-          curl -Lo /tmp/$NODE_TAR_FILE $NODE_URL &&
-          tar -C /__e/node20 -x --strip-components=1 -f /tmp/$NODE_TAR_FILE
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
-          compiler: llvm-19
+          compiler: ${{ matrix.compiler }}
+          vcvarsall: ${{ contains(matrix.os, 'windows' )}}
           cmake: true
           ninja: true
           cppcheck: true
@@ -258,6 +261,10 @@ jobs:
           git: true
       - name: 📥 Check-out
         uses: actions/checkout@v4
+        if: ! contains(matrix.os, ':')
+      - name: 📥 Check-out (legacy)
+        uses: actions/checkout@v3
+        if: contains(matrix.os, ':')
       - name: 📥 Fetch tags
         continue-on-error: true
         run: |
@@ -279,27 +286,68 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runs-on:
-          - ubuntu-22.04
-          - ubuntu-24.04
-          - macos-14
-          - macos-15
-          # - windows-2022  # re-enable me later together with the python tests; something is wrong currently
-          # - windows-2025  # re-enable me later together with the python tests; something is wrong currently
-    runs-on: ${{ matrix.runs-on }}
+        include:
+          # Supported compilers on Ubuntu LTS versions >=18.04: GCC 13/14, LLVM 19/20
+          - { os: ubuntu:18.04, compiler: gcc-13 }
+          # - {os: ubuntu:18.04, compiler: gcc-14}
+          # - {os: ubuntu:18.04, compiler: llvm-19}
+          # - {os: ubuntu:18.04, compiler: llvm-20}
+          - { os: ubuntu:20.04, compiler: gcc-13 }
+          # - {os: ubuntu:20.04, compiler: gcc-14}
+          - { os: ubuntu:20.04, compiler: llvm-19 }
+          - { os: ubuntu:20.04, compiler: llvm-20 }
+          - { os: ubuntu-22.04, compiler: gcc-13 }
+          # - {os: ubuntu-22.04, compiler: gcc-14}
+          - { os: ubuntu-22.04, compiler: llvm-19 }
+          - { os: ubuntu-22.04, compiler: llvm-20 }
+          - { os: ubuntu-24.04, compiler: gcc-13 }
+          - { os: ubuntu-24.04, compiler: gcc-14 }
+          - { os: ubuntu-24.04, compiler: llvm-19 }
+          - { os: ubuntu-24.04, compiler: llvm-20 }
+          # Supported compilers on macOS versions >=13: GCC 13/14, LLVM 19/20
+          # - {os: macos-13, compiler: gcc-13}
+          # - {os: macos-13, compiler: gcc-14}
+          - { os: macos-13, compiler: llvm-19 }
+          - { os: macos-13, compiler: llvm-20 }
+          # - {os: macos-14, compiler: gcc-13}
+          - { os: macos-14, compiler: gcc-14 }
+          - { os: macos-14, compiler: llvm-19 }
+          - { os: macos-14, compiler: llvm-20 }
+          # - {os: macos-15, compiler: gcc-13}
+          # - {os: macos-15, compiler: gcc-14}
+          - { os: macos-15, compiler: llvm-19 }
+          - { os: macos-15, compiler: llvm-20 }
+          # Supported compilers on Windows versions >=2022: MSVC, GCC 13/14
+          - { os: windows-2022, compiler: msvc }
+          - { os: windows-2022, compiler: gcc-13 }
+          - { os: windows-2022, compiler: gcc-14 }
+          # - {os: windows-2022, compiler: llvm-19}
+          - { os: windows-2022, compiler: llvm-20 }
+          - { os: windows-2025, compiler: msvc }
+          - { os: windows-2025, compiler: gcc-13 }
+          - { os: windows-2025, compiler: gcc-14 }
+          # - {os: windows-2025, compiler: llvm-19}
+          - { os: windows-2025, compiler: llvm-20 }
+    runs-on: ${{ contains(matrix.os, ':') && 'ubuntu-latest' || matrix.os }}
+    container: ${{ contains(matrix.os, ':') && matrix.os || null }}
     steps:
       - name: 🧰 Install compiler
         uses: aminya/setup-cpp@v1
         with:
-          vcvarsall: ${{ contains(matrix.platform.host, 'windows' )}}
+          compiler: ${{ matrix.compiler }}
+          vcvarsall: ${{ contains(matrix.os, 'windows' )}}
           cmake: true
           ninja: true
-          cppcheck: false
-          gcovr: true
+          cppcheck: true
+          gcovr: false
           opencppcoverage: false
           git: true
       - name: 📥 Check-out
         uses: actions/checkout@v4
+        if: ! contains(matrix.os, ':')
+      - name: 📥 Check-out (legacy)
+        uses: actions/checkout@v3
+        if: contains(matrix.os, ':')
       - name: 🔧 Configure CMake
         run: cmake -S c/ -B c/build/ -G "Ninja Multi-Config" --preset=conf-dev -D TIREX_TRACKER_BUILD_DOCS=NO
       - name: 🏗️ Build tests
@@ -317,7 +365,7 @@ jobs:
           - "11"
           - "17"
           - "21"
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     needs:
       - c-build-library
       - c-check-format
@@ -327,7 +375,7 @@ jobs:
       - name: 🧰 Install JDK 8 (for compiling)
         uses: actions/setup-java@v5
         with:
-          java-version: 8
+          java-version: "8"
           distribution: temurin
           cache: gradle
           cache-dependency-path: |
@@ -364,39 +412,62 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: # Java LTS versions
-          - "8"
-          - "11"
-          - "17"
-          - "21"
-        runs-on:
-          - ubuntu-22.04
-          # - ubuntu-24.04 # FIXME: Re-enable
-          # - macos-13
-          # - macos-14 # FIXME: JDK 8 cannot be installed.
-          # - macos-15 # FIXME: JDK 8 cannot be installed.
-          - windows-2022
-          # - windows-2025 # FIXME: Re-enable
-        exclude:
-          - java: "8" # FIXME: Gradle seems to insist on loading Java 17 on Windows, weirdly.
-            runs-on: windows-2022
-          - java: "11" # FIXME: Gradle seems to insist on loading Java 17 on Windows, weirdly.
-            runs-on: windows-2022
-          - java: "17" # FIXME: Linking errors.
-            runs-on: windows-2022
-          - java: "21" # FIXME: Gradle seems to insist on loading Java 17 on Windows, weirdly.
-            runs-on: windows-2022
-    runs-on: ${{ matrix.runs-on }}
+        include:
+          # Java LTS versions >= 8 on Ubuntu LTS versions >=18.04
+          - { os: ubuntu:18.04, java: "8" }
+          - { os: ubuntu:18.04, java: "11" }
+          - { os: ubuntu:18.04, java: "17" }
+          - { os: ubuntu:18.04, java: "21" }
+          - { os: ubuntu:20.04, java: "8" }
+          - { os: ubuntu:20.04, java: "11" }
+          - { os: ubuntu:20.04, java: "17" }
+          - { os: ubuntu:20.04, java: "21" }
+          - { os: ubuntu-22.04, java: "8" }
+          - { os: ubuntu-22.04, java: "11" }
+          - { os: ubuntu-22.04, java: "17" }
+          - { os: ubuntu-22.04, java: "21" }
+          - { os: ubuntu-24.04, java: "8" }
+          - { os: ubuntu-24.04, java: "11" }
+          - { os: ubuntu-24.04, java: "17" }
+          - { os: ubuntu-24.04, java: "21" }
+          # Java LTS versions >= 8 on macOS versions >=13
+          - { os: macos-13, java: "8" }
+          - { os: macos-13, java: "11" }
+          - { os: macos-13, java: "17" }
+          - { os: macos-13, java: "21" }
+          - { os: macos-14, java: "8" }
+          - { os: macos-14, java: "11" }
+          - { os: macos-14, java: "17" }
+          - { os: macos-14, java: "21" }
+          - { os: macos-15, java: "8" }
+          - { os: macos-15, java: "11" }
+          - { os: macos-15, java: "17" }
+          - { os: macos-15, java: "21" }
+          # Java LTS versions >= 8 on Windows versions >=2022
+          - { os: windows-2022, java: "8" }
+          - { os: windows-2022, java: "11" }
+          - { os: windows-2022, java: "17" }
+          - { os: windows-2022, java: "21" }
+          - { os: windows-2025, java: "8" }
+          - { os: windows-2025, java: "11" }
+          - { os: windows-2025, java: "17" }
+          - { os: windows-2025, java: "21" }
+    runs-on: ${{ contains(matrix.os, ':') && 'ubuntu-latest' || matrix.os }}
+    container: ${{ contains(matrix.os, ':') && matrix.os || null }}
     needs:
       - c-build-library
       - c-check-format
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
+        if: ! contains(matrix.os, ':')
+      - name: 📥 Check-out (legacy)
+        uses: actions/checkout@v3
+        if: contains(matrix.os, ':')
       - name: 🧰 Install JDK 8 (for compiling)
         uses: actions/setup-java@v5
         with:
-          java-version: 8
+          java-version: "8"
           distribution: temurin
           cache: gradle
           cache-dependency-path: |
@@ -438,16 +509,8 @@ jobs:
     name: 🚀 Publish JVM library
     permissions:
       packages: write
-    strategy:
-      fail-fast: false
-      matrix:
-        java: # Java LTS versions
-          - "8"
-          - "11"
-          - "17"
-          - "21"
     if: github.event_name == 'push' && endsWith(github.event.base_ref, 'master') && startsWith(github.ref, 'refs/tags')
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     needs:
       - c-build-library
       - c-check-format
@@ -459,7 +522,7 @@ jobs:
       - name: 🧰 Install JDK 8 (for compiling)
         uses: actions/setup-java@v5
         with:
-          java-version: 8
+          java-version: "8"
           distribution: temurin
           cache: gradle
           cache-dependency-path: |
@@ -468,7 +531,7 @@ jobs:
       - name: 🧰 Install JDK (for checks)
         uses: actions/setup-java@v5
         with:
-          java-version: ${{ matrix.java }}
+          java-version: "21"
           distribution: temurin
           cache: gradle
           cache-dependency-path: |
@@ -492,41 +555,35 @@ jobs:
       - name: 🚀 Publish JVM library to Maven Local
         run: jvm/gradlew --project-dir jvm/ publishToMavenLocal
       - name: 📤 Upload JVM JAR
-        if: matrix.java == '21'
         uses: actions/upload-artifact@v4
         with:
           name: jvm-jar
           if-no-files-found: error
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*.jar
       - name: 📤 Upload JVM sources JAR
-        if: matrix.java == '21'
         uses: actions/upload-artifact@v4
         with:
           name: jvm-sources-jar
           if-no-files-found: error
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*-sources.jar
       - name: 📤 Upload JVM Javadoc JAR
-        if: matrix.java == '21'
         uses: actions/upload-artifact@v4
         with:
           name: jvm-javadoc-jar
           if-no-files-found: error
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*-javadoc.jar
       - name: 📤 Upload JVM HTML docs JAR
-        if: matrix.java == '21'
         uses: actions/upload-artifact@v4
         with:
           name: jvm-html-docs-jar
           if-no-files-found: error
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*-html-docs.jar
       - name: 🚀 Publish JVM library to GitHub Packages
-        if: matrix.java == '21'
         env:
           GITHUB_USERNAME: ${{ github.actor }}
           GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         run: jvm/gradlew --project-dir jvm/ publishAllPublicationsToGitHubPackagesRepository
       - name: 🚀 Publish JVM library to Maven Central
-        if: matrix.java == '21'
         env:
           JRELEASER_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.GPG_PUBLIC_KEY }}
@@ -546,7 +603,7 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     needs:
       - c-build-library
       - c-check-format
@@ -597,7 +654,7 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     needs:
       - c-build-library
       - c-check-format
@@ -641,7 +698,7 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     needs:
       - c-build-library
       - c-check-format
@@ -673,76 +730,81 @@ jobs:
         run: pip install -e python[tests,examples]
       - name: 🔍 Check Python static typing
         run: mypy python
-  python-security:
-    name: 🔍 Check Python code security
-    strategy:
-      fail-fast: false
-      matrix:
-        python:
-          - "3.8"
-          - "3.9"
-          - "3.10"
-          - "3.11"
-          - "3.12"
-          - "3.13"
-    runs-on: ubuntu-22.04
-    needs:
-      - c-build-library
-      - c-check-format
-    steps:
-      - name: 📥 Check-out
-        uses: actions/checkout@v4
-      - name: 🧰 Install Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: ${{ matrix.python }}
-          cache: pip
-          cache-dependency-path: python/pyproject.toml
-      - name: 📥 Download Linux library
-        uses: actions/download-artifact@v5
-        with:
-          name: c-library-linux
-          path: python/tirex_tracker/
-      - name: 📥 Download macOS library
-        uses: actions/download-artifact@v5
-        with:
-          name: c-library-macos
-          path: python/tirex_tracker/
-      - name: 📥 Download Windows library
-        uses: actions/download-artifact@v5
-        with:
-          name: c-library-windows
-          path: python/tirex_tracker/
-      - name: 🧰 Install dependencies
-        run: pip install -e python[tests,examples]
-      - name: 🔍 Check Python code security
-        run: bandit -c python/pyproject.toml -r python
   python-test:
     name: 🧪 Test Python code
     strategy:
       fail-fast: false
       matrix:
-        python:
-          - "3.8"
-          - "3.9"
-          - "3.10"
-          - "3.11"
-          - "3.12"
-          - "3.13"
-        runs-on:
-          - ubuntu-22.04
-          - ubuntu-24.04
-          - macos-14
-          - macos-15
-          # - windows-2022  # FIXME: does not seem to work right now
-          # - windows-2025  # FIXME: does not seem to work right now
-    runs-on: ${{ matrix.runs-on }}
+        include:
+          # Java LTS versions >= 8 on Ubuntu LTS versions >=18.04
+          - { os: ubuntu:18.04, python: "3.8" }
+          - { os: ubuntu:18.04, python: "3.9" }
+          - { os: ubuntu:18.04, python: "3.10" }
+          - { os: ubuntu:18.04, python: "3.11" }
+          - { os: ubuntu:18.04, python: "3.12" }
+          - { os: ubuntu:18.04, python: "3.13" }
+          - { os: ubuntu:20.04, python: "3.8" }
+          - { os: ubuntu:20.04, python: "3.9" }
+          - { os: ubuntu:20.04, python: "3.10" }
+          - { os: ubuntu:20.04, python: "3.11" }
+          - { os: ubuntu:20.04, python: "3.12" }
+          - { os: ubuntu:20.04, python: "3.13" }
+          - { os: ubuntu-22.04, python: "3.8" }
+          - { os: ubuntu-22.04, python: "3.9" }
+          - { os: ubuntu-22.04, python: "3.10" }
+          - { os: ubuntu-22.04, python: "3.11" }
+          - { os: ubuntu-22.04, python: "3.12" }
+          - { os: ubuntu-22.04, python: "3.13" }
+          - { os: ubuntu-24.04, python: "3.8" }
+          - { os: ubuntu-24.04, python: "3.9" }
+          - { os: ubuntu-24.04, python: "3.10" }
+          - { os: ubuntu-24.04, python: "3.11" }
+          - { os: ubuntu-24.04, python: "3.12" }
+          - { os: ubuntu-24.04, python: "3.13" }
+          # Java LTS versions >= 8 on macOS versions >=13
+          - { os: macos-13, python: "3.8" }
+          - { os: macos-13, python: "3.9" }
+          - { os: macos-13, python: "3.10" }
+          - { os: macos-13, python: "3.11" }
+          - { os: macos-13, python: "3.12" }
+          - { os: macos-13, python: "3.13" }
+          - { os: macos-14, python: "3.8" }
+          - { os: macos-14, python: "3.9" }
+          - { os: macos-14, python: "3.10" }
+          - { os: macos-14, python: "3.11" }
+          - { os: macos-14, python: "3.12" }
+          - { os: macos-14, python: "3.13" }
+          - { os: macos-15, python: "3.8" }
+          - { os: macos-15, python: "3.9" }
+          - { os: macos-15, python: "3.10" }
+          - { os: macos-15, python: "3.11" }
+          - { os: macos-15, python: "3.12" }
+          - { os: macos-15, python: "3.13" }
+          # Java LTS versions >= 8 on Windows versions >=2022
+          - { os: windows-2022, python: "3.8" }
+          - { os: windows-2022, python: "3.9" }
+          - { os: windows-2022, python: "3.10" }
+          - { os: windows-2022, python: "3.11" }
+          - { os: windows-2022, python: "3.12" }
+          - { os: windows-2022, python: "3.13" }
+          - { os: windows-2025, python: "3.8" }
+          - { os: windows-2025, python: "3.9" }
+          - { os: windows-2025, python: "3.10" }
+          - { os: windows-2025, python: "3.11" }
+          - { os: windows-2025, python: "3.12" }
+          - { os: windows-2025, python: "3.13" }
+    runs-on: ${{ contains(matrix.os, ':') && 'ubuntu-latest' || matrix.os }}
+    container: ${{ contains(matrix.os, ':') && matrix.os || null }}
     needs:
       - c-build-library
       - c-check-format
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v4
+        if: ! contains(matrix.os, ':')
+      - name: 📥 Check-out (legacy)
+        uses: actions/checkout@v3
+        if: contains(matrix.os, ':')
       - name: 🧰 Install Python
         uses: actions/setup-python@v6
         with:
@@ -769,7 +831,6 @@ jobs:
       - name: 🧪 Test Python code
         run: pytest --cov --cov-report xml python
       - name: 📤 Upload coverage to Codecov
-        if: matrix.python == '3.13'
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -783,9 +844,8 @@ jobs:
       - python-build
       - python-check
       - python-typing
-      - python-security
       - python-test
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     permissions:
       id-token: write
     steps:
@@ -812,7 +872,6 @@ jobs:
       - python-build
       - python-check
       - python-typing
-      - python-security
       - python-test
       - python-publish
     permissions:
