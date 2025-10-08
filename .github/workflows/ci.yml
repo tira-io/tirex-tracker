@@ -597,6 +597,9 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
+        codecarbon:
+          - true
+          - false
     runs-on: ubuntu-22.04
     needs:
       - c-build-library
@@ -627,6 +630,9 @@ jobs:
           path: python/tirex_tracker/
       - name: 🧰 Install dependencies
         run: pip install -e python[tests,examples]
+      - name: 🧰 Install CodeCarbon integration dependencies
+        if: matrix.codecarbon == true
+        run: pip install -e python[tests-codecarbon]
       - name: 🔍 Check Python code
         run: ruff check python
   python-typing:
@@ -641,6 +647,9 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
+        codecarbon:
+          - true
+          - false
     runs-on: ubuntu-22.04
     needs:
       - c-build-library
@@ -671,6 +680,9 @@ jobs:
           path: python/tirex_tracker/
       - name: 🧰 Install dependencies
         run: pip install -e python[tests,examples]
+      - name: 🧰 Install CodeCarbon integration dependencies
+        if: matrix.codecarbon == true
+        run: pip install -e python[tests-codecarbon]
       - name: 🔍 Check Python static typing
         run: mypy python
   python-test:
@@ -685,6 +697,9 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
+        codecarbon:
+          - true
+          - false
         runs-on:
           - ubuntu-22.04
           - ubuntu-24.04
@@ -722,6 +737,9 @@ jobs:
           path: python/tirex_tracker/
       - name: 🧰 Install dependencies
         run: pip install -e python[tests,examples]
+      - name: 🧰 Install CodeCarbon integration dependencies
+        if: matrix.codecarbon == true
+        run: pip install -e python[tests-codecarbon]
       - name: 🧪 Test Python code
         run: pytest --cov --cov-report xml python
       - name: 📤 Upload coverage to Codecov
