@@ -111,12 +111,42 @@ namespace tirex {
 		}
 		std::chrono::milliseconds currentTimestamp() const noexcept { return impl->currentTimestamp(); }
 
+		/**
+		 * @brief The largest value encountered in the time series.
+		 * @details It is undefined behavior to call this on an empty time series.
+		 * 
+		 * @return The largest value encountered in the time series.
+		 */
 		const T& maxValue() const noexcept { return impl->maxValue(); }
+		/**
+		 * @brief The smallest value encountered in the time series.
+		 * @details It is undefined behavior to call this on an empty time series.
+		 * 
+		 * @return The smallest value encountered in the time series.
+		 */
 		const T& minValue() const noexcept { return impl->minValue(); }
+		/**
+		 * @brief The (potentially approximated) average over all values encountered in the time series.
+		 * @details It is undefined behavior to call this on an empty time series.
+		 * 
+		 * @return The (potentially approximated) average over all values encountered in the time series.
+		 */
 		const T& avgValue() const noexcept { return impl->avgValue(); }
+		/**
+		 * @brief A pair of timepoint and data vectors. Where the i-th data entry denotes the value of the time series
+		 * at the i-th timepoint.
+		 * 
+		 * @return A pair of timepoint and data vectors.
+		 */
 		std::tuple<std::vector<std::chrono::milliseconds>&, std::vector<T>&> timeseries() noexcept {
 			return impl->timeseries();
 		}
+		/**
+		 * @brief A pair of timepoint and data vectors. Where the i-th data entry denotes the value of the time series
+		 * at the i-th timepoint.
+		 * 
+		 * @return A pair of timepoint and data vectors.
+		 */
 		std::tuple<const std::vector<std::chrono::milliseconds>&, const std::vector<T>&> timeseries() const noexcept {
 			return impl->timeseries();
 		}
