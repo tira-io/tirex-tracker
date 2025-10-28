@@ -1,5 +1,6 @@
 #include "gitstats.hpp"
 
+#include "../../abort.hpp"
 #include "../../logging.hpp"
 #include "../utils/rangeutils.hpp"
 
@@ -164,9 +165,8 @@ static std::string hashAllFiles(git_repository* repo) {
 					"gitstats", "I will not include it in the hash. Please add it to the .gitignore if is not part of "
 								"your codebase or check it into the repository if it should be."
 			);
+			tirex::abort(tirexLogLevel::WARN, "Folders that are not checked into the repository are ignored.");
 			continue;
-			/** \todo if pedantic abort here **/
-			// abort();
 		}
 		std::ifstream is(root / entry->index_to_workdir->new_file.path, std::ios::binary);
 		if (!is) {
