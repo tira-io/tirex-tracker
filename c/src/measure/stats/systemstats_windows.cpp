@@ -12,6 +12,7 @@
 #include <powrprof.h>
 #include <psapi.h>
 #include <versionhelpers.h>
+#define NOGDI // Otherwise we get problems with logging
 #include <windows.h>
 
 #include <tuple>
