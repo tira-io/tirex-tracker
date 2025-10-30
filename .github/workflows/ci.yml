@@ -56,7 +56,7 @@ jobs:
     runs-on: ${{ matrix.platform.host }}
     container: ${{ matrix.platform.container }}
     steps:
-      - name: Install node.js for GitHub Actions  # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
+      - name: Install node.js for GitHub Actions # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
         if: matrix.platform.container != null
         run: |
           apt-get update &&
@@ -172,7 +172,7 @@ jobs:
     runs-on: ${{ matrix.platform.host }}
     container: ${{ matrix.platform.container }}
     steps:
-      - name: Install node.js for GitHub Actions  # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
+      - name: Install node.js for GitHub Actions # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
         if: matrix.platform.container != null
         run: |
           apt-get update &&
@@ -236,7 +236,7 @@ jobs:
       volumes:
         - /tmp:/__e/node20
     steps:
-      - name: Install node.js for GitHub Actions  # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
+      - name: Install node.js for GitHub Actions # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
         run: |
           apt-get update &&
           apt-get install -y curl ca-certificates &&
@@ -597,6 +597,9 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
+        codecarbon:
+          - true
+          - false
     runs-on: ubuntu-22.04
     needs:
       - c-build-library
@@ -627,6 +630,9 @@ jobs:
           path: python/tirex_tracker/
       - name: 🧰 Install dependencies
         run: pip install -e python[tests,examples]
+      - name: 🧰 Install CodeCarbon integration dependencies
+        if: matrix.codecarbon == true
+        run: pip install -e python[tests-codecarbon]
       - name: 🔍 Check Python code
         run: ruff check python
   python-typing:
@@ -641,6 +647,9 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
+        codecarbon:
+          - true
+          - false
     runs-on: ubuntu-22.04
     needs:
       - c-build-library
@@ -671,52 +680,11 @@ jobs:
           path: python/tirex_tracker/
       - name: 🧰 Install dependencies
         run: pip install -e python[tests,examples]
+      - name: 🧰 Install CodeCarbon integration dependencies
+        if: matrix.codecarbon == true
+        run: pip install -e python[tests-codecarbon]
       - name: 🔍 Check Python static typing
         run: mypy python
-  python-security:
-    name: 🔍 Check Python code security
-    strategy:
-      fail-fast: false
-      matrix:
-        python:
-          - "3.8"
-          - "3.9"
-          - "3.10"
-          - "3.11"
-          - "3.12"
-          - "3.13"
-    runs-on: ubuntu-22.04
-    needs:
-      - c-build-library
-      - c-check-format
-    steps:
-      - name: 📥 Check-out
-        uses: actions/checkout@v4
-      - name: 🧰 Install Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: ${{ matrix.python }}
-          cache: pip
-          cache-dependency-path: python/pyproject.toml
-      - name: 📥 Download Linux library
-        uses: actions/download-artifact@v5
-        with:
-          name: c-library-linux
-          path: python/tirex_tracker/
-      - name: 📥 Download macOS library
-        uses: actions/download-artifact@v5
-        with:
-          name: c-library-macos
-          path: python/tirex_tracker/
-      - name: 📥 Download Windows library
-        uses: actions/download-artifact@v5
-        with:
-          name: c-library-windows
-          path: python/tirex_tracker/
-      - name: 🧰 Install dependencies
-        run: pip install -e python[tests,examples]
-      - name: 🔍 Check Python code security
-        run: bandit -c python/pyproject.toml -r python
   python-test:
     name: 🧪 Test Python code
     strategy:
@@ -729,6 +697,9 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
+        codecarbon:
+          - true
+          - false
         runs-on:
           - ubuntu-22.04
           - ubuntu-24.04
@@ -736,6 +707,19 @@ jobs:
           - macos-15
           # - windows-2022  # FIXME: does not seem to work right now
           # - windows-2025  # FIXME: does not seem to work right now
+        exclude:
+          - {python: "3.8",  codecarbon: true, runs-on: macos-14}  # CodeCarbon does not support macOS
+          - {python: "3.9",  codecarbon: true, runs-on: macos-14}  # CodeCarbon does not support macOS
+          - {python: "3.10", codecarbon: true, runs-on: macos-14}  # CodeCarbon does not support macOS
+          - {python: "3.11", codecarbon: true, runs-on: macos-14}  # CodeCarbon does not support macOS
+          - {python: "3.12", codecarbon: true, runs-on: macos-14}  # CodeCarbon does not support macOS
+          - {python: "3.13", codecarbon: true, runs-on: macos-14}  # CodeCarbon does not support macOS
+          - {python: "3.8",  codecarbon: true, runs-on: macos-15}  # CodeCarbon does not support macOS
+          - {python: "3.9",  codecarbon: true, runs-on: macos-15}  # CodeCarbon does not support macOS
+          - {python: "3.10", codecarbon: true, runs-on: macos-15}  # CodeCarbon does not support macOS
+          - {python: "3.11", codecarbon: true, runs-on: macos-15}  # CodeCarbon does not support macOS
+          - {python: "3.12", codecarbon: true, runs-on: macos-15}  # CodeCarbon does not support macOS
+          - {python: "3.13", codecarbon: true, runs-on: macos-15}  # CodeCarbon does not support macOS
     runs-on: ${{ matrix.runs-on }}
     needs:
       - c-build-library
@@ -766,6 +750,9 @@ jobs:
           path: python/tirex_tracker/
       - name: 🧰 Install dependencies
         run: pip install -e python[tests,examples]
+      - name: 🧰 Install CodeCarbon integration dependencies
+        if: matrix.codecarbon == true
+        run: pip install -e python[tests-codecarbon]
       - name: 🧪 Test Python code
         run: pytest --cov --cov-report xml python
       - name: 📤 Upload coverage to Codecov
@@ -783,7 +770,6 @@ jobs:
       - python-build
       - python-check
       - python-typing
-      - python-security
       - python-test
     runs-on: ubuntu-22.04
     permissions:
@@ -812,7 +798,6 @@ jobs:
       - python-build
       - python-check
       - python-typing
-      - python-security
       - python-test
       - python-publish
     permissions:

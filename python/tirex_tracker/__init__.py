@@ -45,6 +45,7 @@ from typing_extensions import ParamSpec, Self, TypeAlias  # type: ignore
 from yaml import safe_dump as yaml_safe_dump
 from yaml import safe_load as yaml_safe_load
 
+from tirex_tracker._compat import CODECARBON_INSTALLED, BaseEmissionsTracker, EmissionsTracker
 from tirex_tracker.archive_utils import create_code_archive, git_repo_or_none
 
 if TYPE_CHECKING:
@@ -131,6 +132,9 @@ class Measure(IntEnum):
     PYTHON_CODE_ARCHIVE_PATH = 1010
     PYTHON_SCRIPT_FILE_PATH_IN_CODE_ARCHIVE = 1011
     PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE = 1012
+    # CodeCarbon integration, if available.
+    if CODECARBON_INSTALLED:
+        CODECARBON_EMISSIONS = 1100
 
 
 _INVALID_MEASURE = -1
@@ -348,6 +352,16 @@ _PYTHON_MEASURES: Mapping[Measure, MeasureInfo] = {
         example=dumps("notebook.ipynb"),
     ),
 }
+# CodeCarbon integration, if available.
+if CODECARBON_INSTALLED:
+    _PYTHON_MEASURES = {
+        **_PYTHON_MEASURES,
+        Measure.CODECARBON_EMISSIONS: MeasureInfo(
+            description="CO2 emissions in kg, as measured by CodeCarbon.",
+            data_type=ResultType.FLOATING,
+            example=dumps(0.123),
+        ),
+    }
 
 
 def _python_result_entry(measure: Measure, value: Any) -> ResultEntry:
@@ -662,6 +676,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
     _fetch_info_result: "Pointer[_Result]"
     _tracking_handle: "Pointer[_TrackingHandle]"
     _python_info: Mapping[Measure, ResultEntry]
+    _codecarbon_tracker: Optional[BaseEmissionsTracker]
     _system_name: Optional[str]
     _system_description: Optional[str]
     _export_file_path: Optional[PathLike]
@@ -678,6 +693,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         system_description: Optional[str] = None,
         export_file_path: Optional[PathLike] = None,
         export_format: Optional[ExportFormat] = None,
+        codecarbon_tracker: Optional[BaseEmissionsTracker] = None,
     ) -> Self:
         # Get Python info first, and then strip Python measures from the list.
         python_info, measures = _get_python_info(measures=measures, export_file_path=export_file_path)
@@ -691,6 +707,12 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         _handle_error(error_int)
         fetch_info_result = result_pointer.contents
 
+        # Start the CodeCarbon tracking, if available.
+        if CODECARBON_INSTALLED:
+            if codecarbon_tracker is None:
+                codecarbon_tracker = EmissionsTracker()
+            codecarbon_tracker.start()
+
         # Start the tracking.
         tracking_handle_pointer = pointer(pointer(_TrackingHandle()))
         error_int = _LIBRARY.tirexStartTracking(configs_array, poll_intervall_ms, tracking_handle_pointer)
@@ -701,6 +723,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
             _fetch_info_result=fetch_info_result,
             _tracking_handle=tracking_handle,
             _python_info=python_info,
+            _codecarbon_tracker=codecarbon_tracker,
             _system_name=system_name,
             _system_description=system_description,
             _export_file_path=export_file_path,
@@ -709,9 +732,18 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         )
 
     def stop(self) -> Mapping[Measure, ResultEntry]:
+        # Stop the tracking.
         result_pointer = pointer(pointer(_Result()))
         error_int = _LIBRARY.tirexStopTracking(self._tracking_handle, result_pointer)
         _handle_error(error_int)
+
+        # Stop the CodeCarbon tracking, if available.
+        if CODECARBON_INSTALLED and self._codecarbon_tracker is not None:
+            emissions = self._codecarbon_tracker.stop()
+            self.results[Measure.CODECARBON_EMISSIONS] = _python_result_entry(
+                measure=Measure.CODECARBON_EMISSIONS,
+                value=emissions,
+            )
 
         self._export(result_pointer.contents)
 

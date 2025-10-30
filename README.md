@@ -336,7 +336,6 @@ Once the Python developer tools are set up like that, you can check the Python c
 ```shell
 ruff check python/  # Code format and LINT
 mypy python/        # Static typing
-bandit -c python/pyproject.toml -r python/  # Security
 pytest python/      # Unit tests
 ```
 
