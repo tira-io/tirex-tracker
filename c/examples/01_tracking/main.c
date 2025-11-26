@@ -110,6 +110,8 @@ int fib(int n) {
 	return fib(n - 1) + fib(n - 2);
 }
 
+extern void plot(tirexResult* result);
+
 int main(int argc, char* argv[]) {
 	tirexMeasureHandle* measure;
 	tirexResult* result;
@@ -177,17 +179,35 @@ int main(int argc, char* argv[]) {
 	if (tirexStartTracking(providers, 100, &measure) != TIREX_SUCCESS)
 		abort();
 	{
+		// 1) Sleep
 		thrd_sleep(&(struct timespec){.tv_sec = 1}, NULL);
-		char* data = calloc(24 * 1000 * 1000, 1);	  // allocate 24 MB
-		for (size_t i = 0; i < 24 * 1000 * 1000; ++i) // Access the data so it is not optimized away
-			data[i] = 1;
-		thrd_sleep(&(struct timespec){.tv_sec = 1}, NULL);
-		free(data);
+
+		// 2) Allocate Memory then sleep
+		{
+			char* data = calloc(24 * 1000 * 1000, 1);	  // allocate 24 MB
+			for (size_t i = 0; i < 24 * 1000 * 1000; ++i) // Access the data so it is not optimized away
+				data[i] = 1;
+			thrd_sleep(&(struct timespec){.tv_sec = 1}, NULL);
+			free(data);
+		}
+
+		// 3) Calculate Fibonacci
 		fib(45);
+
+		// 4) Allocate some more memory then sleep
+		{
+			char* data = calloc(48 * 1000 * 1000, 1);	  // allocate 24 MB
+			for (size_t i = 0; i < 48 * 1000 * 1000; ++i) // Access the data so it is not optimized away
+				data[i] = 1;
+			thrd_sleep(&(struct timespec){.tv_sec = 1}, NULL);
+			free(data);
+		}
 	}
 	if (tirexStopTracking(measure, &result) != TIREX_SUCCESS)
 		abort();
 	printResult(result, NULL);
+	plot(result);
 	tirexResultFree(result);
+
 	return 0;
 }

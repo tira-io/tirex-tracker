@@ -10,8 +10,8 @@
 #include <vector>
 
 #if defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
+#define NOGDI // Otherwise we get problems with logging
 #include <windows.h>
-#undef ERROR //  Make problems with logging.h otherwise
 #endif
 
 namespace tirex {

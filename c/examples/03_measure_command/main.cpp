@@ -95,6 +95,11 @@ static void runMeasureCmd(const MeasureCmdArgs& args) {
 	auto logger = tirex::getLogger("measure");
 	logger->info("Measuring command: {}", args.command);
 
+	if (args.pedantic) {
+		logger->info("Switching to pedantic mode");
+		tirexSetAbortLevel(tirexLogLevel::WARN);
+	}
+
 	// Start measuring
 	std::vector<tirexMeasureConf> measures;
 	for (const auto& provider : args.statproviders) {

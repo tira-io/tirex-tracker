@@ -22,10 +22,11 @@ target_sources(tirex_tracker
 			${CMAKE_CURRENT_BINARY_DIR}/tirex_tracker_export.h
 			${TIREX_EXT_INCLUDE_FILES}
 	PRIVATE
+		abort.cpp
+		logging.cpp
 		measureapi.cpp
 		measureinfo.cpp
 		measureresult.cpp
-		logging.cpp
 		measure/stats/provider.cpp
 
 		measure/stats/energystats.cpp
@@ -76,7 +77,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # CPPJoule
 if (NOT (UNIX AND APPLE)) # CPPJouls does not support macos right now
-	CPMAddPackage(URI "gh:TheMrSheldon/CPPJoules#pcm" EXCLUDE_FROM_ALL YES)
+	CPMAddPackage(URI "gh:TheMrSheldon/CPPJoules#pcm" EXCLUDE_FROM_ALL YES OPTIONS "CPPJOULES_ENABLE_PCM OFF")
 	target_link_libraries(tirex_tracker PRIVATE CPP_Joules)
 endif()
 

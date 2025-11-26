@@ -1,6 +1,8 @@
 #ifndef MEASURE_TIMESERIES_HPP
 #define MEASURE_TIMESERIES_HPP
 
+#include "../abort.hpp"
+
 #include <tirex_tracker.h>
 
 #include <chrono>
@@ -196,8 +198,8 @@ namespace tirex {
 				case TIREX_AGG_MEAN:
 					return std::make_unique<AvgAggFn<T>>();
 				default:
-					/** \todo handle more gracefully (e.g., return nullptr) **/
-					abort(); /** invalid value **/
+					tirex::abort(tirexLogLevel::CRITICAL, "enumToAggFn was given an invalid value");
+					return nullptr;
 				};
 			}
 
@@ -251,8 +253,8 @@ namespace tirex {
 				case TIREX_AGG_MEAN:
 					return +[](const T& a, const T& b) { return (a + b) / 2; };
 				default:
-					/** \todo handle more gracefully (e.g., return nullptr) **/
-					abort(); /** invalid value **/
+					tirex::abort(tirexLogLevel::CRITICAL, "enumToAggFn was given an invalid value");
+					return nullptr;
 				};
 			}
 

@@ -109,7 +109,7 @@ namespace tirex {
 		/**
 		 * @brief The set of measures that the provider can provide in principle.
 		 * @details This field can be used to instantiate only relevant providers (e.g., if only energy metrics are
-		 * requested, then initializing the git provider may be skipped). AS such, the measures listed here must contain
+		 * requested, then initializing the git provider may be skipped). As such, the measures listed here must contain
 		 * all measures that the provider can at most support. But StatsProvider::providedMeasures may return only a
 		 * subset if it can not support these measures on the system. E.g., the Git provider may not support measures if
 		 * it cannot detect a git repository.
@@ -125,10 +125,19 @@ namespace tirex {
 	};
 	extern const std::map<std::string, ProviderEntry> providers;
 
+	/**
+	 * @brief Initializes all the providers necessary to track the requested measures.
+	 * 
+	 * @param[in] measures The measures that are requested.
+	 * @param[out] providers A vector of StatsProvider which will be populated with the initialized providers.
+	 * @return A set of tirexMeasure which are not provided by any of the providers.
+	 */
 	std::set<tirexMeasure>
 	initProviders(std::set<tirexMeasure> measures, std::vector<std::unique_ptr<StatsProvider>>& providers);
 
 	Stats makeFilteredStats(const std::set<tirexMeasure>& filter, CONVERTIBLE_TO_PAIR_CONCEPT auto&&... args) {
+		/** May be more readable when we can assume C++26 and expansion statements
+		 *  (https://isocpp.org/files/papers/P1306R5.html) **/
 		Stats stats;
 		auto func = [&](CONVERTIBLE_TO_PAIR_CONCEPT auto&& val) {
 			if (filter.contains(val.first))
