@@ -76,9 +76,16 @@
                 "TIREX_TRACKER_BUILD_DEB": "ON",
                 "TIREX_TRACKER_BUILD_EXAMPLES": "ON",
                 "TIREX_TRACKER_EXTENSION_IR": "ON",
-                "TIREX_TRACKER_BUILD_SHARED_LIB": "ON"
+                "TIREX_TRACKER_BUILD_SHARED_LIB": "ON",
+                "TIREX_TRACKER_BUILD_TESTS": "ON"
             }
         }
     ],
-    "testPresets": []
+    "testPresets": [
+        {
+            "name": "conf-tests",
+            "description": "",
+            "configurePreset": "conf-dev"
+        }
+    ]
 }

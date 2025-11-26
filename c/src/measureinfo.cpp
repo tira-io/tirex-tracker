@@ -221,7 +221,19 @@ static const tirexMeasureInfo measureInfos[]{
 						"into the repository; 0 otherwise.",
 		 .datatype = tirexResultType::TIREX_STRING,
 		 .example = "1"},
-		/*[TIREX_VERSION_MEASURE] = */
+		/*[TIREX_GIT_ROOT] = */
+		{.description = "The 'working directory' of the repository (i.e. the path at which the root of the "
+						"repository's file tree is located). Empty, if the repository is bare.",
+		 .datatype = tirexResultType::TIREX_STRING,
+		 .example = "/home/username/myrepo"},
+		/*[TIREX_GIT_ARCHIVE_PATH] = */
+		{.description = "If requested, a zip archive is created that contains all files inside the repository that are "
+						"not ignored by the gitignore. The path to the archive is returned as the value for this "
+						"measure. The archive is created in a temporary location and is automatically deleted when the "
+						"result object is freed.",
+		 .datatype = tirexResultType::TIREX_STRING,
+		 .example = "/tmp/rzfa9i"},
+    /*[TIREX_VERSION_MEASURE] = */
 		{.description = "Reports the version of the TIREx Tracker that was used to collect the metadata.",
 		 .datatype = tirexResultType::TIREX_STRING,
 		 .example = TIREX_VERSION},

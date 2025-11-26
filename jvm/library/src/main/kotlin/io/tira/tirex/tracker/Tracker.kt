@@ -77,6 +77,8 @@ enum class Measure(val value: Int) {
     GIT_UNCOMMITTED_CHANGES(41), //
     GIT_UNPUSHED_CHANGES(42), //
     GIT_UNCHECKED_FILES(43), //
+    GIT_ROOT(46), //
+    GIT_ARCHIVE_PATH(47), //
     JAVA_VERSION(2001),
     JAVA_VERSION_DATE(2002), //
     JAVA_VENDOR(2003), //
@@ -136,7 +138,9 @@ val ALL_AGGREGATIONS = Aggregation.entries.toSet()
 //internal class NativeTrackingHandle : Structure()
 
 enum class ResultType(val value: Int) {
-    STRING(0), INTEGER(1), FLOATING(2), STRING_LIST(3), BOOLEAN(4);
+    STRING(0), INTEGER(1), FLOATING(2), BOOLEAN(3), WSTRING(4), STRING_LIST(STRING.value or (1 shl 7)),
+    INTEGER_LIST(INTEGER.value or (1 shl 7)), FLOATING_LIST(FLOATING.value or (1 shl 7)),
+    BOOLEAN_LIST(BOOLEAN.value or (1 shl 7)), WSTRING_LIST(WSTRING.value or (1 shl 7));
 
     companion object {
         internal fun fromValue(value: Int): ResultType {
