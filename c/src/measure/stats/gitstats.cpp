@@ -218,12 +218,17 @@ repoToArchive(git_repository* repo, const std::filesystem::path& archive) noexce
 		}
 		auto source = zip_source_file(handle, path.string().c_str(), 0, 0);
 		if (source == nullptr) {
-			tirex::log::error("gitstats", "Error reading file: {}", entry->index_to_workdir->new_file.path);
-			continue; /** \todo handle pedantic? **/
+			tirex::log::error(
+					"gitstats", "Error reading file: {}; I will not add it to the archive",
+					entry->index_to_workdir->new_file.path
+			);
+			tirex::abort(tirexLogLevel::ERROR, "Failed to read file to add it to the archive");
+			continue;
 		}
 		if (zip_file_add(handle, entry->index_to_workdir->new_file.path, source, ZIP_FL_OVERWRITE) < 0) {
 			tirex::log::error("gitstats", "Error adding file to archive: {}", entry->index_to_workdir->new_file.path);
-			continue; /** \todo handle pedantic? **/
+			tirex::abort(tirexLogLevel::ERROR, "Failed to add file to the archive");
+			continue;
 		}
 	}
 	git_status_list_free(list);

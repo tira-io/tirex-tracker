@@ -192,7 +192,11 @@ void NVMLStats::step() {
 	}*/
 }
 
-std::set<tirexMeasure> NVMLStats::providedMeasures() noexcept { return measures; }
+std::set<tirexMeasure> NVMLStats::providedMeasures() noexcept {
+	if (nvml.supported)
+		return measures;
+	return {};
+}
 
 Stats NVMLStats::getStats() {
 	if (nvml.supported) {

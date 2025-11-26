@@ -554,6 +554,8 @@ def _load_library() -> _TirexTrackerLibrary:
         c_char_p,
     ]
     library.tirexResultExportIrMetadata.restype = c_int
+    library.tirexSetAbortLevel.argtypes = [c_int]
+    library.tirexSetAbortCallback.argtypes = [c_void_p]
     return cast(_TirexTrackerLibrary, library)
 
 
@@ -566,6 +568,7 @@ def _handle_error(error_int: int) -> None:
         return
     elif error == Error.INVALID_ARGUMENT:
         raise ValueError("Invalid argument in native call.")
+    raise RuntimeError(f"An error occured: {error_int}")
 
 
 __callback: "Optional[CFunctionType]"
@@ -1065,3 +1068,16 @@ def register_file(resolve_to: Path, file: Path, subdirectory: str = ".") -> None
         raise ValueError(f"Tirex-tracker resolve_to/file should exist, got {resolve_to / file}")
 
     _REGISTERED_FILES.append((resolve_to, file, subdirectory))
+
+
+## Initialize error handling
+_LIBRARY.tirexSetAbortLevel(LogLevel.CRITICAL)
+
+
+@CFUNCTYPE(None, c_char_p)
+def __abort_callback(message: bytes) -> None:
+    raise RuntimeError(f"TIREx Tracker encountered a problem: {message.decode(_ENCODING)}")
+
+
+_LIBRARY.tirexSetAbortCallback(__abort_callback)
+## End of error handling
