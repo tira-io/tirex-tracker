@@ -106,12 +106,6 @@ typedef enum tirexMeasure_enum {
 	TIREX_TIME_START = 44, /**< Timestamp when the tracking was started. */
 	TIREX_TIME_STOP = 45,  /**< Timestamp when the tracking was started. */
 
-	TIREX_VERSION_MEASURE = 46, /**< Reports the version of the TIREx Tracker that was used to collect the metadata. */
-	TIREX_INVOCATION = 47,		/**< Reports the command that was used to spawn the tracked process. */
-
-	/** @brief Searches for devcontainer configuration files and reports their location. */
-	TIREX_DEVCONTAINER_CONF_PATHS = 48,
-
 	/**
 	 * @brief The "working directory" of the repository (i.e. the path at which the root of the repository's file tree
 	 * is located). Empty, if the repository is bare.
@@ -123,6 +117,12 @@ typedef enum tirexMeasure_enum {
 	 * temporary location and is automatically deleted when the result object is freed.
 	 */
 	TIREX_GIT_ARCHIVE_PATH = 47,
+
+	TIREX_VERSION_MEASURE = 48, /**< Reports the version of the TIREx Tracker that was used to collect the metadata. */
+	TIREX_INVOCATION = 49,		/**< Reports the command that was used to spawn the tracked process. */
+
+	/** @brief Searches for devcontainer configuration files and reports their location. */
+	TIREX_DEVCONTAINER_CONF_PATHS = 50,
 
 	/**
 	 * @brief The total number of supported measures.

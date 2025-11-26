@@ -233,7 +233,7 @@ static const tirexMeasureInfo measureInfos[]{
 						"result object is freed.",
 		 .datatype = tirexResultType::TIREX_STRING,
 		 .example = "/tmp/rzfa9i"},
-    /*[TIREX_VERSION_MEASURE] = */
+		/*[TIREX_VERSION_MEASURE] = */
 		{.description = "Reports the version of the TIREx Tracker that was used to collect the metadata.",
 		 .datatype = tirexResultType::TIREX_STRING,
 		 .example = TIREX_VERSION},
@@ -244,7 +244,7 @@ static const tirexMeasureInfo measureInfos[]{
 		/*[TIREX_DEVCONTAINER_CONF_PATHS] = */
 		{.description = "Searches for devcontainer configuration files and reports their location.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "[\"folder/.devcontainer/devcontainer.json\"]"},
+		 .example = "[\"folder/.devcontainer/devcontainer.json\"]"}
 };
 static_assert((sizeof(measureInfos) / sizeof(*measureInfos)) == TIREX_MEASURE_COUNT);
 
