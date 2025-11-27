@@ -51,7 +51,9 @@ static std::map<std::string, std::vector<tirexMeasureConf>> confGroups = {
 		  {TIREX_CPU_VIRTUALIZATION, TIREX_AGG_NO},
 		  {TIREX_RAM_USED_PROCESS_KB, TIREX_AGG_NO},
 		  {TIREX_RAM_USED_SYSTEM_MB, TIREX_AGG_NO},
-		  {TIREX_RAM_AVAILABLE_SYSTEM_MB, TIREX_AGG_NO}}},
+		  {TIREX_RAM_AVAILABLE_SYSTEM_MB, TIREX_AGG_NO},
+		  {TIREX_VERSION_MEASURE, TIREX_AGG_NO},
+		  {TIREX_INVOCATION, TIREX_AGG_NO}}},
 		{"energy",
 		 {{TIREX_CPU_ENERGY_SYSTEM_JOULES, TIREX_AGG_NO},
 		  {TIREX_RAM_ENERGY_SYSTEM_JOULES, TIREX_AGG_NO},
@@ -64,7 +66,8 @@ static std::map<std::string, std::vector<tirexMeasureConf>> confGroups = {
 		  {TIREX_GPU_USED_SYSTEM_PERCENT, TIREX_AGG_NO},
 		  {TIREX_GPU_VRAM_USED_PROCESS_MB, TIREX_AGG_NO},
 		  {TIREX_GPU_VRAM_USED_SYSTEM_MB, TIREX_AGG_NO},
-		  {TIREX_GPU_VRAM_AVAILABLE_SYSTEM_MB, TIREX_AGG_NO}}}
+		  {TIREX_GPU_VRAM_AVAILABLE_SYSTEM_MB, TIREX_AGG_NO}}},
+		{"devcontainer", {{TIREX_DEVCONTAINER_CONF_PATHS, TIREX_AGG_NO}}}
 };
 
 static void logCallback(tirexLogLevel level, const char* component, const char* message) {

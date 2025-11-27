@@ -123,7 +123,36 @@ SystemStats::SysInfo SystemStats::getSysInfo() {
 
 #include <dlfcn.h>
 
+std::vector<std::string> SystemStats::getInvocationCmd() {
+	int mib[3] = {CTL_KERN, KERN_PROCARGS2, pid};
+	size_t size = 0;
+	if (sysctl(mib, sizeof(mib) / sizeof(*mib), nullptr, &size, nullptr, 0) != 0) {
+		tirex::log::error("macosstats", "Failed to get task info for PID {} with error code", pid);
+		return {};
+	}
+
+	std::vector<char> buffer(size);
+	if (sysctl(mib, sizeof(mib) / sizeof(*mib), buffer.data(), &size, nullptr, 0) != 0) {
+		tirex::log::error("macosstats", "Failed to get task info for PID {} with error code", pid);
+		return {};
+	}
+	int argc = *reinterpret_cast<int*>(buffer.data());
+	char* argv = buffer.data() + sizeof(int);
+	std::string arg;
+	std::vector<std::string> args;
+	std::istringstream stream{std::string{argv, buffer.size() - sizeof(int)}};
+	std::getline(stream, arg, '\0'); // Discard first entry since it is a repetition of the command name.
+	size_t argi = 0;
+	for (size_t argi = 0; std::getline(stream, arg, '\0') && argi < argc; ++argi)
+		args.emplace_back(arg);
+	// The stream will now be followed by environment variables and others such that we need to check that argi<argc to
+	// terminate the loop.
+	return args;
+}
+
 void SystemStats::start() {
+	for (auto tmp : getInvocationCmd())
+		tirex::log::info("macosstats", "{}", tmp);
 	tirex::log::info("macosstats", "Collecting resources for Process {}", pid);
 	starttimer = steady_clock::now();
 	startTimepoint = system_clock::now();
