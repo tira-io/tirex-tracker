@@ -77,10 +77,8 @@ set_property(TARGET tirex_tracker PROPERTY POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # CPPJoule
-if (NOT (UNIX AND APPLE)) # CPPJouls does not support macos right now
-	CPMAddPackage(URI "gh:TheMrSheldon/CPPJoules#pcm" EXCLUDE_FROM_ALL YES)
-	target_link_libraries(tirex_tracker PRIVATE CPP_Joules)
-endif()
+CPMAddPackage(URI "gh:TheMrSheldon/CPPJoules#pcm" EXCLUDE_FROM_ALL YES)
+target_link_libraries(tirex_tracker PRIVATE CPP_Joules)
 
 # zlib (required by libgit and libzip)
 CPMAddPackage(
