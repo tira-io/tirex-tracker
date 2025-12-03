@@ -1,7 +1,7 @@
 import os
 import unittest
 from ctypes import pointer
-from threading import Condition, Thread
+from threading import Event, Thread
 
 from tirex_tracker import (
     _LIBRARY,
@@ -24,12 +24,10 @@ class TestErrorHandling(unittest.TestCase):
         set_log_callback(lambda level, component, message: print(f"[{level}][{component}] {message}"))
 
         def should_raise():
-            latch_started = Condition()
-            latch_stopped = Condition()
+            latch_stopped = Event()
             print("Parent:", os.getpid())
 
             def do_work():
-                latch_started.wait()
                 print("Child:", os.getpid())
                 measures = [_MeasureConfiguration(-7, Aggregation.NO.value), _NULL_MEASURE_CONFIGURATION]
 
@@ -37,9 +35,8 @@ class TestErrorHandling(unittest.TestCase):
                 resultptr = pointer(_Result())
                 _LIBRARY.tirexFetchInfo(configs, pointer(resultptr))
                 print(resultptr.contents)
-                latch_stopped.notify_all()
+                latch_stopped.set()
 
-            latch_started.notify_all()
             Thread(target=do_work, daemon=True).start()
             latch_stopped.wait()
 
