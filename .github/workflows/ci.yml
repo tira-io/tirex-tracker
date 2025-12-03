@@ -343,17 +343,17 @@ jobs:
             jvm/example/build.gradle.kts
             jvm/library/build.gradle.kts
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-linux
           path: jvm/library/src/main/resources/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-macos
           path: jvm/library/src/main/resources/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-windows
           path: jvm/library/src/main/resources/
@@ -412,17 +412,17 @@ jobs:
             jvm/example/build.gradle.kts
             jvm/library/build.gradle.kts
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-linux
           path: jvm/library/src/main/resources/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-macos
           path: jvm/library/src/main/resources/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-windows
           path: jvm/library/src/main/resources/
@@ -475,17 +475,17 @@ jobs:
             jvm/example/build.gradle.kts
             jvm/library/build.gradle.kts
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-linux
           path: jvm/library/src/main/resources/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-macos
           path: jvm/library/src/main/resources/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-windows
           path: jvm/library/src/main/resources/
@@ -558,17 +558,17 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-linux
           path: python/tirex_tracker/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-macos
           path: python/tirex_tracker/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-windows
           path: python/tirex_tracker/
@@ -611,17 +611,17 @@ jobs:
           cache: pip
           cache-dependency-path: python/pyproject.toml
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-linux
           path: python/tirex_tracker/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-macos
           path: python/tirex_tracker/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-windows
           path: python/tirex_tracker/
@@ -655,17 +655,17 @@ jobs:
           cache: pip
           cache-dependency-path: python/pyproject.toml
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-linux
           path: python/tirex_tracker/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-macos
           path: python/tirex_tracker/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-windows
           path: python/tirex_tracker/
@@ -700,17 +700,17 @@ jobs:
           cache: pip
           cache-dependency-path: python/pyproject.toml
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-linux
           path: python/tirex_tracker/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-macos
           path: python/tirex_tracker/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-windows
           path: python/tirex_tracker/
@@ -751,17 +751,17 @@ jobs:
           cache: pip
           cache-dependency-path: python/pyproject.toml
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-linux
           path: python/tirex_tracker/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-macos
           path: python/tirex_tracker/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-library-windows
           path: python/tirex_tracker/
@@ -793,7 +793,7 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 📥 Download Python wheels
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: python-wheels
           path: dist
@@ -823,44 +823,44 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v4
       - name: 📥 Download Native Libraries
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           pattern: c-library-*
           merge-multiple: true
           path: tmp/c/
       - name: 📥 Download Linux CLI
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-cli-linux
           path: tmp/c/
       - name: ✏️ Rename Linux CLI
         run: mv tmp/c/measure tmp/c/measure-${{ github.ref_name }}-linux
       - name: 📥 Download macOS CLI
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-cli-macos
           path: tmp/c/
       - name: ✏️ Rename macOS CLI
         run: mv tmp/c/measure tmp/c/measure-${{ github.ref_name }}-macos
       - name: 📥 Download Windows CLI
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-cli-windows
           path: tmp/c/
       - name: ✏️ Rename Windows CLI
         run: mv tmp/c/measure.exe tmp/c/measure-${{ github.ref_name }}-windows.exe
       - name: 📥 Download Debian package
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: c-debian-package
           path: tmp/c/
       - name: 📥 Download Python wheels
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: python-wheels
           path: tmp/python/dist/
       - name: 📥 Download JVM Artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           pattern: jvm-*
           merge-multiple: true
