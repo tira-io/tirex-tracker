@@ -66,17 +66,17 @@ initProviders(const tirexMeasureConf* measures, std::vector<std::unique_ptr<tire
 	for (auto conf = measures; conf->source != tirexMeasure::TIREX_MEASURE_INVALID; ++conf) {
 		auto [it, inserted] = tirexset.insert(conf->source); /** \todo implement conf->aggregate support **/
 		if (!inserted) {
-			/** \todo if pedantic abort here **/
 			tirex::log::warn(
-					"measure", "The measure {} was requested more than once", static_cast<signed>(conf->source)
+					"tracker", "The measure {} was requested more than once", static_cast<signed>(conf->source)
 			);
+			tirex::abort(tirexLogLevel::WARN, "A measure was requested multiple times");
 		}
 	}
 	auto unmatched = tirex::initProviders(tirexset, providers);
 	if (!unmatched.empty()) {
-		/** \todo if pedantic abort here **/
-		tirex::log::warn("measure", "Not all requested measures are associated with a data provider");
-		tirex::log::warn("measure", "Unmatched: {}", tirex::utils::join(unmatched));
+		tirex::log::warn("tracker", "Not all requested measures are associated with a data provider");
+		tirex::log::warn("tracker", "Unmatched: {}", tirex::utils::join(unmatched));
+		tirex::abort(tirexLogLevel::WARN, "An unsupported measure was requested");
 	}
 	return TIREX_SUCCESS;
 }

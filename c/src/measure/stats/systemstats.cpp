@@ -43,6 +43,7 @@ std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
 }
 #elif defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
 #include <powrprof.h>
+#define NOGDI // Otherwise we get problems with logging
 #include <windows.h>
 
 std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
@@ -349,6 +350,7 @@ SystemStats::CPUInfo::VirtFlags getVirtSupport() {
 	return {.svm = false, .vmx = false};
 }
 #elif defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
+#define NOGDI // Otherwise we get problems with logging
 #include <windows.h>
 
 SystemStats::CPUInfo::VirtFlags getVirtSupport() {
