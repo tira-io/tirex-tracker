@@ -672,7 +672,8 @@ jobs:
       - name: 🧰 Install dependencies
         run: pip install -e python[tests]
       - name: 🔍 Check Python static typing
-        run: mypy python
+        working-directory: ${{github.workspace}}/python
+        run: mypy .
   python-security:
     name: 🔍 Check Python code security
     strategy:
