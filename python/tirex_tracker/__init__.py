@@ -45,6 +45,9 @@ from yaml import safe_load as yaml_safe_load
 
 from ._utils.constants import ALL_AGGREGATIONS, ALL_MEASURES, Aggregation, Error, LogLevel, Measure, ResultType
 from ._utils.constants import ENCODING as _ENCODING
+from ._utils.errorhandling import ABORT_HANDLE as _ABORT_HANDLE
+from ._utils.errorhandling import deinit_error_handling as _deinit_error_handling
+from ._utils.errorhandling import init_error_handling as _init_error_handling
 from ._utils.library import (
     _PYTHON_MEASURES,
     MeasureInfo,
@@ -308,11 +311,6 @@ def _prepare_measure_configurations(
     ]
     configs_array = (_MeasureConfiguration * (len(configs)))(*configs)
     return configs_array
-
-
-from ._utils.errorhandling import ABORT_HANDLE as _ABORT_HANDLE
-from ._utils.errorhandling import deinit_error_handling as _deinit_error_handling
-from ._utils.errorhandling import init_error_handling as _init_error_handling
 
 
 # TODO: Add aggregation(s) (mapping) parameter.
@@ -754,3 +752,5 @@ def register_file(resolve_to: Path, file: Path, subdirectory: str = ".") -> None
 
 ## Initialize error handling to abort at level CRITICAL
 _LIBRARY.tirexSetAbortLevel(LogLevel.CRITICAL)
+
+__all__ = ["ALL_AGGREGATIONS", "ALL_MEASURES", "Aggregation", "Error", "LogLevel", "Measure", "ResultType", "tracking"]
