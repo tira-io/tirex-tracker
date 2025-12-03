@@ -95,6 +95,11 @@ static void runMeasureCmd(const MeasureCmdArgs& args) {
 	auto logger = tirex::getLogger("measure");
 	logger->info("Measuring command: {}", args.command);
 
+	if (args.pedantic) {
+		logger->info("Switching to pedantic mode");
+		tirexSetAbortLevel(tirexLogLevel::WARN);
+	}
+
 	// Start measuring
 	std::vector<tirexMeasureConf> measures;
 	for (const auto& provider : args.statproviders) {
@@ -149,7 +154,7 @@ int main(int argc, char* argv[]) {
 			)
 			->default_val(100);
 	app.add_flag("--pedantic", measureArgs.pedantic, "If set, measure will stop execution on errors")
-			->default_val(false); /** \todo support pedantic **/
+			->default_val(false);
 	app.add_option("-o", measureArgs.outfile)->description("Sets the file to write the result measurements into.");
 
 	app.callback([&measureArgs]() { runMeasureCmd(measureArgs); });

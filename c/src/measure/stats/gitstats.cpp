@@ -1,5 +1,6 @@
 #include "gitstats.hpp"
 
+#include "../../abort.hpp"
 #include "../../logging.hpp"
 #include "../utils/rangeutils.hpp"
 
@@ -164,9 +165,8 @@ static std::string hashAllFiles(git_repository* repo) {
 					"gitstats", "I will not include it in the hash. Please add it to the .gitignore if is not part of "
 								"your codebase or check it into the repository if it should be."
 			);
+			tirex::abort(tirexLogLevel::WARN, "Folders that are not checked into the repository are ignored.");
 			continue;
-			/** \todo if pedantic abort here **/
-			// abort();
 		}
 		std::ifstream is(root / entry->index_to_workdir->new_file.path, std::ios::binary);
 		if (!is) {
@@ -218,12 +218,17 @@ repoToArchive(git_repository* repo, const std::filesystem::path& archive) noexce
 		}
 		auto source = zip_source_file(handle, path.string().c_str(), 0, 0);
 		if (source == nullptr) {
-			tirex::log::error("gitstats", "Error reading file: {}", entry->index_to_workdir->new_file.path);
-			continue; /** \todo handle pedantic? **/
+			tirex::log::error(
+					"gitstats", "Error reading file: {}; I will not add it to the archive",
+					entry->index_to_workdir->new_file.path
+			);
+			tirex::abort(tirexLogLevel::ERROR, "Failed to read file to add it to the archive");
+			continue;
 		}
 		if (zip_file_add(handle, entry->index_to_workdir->new_file.path, source, ZIP_FL_OVERWRITE) < 0) {
 			tirex::log::error("gitstats", "Error adding file to archive: {}", entry->index_to_workdir->new_file.path);
-			continue; /** \todo handle pedantic? **/
+			tirex::abort(tirexLogLevel::ERROR, "Failed to add file to the archive");
+			continue;
 		}
 	}
 	git_status_list_free(list);
