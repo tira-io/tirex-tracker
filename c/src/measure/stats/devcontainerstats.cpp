@@ -34,10 +34,10 @@ DevContainerStats::DevContainerStats() {
 	auto devcontainerConfs = searchDevcontainerFiles(fs::current_path());
 	tirex::log::info(
 			"devcontainer", "Found {} devcontainer configurations by searching started at {}", devcontainerConfs.size(),
-			fs::current_path().c_str()
+			fs::current_path().string().c_str()
 	);
 	for (const auto& path : devcontainerConfs) {
-		tirex::log::info("devcontainer", "{}", path.c_str());
+		tirex::log::info("devcontainer", "{}", path.string().c_str());
 	}
 }
 

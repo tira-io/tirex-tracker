@@ -1,7 +1,7 @@
 #ifndef MEASURE_UTILS_SHAREDLIB_HPP
 #define MEASURE_UTILS_SHAREDLIB_HPP
 
-#include <filesystem>
+#include <string>
 
 #if defined(__linux__) || defined(__APPLE__)
 #include <dlfcn.h>
@@ -16,7 +16,7 @@ namespace tirex::utils {
 	namespace details {
 #if defined(__linux__) || defined(__APPLE__)
 		using libhandle = void*;
-		inline libhandle openlib(const std::filesystem::path& path) noexcept { return dlopen(path.c_str(), RTLD_LAZY); }
+		inline libhandle openlib(const std::string& path) noexcept { return dlopen(path.c_str(), RTLD_LAZY); }
 		inline void closelib(libhandle handle) noexcept { dlclose(handle); }
 		template <typename T>
 		inline T loadfromlib(libhandle handle, const std::string& name) noexcept {
@@ -24,7 +24,7 @@ namespace tirex::utils {
 		}
 #elif defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
 		using libhandle = HINSTANCE;
-		inline libhandle openlib(const std::filesystem::path& path) { return LoadLibrary((LPCSTR)path.c_str()); }
+		inline libhandle openlib(const std::string& path) { return LoadLibrary((LPCSTR)path.c_str()); }
 		inline void closelib(libhandle handle) noexcept { /** Not possible */ }
 		template <typename T>
 		inline T loadfromlib(libhandle handle, const std::string& name) noexcept {
@@ -57,7 +57,7 @@ namespace tirex::utils {
 
 	public:
 		SharedLib() noexcept : handle(nullptr) {}
-		SharedLib(const std::filesystem::path& path) noexcept : handle(details::openlib(path)) {}
+		SharedLib(const std::string& path) noexcept : handle(details::openlib(path)) {}
 		SharedLib(SharedLib&& other) noexcept : handle(std::move(other.handle)) { other.handle = nullptr; }
 
 		virtual ~SharedLib() { destroy(); }
