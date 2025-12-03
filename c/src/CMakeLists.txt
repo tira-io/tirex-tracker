@@ -22,10 +22,11 @@ target_sources(tirex_tracker
 			${CMAKE_CURRENT_BINARY_DIR}/tirex_tracker_export.h
 			${TIREX_EXT_INCLUDE_FILES}
 	PRIVATE
+		abort.cpp
+		logging.cpp
 		measureapi.cpp
 		measureinfo.cpp
 		measureresult.cpp
-		logging.cpp
 		measure/stats/provider.cpp
 
 		measure/stats/devcontainerstats.cpp

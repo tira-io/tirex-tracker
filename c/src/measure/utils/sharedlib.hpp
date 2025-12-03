@@ -6,6 +6,7 @@
 #if defined(__linux__) || defined(__APPLE__)
 #include <dlfcn.h>
 #elif defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
+#define NOGDI // Otherwise we get problems with logging
 #include <windows.h>
 #else
 #error "Unsupported OS"

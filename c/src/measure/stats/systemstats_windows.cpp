@@ -10,6 +10,7 @@
 #include "../../logging.hpp"
 #include "../utils/sharedlib.hpp"
 
+#define NOGDI // Otherwise we get problems with logging
 #include <windows.h>
 #include <winternl.h>
 
