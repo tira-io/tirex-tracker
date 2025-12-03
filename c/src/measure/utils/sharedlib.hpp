@@ -57,7 +57,7 @@ namespace tirex::utils {
 
 	public:
 		SharedLib() noexcept : handle(nullptr) {}
-		SharedLib(const std::string& path) noexcept : handle(details::openlib(path)) {}
+		explicit SharedLib(const std::string& path) noexcept : handle(details::openlib(path)) {}
 		SharedLib(SharedLib&& other) noexcept : handle(std::move(other.handle)) { other.handle = nullptr; }
 
 		virtual ~SharedLib() { destroy(); }
