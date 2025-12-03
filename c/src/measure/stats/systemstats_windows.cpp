@@ -12,6 +12,7 @@
 
 #include <windows.h>
 #include <winternl.h>
+
 #include <powrprof.h>
 #include <psapi.h>
 #include <versionhelpers.h>
@@ -231,14 +232,17 @@ SystemStats::SysInfo SystemStats::getSysInfo() {
 
 std::vector<std::string> SystemStats::getInvocationCmd() {
 	ULONG bufsize;
-    char buffer[4096];
-    HANDLE handle = GetCurrentProcess();
-    NTSTATUS status = nt.queryInformationProcess(handle, static_cast<PROCESSINFOCLASS>(60) /* ProcessCommandLineInformation */, buffer, sizeof(buffer), &bufsize);
-    if (!NT_SUCCESS(status))
+	char buffer[4096];
+	HANDLE handle = GetCurrentProcess();
+	NTSTATUS status = nt.queryInformationProcess(
+			handle, static_cast<PROCESSINFOCLASS>(60) /* ProcessCommandLineInformation */, buffer, sizeof(buffer),
+			&bufsize
+	);
+	if (!NT_SUCCESS(status))
 		return {};
-    auto ustr = reinterpret_cast<PUNICODE_STRING>(&buffer[0]);
+	auto ustr = reinterpret_cast<PUNICODE_STRING>(&buffer[0]);
 	/** \todo When everything is unicode, this lossy conversion is not necessary **/
-	return {std::string(ustr->Buffer, ustr->Buffer+ustr->Length)};
+	return {std::string(ustr->Buffer, ustr->Buffer + ustr->Length)};
 }
 
 void SystemStats::start() {
