@@ -34,7 +34,7 @@ public:
 	);
 	QUERY_INFORMATION_PROCESS queryInformationProcess = load<QUERY_INFORMATION_PROCESS>({"NtQueryInformationProcess"});
 
-	NTDLL() : tirex::utils::SharedLib({"ntdll.dll"}) {}
+	NTDLL() : tirex::utils::SharedLib(std::string{"ntdll.dll"}) {}
 };
 
 static NTDLL nt;
