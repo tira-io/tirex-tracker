@@ -84,7 +84,7 @@ line-length = 120
 select = ["E", "F", "B", "SIM", "I"]
 
 [tool.mypy]
-exclude = ["build", "venv", "resources"]
+exclude = ["build", "venv", "resources", "tirex_tracker/pyterrier.py", "tirex_tracker/utils.py"]
 
 [tool.bandit]
 exclude_dirs = ["build", "venv", "resources"]
