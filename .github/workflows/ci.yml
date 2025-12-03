@@ -626,7 +626,7 @@ jobs:
           name: c-library-windows
           path: python/tirex_tracker/
       - name: 🧰 Install dependencies
-        run: pip install -e python[tests,examples]
+        run: pip install -e python[tests]
       - name: 🔍 Check Python code
         run: ruff check python
   python-typing:
@@ -670,7 +670,7 @@ jobs:
           name: c-library-windows
           path: python/tirex_tracker/
       - name: 🧰 Install dependencies
-        run: pip install -e python[tests,examples]
+        run: pip install -e python[tests]
       - name: 🔍 Check Python static typing
         run: mypy python
   python-security:
@@ -714,7 +714,7 @@ jobs:
           name: c-library-windows
           path: python/tirex_tracker/
       - name: 🧰 Install dependencies
-        run: pip install -e python[tests,examples]
+        run: pip install -e python[tests]
       - name: 🔍 Check Python code security
         run: bandit -c python/pyproject.toml -r python
   python-test:
@@ -765,7 +765,7 @@ jobs:
           name: c-library-windows
           path: python/tirex_tracker/
       - name: 🧰 Install dependencies
-        run: pip install -e python[tests,examples]
+        run: pip install -e python[tests]
       - name: 🧪 Test Python code
         run: pytest --cov --cov-report xml python
       - name: 📤 Upload coverage to Codecov
