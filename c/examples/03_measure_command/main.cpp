@@ -154,7 +154,7 @@ int main(int argc, char* argv[]) {
 			)
 			->default_val(100);
 	app.add_flag("--pedantic", measureArgs.pedantic, "If set, measure will stop execution on errors")
-			->default_val(false); /** \todo support pedantic **/
+			->default_val(false);
 	app.add_option("-o", measureArgs.outfile)->description("Sets the file to write the result measurements into.");
 
 	app.callback([&measureArgs]() { runMeasureCmd(measureArgs); });
