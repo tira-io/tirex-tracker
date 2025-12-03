@@ -77,7 +77,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # CPPJoule
 if (NOT (UNIX AND APPLE)) # CPPJouls does not support macos right now
-	CPMAddPackage(URI "gh:TheMrSheldon/CPPJoules#pcm" EXCLUDE_FROM_ALL YES OPTIONS "CPPJOULES_ENABLE_PCM OFF")
+	CPMAddPackage(URI "gh:TheMrSheldon/CPPJoules#pcm" EXCLUDE_FROM_ALL YES)
 	target_link_libraries(tirex_tracker PRIVATE CPP_Joules)
 endif()
 

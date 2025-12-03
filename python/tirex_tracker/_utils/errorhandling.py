@@ -26,13 +26,13 @@ import os
 import signal
 from ctypes import CFUNCTYPE, c_char_p
 from types import FrameType
-from typing import Any, Optional, Union
+from typing import Any, List, Optional, Tuple, Union
 
 from .constants import ENCODING
 from .library import LIBRARY
 
 __SIGNALS_TO_TRY = [signal.Signals.SIGUSR1, signal.Signals.SIGUSR2]
-ABORT_HANDLE = tuple[signal.Signals, Any]
+ABORT_HANDLE = Tuple[signal.Signals, Any]
 
 
 def __instate_abort_signal_handler(handler: "signal._HANDLER") -> Optional[signal.Signals]:
@@ -44,7 +44,7 @@ def __instate_abort_signal_handler(handler: "signal._HANDLER") -> Optional[signa
     return None
 
 
-def __instate_abort_callback(sig: signal.Signals, strref: list[str]) -> Any:
+def __instate_abort_callback(sig: signal.Signals, strref: List[str]) -> Any:
     pid = os.getpid()
 
     @CFUNCTYPE(None, c_char_p)
