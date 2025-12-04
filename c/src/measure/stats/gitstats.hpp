@@ -3,6 +3,9 @@
 
 #include "provider.hpp"
 
+#include <filesystem>
+#include <optional>
+
 struct git_repository;
 
 namespace tirex {
@@ -22,6 +25,8 @@ namespace tirex {
 		static constexpr const char* description = "Collects git related metrics.";
 		static const char* version;
 		static const std::set<tirexMeasure> measures;
+
+		static std::optional<std::filesystem::path> getRepoRootDir();
 	};
 } // namespace tirex
 

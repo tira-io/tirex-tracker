@@ -10,9 +10,7 @@ namespace tirex {
 		DevContainerStats();
 
 		std::set<tirexMeasure> providedMeasures() noexcept override;
-		void start() override;
-		void stop() override;
-		Stats getStats() override;
+		Stats getInfo() override;
 
 		static constexpr const char* description = "Reads metainformation from the devcontainer.json";
 		static const char* version;

@@ -52,6 +52,16 @@ const std::set<tirexMeasure> GitStats::measures{
 		TIREX_GIT_ARCHIVE_PATH
 };
 
+std::optional<std::filesystem::path> GitStats::getRepoRootDir() {
+	git_libgit2_init();
+	git_repository* repo;
+	auto root = (git_repository_open_ext(&repo, "./", 0, nullptr) == 0)
+						? std::make_optional<std::filesystem::path>(git_repository_workdir(repo))
+						: std::nullopt;
+	git_libgit2_shutdown();
+	return root;
+}
+
 static std::string getLastCommitHash(git_repository* repo) {
 	git_oid id;
 	if (int err; (err = git_reference_name_to_id(&id, repo, "HEAD")) != 0) {

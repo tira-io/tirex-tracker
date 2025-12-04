@@ -6,6 +6,7 @@
 #include "systemstats.hpp"
 
 #include "../../logging.hpp"
+#include "../utils/rangeutils.hpp"
 
 #include <cpuinfo.h>
 
@@ -21,8 +22,6 @@ namespace _fmt = fmt;
 #include <map>
 #include <sstream>
 #include <tuple>
-
-#include "../utils/rangeutils.hpp"
 
 using namespace std::string_literals;
 using std::chrono::steady_clock;
