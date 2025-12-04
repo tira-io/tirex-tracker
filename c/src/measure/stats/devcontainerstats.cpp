@@ -14,10 +14,7 @@ using tirex::Stats;
 namespace fs = std::filesystem;
 
 const char* DevContainerStats::version = nullptr;
-const std::set<tirexMeasure> DevContainerStats::measures{
-		TIREX_DEVCONTAINER_CONF_PATHS
-		/** \todo add measures */
-};
+const std::set<tirexMeasure> DevContainerStats::measures{TIREX_DEVCONTAINER_CONF_PATHS};
 
 static std::vector<fs::path> searchDevcontainerFiles(fs::path basepath) {
 	// https://containers.dev/implementors/spec/#devcontainerjson
@@ -39,7 +36,6 @@ static std::vector<fs::path> searchDevcontainerFiles(fs::path basepath) {
 }
 
 DevContainerStats::DevContainerStats() {
-	/** \todo check if workdir is inside a repository and take the repo root instead **/
 	auto devcontainerConfs = searchDevcontainerFiles(fs::current_path());
 	tirex::log::info(
 			"devcontainer", "Found {} devcontainer configurations by searching started at {}", devcontainerConfs.size(),
