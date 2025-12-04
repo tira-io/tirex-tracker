@@ -1,9 +1,10 @@
+import tempfile
 import unittest
 from glob import glob
 from pathlib import Path
-import tempfile
 
-from tirex_tracker import ExportFormat, clear_file_register, register_file, tracking
+from tirex_tracker import ExportFormat, clear_file_register, tracking
+
 
 class TestRedundantTracking(unittest.TestCase):
     def test_with_different_metadata_files(self) -> None:
@@ -29,7 +30,7 @@ class TestRedundantTracking(unittest.TestCase):
             with tracking(export_file_path=Path(tmp) / "metadata.yml", export_format=ExportFormat.IR_METADATA):
                 print("hello world")
 
-            with self.assertRaises(ValueError):
+            with self.assertRaises(ValueError): # noqa: SIM117
                 with tracking(export_file_path=Path(tmp) / "metadata.yml", export_format=ExportFormat.IR_METADATA):
                     print("hello world")
 
