@@ -159,6 +159,12 @@ typedef enum tirexMeasure_enum {
 	 */
 	TIREX_GIT_ARCHIVE_PATH = 47,
 
+	TIREX_VERSION_MEASURE = 48, /**< Reports the version of the TIREx Tracker that was used to collect the metadata. */
+	TIREX_INVOCATION = 49,		/**< Reports the command that was used to spawn the tracked process. */
+
+	/** @brief Searches for devcontainer configuration files and reports their location. */
+	TIREX_DEVCONTAINER_CONF_PATHS = 50,
+
 	/**
 	 * @brief The total number of supported measures.
 	 * @details It can be assumed that every number in the range `[0, TIREX_MEASURE_COUNT]` is a valid enum value.

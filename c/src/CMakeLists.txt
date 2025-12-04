@@ -29,6 +29,7 @@ target_sources(tirex_tracker
 		measureresult.cpp
 		measure/stats/provider.cpp
 
+		measure/stats/devcontainerstats.cpp
 		measure/stats/energystats.cpp
 		measure/stats/gitstats.cpp
 		measure/stats/nvmlstats.cpp
@@ -41,6 +42,7 @@ target_sources(tirex_tracker
 )
 
 target_compile_features(tirex_tracker PUBLIC cxx_std_20)
+target_compile_definitions(tirex_tracker PUBLIC TIREX_VERSION="${TIREX_TRACKER_VERSION}")
 
 if (LINUX)
 target_link_libraries(tirex_tracker PUBLIC ${CMAKE_DL_LIBS})  # dlopen, dlclose, ...
@@ -76,10 +78,8 @@ set_property(TARGET tirex_tracker PROPERTY POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # CPPJoule
-if (NOT (UNIX AND APPLE)) # CPPJouls does not support macos right now
-	CPMAddPackage(URI "gh:TheMrSheldon/CPPJoules#pcm" EXCLUDE_FROM_ALL YES)
-	target_link_libraries(tirex_tracker PRIVATE CPP_Joules)
-endif()
+CPMAddPackage(URI "gh:TheMrSheldon/CPPJoules#pcm" EXCLUDE_FROM_ALL YES)
+target_link_libraries(tirex_tracker PRIVATE CPP_Joules)
 
 # zlib (required by libgit and libzip)
 CPMAddPackage(

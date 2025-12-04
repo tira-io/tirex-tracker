@@ -52,6 +52,16 @@ const std::set<tirexMeasure> GitStats::measures{
 		TIREX_GIT_ARCHIVE_PATH
 };
 
+std::optional<std::filesystem::path> GitStats::getRepoRootDir() {
+	git_libgit2_init();
+	git_repository* repo;
+	auto root = (git_repository_open_ext(&repo, "./", 0, nullptr) == 0)
+						? std::make_optional<std::filesystem::path>(git_repository_workdir(repo))
+						: std::nullopt;
+	git_libgit2_shutdown();
+	return root;
+}
+
 static std::string formatMemory(size_t size) {
 	std::array units{"B", "KB", "MB", "GB", "TB"};
 	size_t i = 0;

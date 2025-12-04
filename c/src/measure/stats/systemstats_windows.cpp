@@ -8,12 +8,15 @@
 #include "systemstats.hpp"
 
 #include "../../logging.hpp"
+#include "../utils/sharedlib.hpp"
+
+#define NOGDI // Otherwise we get problems with logging
+#include <windows.h>
+#include <winternl.h>
 
 #include <powrprof.h>
 #include <psapi.h>
 #include <versionhelpers.h>
-#define NOGDI // Otherwise we get problems with logging
-#include <windows.h>
 
 #include <tuple>
 
@@ -23,6 +26,20 @@ using std::chrono::system_clock;
 
 using tirex::Stats;
 using tirex::SystemStats;
+
+struct NTDLL final : tirex::utils::SharedLib {
+public:
+	using QUERY_INFORMATION_PROCESS = NTSTATUS (*)(
+			HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation,
+			ULONG ProcessInformationLength, PULONG ReturnLength
+	);
+	QUERY_INFORMATION_PROCESS queryInformationProcess = load<QUERY_INFORMATION_PROCESS>({"NtQueryInformationProcess"});
+
+	NTDLL() : tirex::utils::SharedLib(std::string{"ntdll.dll"}) {}
+};
+
+static NTDLL nt;
+
 static std::string getOSDesc() {
 	if (IsWindows10OrGreater())
 		return "Windows 10+";
@@ -214,7 +231,24 @@ SystemStats::SysInfo SystemStats::getSysInfo() {
 			.totalRamMB = getTotalRAM_MB()};
 }
 
+std::vector<std::string> SystemStats::getInvocationCmd() {
+	ULONG bufsize;
+	char buffer[4096];
+	HANDLE handle = GetCurrentProcess();
+	NTSTATUS status = nt.queryInformationProcess(
+			handle, static_cast<PROCESSINFOCLASS>(60) /* ProcessCommandLineInformation */, buffer, sizeof(buffer),
+			&bufsize
+	);
+	if (!NT_SUCCESS(status))
+		return {};
+	auto ustr = reinterpret_cast<PUNICODE_STRING>(&buffer[0]);
+	/** \todo When everything is unicode, this lossy conversion is not necessary **/
+	return {std::string(ustr->Buffer, ustr->Buffer + ustr->Length)};
+}
+
 void SystemStats::start() {
+	for (auto tmp : getInvocationCmd())
+		tirex::log::info("windowsstats", "{}", tmp);
 	starttimer = steady_clock::now();
 	startTimepoint = system_clock::now();
 	std::tie(startSysTime, startUTime) = getSysAndUserTime();

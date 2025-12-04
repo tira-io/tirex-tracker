@@ -2,6 +2,7 @@
 
 #include "../../logging.hpp"
 
+#include "devcontainerstats.hpp"
 #include "energystats.hpp"
 #include "gitstats.hpp"
 #include "nvmlstats.hpp"
@@ -9,6 +10,7 @@
 
 #include <algorithm>
 
+using tirex::DevContainerStats;
 using tirex::EnergyStats;
 using tirex::GitStats;
 using tirex::NVMLStats;
@@ -21,7 +23,10 @@ const std::map<std::string, tirex::ProviderEntry> tirex::providers{
 		{"energy",
 		 {std::make_unique<EnergyStats>, EnergyStats::measures, EnergyStats::version, EnergyStats::description}},
 		{"git", {std::make_unique<GitStats>, GitStats::measures, GitStats::version, GitStats::description}},
-		{"gpu", {std::make_unique<NVMLStats>, NVMLStats::measures, NVMLStats::version, NVMLStats::description}}
+		{"gpu", {std::make_unique<NVMLStats>, NVMLStats::measures, NVMLStats::version, NVMLStats::description}},
+		{"devcontainer",
+		 {std::make_unique<DevContainerStats>, DevContainerStats::measures, DevContainerStats::version,
+		  DevContainerStats::description}},
 };
 
 std::set<tirexMeasure>
