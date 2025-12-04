@@ -52,6 +52,16 @@ const std::set<tirexMeasure> GitStats::measures{
 		TIREX_GIT_ARCHIVE_PATH
 };
 
+static std::string formatMemory(size_t size) {
+	std::array units{"B", "KB", "MB", "GB", "TB"};
+	size_t i = 0;
+	while (i < units.size() && (size / 1000) * 1000 == size && size != 0) {
+		++i;
+		size /= 1000;
+	}
+	return _fmt::format("{} {}", size, units[i]);
+}
+
 static std::string getLastCommitHash(git_repository* repo) {
 	git_oid id;
 	if (int err; (err = git_reference_name_to_id(&id, repo, "HEAD")) != 0) {
@@ -181,7 +191,7 @@ static std::string hashAllFiles(git_repository* repo) {
 }
 
 static std23::expected<void, std::string>
-repoToArchive(git_repository* repo, const std::filesystem::path& archive) noexcept {
+repoToArchive(git_repository* repo, const std::filesystem::path& archive, size_t archivalSizeLimit) noexcept {
 	std::filesystem::path root = git_repository_workdir(repo);
 	tirex::log::debug("gitstats", "Archiving git repo at root {} to {}", root.string(), archive.string());
 	int err;
@@ -214,6 +224,16 @@ repoToArchive(git_repository* repo, const std::filesystem::path& archive) noexce
 			/** \todo return unexpected if pedantic **/
 			/*return std23::unexpected<std::string>{
 					"The repositories contains an unchecked folder. Add it to .gitignore or check it into the repository."
+			};*/
+		} else if (std::filesystem::file_size(path) >= archivalSizeLimit) {
+			tirex::log::warn(
+					"gitstats", "The file {} is larger than the configured limit of {} and will be ignored.",
+					entry->index_to_workdir->new_file.path, formatMemory(archivalSizeLimit)
+			);
+			continue;
+			/** \todo return unexpected if pedantic **/
+			/*return std23::unexpected<std::string>{
+					"The repositories contains a large file which will not be added to the git archive."
 			};*/
 		}
 		auto source = zip_source_file(handle, path.string().c_str(), 0, 0);
@@ -319,7 +339,7 @@ Stats GitStats::getInfo() {
 		std::filesystem::path tmpfile{std::tmpnam(nullptr)};
 #pragma clang diagnostic pop
 		if (enabled.contains(TIREX_GIT_ARCHIVE_PATH)) {
-			repoToArchive(repo, tmpfile);
+			repoToArchive(repo, tmpfile, archivalSizeLimit);
 		}
 		auto [local, remote] = getBranchName(repo);
 		return makeFilteredStats(
