@@ -153,14 +153,24 @@ void NVMLStats::step() {
 		if (nvmlReturn_t ret; (ret = ::nvml.deviceGetMemoryInfo(device, &memory)) == NVML_SUCCESS) {
 			nvml.vramUsageTotal.addValue(memory.used / 1000 / 1000);
 		} else {
-			tirex::log::error("gpustats", "Could not fetch memory information: {}", ::nvml.errorString(ret));
+			static bool logged = false;
+			if (!logged) { // Make sure that we log this message only once
+				tirex::log::error("gpustats", "Could not fetch memory information: {}", ::nvml.errorString(ret));
+				logged = true;
+			}
 			tirex::abort(tirexLogLevel::ERROR, "Could not fetch GPU memory information"); /** \todo how to handle? **/
 		}
 		nvmlUtilization_t util;
 		if (nvmlReturn_t ret; (ret = ::nvml.deviceGetUtilizationRates(device, &util)) == NVML_SUCCESS) {
 			nvml.utilizationTotal.addValue(util.gpu);
 		} else {
-			tirex::log::critical("gpustats", "Could not fetch utilization information: {}", ::nvml.errorString(ret));
+			static bool logged = false;
+			if (!logged) { // Make sure that we log this message only once
+				tirex::log::critical(
+						"gpustats", "Could not fetch utilization information: {}", ::nvml.errorString(ret)
+				);
+				logged = true;
+			}
 			tirex::abort(
 					tirexLogLevel::ERROR, "Could not fetch GPU utlization information"
 			); /** \todo how to handle? **/

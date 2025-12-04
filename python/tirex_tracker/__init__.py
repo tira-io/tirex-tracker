@@ -9,7 +9,7 @@ from gzip import open as gzip_open
 from io import BytesIO
 from json import dumps, loads
 from pathlib import Path
-from shutil import copy
+from shutil import copy, rmtree
 from sys import argv, executable, version_info
 from sys import modules as sys_modules
 from traceback import extract_stack
@@ -181,7 +181,7 @@ def _get_python_info(
 
         # Clear and create the directory.
         if metadata_directory_path.exists():
-            metadata_directory_path.rmdir()
+            rmtree(metadata_directory_path)
         metadata_directory_path.mkdir(parents=True)
 
         archive_paths = create_code_archive(metadata_directory_path)
