@@ -227,7 +227,7 @@ repoToArchive(git_repository* repo, const std::filesystem::path& archive, size_t
 			};*/
 		} else if (std::filesystem::file_size(path) >= archivalSizeLimit) {
 			tirex::log::warn(
-					"gitstats", "The file {} is larger than the configured limit of {} and will be ignore.",
+					"gitstats", "The file {} is larger than the configured limit of {} and will be ignored.",
 					entry->index_to_workdir->new_file.path, formatMemory(archivalSizeLimit)
 			);
 			continue;
