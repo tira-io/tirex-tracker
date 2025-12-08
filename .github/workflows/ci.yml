@@ -26,9 +26,9 @@ jobs:
           - {host: ubuntu-24.04}
           - {host: ubuntu-22.04-arm}
           - {host: ubuntu-24.04-arm}
-          - {host: macos-13}
           - {host: macos-14}
           - {host: macos-15}
+          - {host: macos-26}
           - {host: windows-2022}
           - {host: windows-2025}
           - {host: windows-11-arm}
@@ -58,9 +58,9 @@ jobs:
           - {platform: {host: ubuntu-24.04}, compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: ubuntu-22.04-arm}, compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: ubuntu-24.04-arm}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: macos-13},     compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: macos-14},     compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: macos-15},     compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: macos-26},     compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    apple-clang}  # Apple-Clang only supported on macos
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    apple-clang}  # Apple-Clang only supported on macos
           - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    apple-clang}  # Apple-Clang only supported on macos
@@ -73,8 +73,6 @@ jobs:
           - {platform: {host: windows-2025},     compiler:    apple-clang}  # Apple-Clang only supported on macos
           - {platform: {host: windows-11-arm},     compiler:    apple-clang}  # Apple-Clang only supported on macos
           - {platform: {host: ubuntu-22.04}, compiler:  gcc-14}  # Cannot be installed.
-          - {platform: {host: macos-13},     compiler:  gcc-13}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - {platform: {host: macos-13},     compiler:  gcc-14}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
           - {platform: {host: macos-14},     compiler:  gcc-13}  # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
           - {platform: {host: macos-15},     compiler:  gcc-13}  # /opt/homebrew/Cellar/gcc@13/13.4.0/lib/gcc/13/gcc/aarch64-apple-darwin24/13/include-fixed/_stdio.h:78:10: fatal error: _bounds.h: No such file or directory
           - {platform: {host: macos-15},     compiler:  gcc-14}  # Known issue (https://github.com/munich-quantum-toolkit/core/issues/979, https://stackoverflow.com/questions/79641443/c-bounds-h-not-found-after-upgrading-to-gcc-15)
@@ -169,9 +167,9 @@ jobs:
           - {host: ubuntu-24.04}
           - {host: ubuntu-22.04-arm}
           - {host: ubuntu-24.04-arm}
-          - {host: macos-13}
           - {host: macos-14}
           - {host: macos-15}
+          - {host: macos-26}
           - {host: windows-2022}
           - {host: windows-2025}
           - {host: windows-11-arm}
@@ -201,9 +199,9 @@ jobs:
           - {platform: {host: ubuntu-24.04}, compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: ubuntu-22.04-arm}, compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: ubuntu-24.04-arm}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: macos-13},     compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: macos-14},     compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: macos-15},     compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: macos-26},     compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    apple-clang}  # Apple-Clang only supported on macos
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    apple-clang}  # Apple-Clang only supported on macos
           - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    apple-clang}  # Apple-Clang only supported on macos
@@ -216,8 +214,6 @@ jobs:
           - {platform: {host: windows-2025},     compiler:    apple-clang}  # Apple-Clang only supported on macos
           - {platform: {host: windows-11-arm},     compiler:    apple-clang}  # Apple-Clang only supported on macos
           - {platform: {host: ubuntu-22.04}, compiler:  gcc-14}  # Cannot be installed.
-          - {platform: {host: macos-13},     compiler:  gcc-13}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - {platform: {host: macos-13},     compiler:  gcc-14}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
           - {platform: {host: macos-14},     compiler:  gcc-13}  # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
           - {platform: {host: macos-15},     compiler:  gcc-13}  # /opt/homebrew/Cellar/gcc@13/13.4.0/lib/gcc/13/gcc/aarch64-apple-darwin24/13/include-fixed/_stdio.h:78:10: fatal error: _bounds.h: No such file or directory
           - {platform: {host: macos-15},     compiler:  gcc-14}  # Known issue (https://github.com/munich-quantum-toolkit/core/issues/979, https://stackoverflow.com/questions/79641443/c-bounds-h-not-found-after-upgrading-to-gcc-15)
@@ -426,9 +422,9 @@ jobs:
         runs-on:
           - ubuntu-22.04
           # - ubuntu-24.04 # FIXME: Re-enable
-          # - macos-13
           # - macos-14 # FIXME: JDK 8 cannot be installed.
           # - macos-15 # FIXME: JDK 8 cannot be installed.
+          - macos-26
           - windows-2022
           # - windows-2025 # FIXME: Re-enable
         exclude:
