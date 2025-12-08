@@ -19,19 +19,26 @@ jobs:
           - {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}
+          - {host: ubuntu-24.04-arm, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}
+          - {host: ubuntu-24.04-arm, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}
+          - {host: ubuntu-24.04-arm, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-22.04}
           - {host: ubuntu-24.04}
+          - {host: ubuntu-22.04-arm}
+          - {host: ubuntu-24.04-arm}
           - {host: macos-13}
           - {host: macos-14}
           - {host: macos-15}
           - {host: windows-2022}
           - {host: windows-2025}
+          - {host: windows-11-arm}
         compiler:
           - gcc-13
           - gcc-14
           - llvm-19
           - llvm-20
           - msvc
+          - apple-clang
         exclude:
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-19}  # setup-cpp compiler setup fails
@@ -40,11 +47,31 @@ jobs:
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-19}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-20}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: ubuntu-22.04}, compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: ubuntu-24.04}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-22.04-arm}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-24.04-arm}, compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: macos-13},     compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: macos-14},     compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: macos-15},     compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    apple-clang}  # Apple-Clang only supported on macos
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    apple-clang}  # Apple-Clang only supported on macos
+          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    apple-clang}  # Apple-Clang only supported on macos
+          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    apple-clang}  # Apple-Clang only supported on macos
+          - {platform: {host: ubuntu-22.04}, compiler:    apple-clang}  # Apple-Clang only supported on macos
+          - {platform: {host: ubuntu-24.04}, compiler:    apple-clang}  # Apple-Clang only supported on macos
+          - {platform: {host: ubuntu-22.04-arm}, compiler:    apple-clang}  # Apple-Clang only supported on macos
+          - {platform: {host: ubuntu-24.04-arm}, compiler:    apple-clang}  # Apple-Clang only supported on macos
+          - {platform: {host: windows-2022},     compiler:    apple-clang}  # Apple-Clang only supported on macos
+          - {platform: {host: windows-2025},     compiler:    apple-clang}  # Apple-Clang only supported on macos
+          - {platform: {host: windows-11-arm},     compiler:    apple-clang}  # Apple-Clang only supported on macos
           - {platform: {host: ubuntu-22.04}, compiler:  gcc-14}  # Cannot be installed.
           - {platform: {host: macos-13},     compiler:  gcc-13}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
           - {platform: {host: macos-13},     compiler:  gcc-14}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
@@ -98,7 +125,7 @@ jobs:
           if-no-files-found: error
           path: c/build/src/Release/libtirex_tracker.so
       - name: 📤 Upload macOS library
-        if: matrix.platform.host == 'macos-14' && matrix.compiler == 'gcc-14'
+        if: matrix.platform.host == 'macos-14' && matrix.compiler == 'apple-clang'
         uses: actions/upload-artifact@v5
         with:
           name: c-library-macos
@@ -135,19 +162,26 @@ jobs:
           - {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}
+          - {host: ubuntu-24.04-arm, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}
+          - {host: ubuntu-24.04-arm, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}
+          - {host: ubuntu-24.04-arm, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-22.04}
           - {host: ubuntu-24.04}
+          - {host: ubuntu-22.04-arm}
+          - {host: ubuntu-24.04-arm}
           - {host: macos-13}
           - {host: macos-14}
           - {host: macos-15}
           - {host: windows-2022}
           - {host: windows-2025}
+          - {host: windows-11-arm}
         compiler:
           - gcc-13
           - gcc-14
           - llvm-19
           - llvm-20
           - msvc
+          - apple-clang
         exclude:
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-19}  # setup-cpp compiler setup fails
@@ -156,11 +190,31 @@ jobs:
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-19}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-20}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: ubuntu-22.04}, compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: ubuntu-24.04}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-22.04-arm}, compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-24.04-arm}, compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: macos-13},     compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: macos-14},     compiler:    msvc}  # MSVC only supported windows
           - {platform: {host: macos-15},     compiler:    msvc}  # MSVC only supported windows
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    apple-clang}  # Apple-Clang only supported on macos
+          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    apple-clang}  # Apple-Clang only supported on macos
+          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    apple-clang}  # Apple-Clang only supported on macos
+          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    apple-clang}  # Apple-Clang only supported on macos
+          - {platform: {host: ubuntu-22.04}, compiler:    apple-clang}  # Apple-Clang only supported on macos
+          - {platform: {host: ubuntu-24.04}, compiler:    apple-clang}  # Apple-Clang only supported on macos
+          - {platform: {host: ubuntu-22.04-arm}, compiler:    apple-clang}  # Apple-Clang only supported on macos
+          - {platform: {host: ubuntu-24.04-arm}, compiler:    apple-clang}  # Apple-Clang only supported on macos
+          - {platform: {host: windows-2022},     compiler:    apple-clang}  # Apple-Clang only supported on macos
+          - {platform: {host: windows-2025},     compiler:    apple-clang}  # Apple-Clang only supported on macos
+          - {platform: {host: windows-11-arm},     compiler:    apple-clang}  # Apple-Clang only supported on macos
           - {platform: {host: ubuntu-22.04}, compiler:  gcc-14}  # Cannot be installed.
           - {platform: {host: macos-13},     compiler:  gcc-13}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
           - {platform: {host: macos-13},     compiler:  gcc-14}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
@@ -215,7 +269,7 @@ jobs:
           if-no-files-found: error
           path: c/build/examples/03_measure_command/Release/measure
       - name: 📤 Upload macOS CLI
-        if: matrix.platform.host == 'macos-14' && matrix.compiler == 'gcc-14'
+        if: matrix.platform.host == 'macos-14' && matrix.compiler == 'apple-clang'
         uses: actions/upload-artifact@v5
         with:
           name: c-cli-macos
