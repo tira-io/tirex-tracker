@@ -19,7 +19,7 @@ jobs:
           - {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}
-          - {host: ubuntu-24.04-arm, container: {image: "node:20.15.0-buster" }}
+          - {host: ubuntu-24.04-arm, container: {image: "node:20.18.1-bullseye" }}
           - {host: ubuntu-22.04}
           - {host: ubuntu-24.04}
           - {host: ubuntu-22.04-arm}
@@ -135,7 +135,7 @@ jobs:
           - {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}
-          - {host: ubuntu-24.04-arm, container: {image: "node:20.15.0-buster" }}
+          - {host: ubuntu-24.04-arm, container: {image: "node:20.18.1-bullseye" }}
           - {host: ubuntu-22.04}
           - {host: ubuntu-24.04}
           - {host: ubuntu-22.04-arm}
