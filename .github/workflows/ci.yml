@@ -19,9 +19,7 @@ jobs:
           - {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}
-          - {host: ubuntu-24.04-arm, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}
-          - {host: ubuntu-24.04-arm, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}
-          - {host: ubuntu-24.04-arm, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}
+          - {host: ubuntu-24.04-arm, container: {image: "node:20.15.0-buster" }}
           - {host: ubuntu-22.04}
           - {host: ubuntu-24.04}
           - {host: ubuntu-22.04-arm}
@@ -42,10 +40,6 @@ jobs:
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-19}  # setup-cpp compiler setup fails
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-20}  # setup-cpp compiler setup fails
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-19}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-20}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
           - {platform: {host: ubuntu-22.04}, compiler:  gcc-14}  # Cannot be installed.
           - {platform: {host: macos-14},     compiler:  gcc-13}  # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
           - {platform: {host: macos-15},     compiler:  gcc-13}  # /opt/homebrew/Cellar/gcc@13/13.4.0/lib/gcc/13/gcc/aarch64-apple-darwin24/13/include-fixed/_stdio.h:78:10: fatal error: _bounds.h: No such file or directory
@@ -63,7 +57,7 @@ jobs:
     container: ${{ matrix.platform.container }}
     steps:
       - name: Install node.js for GitHub Actions  # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
-        if: matrix.platform.container != null
+        if: matrix.platform.container != null && matrix.platform.container.volumes != null
         run: |
           apt-get update &&
           apt-get install -y curl ca-certificates &&
@@ -141,9 +135,7 @@ jobs:
           - {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}
-          - {host: ubuntu-24.04-arm, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}
-          - {host: ubuntu-24.04-arm, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}
-          - {host: ubuntu-24.04-arm, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}
+          - {host: ubuntu-24.04-arm, container: {image: "node:20.15.0-buster" }}
           - {host: ubuntu-22.04}
           - {host: ubuntu-24.04}
           - {host: ubuntu-22.04-arm}
@@ -164,10 +156,6 @@ jobs:
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-19}  # setup-cpp compiler setup fails
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-20}  # setup-cpp compiler setup fails
           - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-19}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-20}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-24.04-arm, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
           - {platform: {host: ubuntu-22.04}, compiler:  gcc-14}  # Cannot be installed.
           - {platform: {host: macos-14},     compiler:  gcc-13}  # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
           - {platform: {host: macos-15},     compiler:  gcc-13}  # /opt/homebrew/Cellar/gcc@13/13.4.0/lib/gcc/13/gcc/aarch64-apple-darwin24/13/include-fixed/_stdio.h:78:10: fatal error: _bounds.h: No such file or directory
@@ -185,7 +173,7 @@ jobs:
     container: ${{ matrix.platform.container }}
     steps:
       - name: Install node.js for GitHub Actions  # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
-        if: matrix.platform.container != null
+        if: matrix.platform.container != null && matrix.platform.container.volumes != null
         run: |
           apt-get update &&
           apt-get install -y curl ca-certificates &&
