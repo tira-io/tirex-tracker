@@ -120,7 +120,7 @@ static std::string getRemoteOrigin(git_repository* repo) {
 		tirex::log::warn("gitstats", "Failed to lookup remote/origin: {}", git_error_last()->message);
 		return "";
 	}
-	std::string url = (git_remote_url(remote) == nullptr)? "" : git_remote_url(remote);
+	std::string url = (git_remote_url(remote) == nullptr) ? "" : git_remote_url(remote);
 	git_remote_free(remote);
 	return url;
 }
