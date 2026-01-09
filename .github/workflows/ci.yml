@@ -94,21 +94,21 @@ jobs:
         run: cmake --build c/build/ --config Release --target tirex_tracker -j 16
       - name: 📤 Upload Linux library
         if: matrix.platform.host == 'ubuntu-latest' && matrix.platform.container.image == 'ubuntu:20.04' && matrix.compiler == 'llvm-19'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: c-library-linux
           if-no-files-found: error
           path: c/build/src/Release/libtirex_tracker.so
       - name: 📤 Upload macOS library
         if: matrix.platform.host == 'macos-14' && matrix.compiler == 'apple-clang'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: c-library-macos
           if-no-files-found: error
           path: c/build/src/Release/libtirex_tracker.dylib
       - name: 📤 Upload Windows library
         if: matrix.platform.host == 'windows-2022' && matrix.compiler == 'msvc'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: c-library-windows
           if-no-files-found: error
@@ -213,21 +213,21 @@ jobs:
         run: cmake --build c/build/ --config Release --target measure -j 16
       - name: 📤 Upload Linux CLI
         if: matrix.platform.host == 'ubuntu-latest' && matrix.platform.container.image == 'ubuntu:20.04' && matrix.compiler == 'llvm-19'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: c-cli-linux
           if-no-files-found: error
           path: c/build/examples/03_measure_command/Release/measure
       - name: 📤 Upload macOS CLI
         if: matrix.platform.host == 'macos-14' && matrix.compiler == 'apple-clang'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: c-cli-macos
           if-no-files-found: error
           path: c/build/examples/03_measure_command/Release/measure
       - name: 📤 Upload Windows CLI
         if: matrix.platform.host == 'windows-2022' && matrix.compiler == 'msvc'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: c-cli-windows
           if-no-files-found: error
@@ -273,7 +273,7 @@ jobs:
       - name: 🏗️ Build Debian package
         run: cmake --build c/build/ --config Release --target package -j 16
       - name: 📤 Upload Debian package
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: c-debian-package
           if-no-files-found: error
@@ -497,28 +497,28 @@ jobs:
         run: jvm/gradlew --project-dir jvm/ publishToMavenLocal
       - name: 📤 Upload JVM JAR
         if: matrix.java == '21'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: jvm-jar
           if-no-files-found: error
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*.jar
       - name: 📤 Upload JVM sources JAR
         if: matrix.java == '21'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: jvm-sources-jar
           if-no-files-found: error
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*-sources.jar
       - name: 📤 Upload JVM Javadoc JAR
         if: matrix.java == '21'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: jvm-javadoc-jar
           if-no-files-found: error
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*-javadoc.jar
       - name: 📤 Upload JVM HTML docs JAR
         if: matrix.java == '21'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: jvm-html-docs-jar
           if-no-files-found: error
@@ -584,7 +584,7 @@ jobs:
         run: twine check python/dist/*
       - name: 📤 Upload Python wheels
         if: matrix.python == '3.13'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: python-wheels
           if-no-files-found: error
