@@ -91,16 +91,6 @@ _PYTHON_MEASURES: Mapping[Measure, MeasureInfo] = {
         data_type=ResultType.STRING,
         example=dumps("3.12.0"),
     ),
-    Measure.PYTHON_EXECUTABLE: MeasureInfo(
-        description="Python executable used to run the program.",
-        data_type=ResultType.STRING,
-        example=dumps("/usr/bin/python3"),
-    ),
-    Measure.PYTHON_ARGUMENTS: MeasureInfo(
-        description="Arguments passed to the Python executable.",
-        data_type=ResultType.STRING_LIST,
-        example=dumps(["-m", "tirex_tracker"]),
-    ),
     Measure.PYTHON_MODULES: MeasureInfo(
         description="Python modules visible in the current environment.",
         data_type=ResultType.STRING_LIST,
@@ -115,26 +105,6 @@ _PYTHON_MEASURES: Mapping[Measure, MeasureInfo] = {
         description="True if the Python interpreter is run interactively.",
         data_type=ResultType.BOOLEAN,
         example=dumps(True),
-    ),
-    Measure.PYTHON_SCRIPT_FILE_PATH: MeasureInfo(
-        description="Path to the Python script file.",
-        data_type=ResultType.STRING,
-        example=dumps("/path/to/script.py"),
-    ),
-    Measure.PYTHON_NOTEBOOK_FILE_PATH: MeasureInfo(
-        description="Path to the Jupyter notebook file.",
-        data_type=ResultType.STRING,
-        example=dumps("/path/to/notebook.ipynb"),
-    ),
-    Measure.PYTHON_CODE_ARCHIVE_PATH: MeasureInfo(
-        description="The archive that contains a snapshot of the code.",
-        data_type=ResultType.STRING,
-        example=dumps("/path/to/code.zip"),
-    ),
-    Measure.PYTHON_SCRIPT_FILE_PATH_IN_CODE_ARCHIVE: MeasureInfo(
-        description="The script that was executed in the code archive.",
-        data_type=ResultType.STRING,
-        example=dumps("script.py"),
     ),
     Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE: MeasureInfo(
         description="The notebook that was executed in the code archive.",

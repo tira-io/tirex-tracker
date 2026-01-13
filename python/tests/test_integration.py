@@ -48,16 +48,12 @@ def test_python_script() -> None:
             yaml_content = yaml_safe_load(yaml_file)
 
         assert "implementation" in yaml_content
-        assert "script" in yaml_content["implementation"]
-        assert "path" in yaml_content["implementation"]["script"]
-        assert "example.py" in yaml_content["implementation"]["script"]["path"]
-        assert "source" in yaml_content["implementation"]
-        assert "archive" in yaml_content["implementation"]["source"]
-        assert "path" in yaml_content["implementation"]["source"]["archive"]
-        assert "script path" in yaml_content["implementation"]["source"]["archive"]
-        assert "example.py" in yaml_content["implementation"]["source"]["archive"]["script path"]
+        assert "executable" in yaml_content["implementation"]
+        assert "cmd" in yaml_content["implementation"]["executable"]
+        assert isinstance(yaml_content["implementation"]["executable"]["cmd"], list)
+        assert "example.py" in yaml_content["implementation"]["executable"]["cmd"]
 
-        archive_path = working_dir_path / Path(yaml_content["implementation"]["source"]["archive"]["path"])
+        archive_path = working_dir_path / Path(yaml_content["implementation"]["source"]["archive path"])
         assert archive_path.exists()
 
         with ZipFile(archive_path) as zip_file:
@@ -100,15 +96,18 @@ def test_jupyter_notebook() -> None:
             yaml_content = yaml_safe_load(yaml_file)
 
         assert "implementation" in yaml_content
+        assert "executable" in yaml_content["implementation"]
+        assert "cmd" in yaml_content["implementation"]["executable"]
+        assert isinstance(yaml_content["implementation"]["executable"]["cmd"], list)
+        assert "script.py" in yaml_content["implementation"]["executable"]["cmd"]
+
         assert "source" in yaml_content["implementation"]
         assert "archive" in yaml_content["implementation"]["source"]
-        assert "path" in yaml_content["implementation"]["source"]["archive"]
-        assert "script path" in yaml_content["implementation"]["source"]["archive"]
-        assert "script.py" in yaml_content["implementation"]["source"]["archive"]["script path"]
         assert "notebook path" in yaml_content["implementation"]["source"]["archive"]
         assert "notebook.ipynb" in yaml_content["implementation"]["source"]["archive"]["notebook path"]
+        assert "archive path" in yaml_content["implementation"]["source"]
 
-        archive_path = working_dir_path / Path(yaml_content["implementation"]["source"]["archive"]["path"])
+        archive_path = working_dir_path / Path(yaml_content["implementation"]["source"]["archive path"])
         assert archive_path.exists()
 
         with ZipFile(archive_path) as zip_file:
