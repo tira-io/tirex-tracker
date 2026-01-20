@@ -6,6 +6,7 @@
 #include <tirex_tracker.h>
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 #if defined(__GNUC__)
@@ -36,5 +37,13 @@ static std::string buildVersionString() {
 			versionString += std::string("\n") + provider.version;
 	return versionString;
 }
+
+/**
+ * @brief Runs the specified command and returns its exit code.
+ * 
+ * @param command The command that should be run.
+ * @return The exit code of the command.
+ */
+int runCommand(std::string_view command);
 
 #endif
