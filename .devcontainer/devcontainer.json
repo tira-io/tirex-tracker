@@ -26,7 +26,8 @@
 				"charliermarsh.ruff",
 				"ms-python.mypy-type-checker",
 				"mathiasfrohlich.Kotlin",
-				"vscjava.vscode-java-pack"
+				"vscjava.vscode-java-pack",
+				"njpwerner.autodocstring"
 			]
 		}
 	}
