@@ -81,7 +81,7 @@ jobs:
           opencppcoverage: false
           git: true
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: 📥 Fetch tags
         continue-on-error: true
         run: |
@@ -199,7 +199,7 @@ jobs:
           opencppcoverage: false
           git: true
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: 📥 Fetch tags
         continue-on-error: true
         run: |
