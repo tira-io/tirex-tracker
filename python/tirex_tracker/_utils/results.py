@@ -25,6 +25,15 @@ _native_result_entry_parsers: Dict[ResultType, Callable[[int], Any]] = {
 
 
 def parse_native_result_entry(entry: NativeResultEntry) -> ResultEntry:
+    """
+    Translates a native result entry into a Python managed object. The Python object can safely be accessed even after
+    the result entry is freed.
+
+    :param entry: The native result entry object that should be translated into a Python managed result entry object.
+    :type entry: NativeResultEntry
+    :return: A Python managed result entry object. The native object can now safely be deleted.
+    :rtype: ResultEntry
+    """
     rtype = ResultType(entry.type)
     value = _native_result_entry_parsers[rtype](entry.value)
     return ResultEntry(source=Measure(entry.source), value=value, type=rtype)

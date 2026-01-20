@@ -9,6 +9,8 @@ class Error(IntEnum):
 
 
 class Measure(IntEnum):
+    VERSION_MEASURE = 48
+    INVOCATION = 49
     OS_NAME = 0
     OS_KERNEL = 1
     TIME_START = 44
@@ -57,19 +59,20 @@ class Measure(IntEnum):
     GIT_UNCHECKED_FILES = 43
     GIT_ROOT = 46
     GIT_ARCHIVE_PATH = 47
+    DEVCONTAINER_CONF_PATHS = 50
     PYTHON_VERSION = 1000
-    PYTHON_EXECUTABLE = 1001
-    PYTHON_ARGUMENTS = 1002
+    # 1001 was used in previous versions of the library.
+    # 1002 was used in previous versions of the library.
     PYTHON_MODULES = 1003
     PYTHON_INSTALLED_PACKAGES = 1004
     PYTHON_IS_INTERACTIVE = 1005
-    PYTHON_SCRIPT_FILE_PATH = 1006
+    # 1006 was used in previous versions of the library.
     # 1007 was used in previous versions of the library.
-    PYTHON_NOTEBOOK_FILE_PATH = 1008
+    PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE = 1008
     # 1009 was used in previous versions of the library.
-    PYTHON_CODE_ARCHIVE_PATH = 1010
-    PYTHON_SCRIPT_FILE_PATH_IN_CODE_ARCHIVE = 1011
-    PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE = 1012
+    # 1010 was used in previous versions of the library.
+    # 1011 was used in previous versions of the library.
+    # 1012 was used in previous versions of the library.
 
 
 INVALID_MEASURE = -1
