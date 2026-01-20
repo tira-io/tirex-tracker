@@ -484,9 +484,6 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
             # Python implementation may override the invocation for notebooks or interactive sessions
             new_ir_metadata["implementation"]["executable"]["cmd"] = loads(self._python_info[Measure.INVOCATION].value)
         if Measure.PYTHON_VERSION in self._python_info:
-            new_ir_metadata["implementation"]["executable"]["version"] = loads(
-                self._python_info[Measure.PYTHON_VERSION].value
-            )
             new_ir_metadata["implementation"]["python"]["modules"] = loads(
                 self._python_info[Measure.PYTHON_VERSION].value
             )
