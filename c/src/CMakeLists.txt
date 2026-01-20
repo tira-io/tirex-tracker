@@ -135,6 +135,10 @@ CPMAddPackage(
 )
 target_link_libraries(tirex_tracker PRIVATE cpuinfo::cpuinfo)
 
+# nlohmann::json
+CPMAddPackage(URI "gh:nlohmann/json@3.12.0" OPTIONS "JSON_ImplicitConversions OFF" EXCLUDE_FROM_ALL YES)
+target_link_libraries(tirex_tracker PUBLIC nlohmann_json::nlohmann_json)
+
 # Mac Only: Bind to CoreFoundation to get IOReport for system information
 if (UNIX AND APPLE)
 	target_link_libraries(tirex_tracker PRIVATE "$<LINK_LIBRARY:FRAMEWORK,CoreFoundation>")

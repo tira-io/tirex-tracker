@@ -1,7 +1,9 @@
 #include <tirex_tracker.h>
 
 #include <ascii/ascii.h>
-#include <cJSON.h>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 extern "C" {
 void plot(tirexResult* result);
@@ -19,18 +21,16 @@ bool tirexResultEntryByMeasure(tirexResult* result, tirexMeasure measure, tirexR
 }
 
 std::vector<double> parseTimeseries(const char* json) {
-	cJSON* parsed = cJSON_Parse(json);
-	auto timeseries = cJSON_GetObjectItem(parsed, "timeseries");
+	auto parsed = json::parse(json);
+	auto timeseries = parsed["timeseries"];
 	// We ignore the timestamps here. This will result in a somewhat skewed graph since the timesteps may not be equidistant
-	auto values = cJSON_GetObjectItem(timeseries, "values");
-	size_t size = cJSON_GetArraySize(values);
+	auto values = timeseries["values"];
 	std::vector<double> data;
-	data.reserve(size);
-	for (size_t i = 0; i < size; ++i) {
-		auto item = cJSON_GetArrayItem(values, i);
-		data.push_back(cJSON_GetNumberValue(item));
+	data.reserve(values.size());
+	for (auto& item : values) {
+		assert(item.is_number());
+		data.push_back(item.get<double>());
 	}
-	cJSON_Delete(parsed);
 	return data;
 }
 
