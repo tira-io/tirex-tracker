@@ -5,6 +5,8 @@
 
 #include "../timeseries.hpp"
 
+#include <nlohmann/json.hpp>
+
 #if __cpp_lib_concepts
 #include <concepts>
 
@@ -48,7 +50,8 @@ namespace tirex {
 		}
 	};
 
-	using StatVal = std::variant<std::string, TmpFile, std::reference_wrapper<const tirex::TimeSeries<unsigned>>>;
+	using StatVal = std::variant<
+			std::string, nlohmann::json, TmpFile, std::reference_wrapper<const tirex::TimeSeries<unsigned>>>;
 	using Stats = std::map<tirexMeasure, StatVal>;
 
 	tirexResult_st* createMsrResultFromStats(Stats&& stats);

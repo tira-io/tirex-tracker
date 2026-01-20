@@ -7,14 +7,9 @@ if is_pyterrier_installed():
     from pyterrier import Transformer
     from pyterrier.model import IterDict
 
-    from tirex_tracker import (
-        ALL_MEASURES,
-        ExportFormat,
-        Measure,
-        PathLike,
-        ResultEntry,
-        tracking,
-    )
+    from . import ExportFormat, PathLike, tracking
+    from ._utils.constants import ALL_MEASURES, Measure
+    from ._utils.library import ResultEntry
 
     class TrackedTransformer(Transformer):
         transformer: Final[Transformer]
@@ -89,8 +84,6 @@ if is_pyterrier_installed():
                 export_file_path=self.export_file_path,
                 export_format=self.export_format,
             ) as tracking_results:
-                results = self.transformer.transform_gen(
-                    input, batch_size=batch_size, output_topics=output_topics
-                )
+                results = self.transformer.transform_gen(input, batch_size=batch_size, output_topics=output_topics)
             self._results = tracking_results
             return results
