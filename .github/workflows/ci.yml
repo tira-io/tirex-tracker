@@ -19,11 +19,14 @@ jobs:
           - {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}
+          - {host: ubuntu-24.04-arm, container: {image: "node:20.18.1-bullseye" }}
           - {host: ubuntu-22.04}
           - {host: ubuntu-24.04}
-          - {host: macos-13}
+          - {host: ubuntu-22.04-arm}
+          - {host: ubuntu-24.04-arm}
           - {host: macos-14}
           - {host: macos-15}
+          - {host: macos-26}
           - {host: windows-2022}
           - {host: windows-2025}
         compiler:
@@ -31,33 +34,32 @@ jobs:
           - gcc-14
           - llvm-19
           - llvm-20
-          - msvc
         exclude:
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-19}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-20}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: ubuntu-22.04}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: ubuntu-24.04}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: macos-13},     compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: macos-14},     compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: macos-15},     compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: ubuntu-22.04}, compiler:  gcc-14}  # Cannot be installed.
-          - {platform: {host: macos-13},     compiler:  gcc-13}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - {platform: {host: macos-13},     compiler:  gcc-14}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - {platform: {host: macos-14},     compiler:  gcc-13}  # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
-          - {platform: {host: macos-15},     compiler:  gcc-13}  # /opt/homebrew/Cellar/gcc@13/13.4.0/lib/gcc/13/gcc/aarch64-apple-darwin24/13/include-fixed/_stdio.h:78:10: fatal error: _bounds.h: No such file or directory
-          - {platform: {host: macos-15},     compiler:  gcc-14}  # Known issue (https://github.com/munich-quantum-toolkit/core/issues/979, https://stackoverflow.com/questions/79641443/c-bounds-h-not-found-after-upgrading-to-gcc-15)
-          - {platform: {host: windows-2022}, compiler: llvm-19}  # libgit2 does not seem to support this
-          - {platform: {host: windows-2025}, compiler: llvm-19}  # libgit2 does not seem to support this
+          - {platform: {host: ubuntu-latest,    container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-latest,    container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-19}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-latest,    container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-20}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-latest,    container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-24.04-arm, container: {image: "node:20.18.1-bullseye" }}, compiler:  gcc-13}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-24.04-arm, container: {image: "node:20.18.1-bullseye" }}, compiler:  gcc-14}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-22.04},     compiler:  gcc-14}  # Cannot be installed.
+          - {platform: {host: ubuntu-22.04-arm}, compiler:  gcc-14}  # Cannot be installed.
+          - {platform: {host: macos-14},         compiler:  gcc-13}  # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
+          - {platform: {host: macos-15},         compiler:  gcc-13}  # /opt/homebrew/Cellar/gcc@13/13.4.0/lib/gcc/13/gcc/aarch64-apple-darwin24/13/include-fixed/_stdio.h:78:10: fatal error: _bounds.h: No such file or directory
+          - {platform: {host: macos-15},         compiler:  gcc-14}  # Known issue (https://github.com/munich-quantum-toolkit/core/issues/979, https://stackoverflow.com/questions/79641443/c-bounds-h-not-found-after-upgrading-to-gcc-15)
+          - {platform: {host: windows-2022},     compiler: llvm-19}  # libgit2 does not seem to support this
+          - {platform: {host: windows-2025},     compiler: llvm-19}  # libgit2 does not seem to support this
+        include:
+          - {platform: {host: macos-14},   compiler: apple-clang}
+          - {platform: {host: macos-15},   compiler: apple-clang}
+          - {platform: {host: macos-26},   compiler: apple-clang}
+          - {platform: {host: windows-2022},   compiler: msvc}
+          - {platform: {host: windows-2025},   compiler: msvc}
+          - {platform: {host: windows-11-arm}, compiler: msvc}
     runs-on: ${{ matrix.platform.host }}
     container: ${{ matrix.platform.container }}
     steps:
       - name: Install node.js for GitHub Actions  # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
-        if: matrix.platform.container != null
+        if: matrix.platform.container != null && matrix.platform.container.volumes != null
         run: |
           apt-get update &&
           apt-get install -y curl ca-certificates &&
@@ -92,21 +94,21 @@ jobs:
         run: cmake --build c/build/ --config Release --target tirex_tracker -j 16
       - name: 📤 Upload Linux library
         if: matrix.platform.host == 'ubuntu-latest' && matrix.platform.container.image == 'ubuntu:20.04' && matrix.compiler == 'llvm-19'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: c-library-linux
           if-no-files-found: error
           path: c/build/src/Release/libtirex_tracker.so
       - name: 📤 Upload macOS library
-        if: matrix.platform.host == 'macos-14' && matrix.compiler == 'gcc-14'
-        uses: actions/upload-artifact@v5
+        if: matrix.platform.host == 'macos-14' && matrix.compiler == 'apple-clang'
+        uses: actions/upload-artifact@v6
         with:
           name: c-library-macos
           if-no-files-found: error
           path: c/build/src/Release/libtirex_tracker.dylib
       - name: 📤 Upload Windows library
         if: matrix.platform.host == 'windows-2022' && matrix.compiler == 'msvc'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: c-library-windows
           if-no-files-found: error
@@ -135,11 +137,14 @@ jobs:
           - {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}
+          - {host: ubuntu-24.04-arm, container: {image: "node:20.18.1-bullseye" }}
           - {host: ubuntu-22.04}
           - {host: ubuntu-24.04}
-          - {host: macos-13}
+          - {host: ubuntu-22.04-arm}
+          - {host: ubuntu-24.04-arm}
           - {host: macos-14}
           - {host: macos-15}
+          - {host: macos-26}
           - {host: windows-2022}
           - {host: windows-2025}
         compiler:
@@ -147,33 +152,32 @@ jobs:
           - gcc-14
           - llvm-19
           - llvm-20
-          - msvc
         exclude:
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-19}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-20}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: ubuntu-22.04}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: ubuntu-24.04}, compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: macos-13},     compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: macos-14},     compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: macos-15},     compiler:    msvc}  # MSVC only supported windows
-          - {platform: {host: ubuntu-22.04}, compiler:  gcc-14}  # Cannot be installed.
-          - {platform: {host: macos-13},     compiler:  gcc-13}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - {platform: {host: macos-13},     compiler:  gcc-14}  # Known issue with gcc and the GitHub macOS 13 runner (https://github.com/actions/runner-images/issues/9997)
-          - {platform: {host: macos-14},     compiler:  gcc-13}  # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
-          - {platform: {host: macos-15},     compiler:  gcc-13}  # /opt/homebrew/Cellar/gcc@13/13.4.0/lib/gcc/13/gcc/aarch64-apple-darwin24/13/include-fixed/_stdio.h:78:10: fatal error: _bounds.h: No such file or directory
-          - {platform: {host: macos-15},     compiler:  gcc-14}  # Known issue (https://github.com/munich-quantum-toolkit/core/issues/979, https://stackoverflow.com/questions/79641443/c-bounds-h-not-found-after-upgrading-to-gcc-15)
-          - {platform: {host: windows-2022}, compiler: llvm-19}  # libgit2 does not seem to support this
-          - {platform: {host: windows-2025}, compiler: llvm-19}  # libgit2 does not seem to support this
+          - {platform: {host: ubuntu-latest,   container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-latest,   container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-19}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-latest,   container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}, compiler: llvm-20}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-latest,   container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}, compiler:  gcc-14}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-24.04-arm, container: {image: "node:20.18.1-bullseye" }}, compiler:  gcc-13}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-24.04-arm, container: {image: "node:20.18.1-bullseye" }}, compiler:  gcc-14}  # setup-cpp compiler setup fails
+          - {platform: {host: ubuntu-22.04},     compiler:  gcc-14}  # Cannot be installed.
+          - {platform: {host: ubuntu-22.04-arm}, compiler:  gcc-14}  # Cannot be installed.
+          - {platform: {host: macos-14},         compiler:  gcc-13}  # Known issue with gcc (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835)
+          - {platform: {host: macos-15},         compiler:  gcc-13}  # /opt/homebrew/Cellar/gcc@13/13.4.0/lib/gcc/13/gcc/aarch64-apple-darwin24/13/include-fixed/_stdio.h:78:10: fatal error: _bounds.h: No such file or directory
+          - {platform: {host: macos-15},         compiler:  gcc-14}  # Known issue (https://github.com/munich-quantum-toolkit/core/issues/979, https://stackoverflow.com/questions/79641443/c-bounds-h-not-found-after-upgrading-to-gcc-15)
+          - {platform: {host: windows-2022},     compiler: llvm-19}  # libgit2 does not seem to support this
+          - {platform: {host: windows-2025},     compiler: llvm-19}  # libgit2 does not seem to support this
+        include:
+          - {platform: {host: macos-14},   compiler: apple-clang}
+          - {platform: {host: macos-15},   compiler: apple-clang}
+          - {platform: {host: macos-26},   compiler: apple-clang}
+          - {platform: {host: windows-2022},   compiler: msvc}
+          - {platform: {host: windows-2025},   compiler: msvc}
+          - {platform: {host: windows-11-arm}, compiler: msvc}
     runs-on: ${{ matrix.platform.host }}
     container: ${{ matrix.platform.container }}
     steps:
       - name: Install node.js for GitHub Actions  # https://github.com/actions/checkout/issues/1474#issuecomment-2604308106
-        if: matrix.platform.container != null
+        if: matrix.platform.container != null && matrix.platform.container.volumes != null
         run: |
           apt-get update &&
           apt-get install -y curl ca-certificates &&
@@ -209,21 +213,21 @@ jobs:
         run: cmake --build c/build/ --config Release --target measure -j 16
       - name: 📤 Upload Linux CLI
         if: matrix.platform.host == 'ubuntu-latest' && matrix.platform.container.image == 'ubuntu:20.04' && matrix.compiler == 'llvm-19'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: c-cli-linux
           if-no-files-found: error
           path: c/build/examples/03_measure_command/Release/measure
       - name: 📤 Upload macOS CLI
-        if: matrix.platform.host == 'macos-14' && matrix.compiler == 'gcc-14'
-        uses: actions/upload-artifact@v5
+        if: matrix.platform.host == 'macos-14' && matrix.compiler == 'apple-clang'
+        uses: actions/upload-artifact@v6
         with:
           name: c-cli-macos
           if-no-files-found: error
           path: c/build/examples/03_measure_command/Release/measure
       - name: 📤 Upload Windows CLI
         if: matrix.platform.host == 'windows-2022' && matrix.compiler == 'msvc'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: c-cli-windows
           if-no-files-found: error
@@ -269,7 +273,7 @@ jobs:
       - name: 🏗️ Build Debian package
         run: cmake --build c/build/ --config Release --target package -j 16
       - name: 📤 Upload Debian package
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: c-debian-package
           if-no-files-found: error
@@ -343,17 +347,17 @@ jobs:
             jvm/example/build.gradle.kts
             jvm/library/build.gradle.kts
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-linux
           path: jvm/library/src/main/resources/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-macos
           path: jvm/library/src/main/resources/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-windows
           path: jvm/library/src/main/resources/
@@ -372,9 +376,9 @@ jobs:
         runs-on:
           - ubuntu-22.04
           # - ubuntu-24.04 # FIXME: Re-enable
-          # - macos-13
           # - macos-14 # FIXME: JDK 8 cannot be installed.
           # - macos-15 # FIXME: JDK 8 cannot be installed.
+          # - macos-26 # FIXME: JDK 8 cannot be installed.
           - windows-2022
           # - windows-2025 # FIXME: Re-enable
         exclude:
@@ -412,17 +416,17 @@ jobs:
             jvm/example/build.gradle.kts
             jvm/library/build.gradle.kts
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-linux
           path: jvm/library/src/main/resources/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-macos
           path: jvm/library/src/main/resources/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-windows
           path: jvm/library/src/main/resources/
@@ -475,17 +479,17 @@ jobs:
             jvm/example/build.gradle.kts
             jvm/library/build.gradle.kts
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-linux
           path: jvm/library/src/main/resources/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-macos
           path: jvm/library/src/main/resources/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-windows
           path: jvm/library/src/main/resources/
@@ -493,28 +497,28 @@ jobs:
         run: jvm/gradlew --project-dir jvm/ publishToMavenLocal
       - name: 📤 Upload JVM JAR
         if: matrix.java == '21'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: jvm-jar
           if-no-files-found: error
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*.jar
       - name: 📤 Upload JVM sources JAR
         if: matrix.java == '21'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: jvm-sources-jar
           if-no-files-found: error
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*-sources.jar
       - name: 📤 Upload JVM Javadoc JAR
         if: matrix.java == '21'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: jvm-javadoc-jar
           if-no-files-found: error
           path: ~/.m2/repository/io/tira/tirex-tracker/*/tirex-tracker-*-javadoc.jar
       - name: 📤 Upload JVM HTML docs JAR
         if: matrix.java == '21'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: jvm-html-docs-jar
           if-no-files-found: error
@@ -558,17 +562,17 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-linux
           path: python/tirex_tracker/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-macos
           path: python/tirex_tracker/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-windows
           path: python/tirex_tracker/
@@ -580,7 +584,7 @@ jobs:
         run: twine check python/dist/*
       - name: 📤 Upload Python wheels
         if: matrix.python == '3.13'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: python-wheels
           if-no-files-found: error
@@ -611,17 +615,17 @@ jobs:
           cache: pip
           cache-dependency-path: python/pyproject.toml
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-linux
           path: python/tirex_tracker/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-macos
           path: python/tirex_tracker/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-windows
           path: python/tirex_tracker/
@@ -655,17 +659,17 @@ jobs:
           cache: pip
           cache-dependency-path: python/pyproject.toml
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-linux
           path: python/tirex_tracker/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-macos
           path: python/tirex_tracker/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-windows
           path: python/tirex_tracker/
@@ -700,17 +704,17 @@ jobs:
           cache: pip
           cache-dependency-path: python/pyproject.toml
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-linux
           path: python/tirex_tracker/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-macos
           path: python/tirex_tracker/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-windows
           path: python/tirex_tracker/
@@ -751,17 +755,17 @@ jobs:
           cache: pip
           cache-dependency-path: python/pyproject.toml
       - name: 📥 Download Linux library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-linux
           path: python/tirex_tracker/
       - name: 📥 Download macOS library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-macos
           path: python/tirex_tracker/
       - name: 📥 Download Windows library
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-library-windows
           path: python/tirex_tracker/
@@ -793,7 +797,7 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v6
       - name: 📥 Download Python wheels
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: python-wheels
           path: dist
@@ -823,44 +827,44 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v6
       - name: 📥 Download Native Libraries
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           pattern: c-library-*
           merge-multiple: true
           path: tmp/c/
       - name: 📥 Download Linux CLI
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-cli-linux
           path: tmp/c/
       - name: ✏️ Rename Linux CLI
         run: mv tmp/c/measure tmp/c/measure-${{ github.ref_name }}-linux
       - name: 📥 Download macOS CLI
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-cli-macos
           path: tmp/c/
       - name: ✏️ Rename macOS CLI
         run: mv tmp/c/measure tmp/c/measure-${{ github.ref_name }}-macos
       - name: 📥 Download Windows CLI
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-cli-windows
           path: tmp/c/
       - name: ✏️ Rename Windows CLI
         run: mv tmp/c/measure.exe tmp/c/measure-${{ github.ref_name }}-windows.exe
       - name: 📥 Download Debian package
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: c-debian-package
           path: tmp/c/
       - name: 📥 Download Python wheels
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: python-wheels
           path: tmp/python/dist/
       - name: 📥 Download JVM Artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           pattern: jvm-*
           merge-multiple: true

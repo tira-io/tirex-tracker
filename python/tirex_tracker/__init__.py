@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import zipfile
 from collections import defaultdict
 from ctypes import CFUNCTYPE, c_char_p, c_int, c_size_t, pointer
 from dataclasses import dataclass
@@ -10,9 +11,8 @@ from io import BytesIO
 from json import dumps, loads
 from pathlib import Path
 from shutil import copy, rmtree
-from sys import argv, executable, version_info
 from sys import modules as sys_modules
-from traceback import extract_stack
+from sys import version_info
 from typing import (
     IO,
     TYPE_CHECKING,
@@ -43,6 +43,7 @@ from typing_extensions import ParamSpec, Self, TypeAlias  # type: ignore
 from yaml import safe_dump as yaml_safe_dump
 from yaml import safe_load as yaml_safe_load
 
+from ._utils.archive import add_python_notebook_to_archive as _add_python_notebook_to_archive
 from ._utils.constants import ALL_AGGREGATIONS, ALL_MEASURES, Aggregation, Error, LogLevel, Measure, ResultType
 from ._utils.constants import ENCODING as _ENCODING
 from ._utils.errorhandling import ABORT_HANDLE as _ABORT_HANDLE
@@ -65,7 +66,6 @@ from ._utils.library import LIBRARY as _LIBRARY
 from ._utils.library import (
     NULL_MEASURE_CONFIGURATION as _NULL_MEASURE_CONFIGURATION,
 )
-from .archive_utils import create_code_archive, git_repo_or_none
 
 if TYPE_CHECKING:
     from ctypes import Array
@@ -97,11 +97,17 @@ _PYTHON_PROVIDER = ProviderInfo(
 )
 
 
-def _python_result_entry(measure: Measure, value: Any) -> ResultEntry:
+def _create_result_entry(measure: Measure, value: Any) -> ResultEntry:
+    if measure in _PYTHON_MEASURES:
+        return ResultEntry(
+            source=measure,
+            value=dumps(value),
+            type=_PYTHON_MEASURES[measure].data_type,
+        )
     return ResultEntry(
         source=measure,
         value=dumps(value),
-        type=_PYTHON_MEASURES[measure].data_type,
+        type=ResultType.STRING,
     )
 
 
@@ -113,7 +119,7 @@ def _add_python_result_entry(
 ) -> None:
     if measure not in measures:
         return
-    results[measure] = _python_result_entry(measure, value)
+    results[measure] = _create_result_entry(measure, value)
 
 
 def _get_python_info(
@@ -126,18 +132,6 @@ def _get_python_info(
         measure=Measure.PYTHON_VERSION,
         measures=measures,
         value=f"{version_info.major}.{version_info.minor}.{version_info.micro}",
-    )
-    _add_python_result_entry(
-        results=results,
-        measure=Measure.PYTHON_EXECUTABLE,
-        measures=measures,
-        value=executable,
-    )
-    _add_python_result_entry(
-        results=results,
-        measure=Measure.PYTHON_ARGUMENTS,
-        measures=measures,
-        value=argv,
     )
     modules = sorted({module.split(".")[0] for module in sys_modules if not module.startswith("_")})
     _add_python_result_entry(
@@ -163,18 +157,6 @@ def _get_python_info(
         value=is_interactive,
     )
 
-    if ipython is None:
-        script_file_path = Path(extract_stack()[0].filename).resolve()
-        repo = git_repo_or_none(script_file_path)
-        if repo is not None and repo.working_tree_dir is not None:
-            script_file_path = script_file_path.relative_to(repo.working_tree_dir)
-        _add_python_result_entry(
-            results=results,
-            measure=Measure.PYTHON_SCRIPT_FILE_PATH,
-            measures=measures,
-            value=str(script_file_path),
-        )
-
     if export_file_path is not None:
         # Create a utility directory as a sibling to the export file, containing the code archive.
         metadata_directory_path = Path(export_file_path).parent / ".tirex-tracker"
@@ -184,27 +166,26 @@ def _get_python_info(
             rmtree(metadata_directory_path)
         metadata_directory_path.mkdir(parents=True)
 
-        archive_paths = create_code_archive(metadata_directory_path)
+        script_file_path_in_zip = None
+        notebook_file_path_in_zip = None
+        with zipfile.ZipFile(metadata_directory_path / "archive.zip", "x") as archive:
+            paths = _add_python_notebook_to_archive(archive)
+            if paths is not None:
+                notebook_file_path_in_zip, script_file_path_in_zip = paths
 
-        _add_python_result_entry(
-            results=results,
-            measure=Measure.PYTHON_CODE_ARCHIVE_PATH,
-            measures=measures,
-            value=str(archive_paths.zip_file_path),
-        )
-        _add_python_result_entry(
-            results=results,
-            measure=Measure.PYTHON_SCRIPT_FILE_PATH_IN_CODE_ARCHIVE,
-            measures=measures,
-            value=str(archive_paths.script_file_path_in_zip),
-        )
-        if archive_paths.notebook_file_path_in_zip is not None:
+        if script_file_path_in_zip is not None:
             _add_python_result_entry(
                 results=results,
-                measure=Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE,
+                measure=Measure.INVOCATION,
                 measures=measures,
-                value=str(archive_paths.notebook_file_path_in_zip),
+                value=["python3", str(script_file_path_in_zip)],
             )
+        _add_python_result_entry(
+            results=results,
+            measure=Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE,
+            measures=measures,
+            value=str(notebook_file_path_in_zip),
+        )
 
     measures = {measure for measure in measures if measure not in _PYTHON_MEASURES}
 
@@ -224,11 +205,8 @@ def _recursive_defaultdict() -> dict:
     return defaultdict(_recursive_defaultdict)
 
 
-def _recursive_undefaultdict(dict: dict) -> dict:
-    return {
-        key: (_recursive_undefaultdict(value) if isinstance(value, defaultdict) else value)
-        for key, value in dict.items()
-    }
+def _recursive_undefaultdict(dct: dict) -> dict:
+    return {k: (_recursive_undefaultdict(v) if isinstance(v, dict) else v) for k, v in dct.items()}
 
 
 class ExportFormat(Enum):
@@ -286,7 +264,7 @@ def measure_infos() -> Mapping[Measure, MeasureInfo]:
 
 
 def _parse_results(result: "Pointer[_Result]") -> Mapping[Measure, ResultEntry]:
-    from tirex_tracker._utils.results import parse_native_result_entry  # avoid circular imports
+    from ._utils.results import parse_native_result_entry  # avoid circular imports
 
     num_entries_pointer = pointer(c_size_t())
     error_int = _LIBRARY.tirexResultEntryNum(result, num_entries_pointer)
@@ -485,54 +463,57 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         )
 
         # Parse the initial ir_metadata.
-        buffer = Path(export_file_path).read_bytes()
+        buffer = export_file_path.read_bytes()
         if buffer.startswith(b"ir_metadata.start\n"):
             buffer = buffer[len(b"ir_metadata.start\n") :]
         if buffer.endswith(b"ir_metadata.end\n"):
             buffer = buffer[: -len(b"ir_metadata.end\n")]
 
         with BytesIO(buffer) as yaml_file:
-            tmp_ir_metadata = yaml_safe_load(yaml_file)
-        ir_metadata = _recursive_defaultdict()
+            native_ir_metadata = yaml_safe_load(yaml_file)
+        new_ir_metadata = _recursive_defaultdict()
 
         # Add user-provided metadata.
         if self._system_name is not None:
-            ir_metadata["method"]["name"] = self._system_name
+            new_ir_metadata["method"]["name"] = self._system_name
         if self._system_description is not None:
-            ir_metadata["method"]["description"] = self._system_description
+            new_ir_metadata["method"]["description"] = self._system_description
 
         # Add Python-specific metadata.
-        ir_metadata["implementation"]["executable"]["cmd"] = loads(self._python_info[Measure.PYTHON_EXECUTABLE].value)
-        ir_metadata["implementation"]["executable"]["args"] = loads(self._python_info[Measure.PYTHON_ARGUMENTS].value)
-        ir_metadata["implementation"]["executable"]["version"] = loads(self._python_info[Measure.PYTHON_VERSION].value)
-        ir_metadata["implementation"]["python"]["modules"] = loads(self._python_info[Measure.PYTHON_VERSION].value)
-        ir_metadata["implementation"]["python"]["packages"] = loads(
-            self._python_info[Measure.PYTHON_INSTALLED_PACKAGES].value
-        )
-        ir_metadata["implementation"]["python"]["interactive"] = loads(
-            self._python_info[Measure.PYTHON_IS_INTERACTIVE].value
-        )
-        if Measure.PYTHON_SCRIPT_FILE_PATH in self._python_info:
-            ir_metadata["implementation"]["script"]["path"] = loads(
-                self._python_info[Measure.PYTHON_SCRIPT_FILE_PATH].value
+        if Measure.INVOCATION in self._python_info:
+            # Python implementation may override the invocation for notebooks or interactive sessions
+            new_ir_metadata["implementation"]["executable"]["cmd"] = loads(self._python_info[Measure.INVOCATION].value)
+        if Measure.PYTHON_VERSION in self._python_info:
+            new_ir_metadata["implementation"]["python"]["modules"] = loads(
+                self._python_info[Measure.PYTHON_VERSION].value
             )
-        if Measure.PYTHON_NOTEBOOK_FILE_PATH in self._python_info:
-            ir_metadata["implementation"]["notebook"]["path"] = loads(
-                self._python_info[Measure.PYTHON_NOTEBOOK_FILE_PATH].value
+        if Measure.PYTHON_INSTALLED_PACKAGES in self._python_info:
+            new_ir_metadata["implementation"]["python"]["packages"] = loads(
+                self._python_info[Measure.PYTHON_INSTALLED_PACKAGES].value
             )
-        ir_metadata["implementation"]["source"]["archive"]["path"] = loads(
-            self._python_info[Measure.PYTHON_CODE_ARCHIVE_PATH].value
-        )
-        ir_metadata["implementation"]["source"]["archive"]["script path"] = loads(
-            self._python_info[Measure.PYTHON_SCRIPT_FILE_PATH_IN_CODE_ARCHIVE].value
-        )
+        if Measure.PYTHON_IS_INTERACTIVE in self._python_info:
+            new_ir_metadata["implementation"]["python"]["interactive"] = loads(
+                self._python_info[Measure.PYTHON_IS_INTERACTIVE].value
+            )
         if Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE in self._python_info:
-            ir_metadata["implementation"]["source"]["archive"]["notebook path"] = loads(
+            new_ir_metadata["implementation"]["source"]["archive"]["notebook path"] = loads(
                 self._python_info[Measure.PYTHON_NOTEBOOK_FILE_PATH_IN_CODE_ARCHIVE].value
             )
 
-        ir_metadata = _deep_merge(ir_metadata, tmp_ir_metadata)
+        ir_metadata = _deep_merge(native_ir_metadata, new_ir_metadata)
         ir_metadata = _recursive_undefaultdict(ir_metadata)
+
+        if isinstance(impl := ir_metadata.get("implementation"), dict) and isinstance(
+            source := impl.get("source"), dict
+        ):
+            archive_path = export_file_path.parent / ".tirex-tracker" / "archive.zip"
+            if isinstance(path := source.get("archive path"), str):
+                with zipfile.ZipFile(str(archive_path), "a") as tgt, zipfile.ZipFile(path, "r") as src:
+                    for info in src.infolist():
+                        with src.open(info, "r") as f:
+                            tgt.writestr(info, f.read())
+
+            source["archive path"] = str(archive_path)
 
         global _REGISTERED_METADATA
         if _REGISTERED_METADATA:

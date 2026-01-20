@@ -120,7 +120,7 @@ static std::string getRemoteOrigin(git_repository* repo) {
 		tirex::log::warn("gitstats", "Failed to lookup remote/origin: {}", git_error_last()->message);
 		return "";
 	}
-	std::string url = git_remote_url(remote);
+	std::string url = (git_remote_url(remote) == nullptr) ? "" : git_remote_url(remote);
 	git_remote_free(remote);
 	return url;
 }
@@ -176,6 +176,8 @@ static std::string hashAllFiles(git_repository* repo) {
 	std::filesystem::path root = git_repository_workdir(repo);
 	for (size_t i = 0; i < changes; ++i) {
 		auto entry = git_status_byindex(list, i);
+		if (entry->status == GIT_STATUS_INDEX_DELETED || entry->status == GIT_STATUS_WT_DELETED)
+			continue;
 		if (!std::filesystem::is_regular_file(root / entry->index_to_workdir->new_file.path)) {
 			tirex::log::warn(
 					"gitstats", "The folder {} is not checked into the repository nor ignored!",
@@ -220,6 +222,8 @@ repoToArchive(git_repository* repo, const std::filesystem::path& archive, size_t
 	auto changes = git_status_list_entrycount(list);
 	for (size_t i = 0; i < changes; ++i) {
 		auto entry = git_status_byindex(list, i);
+		if (entry->status == GIT_STATUS_INDEX_DELETED || entry->status == GIT_STATUS_WT_DELETED)
+			continue;
 		auto path = root / entry->index_to_workdir->new_file.path;
 		if (!std::filesystem::is_regular_file(path)) {
 			tirex::log::warn(
@@ -361,7 +365,7 @@ Stats GitStats::getInfo() {
 				std::pair{TIREX_GIT_UNCOMMITTED_CHANGES, (status.numModified != 0) ? "1"s : "0"s},
 				std::pair{TIREX_GIT_UNPUSHED_CHANGES, ((status.ahead != 0) || remote.empty()) ? "1"s : "0"s},
 				std::pair{TIREX_GIT_UNCHECKED_FILES, (status.numNew != 0) ? "1"s : "0"s},
-				std::pair{TIREX_GIT_ROOT, git_repository_workdir(repo)},
+				std::pair{TIREX_GIT_ROOT, std::string{git_repository_workdir(repo)}},
 				std::pair{TIREX_GIT_ARCHIVE_PATH, TmpFile{tmpfile}}
 		);
 	} else {
