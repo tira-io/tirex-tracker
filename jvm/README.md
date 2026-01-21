@@ -1,12 +1,20 @@
 # TIREx Tracker
 
 [![CI](https://img.shields.io/github/actions/workflow/status/tira-io/tirex-tracker/ci.yml?branch=master&style=flat-square)](https://github.com/tira-io/tirex-tracker/actions/workflows/ci.yml)
-[![Maintenance](https://img.shields.io/maintenance/yes/2025?style=flat-square)](https://github.com/tira-io/tirex-tracker/graphs/contributors) <!-- [![Code coverage](https://img.shields.io/codecov/c/github/tira-io/tirex-tracker?style=flat-square)](https://codecov.io/github/tira-io/tirex-tracker/) --> \
-[![Maven](https://img.shields.io/github/v/tag/tira-io/tirex-tracker?style=flat-square&label=maven)](https://github.com/tira-io/tirex-tracker/packages/) [![Java](https://img.shields.io/badge/java-8_|_11_|_17_|_21-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/packages/) \
-[![Issues](https://img.shields.io/github/issues/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/issues) [![Commit activity](https://img.shields.io/github/commit-activity/m/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/commits) [![License](https://img.shields.io/github/license/tira-io/tirex-tracker?style=flat-square)](LICENSE)
-
-The TIREx tracker is a command line tool and API to automatically track resource usage, hardware specifications, and other metadata when running information retrieval experiments.
-It can be used easily in [Java/Kotlin applications](#javakotlinjvm-api). For more information, refer to the [project's readme](https://github.com/tira-io/tirex-tracker?tab=readme-ov-file#readme).
+[![Maintenance](https://img.shields.io/maintenance/yes/2025?style=flat-square)](https://github.com/tira-io/tirex-tracker/graphs/contributors)
+[![Code coverage](https://img.shields.io/codecov/c/github/tira-io/tirex-tracker?style=flat-square)](https://codecov.io/github/tira-io/tirex-tracker/)
+\
+[![Release](https://img.shields.io/github/v/tag/tira-io/tirex-tracker?style=flat-square&label=library)](https://github.com/tira-io/tirex-tracker/releases/)
+[![Ubuntu](https://img.shields.io/badge/ubuntu-18.04_%7C_20.04_%7C_22.04_%7C_24.04_%7C_25.04-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
+[![macOS](https://img.shields.io/badge/macos-13_%7C_14_%7C_15-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
+[![Windows](https://img.shields.io/badge/windows-2022_%7C_2025-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
+\
+[![Maven](https://img.shields.io/maven-central/v/io.tira/tirex-tracker?style=flat-square)](https://central.sonatype.com/artifact/io.tira/tirex-tracker)
+[![Java](https://img.shields.io/badge/java-8_%7C_11_%7C_17_%7C_21-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/packages/)
+\
+[![Issues](https://img.shields.io/github/issues/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/issues)
+[![Commit activity](https://img.shields.io/github/commit-activity/m/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/commits)
+[![License](https://img.shields.io/github/license/tira-io/tirex-tracker?style=flat-square)](LICENSE)
 
 ## Java/Kotlin/JVM API
 
@@ -101,15 +109,26 @@ fun main() {
 
 ## Citation
 
-The TIREx tracker's accompanying paper is under review. We will add citation instructions once it is published.
+If you find our work useful and reference or use it in a paper, please cite us.
 
-<!-- TODO: Add citation (written out and as BibTeX). -->
+```bibtex
+@inproceedings{tirextracker2025,
+    author = {Hagen, Tim and Fr{\"o}be, Maik and Merker, Jan Heinrich and Scells, Harrisen and Hagen, Matthias and Potthast, Martin},
+    booktitle = {48th International ACM SIGIR Conference on Research and Development in Information Retrieval (SIGIR 2025)},
+    month = jul,
+    publisher = {ACM},
+    title = {{TIREx Tracker: The Information Retrieval Experiment Tracker}},
+    year = {2025}
+}
+```
+
+You can also use the [`CITATION.cff`](https://github.com/tira-io/tirex-tracker/blob/master/CITATION.cff) to generate a citation in other formats.
 
 ## License
 
-The TIREx tracker code is licensed under the [MIT License](./LICENSE).
+The TIREx tracker code is licensed under the [MIT License](https://github.com/tira-io/tirex-tracker/blob/master/LICENSE).
 If you use the TIREx tracker in your experiments, we would appreciate you [citing](#citation) our paper.
 
 ## Abstract
 
-> The reproducibility and transparency of retrieval experiments heavily depends on properly provided information on the experimental setup and conditions. But as manually curating such experiment metadata can be tedious, error-prone, and inconsistent, metadata should be systematically collected in an automatic way—similar to the collection of Python and git-specific settings in the `ir_metadata` reference implementation. To enable a platform-independent automatic metadata collection following the `ir_metadata` specification, we introduce the TIREx tracker: a tool realized via a lightweight C binary, pre-compiled with all dependencies for all major platforms to track hardware configurations, usage of power/CPUs/RAM/GPUs, and experiment/system versions. The TIREx tracker seamlessly integrates into Python, Java, or C/C++ workflows and can be easily incorporated in run submissions of shared tasks, which we showcase for the TIRA/TIREx platform. Code, binaries, and documentation are publicly available at <https://github.com/tira-io/tirex-tracker>.
+> The reproducibility and transparency of retrieval experiments heavily depends on properly provided information on the experimental setup and conditions. But as manually curating such experiment metadata can be tedious, error-prone, and inconsistent, metadata should be systematically collected in an automatic way—similar to the collection of Python and git-specific settings in the `ir_metadata` reference implementation. To enable a platform-independent automatic metadata collection following the `ir_metadata` specification, we introduce the TIREx tracker: a tool realized via a lightweight C binary, pre-compiled with all dependencies for all major platforms to track hardware configurations, usage of power/CPUs/RAM/GPUs, and experiment/system versions. The TIREx tracker seamlessly integrates into Python, Java, or C/C++ workflows and can be easily incorporated in run submissions of shared tasks, which we showcase for the TIRA/TIREx platform.
