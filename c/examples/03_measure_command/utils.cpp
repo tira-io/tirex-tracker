@@ -10,6 +10,8 @@ int runCommand(std::string_view command) {
 	return WEXITSTATUS(status);
 }
 #elif defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
+#include <windows.h>
+
 int runCommand(std::string_view command) {
 	STARTUPINFO si{};
 	PROCESS_INFORMATION pi{};
