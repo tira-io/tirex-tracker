@@ -9,6 +9,13 @@ using namespace std::string_literals;
 using tirex::EnergyStats;
 using tirex::Stats;
 
+/**
+ * @brief Returns the value of the mapping \p m for the key \p key . If this entry does not exist, empty is returned.
+ * 
+ * @param m A mapping in which the key should be found.
+ * @param key The key to return the value for.
+ * @return Empty if the mapping \p m did not contain \p k . Otherwise the value of \p m at \p k is returned.
+ */
 template <typename C, typename K>
 static auto tryget(const C& m, K const& key) -> std::optional<decltype(m.begin()->second)> {
 	auto it = m.find(key);
@@ -17,6 +24,13 @@ static auto tryget(const C& m, K const& key) -> std::optional<decltype(m.begin()
 	return std::make_optional(it->second);
 }
 
+/**
+ * @brief If \p opt is empty, empty is returned. Otherwise \p transform is applied to the value and returned.
+ * 
+ * @param opt The optional to transform.
+ * @param transform The transformation to be applied.
+ * @return A new optional with the transformed value of \p opt .
+ */
 template <typename T, typename Fn>
 static auto transform(const std::optional<T>& opt, const Fn& transform)
 		-> std::optional<decltype(transform(opt.value()))> {
