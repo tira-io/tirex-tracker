@@ -45,5 +45,6 @@ static std::string buildVersionString() {
  * @return The exit code of the command.
  */
 int runCommand(std::string_view command);
+// Possible improvement to runCommand: Return std::expected<int, int> when C++23 can be assumed
 
 #endif
