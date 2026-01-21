@@ -4,15 +4,27 @@ updates:
     directory: python
     schedule:
       interval: weekly
+    labels:
+      - lang:python
+      - dependencies
   - package-ecosystem: gradle
     directory: jvm
     schedule:
       interval: weekly
+    labels:
+      - lang:java
+      - dependencies
   - package-ecosystem: docker
     directory: .devcontainer
     schedule:
       interval: weekly
+    labels:
+      - docker
+      - dependencies
   - package-ecosystem: github-actions
     directory: .
     schedule:
       interval: monthly
+    labels:
+      - github_actions
+      - dependencies
