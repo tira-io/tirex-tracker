@@ -41,6 +41,7 @@ namespace tirex {
 		size_t pollIntervalMs;
 		bool pedantic;
 		std::optional<std::string> outfile;
+		bool mimicExitcode; /**< If set, the exit code of the measure command will be the same as the tracked command **/
 
 		const ResultFormatter& getFormatter() const {
 			static const std::map<std::string, ResultFormatter> formatters{
