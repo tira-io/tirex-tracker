@@ -12,6 +12,7 @@ plugins {
     id("com.palantir.git-version")
     id("com.github.gmazzo.buildconfig")
     id("org.jetbrains.dokka")
+    id("org.jetbrains.dokka-javadoc")
     id("org.jreleaser")
 }
 
@@ -92,14 +93,14 @@ tasks {
     }
 
     register<Jar>("htmlDocsJar") {
-        dependsOn(dokkaHtml)
-        from(dokkaHtml.flatMap { it.outputDirectory })
+        dependsOn(dokkaGeneratePublicationHtml)
+        from(dokkaGeneratePublicationHtml.flatMap { it.outputDirectory })
         archiveClassifier = "html-docs"
     }
 
     register<Jar>("javadocJar") {
-        dependsOn(dokkaJavadoc)
-        from(dokkaJavadoc.flatMap { it.outputDirectory })
+        dependsOn(dokkaGeneratePublicationJavadoc)
+        from(dokkaGeneratePublicationJavadoc.flatMap { it.outputDirectory })
         archiveClassifier = "javadoc"
     }
 
