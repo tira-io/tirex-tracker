@@ -29,7 +29,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("net.java.dev.jna:jna-platform:5.18.1")
     api("net.java.dev.jna:jna:5.18.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
     implementation("org.yaml:snakeyaml:2.5")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
