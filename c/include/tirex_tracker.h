@@ -18,6 +18,36 @@ extern "C" {
 #endif
 
 /**
+ * @defgroup logging Logging
+ * @brief Functions and constants for logging.
+ * @details Definitions and functions relevant for telling measure where to log information to.
+ * @{
+ */
+/**
+ * @brief Represents different levels of verbosity.
+ * @details The enum values are sorted by verbosity. That is, for example, if logs should only be logged \c level
+ * \c INFO or higher, then `level >= INFO` can be used to check what should be logged.
+ */
+typedef enum tirexLogLevel_enum { TRACE, DEBUG, INFO, WARN, ERROR, CRITICAL } tirexLogLevel;
+
+/**
+ * @brief Points to a function that takes in a log level, component, and message which should be logged.
+ * @details The log callback can handle the call as it likes (including ignoring it for example because logging is set
+ * to a lower verbosity or turned of). The \p component may be used to identify, where the log is comming from.
+ */
+typedef void (*tirexLogCallback)(tirexLogLevel level, const char* component, const char* message);
+
+/**
+ * @brief Set a callback that should be used for all future logs.
+ * @details Per default, nothing is logged and passing NULL for \p callback disables logging.
+ * 
+ * @param callback Points to a function that takes in a log level, component, and message which should be logged. Pass
+ * NULL to disable logging.
+ */
+TIREX_TRACKER_EXPORT void tirexSetLogCallback(tirexLogCallback callback);
+/** @} */ // end of logging
+
+/**
  * @defgroup error Error handling
  * @brief Functions and constants for error handling.
  * @details
@@ -27,6 +57,18 @@ extern "C" {
  * @brief Categorizes different classes of error.
  */
 typedef enum tirexError_enum { TIREX_SUCCESS = 0, TIREX_INVALID_ARGUMENT = 1 } tirexError;
+
+typedef void (*tirexAbortCallback)(const char* message);
+
+TIREX_TRACKER_EXPORT void tirexSetAbortLevel(tirexLogLevel level);
+
+/**
+ * @brief Set a callback that should be used in case the program needs to abort.
+ * @details Per default, [`abort()`](https://en.cppreference.com/w/c/program/abort.html) is used.
+ * 
+ * @param callback
+ */
+TIREX_TRACKER_EXPORT void tirexSetAbortCallback(tirexAbortCallback callback);
 /** @} */ // end of error
 
 /**
@@ -118,6 +160,12 @@ typedef enum tirexMeasure_enum {
 	 * temporary location and is automatically deleted when the result object is freed.
 	 */
 	TIREX_GIT_ARCHIVE_PATH = 47,
+
+	TIREX_VERSION_MEASURE = 48, /**< Reports the version of the TIREx Tracker that was used to collect the metadata. */
+	TIREX_INVOCATION = 49,		/**< Reports the command that was used to spawn the tracked process. */
+
+	/** @brief Searches for devcontainer configuration files and reports their location. */
+	TIREX_DEVCONTAINER_CONF_PATHS = 50,
 
 	/**
 	 * @brief The total number of supported measures.
@@ -284,36 +332,6 @@ tirexStartTracking(const tirexMeasureConf* measures, size_t pollIntervalMs, tire
  */
 TIREX_TRACKER_EXPORT tirexError tirexStopTracking(tirexMeasureHandle* handle, tirexResult** result);
 /** @} */ // end of measure
-
-/**
- * @defgroup logging Logging
- * @brief Functions and constants for logging.
- * @details Definitions and functions relevant for telling measure where to log information to.
- * @{
- */
-/**
- * @brief Represents different levels of verbosity.
- * @details The enum values are sorted by verbosity. That is, for example, if logs should only be logged \c level
- * \c INFO or higher, then `level >= INFO` can be used to check what should be logged.
- */
-typedef enum tirexLogLevel_enum { TRACE, DEBUG, INFO, WARN, ERROR, CRITICAL } tirexLogLevel;
-
-/**
- * @brief Points to a function that takes in a log level, component, and message which should be logged.
- * @details The log callback can handle the call as it likes (including ignoring it for example because logging is set
- * to a lower verbosity or turned of). The \p component may be used to identify, where the log is comming from.
- */
-typedef void (*tirexLogCallback)(tirexLogLevel level, const char* component, const char* message);
-
-/**
- * @brief Set a callback that should be used for all future logs.
- * @details Per default, nothing is logged and passing NULL for \p callback disables logging.
- * 
- * @param callback Points to a function that takes in a log level, component, and message which should be logged. Pass
- * NULL to disable logging.
- */
-TIREX_TRACKER_EXPORT void tirexSetLogCallback(tirexLogCallback callback);
-/** @} */ // end of logging
 
 /**
  * @defgroup dataprovider Data Providers

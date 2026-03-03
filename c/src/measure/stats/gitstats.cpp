@@ -1,5 +1,6 @@
 #include "gitstats.hpp"
 
+#include "../../abort.hpp"
 #include "../../logging.hpp"
 #include "../utils/rangeutils.hpp"
 
@@ -51,6 +52,26 @@ const std::set<tirexMeasure> GitStats::measures{
 		TIREX_GIT_ARCHIVE_PATH
 };
 
+std::optional<std::filesystem::path> GitStats::getRepoRootDir() {
+	git_libgit2_init();
+	git_repository* repo;
+	auto root = (git_repository_open_ext(&repo, "./", 0, nullptr) == 0)
+						? std::make_optional<std::filesystem::path>(git_repository_workdir(repo))
+						: std::nullopt;
+	git_libgit2_shutdown();
+	return root;
+}
+
+static std::string formatMemory(size_t size) {
+	std::array units{"B", "KB", "MB", "GB", "TB"};
+	size_t i = 0;
+	while (i < units.size() && (size / 1000) * 1000 == size && size != 0) {
+		++i;
+		size /= 1000;
+	}
+	return _fmt::format("{} {}", size, units[i]);
+}
+
 static std::string getLastCommitHash(git_repository* repo) {
 	git_oid id;
 	if (int err; (err = git_reference_name_to_id(&id, repo, "HEAD")) != 0) {
@@ -99,7 +120,7 @@ static std::string getRemoteOrigin(git_repository* repo) {
 		tirex::log::warn("gitstats", "Failed to lookup remote/origin: {}", git_error_last()->message);
 		return "";
 	}
-	std::string url = git_remote_url(remote);
+	std::string url = (git_remote_url(remote) == nullptr) ? "" : git_remote_url(remote);
 	git_remote_free(remote);
 	return url;
 }
@@ -155,6 +176,8 @@ static std::string hashAllFiles(git_repository* repo) {
 	std::filesystem::path root = git_repository_workdir(repo);
 	for (size_t i = 0; i < changes; ++i) {
 		auto entry = git_status_byindex(list, i);
+		if (entry->status == GIT_STATUS_INDEX_DELETED || entry->status == GIT_STATUS_WT_DELETED)
+			continue;
 		if (!std::filesystem::is_regular_file(root / entry->index_to_workdir->new_file.path)) {
 			tirex::log::warn(
 					"gitstats", "The folder {} is not checked into the repository nor ignored!",
@@ -164,9 +187,8 @@ static std::string hashAllFiles(git_repository* repo) {
 					"gitstats", "I will not include it in the hash. Please add it to the .gitignore if is not part of "
 								"your codebase or check it into the repository if it should be."
 			);
+			tirex::abort(tirexLogLevel::WARN, "Folders that are not checked into the repository are ignored.");
 			continue;
-			/** \todo if pedantic abort here **/
-			// abort();
 		}
 		std::ifstream is(root / entry->index_to_workdir->new_file.path, std::ios::binary);
 		if (!is) {
@@ -181,7 +203,7 @@ static std::string hashAllFiles(git_repository* repo) {
 }
 
 static std23::expected<void, std::string>
-repoToArchive(git_repository* repo, const std::filesystem::path& archive) noexcept {
+repoToArchive(git_repository* repo, const std::filesystem::path& archive, size_t archivalSizeLimit) noexcept {
 	std::filesystem::path root = git_repository_workdir(repo);
 	tirex::log::debug("gitstats", "Archiving git repo at root {} to {}", root.string(), archive.string());
 	int err;
@@ -200,6 +222,8 @@ repoToArchive(git_repository* repo, const std::filesystem::path& archive) noexce
 	auto changes = git_status_list_entrycount(list);
 	for (size_t i = 0; i < changes; ++i) {
 		auto entry = git_status_byindex(list, i);
+		if (entry->status == GIT_STATUS_INDEX_DELETED || entry->status == GIT_STATUS_WT_DELETED)
+			continue;
 		auto path = root / entry->index_to_workdir->new_file.path;
 		if (!std::filesystem::is_regular_file(path)) {
 			tirex::log::warn(
@@ -215,15 +239,30 @@ repoToArchive(git_repository* repo, const std::filesystem::path& archive) noexce
 			/*return std23::unexpected<std::string>{
 					"The repositories contains an unchecked folder. Add it to .gitignore or check it into the repository."
 			};*/
+		} else if (std::filesystem::file_size(path) >= archivalSizeLimit) {
+			tirex::log::warn(
+					"gitstats", "The file {} is larger than the configured limit of {} and will be ignored.",
+					entry->index_to_workdir->new_file.path, formatMemory(archivalSizeLimit)
+			);
+			continue;
+			/** \todo return unexpected if pedantic **/
+			/*return std23::unexpected<std::string>{
+					"The repositories contains a large file which will not be added to the git archive."
+			};*/
 		}
 		auto source = zip_source_file(handle, path.string().c_str(), 0, 0);
 		if (source == nullptr) {
-			tirex::log::error("gitstats", "Error reading file: {}", entry->index_to_workdir->new_file.path);
-			continue; /** \todo handle pedantic? **/
+			tirex::log::error(
+					"gitstats", "Error reading file: {}; I will not add it to the archive",
+					entry->index_to_workdir->new_file.path
+			);
+			tirex::abort(tirexLogLevel::ERROR, "Failed to read file to add it to the archive");
+			continue;
 		}
 		if (zip_file_add(handle, entry->index_to_workdir->new_file.path, source, ZIP_FL_OVERWRITE) < 0) {
 			tirex::log::error("gitstats", "Error adding file to archive: {}", entry->index_to_workdir->new_file.path);
-			continue; /** \todo handle pedantic? **/
+			tirex::abort(tirexLogLevel::ERROR, "Failed to add file to the archive");
+			continue;
 		}
 	}
 	git_status_list_free(list);
@@ -314,7 +353,7 @@ Stats GitStats::getInfo() {
 		std::filesystem::path tmpfile{std::tmpnam(nullptr)};
 #pragma clang diagnostic pop
 		if (enabled.contains(TIREX_GIT_ARCHIVE_PATH)) {
-			repoToArchive(repo, tmpfile);
+			repoToArchive(repo, tmpfile, archivalSizeLimit);
 		}
 		auto [local, remote] = getBranchName(repo);
 		return makeFilteredStats(
@@ -326,7 +365,7 @@ Stats GitStats::getInfo() {
 				std::pair{TIREX_GIT_UNCOMMITTED_CHANGES, (status.numModified != 0) ? "1"s : "0"s},
 				std::pair{TIREX_GIT_UNPUSHED_CHANGES, ((status.ahead != 0) || remote.empty()) ? "1"s : "0"s},
 				std::pair{TIREX_GIT_UNCHECKED_FILES, (status.numNew != 0) ? "1"s : "0"s},
-				std::pair{TIREX_GIT_ROOT, git_repository_workdir(repo)},
+				std::pair{TIREX_GIT_ROOT, std::string{git_repository_workdir(repo)}},
 				std::pair{TIREX_GIT_ARCHIVE_PATH, TmpFile{tmpfile}}
 		);
 	} else {

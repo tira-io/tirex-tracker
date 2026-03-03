@@ -3,8 +3,8 @@ from __future__ import annotations
 from ctypes import c_char_p, c_wchar_p, cast
 from typing import TYPE_CHECKING
 
-from .. import Measure, ResultEntry, ResultType
-from .. import _ResultEntry as NativeResultEntry
+from tirex_tracker import Measure, ResultEntry, ResultType
+from tirex_tracker import _ResultEntry as NativeResultEntry
 
 if TYPE_CHECKING:
     from typing import Any, Callable, Dict
@@ -25,6 +25,15 @@ _native_result_entry_parsers: Dict[ResultType, Callable[[int], Any]] = {
 
 
 def parse_native_result_entry(entry: NativeResultEntry) -> ResultEntry:
+    """
+    Translates a native result entry into a Python managed object. The Python object can safely be accessed even after
+    the result entry is freed.
+
+    :param entry: The native result entry object that should be translated into a Python managed result entry object.
+    :type entry: NativeResultEntry
+    :return: A Python managed result entry object. The native object can now safely be deleted.
+    :rtype: ResultEntry
+    """
     rtype = ResultType(entry.type)
     value = _native_result_entry_parsers[rtype](entry.value)
     return ResultEntry(source=Measure(entry.source), value=value, type=rtype)

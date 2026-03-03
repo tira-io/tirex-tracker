@@ -51,7 +51,9 @@ static std::map<std::string, std::vector<tirexMeasureConf>> confGroups = {
 		  {TIREX_CPU_VIRTUALIZATION, TIREX_AGG_NO},
 		  {TIREX_RAM_USED_PROCESS_KB, TIREX_AGG_NO},
 		  {TIREX_RAM_USED_SYSTEM_MB, TIREX_AGG_NO},
-		  {TIREX_RAM_AVAILABLE_SYSTEM_MB, TIREX_AGG_NO}}},
+		  {TIREX_RAM_AVAILABLE_SYSTEM_MB, TIREX_AGG_NO},
+		  {TIREX_VERSION_MEASURE, TIREX_AGG_NO},
+		  {TIREX_INVOCATION, TIREX_AGG_NO}}},
 		{"energy",
 		 {{TIREX_CPU_ENERGY_SYSTEM_JOULES, TIREX_AGG_NO},
 		  {TIREX_RAM_ENERGY_SYSTEM_JOULES, TIREX_AGG_NO},
@@ -64,7 +66,8 @@ static std::map<std::string, std::vector<tirexMeasureConf>> confGroups = {
 		  {TIREX_GPU_USED_SYSTEM_PERCENT, TIREX_AGG_NO},
 		  {TIREX_GPU_VRAM_USED_PROCESS_MB, TIREX_AGG_NO},
 		  {TIREX_GPU_VRAM_USED_SYSTEM_MB, TIREX_AGG_NO},
-		  {TIREX_GPU_VRAM_AVAILABLE_SYSTEM_MB, TIREX_AGG_NO}}}
+		  {TIREX_GPU_VRAM_AVAILABLE_SYSTEM_MB, TIREX_AGG_NO}}},
+		{"devcontainer", {{TIREX_DEVCONTAINER_CONF_PATHS, TIREX_AGG_NO}}}
 };
 
 static void logCallback(tirexLogLevel level, const char* component, const char* message) {
@@ -89,11 +92,16 @@ static void setupLoggerArgs(CLI::App& app, tirex::LoggerConf& conf) {
 	app.add_flag("-q,--quiet", conf.quiet, "Supresses all outputs");
 }
 
-static void runMeasureCmd(const MeasureCmdArgs& args) {
+static int runMeasureCmd(const MeasureCmdArgs& args) {
 	// Initialization and setup
 	tirex::setVerbosity(args.logConf.getVerbosity());
 	auto logger = tirex::getLogger("measure");
 	logger->info("Measuring command: {}", args.command);
+
+	if (args.pedantic) {
+		logger->info("Switching to pedantic mode");
+		tirexSetAbortLevel(tirexLogLevel::WARN);
+	}
 
 	// Start measuring
 	std::vector<tirexMeasureConf> measures;
@@ -113,7 +121,8 @@ static void runMeasureCmd(const MeasureCmdArgs& args) {
 	assert(err == TIREX_SUCCESS);
 
 	// Run the command
-	auto exitcode = std::system(args.command.c_str());
+	auto exitcode = runCommand(args.command);
+	logger->info("Command finished with exit code {}", exitcode);
 
 	// Stop measuring
 	tirexResult* result;
@@ -127,6 +136,7 @@ static void runMeasureCmd(const MeasureCmdArgs& args) {
 	} else
 		args.getFormatter()(std::cout, info, result);
 	tirexResultFree(result);
+	return args.mimicExitcode ? exitcode : 0;
 }
 
 int main(int argc, char* argv[]) {
@@ -149,10 +159,15 @@ int main(int argc, char* argv[]) {
 			)
 			->default_val(100);
 	app.add_flag("--pedantic", measureArgs.pedantic, "If set, measure will stop execution on errors")
-			->default_val(false); /** \todo support pedantic **/
+			->default_val(false);
 	app.add_option("-o", measureArgs.outfile)->description("Sets the file to write the result measurements into.");
+	app.add_flag(
+			   "--mimic-exitcode", measureArgs.mimicExitcode,
+			   "If set, the exit code of the measure command will be the same as the tracked command"
+	)
+			->default_val(false);
 
-	app.callback([&measureArgs]() { runMeasureCmd(measureArgs); });
+	app.callback([&]() { std::exit(runMeasureCmd(measureArgs)); });
 
 	CLI11_PARSE(app, argc, argv);
 	return 0;

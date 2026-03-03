@@ -22,12 +22,14 @@ target_sources(tirex_tracker
 			${CMAKE_CURRENT_BINARY_DIR}/tirex_tracker_export.h
 			${TIREX_EXT_INCLUDE_FILES}
 	PRIVATE
+		abort.cpp
+		logging.cpp
 		measureapi.cpp
 		measureinfo.cpp
 		measureresult.cpp
-		logging.cpp
 		measure/stats/provider.cpp
 
+		measure/stats/devcontainerstats.cpp
 		measure/stats/energystats.cpp
 		measure/stats/gitstats.cpp
 		measure/stats/nvmlstats.cpp
@@ -40,6 +42,7 @@ target_sources(tirex_tracker
 )
 
 target_compile_features(tirex_tracker PUBLIC cxx_std_20)
+target_compile_definitions(tirex_tracker PUBLIC TIREX_VERSION="${TIREX_TRACKER_VERSION}")
 
 if (LINUX)
 target_link_libraries(tirex_tracker PUBLIC ${CMAKE_DL_LIBS})  # dlopen, dlclose, ...
@@ -75,10 +78,8 @@ set_property(TARGET tirex_tracker PROPERTY POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # CPPJoule
-if (NOT (UNIX AND APPLE)) # CPPJouls does not support macos right now
-	CPMAddPackage(URI "gh:TheMrSheldon/CPPJoules#pcm" EXCLUDE_FROM_ALL YES)
-	target_link_libraries(tirex_tracker PRIVATE CPP_Joules)
-endif()
+CPMAddPackage(URI "gh:TheMrSheldon/CPPJoules#pcm" EXCLUDE_FROM_ALL YES)
+target_link_libraries(tirex_tracker PRIVATE CPP_Joules)
 
 # zlib (required by libgit and libzip)
 CPMAddPackage(
@@ -133,6 +134,10 @@ CPMAddPackage(
 	EXCLUDE_FROM_ALL YES
 )
 target_link_libraries(tirex_tracker PRIVATE cpuinfo::cpuinfo)
+
+# nlohmann::json
+CPMAddPackage(URI "gh:nlohmann/json@3.12.0" OPTIONS "JSON_ImplicitConversions OFF" EXCLUDE_FROM_ALL YES)
+target_link_libraries(tirex_tracker PUBLIC nlohmann_json::nlohmann_json)
 
 # Mac Only: Bind to CoreFoundation to get IOReport for system information
 if (UNIX AND APPLE)

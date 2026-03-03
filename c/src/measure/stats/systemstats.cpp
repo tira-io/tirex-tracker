@@ -6,6 +6,7 @@
 #include "systemstats.hpp"
 
 #include "../../logging.hpp"
+#include "../utils/rangeutils.hpp"
 
 #include <cpuinfo.h>
 
@@ -21,8 +22,6 @@ namespace _fmt = fmt;
 #include <map>
 #include <sstream>
 #include <tuple>
-
-#include "../utils/rangeutils.hpp"
 
 using namespace std::string_literals;
 using std::chrono::steady_clock;
@@ -43,6 +42,7 @@ std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
 }
 #elif defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
 #include <powrprof.h>
+#define NOGDI // Otherwise we get problems with logging
 #include <windows.h>
 
 std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
@@ -74,8 +74,12 @@ std::tuple<uint32_t, uint32_t> getProcessorMinMaxFreq(uint32_t processor) {
 
 const char* SystemStats::version = nullptr;
 const std::set<tirexMeasure> SystemStats::measures{
+		TIREX_VERSION_MEASURE,
+
 		TIREX_OS_NAME,
 		TIREX_OS_KERNEL,
+
+		TIREX_INVOCATION,
 
 		TIREX_TIME_START,
 		TIREX_TIME_STOP,
@@ -349,6 +353,7 @@ SystemStats::CPUInfo::VirtFlags getVirtSupport() {
 	return {.svm = false, .vmx = false};
 }
 #elif defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
+#define NOGDI // Otherwise we get problems with logging
 #include <windows.h>
 
 SystemStats::CPUInfo::VirtFlags getVirtSupport() {
@@ -429,21 +434,22 @@ Stats SystemStats::getInfo() {
 	auto info = getSysInfo();
 	auto cpuInfo = getCPUInfo();
 
+	std::map<std::string, std::string> caches;
 	size_t cacheIdx = 1;
-	std::vector<std::string> entries;
 	for (auto& [unified, instruct, data] : cpuInfo.caches) {
 		if (unified)
-			entries.emplace_back(std::move(_fmt::format("\"l{}\": \"{} KiB\"", cacheIdx, unified / 1024)));
+			caches[_fmt::format("l{}", cacheIdx)] = _fmt::format("{} KiB", unified / 1024);
 		if (instruct)
-			entries.emplace_back(std::move(_fmt::format("\"l{}i\": \"{} KiB\"", cacheIdx, instruct / 1024)));
+			caches[_fmt::format("l{}i", cacheIdx)] = _fmt::format("{} KiB", instruct / 1024);
 		if (data)
-			entries.emplace_back(std::move(_fmt::format("\"l{}d\": \"{} KiB\"", cacheIdx, data / 1024)));
+			caches[_fmt::format("l{}d", cacheIdx)] = _fmt::format("{} KiB", data / 1024);
 		++cacheIdx;
 	}
-	std::string caches = "{"s + utils::join(entries, ", ") + "}";
 
 	return makeFilteredStats(
-			enabled, std::pair{TIREX_OS_NAME, info.osname}, std::pair{TIREX_OS_KERNEL, info.kerneldesc},
+			enabled, std::pair{TIREX_VERSION_MEASURE, std::string{TIREX_VERSION}},
+			std::pair{TIREX_OS_NAME, info.osname}, std::pair{TIREX_OS_KERNEL, info.kerneldesc},
+			std::pair{TIREX_INVOCATION, nlohmann::json(getInvocationCmd())},
 			std::pair{TIREX_CPU_AVAILABLE_SYSTEM_CORES, std::to_string(cpuInfo.numCores)},
 			std::pair{TIREX_CPU_FEATURES, cpuInfo.flags},
 			std::pair{TIREX_CPU_FREQUENCY_MIN_MHZ, std::to_string(cpuInfo.frequency_min)},
@@ -452,7 +458,7 @@ Stats SystemStats::getInfo() {
 			std::pair{TIREX_CPU_ARCHITECTURE, info.architecture}, std::pair{TIREX_CPU_MODEL_NAME, cpuInfo.modelname},
 			std::pair{TIREX_CPU_CORES_PER_SOCKET, std::to_string(cpuInfo.coresPerSocket)},
 			std::pair{TIREX_CPU_THREADS_PER_CORE, std::to_string(cpuInfo.threadsPerCore)},
-			std::pair{TIREX_CPU_CACHES, caches},
+			std::pair{TIREX_CPU_CACHES, nlohmann::json(caches)},
 			std::pair{
 					TIREX_CPU_VIRTUALIZATION,
 					(cpuInfo.virtualization.svm ? "AMD-V "s : ""s) + (cpuInfo.virtualization.vmx ? "VT-x"s : ""s)

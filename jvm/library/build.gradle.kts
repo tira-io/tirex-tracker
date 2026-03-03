@@ -14,6 +14,7 @@ plugins {
     id("com.palantir.git-version")
     id("com.github.gmazzo.buildconfig")
     id("org.jetbrains.dokka")
+    id("org.jetbrains.dokka-javadoc")
     id("org.jreleaser")
 }
 
@@ -28,9 +29,9 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("net.java.dev.jna:jna-platform:5.17.0")
-    api("net.java.dev.jna:jna:5.17.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+    implementation("net.java.dev.jna:jna-platform:5.18.1")
+    api("net.java.dev.jna:jna:5.18.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
     implementation("org.yaml:snakeyaml:2.5")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
@@ -98,14 +99,14 @@ tasks {
     }
 
     register<Jar>("htmlDocsJar") {
-        dependsOn(dokkaHtml)
-        from(dokkaHtml.flatMap { it.outputDirectory })
+        dependsOn(dokkaGeneratePublicationHtml)
+        from(dokkaGeneratePublicationHtml.flatMap { it.outputDirectory })
         archiveClassifier = "html-docs"
     }
 
     register<Jar>("javadocJar") {
-        dependsOn(dokkaJavadoc)
-        from(dokkaJavadoc.flatMap { it.outputDirectory })
+        dependsOn(dokkaGeneratePublicationJavadoc)
+        from(dokkaGeneratePublicationJavadoc.flatMap { it.outputDirectory })
         archiveClassifier = "javadoc"
     }
 

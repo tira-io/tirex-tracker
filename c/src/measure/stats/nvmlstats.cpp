@@ -1,5 +1,6 @@
 #include "nvmlstats.hpp"
 
+#include "../../abort.hpp"
 #include "../../logging.hpp"
 #include "../utils/sharedlib.hpp"
 
@@ -152,15 +153,27 @@ void NVMLStats::step() {
 		if (nvmlReturn_t ret; (ret = ::nvml.deviceGetMemoryInfo(device, &memory)) == NVML_SUCCESS) {
 			nvml.vramUsageTotal.addValue(memory.used / 1000 / 1000);
 		} else {
-			tirex::log::critical("gpustats", "Could not fetch memory information: {}", ::nvml.errorString(ret));
-			abort(); /** \todo how to handle? **/
+			static bool logged = false;
+			if (!logged) { // Make sure that we log this message only once
+				tirex::log::error("gpustats", "Could not fetch memory information: {}", ::nvml.errorString(ret));
+				logged = true;
+			}
+			tirex::abort(tirexLogLevel::ERROR, "Could not fetch GPU memory information"); /** \todo how to handle? **/
 		}
 		nvmlUtilization_t util;
 		if (nvmlReturn_t ret; (ret = ::nvml.deviceGetUtilizationRates(device, &util)) == NVML_SUCCESS) {
 			nvml.utilizationTotal.addValue(util.gpu);
 		} else {
-			tirex::log::critical("gpustats", "Could not fetch utilization information: {}", ::nvml.errorString(ret));
-			abort(); /** \todo how to handle? **/
+			static bool logged = false;
+			if (!logged) { // Make sure that we log this message only once
+				tirex::log::critical(
+						"gpustats", "Could not fetch utilization information: {}", ::nvml.errorString(ret)
+				);
+				logged = true;
+			}
+			tirex::abort(
+					tirexLogLevel::ERROR, "Could not fetch GPU utlization information"
+			); /** \todo how to handle? **/
 		}
 	}
 
@@ -189,7 +202,11 @@ void NVMLStats::step() {
 	}*/
 }
 
-std::set<tirexMeasure> NVMLStats::providedMeasures() noexcept { return measures; }
+std::set<tirexMeasure> NVMLStats::providedMeasures() noexcept {
+	if (nvml.supported)
+		return measures;
+	return {};
+}
 
 Stats NVMLStats::getStats() {
 	if (nvml.supported) {

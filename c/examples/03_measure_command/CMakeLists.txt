@@ -2,6 +2,7 @@ add_executable(measure
     main.cpp
     formatters.cpp
     logging.cpp
+	utils.cpp
 )
 
 target_compile_features(measure PUBLIC cxx_std_20)
