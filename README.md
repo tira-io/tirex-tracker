@@ -15,7 +15,7 @@
 [![PyPi](https://img.shields.io/pypi/v/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/)
 [![Python](https://img.shields.io/pypi/pyversions/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/)
 [![Downloads](https://img.shields.io/pypi/dm/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/)
-[![Read the Docs](https://img.shields.io/readthedocs/tirex-tracker?style=flat-square)](https://tirex-tracker.readthedocs.io/)
+[![Docs](https://img.shields.io/badge/docs-github%20pages-blue?style=flat-square)](https://tira-io.github.io/tirex-tracker/)
 \
 [![Maven](https://img.shields.io/maven-central/v/io.tira/tirex-tracker?style=flat-square)](https://central.sonatype.com/artifact/io.tira/tirex-tracker)
 [![Java](https://img.shields.io/badge/java-8_%7C_11_%7C_17_%7C_21-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/packages/)
@@ -110,7 +110,7 @@ pip install tirex-tracker
 ### Python Usage
 
 > [!TIP]
-> An exhaustive documentation of the TIREx tracker's Python API can be found on [Read the Docs](https://tirex-tracker.readthedocs.io/).
+> An exhaustive documentation of the TIREx tracker's Python API can be found on [GitHub Pages](https://tira-io.github.io/tirex-tracker/).
 
 Now, you can track the hardware metrics and metadata of your Python code by using the [context manager](https://geeksforgeeks.org/context-manager-in-python/):
 

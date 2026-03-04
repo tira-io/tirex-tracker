@@ -7,7 +7,7 @@
 [![macOS](https://img.shields.io/badge/macos-13_%7C_14_%7C_15-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
 [![Windows](https://img.shields.io/badge/windows-2022_%7C_2025-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
 \
-[![PyPi](https://img.shields.io/pypi/v/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Python](https://img.shields.io/pypi/pyversions/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Downloads](https://img.shields.io/pypi/dm/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Read the Docs](https://img.shields.io/readthedocs/tirex-tracker?style=flat-square)](https://tirex-tracker.readthedocs.io/) \
+[![PyPi](https://img.shields.io/pypi/v/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Python](https://img.shields.io/pypi/pyversions/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Downloads](https://img.shields.io/pypi/dm/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Docs](https://img.shields.io/badge/docs-github%20pages-blue?style=flat-square)](https://tira-io.github.io/tirex-tracker/) \
 [![Issues](https://img.shields.io/github/issues/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/issues) [![Commit activity](https://img.shields.io/github/commit-activity/m/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/commits) [![License](https://img.shields.io/github/license/tira-io/tirex-tracker?style=flat-square)](LICENSE)
 
 
@@ -30,7 +30,7 @@ pip install tirex-tracker
 ### Python Usage
 
 > [!TIP]
-> An exhaustive documentation of the TIREx tracker's Python API can be found on [Read the Docs](https://tirex-tracker.readthedocs.io/).
+> An exhaustive documentation of the TIREx tracker's Python API can be found on [GitHub Pages](https://tira-io.github.io/tirex-tracker/).
 
 Now, you can track the hardware metrics and metadata of your Python code by using the [context manager](https://geeksforgeeks.org/context-manager-in-python/):
 

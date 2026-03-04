@@ -1,5 +1,4 @@
 import groovy.lang.Closure
-import jdk.javadoc.internal.tool.resources.javadoc
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jreleaser.gradle.plugin.tasks.AbstractJReleaserTask

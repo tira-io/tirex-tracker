@@ -1,5 +1,5 @@
 site_name: TIREx Tracker
-site_url: https://tirex-tracker.readthedocs.io/
+site_url: https://tira-io.github.io/tirex-tracker/
 site_description: Automatic resource and metadata tracking for information retrieval experiments.
 repo_url: https://github.com/tira-io/tirex-tracker
 repo_name: tira-io/tirex-tracker
@@ -91,6 +91,10 @@ markdown_extensions:
   - md_in_html
   - toc:
       permalink: true
+
+extra:
+  version:
+    provider: mike
 
 nav:
   - Home: index.md

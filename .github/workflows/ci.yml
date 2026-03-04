@@ -2,6 +2,7 @@ name: CI
 
 on:
   push:
+  workflow_dispatch:
 
 permissions: {}
 
@@ -803,6 +804,62 @@ jobs:
           path: dist
       - name: 🚀 Publish Python wheels to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+  docs-nightly:
+    name: 📚 Deploy nightly docs
+    if: github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: 🧰 Install Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: docs/requirements.txt
+      - name: 🧰 Install Doxygen
+        run: sudo apt-get install -y doxygen
+      - name: 🧰 Install dependencies
+        run: pip install -r docs/requirements.txt mike
+      - name: ⚙️ Configure git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+      - name: 📚 Deploy nightly docs
+        run: mike deploy --push --update-aliases nightly
+  docs-release:
+    name: 📚 Deploy release docs
+    if: github.event_name == 'push' && endsWith(github.event.base_ref, 'master') && startsWith(github.ref, 'refs/tags')
+    needs:
+      - github-release
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - name: 📥 Check-out
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: 🧰 Install Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: docs/requirements.txt
+      - name: 🧰 Install Doxygen
+        run: sudo apt-get install -y doxygen
+      - name: 🧰 Install dependencies
+        run: pip install -r docs/requirements.txt mike
+      - name: ⚙️ Configure git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+      - name: 📚 Deploy versioned docs
+        run: mike deploy --push --update-aliases ${{ github.ref_name }} latest
   github-release:
     name: 🚀 Create GitHub release
     if: github.event_name == 'push' && endsWith(github.event.base_ref, 'master') && startsWith(github.ref, 'refs/tags')
