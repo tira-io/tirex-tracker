@@ -1,0 +1,133 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="group__logging" kind="group">
+    <compoundname>logging</compoundname>
+    <title>Logging</title>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="group__logging_1gab3065050367ab0bb4c033e2bbef35af3" prot="public" static="no" strong="no">
+        <type></type>
+        <name>tirexLogLevel_enum</name>
+        <enumvalue id="group__logging_1ggab3065050367ab0bb4c033e2bbef35af3a7fa27e82c6c4f69434225ed81e5d151e" prot="public">
+          <name>TRACE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__logging_1ggab3065050367ab0bb4c033e2bbef35af3a0593585da9181e972974c1274d8f2b4f" prot="public">
+          <name>DEBUG</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__logging_1ggab3065050367ab0bb4c033e2bbef35af3a748005382152808a72b1a9177d9dc806" prot="public">
+          <name>INFO</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__logging_1ggab3065050367ab0bb4c033e2bbef35af3a74dac7ac23d5b810db6d4067f14e8676" prot="public">
+          <name>WARN</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__logging_1ggab3065050367ab0bb4c033e2bbef35af3a2fd6f336d08340583bd620a7f5694c90" prot="public">
+          <name>ERROR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__logging_1ggab3065050367ab0bb4c033e2bbef35af3acda21a4a072f2261f6d4ab596599f8b0" prot="public">
+          <name>CRITICAL</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Represents different levels of verbosity. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The enum values are sorted by verbosity. That is, for example, if logs should only be logged <computeroutput>level</computeroutput> <computeroutput>INFO</computeroutput> or higher, then <computeroutput>level &gt;= INFO</computeroutput> can be used to check what should be logged. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="31" column="1" bodyfile="c/include/tirex_tracker.h" bodystart="31" bodyend="31"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="group__logging_1gafe7f959d1851d667439faa86bfdb44ac" prot="public" static="no">
+        <type>enum <ref refid="group__logging_1gab3065050367ab0bb4c033e2bbef35af3" kindref="member">tirexLogLevel_enum</ref></type>
+        <definition>typedef enum tirexLogLevel_enum tirexLogLevel</definition>
+        <argsstring></argsstring>
+        <name>tirexLogLevel</name>
+        <briefdescription>
+<para>Represents different levels of verbosity. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The enum values are sorted by verbosity. That is, for example, if logs should only be logged <computeroutput>level</computeroutput> <computeroutput>INFO</computeroutput> or higher, then <computeroutput>level &gt;= INFO</computeroutput> can be used to check what should be logged. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="31" column="46"/>
+      </memberdef>
+      <memberdef kind="typedef" id="group__logging_1ga9882af52e7699e79777885781275df6d" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* tirexLogCallback) (tirexLogLevel level, const char *component, const char *message)</definition>
+        <argsstring>)(tirexLogLevel level, const char *component, const char *message)</argsstring>
+        <name>tirexLogCallback</name>
+        <briefdescription>
+<para>Points to a function that takes in a log level, component, and message which should be logged. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The log callback can handle the call as it likes (including ignoring it for example because logging is set to a lower verbosity or turned of). The <computeroutput>component</computeroutput> may be used to identify, where the log is comming from. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="38" column="9" bodyfile="c/include/tirex_tracker.h" bodystart="38" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__logging_1ga548c022f5d646bfd89675f7772b26d9d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>TIREX_TRACKER_EXPORT void</type>
+        <definition>TIREX_TRACKER_EXPORT void tirexSetLogCallback</definition>
+        <argsstring>(tirexLogCallback callback)</argsstring>
+        <name>tirexSetLogCallback</name>
+        <param>
+          <type><ref refid="group__logging_1ga9882af52e7699e79777885781275df6d" kindref="member">tirexLogCallback</ref></type>
+          <declname>callback</declname>
+        </param>
+        <briefdescription>
+<para>Set a callback that should be used for all future logs. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Per default, nothing is logged and passing NULL for <computeroutput>callback</computeroutput> disables logging.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>callback</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Points to a function that takes in a log level, component, and message which should be logged. Pass NULL to disable logging. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="47" column="27" declfile="c/include/tirex_tracker.h" declline="47" declcolumn="27"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Functions and constants for logging. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Definitions and functions relevant for telling measure where to log information to. </para>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

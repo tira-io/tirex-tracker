@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtirexResultEntry__st" kind="struct" language="C++" prot="public">
+    <compoundname>tirexResultEntry_st</compoundname>
+    <includes refid="tirex__tracker_8h" local="no">tirex_tracker.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structtirexResultEntry__st_1ab89d0b0f213120aa46a4f65b9c6494f9" prot="public" static="no" mutable="no">
+        <type><ref refid="group__measure_1gaae382e16dd82b3177241819061e4c828" kindref="member">tirexMeasure</ref></type>
+        <definition>tirexMeasure tirexResultEntry_st::source</definition>
+        <argsstring></argsstring>
+        <name>source</name>
+        <briefdescription>
+<para>The measure that the result is associated with. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="248" column="14" bodyfile="c/include/tirex_tracker.h" bodystart="248" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtirexResultEntry__st_1a9a554e5535dd19fdc79a7c2e1f2622a8" prot="public" static="no" mutable="no">
+        <type>const void *</type>
+        <definition>const void* tirexResultEntry_st::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+<para>The value of the result (the type depends on <ref refid="structtirexResultEntry__st_1a1a3deb2c3e86b363b4c42aef91894d28" kindref="member">tirexResultEntry_st::type</ref>). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="249" column="12" bodyfile="c/include/tirex_tracker.h" bodystart="249" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtirexResultEntry__st_1a1a3deb2c3e86b363b4c42aef91894d28" prot="public" static="no" mutable="no">
+        <type><ref refid="group__tirexresult_1gabcc42c927741bed4d7ac87ced6951bb8" kindref="member">tirexResultType</ref></type>
+        <definition>tirexResultType tirexResultEntry_st::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <briefdescription>
+<para>The datatype of the stored result. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="250" column="17" bodyfile="c/include/tirex_tracker.h" bodystart="250" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Holds a result entry, i.e., a key-value pair of a name (string) and a value (tirexResult). </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="c/include/tirex_tracker.h" line="247" column="1" bodyfile="c/include/tirex_tracker.h" bodystart="247" bodyend="251"/>
+    <listofallmembers>
+      <member refid="structtirexResultEntry__st_1ab89d0b0f213120aa46a4f65b9c6494f9" prot="public" virt="non-virtual"><scope>tirexResultEntry_st</scope><name>source</name></member>
+      <member refid="structtirexResultEntry__st_1a1a3deb2c3e86b363b4c42aef91894d28" prot="public" virt="non-virtual"><scope>tirexResultEntry_st</scope><name>type</name></member>
+      <member refid="structtirexResultEntry__st_1a9a554e5535dd19fdc79a7c2e1f2622a8" prot="public" virt="non-virtual"><scope>tirexResultEntry_st</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

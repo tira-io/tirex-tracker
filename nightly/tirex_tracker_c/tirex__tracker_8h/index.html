@@ -1,0 +1,2323 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Automatic resource and metadata tracking for information retrieval experiments.">
+      
+      
+      
+        <link rel="canonical" href="https://tira-io.github.io/tirex-tracker/nightly/tirex_tracker_c/tirex__tracker_8h/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>File tirex_tracker.h - TIREx Tracker</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#file-tirex_trackerh" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="TIREx Tracker" class="md-header__button md-logo" aria-label="TIREx Tracker" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            TIREx Tracker
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              File tirex_tracker.h
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tira-io/tirex-tracker" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tira-io/tirex-tracker
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/cli/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guides/measures/" class="md-tabs__link">
+          
+  
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../developer/architecture/" class="md-tabs__link">
+          
+  
+  
+  Developer Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/python/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="TIREx Tracker" class="md-nav__button md-logo" aria-label="TIREx Tracker" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    TIREx Tracker
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tira-io/tirex-tracker" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tira-io/tirex-tracker
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Tool
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/java/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Java / Kotlin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/c/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C / C++
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/measures/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tracked Measures
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/aggregation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Aggregation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/ir-metadata/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IR Metadata Extension
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Developer Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/adding-measures/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adding a New Measure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/building/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building from Source
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C / C++ API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    C / C++ API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/c/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generated Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/java/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Java / Kotlin API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public Types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-static-attributes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public Static Attributes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public Functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#macros" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Macros
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-types-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public Types Documentation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Public Types Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#typedef-tirexabortcallback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        typedef tirexAbortCallback
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#typedef-tirexaggregatefn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        typedef tirexAggregateFn
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#typedef-tirexdataprovider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        typedef tirexDataProvider
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#typedef-tirexerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        typedef tirexError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enum-tirexerror_enum" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        enum tirexError_enum
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#typedef-tirexlogcallback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        typedef tirexLogCallback
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#typedef-tirexloglevel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        typedef tirexLogLevel
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enum-tirexloglevel_enum" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        enum tirexLogLevel_enum
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#typedef-tirexmeasure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        typedef tirexMeasure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#typedef-tirexmeasureconf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        typedef tirexMeasureConf
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#typedef-tirexmeasurehandle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        typedef tirexMeasureHandle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#typedef-tirexmeasureinfo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        typedef tirexMeasureInfo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enum-tirexmeasure_enum" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        enum tirexMeasure_enum
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#typedef-tirexresult" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        typedef tirexResult
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#typedef-tirexresultentry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        typedef tirexResultEntry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#typedef-tirexresulttype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        typedef tirexResultType
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enum-tirexresulttype_enum" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        enum tirexResultType_enum
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-static-attributes-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public Static Attributes Documentation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Public Static Attributes Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#variable-tirexnullconf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        variable tirexNullConf
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-functions-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public Functions Documentation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Public Functions Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#function-tirexdataprovidergetall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function tirexDataProviderGetAll
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-tirexfetchinfo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function tirexFetchInfo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-tirexmeasureinfoget" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function tirexMeasureInfoGet
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-tirexresultentrygetbyindex" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function tirexResultEntryGetByIndex
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-tirexresultentrynum" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function tirexResultEntryNum
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-tirexresultfree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function tirexResultFree
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-tirexsetabortcallback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function tirexSetAbortCallback
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-tirexsetabortlevel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function tirexSetAbortLevel
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-tirexsetlogcallback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function tirexSetLogCallback
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-tirexstarttracking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function tirexStartTracking
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-tirexstoptracking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function tirexStopTracking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#macro-definition-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Macro Definition Documentation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Macro Definition Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#define-tirex_agg_max" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define TIREX_AGG_MAX
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-tirex_agg_mean" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define TIREX_AGG_MEAN
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-tirex_agg_min" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define TIREX_AGG_MIN
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-tirex_agg_no" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define TIREX_AGG_NO
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-static_assert" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define static_assert
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="file-tirex_trackerh">File tirex_tracker.h<a class="headerlink" href="#file-tirex_trackerh" title="Permanent link">&para;</a></h1>
+<p><a href="../files/"><strong>FileList</strong></a> <strong>&gt;</strong> <a href="../dir_1784a01aa976a8c78ef5dfc3737bcac8/"><strong>c</strong></a> <strong>&gt;</strong> <a href="../dir_2d10db7395ecfee73f7722e70cabff64/"><strong>include</strong></a> <strong>&gt;</strong> <a href="./"><strong>tirex_tracker.h</strong></a></p>
+<p><a href="../tirex__tracker_8h_source/">Go to the source code of this file</a></p>
+<p><em>Contains tirex tracker's external C API.</em> </p>
+<ul>
+<li><code>#include &lt;stdbool.h&gt;</code></li>
+<li><code>#include &lt;stddef.h&gt;</code></li>
+<li><code>#include &lt;stdint.h&gt;</code></li>
+<li><code>#include &lt;tirex_tracker_export.h&gt;</code></li>
+</ul>
+<h2 id="classes">Classes<a class="headerlink" href="#classes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Type</th>
+<th style="text-align: left;">Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">struct</td>
+<td style="text-align: left;"><a href="../structtirexDataProvider__st/"><strong>tirexDataProvider_st</strong></a> <br><em>Contains information about a data provider.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">struct</td>
+<td style="text-align: left;"><a href="../structtirexMeasureConf__st/"><strong>tirexMeasureConf_st</strong></a> <br></td>
+</tr>
+<tr>
+<td style="text-align: right;">struct</td>
+<td style="text-align: left;"><a href="../structtirexMeasureInfo__st/"><strong>tirexMeasureInfo_st</strong></a> <br></td>
+</tr>
+<tr>
+<td style="text-align: right;">struct</td>
+<td style="text-align: left;"><a href="../structtirexResultEntry__st/"><strong>tirexResultEntry_st</strong></a> <br><em>Holds a result entry, i.e., a key-value pair of a name (string) and a value (tirexResult).</em></td>
+</tr>
+</tbody>
+</table>
+<h2 id="public-types">Public Types<a class="headerlink" href="#public-types" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Type</th>
+<th style="text-align: left;">Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">typedef void(*</td>
+<td style="text-align: left;"><a href="#typedef-tirexabortcallback"><strong>tirexAbortCallback</strong></a>  <br></td>
+</tr>
+<tr>
+<td style="text-align: right;">typedef uint8_t</td>
+<td style="text-align: left;"><a href="#typedef-tirexaggregatefn"><strong>tirexAggregateFn</strong></a>  <br></td>
+</tr>
+<tr>
+<td style="text-align: right;">typedef struct <a href="../structtirexDataProvider__st/"><strong>tirexDataProvider_st</strong></a></td>
+<td style="text-align: left;"><a href="#typedef-tirexdataprovider"><strong>tirexDataProvider</strong></a>  <br><em>Contains information about a data provider.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">typedef enum <a href="./#enum-tirexerror_enum"><strong>tirexError_enum</strong></a></td>
+<td style="text-align: left;"><a href="#typedef-tirexerror"><strong>tirexError</strong></a>  <br><em>Categorizes different classes of error.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">enum</td>
+<td style="text-align: left;"><a href="#enum-tirexerror_enum"><strong>tirexError_enum</strong></a>  <br><em>Categorizes different classes of error.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">typedef void(*</td>
+<td style="text-align: left;"><a href="#typedef-tirexlogcallback"><strong>tirexLogCallback</strong></a>  <br><em>Points to a function that takes in a log level, component, and message which should be logged.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">typedef enum <a href="./#enum-tirexloglevel_enum"><strong>tirexLogLevel_enum</strong></a></td>
+<td style="text-align: left;"><a href="#typedef-tirexloglevel"><strong>tirexLogLevel</strong></a>  <br><em>Represents different levels of verbosity.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">enum</td>
+<td style="text-align: left;"><a href="#enum-tirexloglevel_enum"><strong>tirexLogLevel_enum</strong></a>  <br><em>Represents different levels of verbosity.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">typedef enum <a href="./#enum-tirexmeasure_enum"><strong>tirexMeasure_enum</strong></a></td>
+<td style="text-align: left;"><a href="#typedef-tirexmeasure"><strong>tirexMeasure</strong></a>  <br><em>Identifiers for all available measurements.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">typedef struct <a href="../structtirexMeasureConf__st/"><strong>tirexMeasureConf_st</strong></a></td>
+<td style="text-align: left;"><a href="#typedef-tirexmeasureconf"><strong>tirexMeasureConf</strong></a>  <br></td>
+</tr>
+<tr>
+<td style="text-align: right;">typedef struct tirexMeasureHandle_st</td>
+<td style="text-align: left;"><a href="#typedef-tirexmeasurehandle"><strong>tirexMeasureHandle</strong></a>  <br><em>Holds a handle to an ongoing measurement task.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">typedef struct <a href="../structtirexMeasureInfo__st/"><strong>tirexMeasureInfo_st</strong></a></td>
+<td style="text-align: left;"><a href="#typedef-tirexmeasureinfo"><strong>tirexMeasureInfo</strong></a>  <br></td>
+</tr>
+<tr>
+<td style="text-align: right;">enum</td>
+<td style="text-align: left;"><a href="#enum-tirexmeasure_enum"><strong>tirexMeasure_enum</strong></a>  <br><em>Identifiers for all available measurements.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">typedef struct tirexResult_st</td>
+<td style="text-align: left;"><a href="#typedef-tirexresult"><strong>tirexResult</strong></a>  <br><em>Holds a handle to the results of a measurement.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">typedef struct <a href="../structtirexResultEntry__st/"><strong>tirexResultEntry_st</strong></a></td>
+<td style="text-align: left;"><a href="#typedef-tirexresultentry"><strong>tirexResultEntry</strong></a>  <br><em>Holds a result entry, i.e., a key-value pair of a name (string) and a value (tirexResult).</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">typedef enum <a href="./#enum-tirexresulttype_enum"><strong>tirexResultType_enum</strong></a></td>
+<td style="text-align: left;"><a href="#typedef-tirexresulttype"><strong>tirexResultType</strong></a>  <br></td>
+</tr>
+<tr>
+<td style="text-align: right;">enum</td>
+<td style="text-align: left;"><a href="#enum-tirexresulttype_enum"><strong>tirexResultType_enum</strong></a>  <br></td>
+</tr>
+</tbody>
+</table>
+<h2 id="public-static-attributes">Public Static Attributes<a class="headerlink" href="#public-static-attributes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Type</th>
+<th style="text-align: left;">Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">const <a href="./#typedef-tirexmeasureconf"><strong>tirexMeasureConf</strong></a></td>
+<td style="text-align: left;"><a href="#variable-tirexnullconf"><strong>tirexNullConf</strong></a>   = <code>{.source = TIREX\_MEASURE\_INVALID}</code><br><em>Represents an invalid measurement configuration.</em></td>
+</tr>
+</tbody>
+</table>
+<h2 id="public-functions">Public Functions<a class="headerlink" href="#public-functions" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Type</th>
+<th style="text-align: left;">Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">TIREX_TRACKER_EXPORT size_t</td>
+<td style="text-align: left;"><a href="#function-tirexdataprovidergetall"><strong>tirexDataProviderGetAll</strong></a> (<a href="./#typedef-tirexdataprovider"><strong>tirexDataProvider</strong></a> * providers, size_t bufsize) <br><em>Populates the given buffer with all available providers (or at most</em> <code>bufsize</code> <em>if</em><code>buf</code> <em>is not large enugh) and returns the total number of available providers.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">TIREX_TRACKER_EXPORT <a href="./#typedef-tirexerror"><strong>tirexError</strong></a></td>
+<td style="text-align: left;"><a href="#function-tirexfetchinfo"><strong>tirexFetchInfo</strong></a> (const <a href="./#typedef-tirexmeasureconf"><strong>tirexMeasureConf</strong></a> * measures, <a href="./#typedef-tirexresult"><strong>tirexResult</strong></a> ** result) <br><em>Fetches the system information from the measures requested in</em> <code>measures</code> <em>.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">TIREX_TRACKER_EXPORT <a href="./#typedef-tirexerror"><strong>tirexError</strong></a></td>
+<td style="text-align: left;"><a href="#function-tirexmeasureinfoget"><strong>tirexMeasureInfoGet</strong></a> (<a href="./#typedef-tirexmeasure"><strong>tirexMeasure</strong></a> measure, const <a href="./#typedef-tirexmeasureinfo"><strong>tirexMeasureInfo</strong></a> ** info) <br></td>
+</tr>
+<tr>
+<td style="text-align: right;">TIREX_TRACKER_EXPORT <a href="./#typedef-tirexerror"><strong>tirexError</strong></a></td>
+<td style="text-align: left;"><a href="#function-tirexresultentrygetbyindex"><strong>tirexResultEntryGetByIndex</strong></a> (const <a href="./#typedef-tirexresult"><strong>tirexResult</strong></a> * result, size_t index, <a href="./#typedef-tirexresultentry"><strong>tirexResultEntry</strong></a> * entry) <br></td>
+</tr>
+<tr>
+<td style="text-align: right;">TIREX_TRACKER_EXPORT <a href="./#typedef-tirexerror"><strong>tirexError</strong></a></td>
+<td style="text-align: left;"><a href="#function-tirexresultentrynum"><strong>tirexResultEntryNum</strong></a> (const <a href="./#typedef-tirexresult"><strong>tirexResult</strong></a> * result, size_t * num) <br><em>Returns the number of entries contained in the result set.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">TIREX_TRACKER_EXPORT void</td>
+<td style="text-align: left;"><a href="#function-tirexresultfree"><strong>tirexResultFree</strong></a> (<a href="./#typedef-tirexresult"><strong>tirexResult</strong></a> * result) <br><em>Deinitializes and frees the result pointed at by</em> <code>result</code> <em>.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">TIREX_TRACKER_EXPORT void</td>
+<td style="text-align: left;"><a href="#function-tirexsetabortcallback"><strong>tirexSetAbortCallback</strong></a> (<a href="./#typedef-tirexabortcallback"><strong>tirexAbortCallback</strong></a> callback) <br><em>Set a callback that should be used in case the program needs to abort.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">TIREX_TRACKER_EXPORT void</td>
+<td style="text-align: left;"><a href="#function-tirexsetabortlevel"><strong>tirexSetAbortLevel</strong></a> (<a href="./#typedef-tirexloglevel"><strong>tirexLogLevel</strong></a> level) <br></td>
+</tr>
+<tr>
+<td style="text-align: right;">TIREX_TRACKER_EXPORT void</td>
+<td style="text-align: left;"><a href="#function-tirexsetlogcallback"><strong>tirexSetLogCallback</strong></a> (<a href="./#typedef-tirexlogcallback"><strong>tirexLogCallback</strong></a> callback) <br><em>Set a callback that should be used for all future logs.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">TIREX_TRACKER_EXPORT <a href="./#typedef-tirexerror"><strong>tirexError</strong></a></td>
+<td style="text-align: left;"><a href="#function-tirexstarttracking"><strong>tirexStartTracking</strong></a> (const <a href="./#typedef-tirexmeasureconf"><strong>tirexMeasureConf</strong></a> * measures, size_t pollIntervalMs, <a href="./#typedef-tirexmeasurehandle"><strong>tirexMeasureHandle</strong></a> ** handle) <br><em>Initializes the providers set in the configuration and starts measuring.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">TIREX_TRACKER_EXPORT <a href="./#typedef-tirexerror"><strong>tirexError</strong></a></td>
+<td style="text-align: left;"><a href="#function-tirexstoptracking"><strong>tirexStopTracking</strong></a> (<a href="./#typedef-tirexmeasurehandle"><strong>tirexMeasureHandle</strong></a> * handle, <a href="./#typedef-tirexresult"><strong>tirexResult</strong></a> ** result) <br><em>Stops the measurement and deinitializes the data providers.</em></td>
+</tr>
+</tbody>
+</table>
+<h2 id="macros">Macros<a class="headerlink" href="#macros" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Type</th>
+<th style="text-align: left;">Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-tirex_agg_max"><strong>TIREX_AGG_MAX</strong></a>  <code>(1 &amp;lt;&amp;lt; 2)</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-tirex_agg_mean"><strong>TIREX_AGG_MEAN</strong></a>  <code>(1 &amp;lt;&amp;lt; 4)</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-tirex_agg_min"><strong>TIREX_AGG_MIN</strong></a>  <code>(1 &amp;lt;&amp;lt; 3)</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-tirex_agg_no"><strong>TIREX_AGG_NO</strong></a>  <code>(1 &amp;lt;&amp;lt; 1)</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-static_assert"><strong>static_assert</strong></a> (cond, msg) <br></td>
+</tr>
+</tbody>
+</table>
+<h2 id="public-types-documentation">Public Types Documentation<a class="headerlink" href="#public-types-documentation" title="Permanent link">&para;</a></h2>
+<h3 id="typedef-tirexabortcallback">typedef tirexAbortCallback<a class="headerlink" href="#typedef-tirexabortcallback" title="Permanent link">&para;</a></h3>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">typedef</span><span class="w"> </span><span class="kt">void</span><span class="p">(</span><span class="o">*</span><span class="w"> </span><span class="n">tirexAbortCallback</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">message</span><span class="p">);</span>
+</span></code></pre></div>
+<hr>
+
+<h3 id="typedef-tirexaggregatefn">typedef tirexAggregateFn<a class="headerlink" href="#typedef-tirexaggregatefn" title="Permanent link">&para;</a></h3>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">typedef</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">tirexAggregateFn</span><span class="p">;</span>
+</span></code></pre></div>
+<hr>
+
+<h3 id="typedef-tirexdataprovider">typedef tirexDataProvider<a class="headerlink" href="#typedef-tirexdataprovider" title="Permanent link">&para;</a></h3>
+<p><em>Contains information about a data provider.</em> 
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">tirexDataProvider_st</span><span class="w"> </span><span class="n">tirexDataProvider</span><span class="p">;</span>
+</span></code></pre></div></p>
+<p>Data providers are modules tasked with collecting associated metrics about the program. </p>
+<hr>
+
+<h3 id="typedef-tirexerror">typedef tirexError<a class="headerlink" href="#typedef-tirexerror" title="Permanent link">&para;</a></h3>
+<p><em>Categorizes different classes of error.</em> 
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="nc">tirexError_enum</span><span class="w"> </span><span class="n">tirexError</span><span class="p">;</span>
+</span></code></pre></div></p>
+<hr>
+
+<h3 id="enum-tirexerror_enum">enum tirexError_enum<a class="headerlink" href="#enum-tirexerror_enum" title="Permanent link">&para;</a></h3>
+<p><em>Categorizes different classes of error.</em> 
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">enum</span><span class="w"> </span><span class="nc">tirexError_enum</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="n">TIREX_SUCCESS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="n">TIREX_INVALID_ARGUMENT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="p">};</span>
+</span></code></pre></div></p>
+<hr>
+
+<h3 id="typedef-tirexlogcallback">typedef tirexLogCallback<a class="headerlink" href="#typedef-tirexlogcallback" title="Permanent link">&para;</a></h3>
+<p><em>Points to a function that takes in a log level, component, and message which should be logged.</em> 
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">typedef</span><span class="w"> </span><span class="kt">void</span><span class="p">(</span><span class="o">*</span><span class="w"> </span><span class="n">tirexLogCallback</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">tirexLogLevel</span><span class="w"> </span><span class="n">level</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">component</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">message</span><span class="p">);</span>
+</span></code></pre></div></p>
+<p>The log callback can handle the call as it likes (including ignoring it for example because logging is set to a lower verbosity or turned of). The <code>component</code> may be used to identify, where the log is comming from. </p>
+<hr>
+
+<h3 id="typedef-tirexloglevel">typedef tirexLogLevel<a class="headerlink" href="#typedef-tirexloglevel" title="Permanent link">&para;</a></h3>
+<p><em>Represents different levels of verbosity.</em> 
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="nc">tirexLogLevel_enum</span><span class="w"> </span><span class="n">tirexLogLevel</span><span class="p">;</span>
+</span></code></pre></div></p>
+<p>The enum values are sorted by verbosity. That is, for example, if logs should only be logged <code>level</code> <code>INFO</code> or higher, then <code>level &gt;= INFO</code> can be used to check what should be logged. </p>
+<hr>
+
+<h3 id="enum-tirexloglevel_enum">enum tirexLogLevel_enum<a class="headerlink" href="#enum-tirexloglevel_enum" title="Permanent link">&para;</a></h3>
+<p><em>Represents different levels of verbosity.</em> 
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">enum</span><span class="w"> </span><span class="nc">tirexLogLevel_enum</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="n">TRACE</span><span class="p">,</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="n">DEBUG</span><span class="p">,</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="n">INFO</span><span class="p">,</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="n">WARN</span><span class="p">,</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="n">ERROR</span><span class="p">,</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="n">CRITICAL</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="p">};</span>
+</span></code></pre></div></p>
+<p>The enum values are sorted by verbosity. That is, for example, if logs should only be logged <code>level</code> <code>INFO</code> or higher, then <code>level &gt;= INFO</code> can be used to check what should be logged. </p>
+<hr>
+
+<h3 id="typedef-tirexmeasure">typedef tirexMeasure<a class="headerlink" href="#typedef-tirexmeasure" title="Permanent link">&para;</a></h3>
+<p><em>Identifiers for all available measurements.</em> 
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="nc">tirexMeasure_enum</span><span class="w"> </span><span class="n">tirexMeasure</span><span class="p">;</span>
+</span></code></pre></div></p>
+<p>Different types (EnvInfo, Time Series, Measure) </p>
+<hr>
+
+<h3 id="typedef-tirexmeasureconf">typedef tirexMeasureConf<a class="headerlink" href="#typedef-tirexmeasureconf" title="Permanent link">&para;</a></h3>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">tirexMeasureConf_st</span><span class="w"> </span><span class="n">tirexMeasureConf</span><span class="p">;</span>
+</span></code></pre></div>
+<hr>
+
+<h3 id="typedef-tirexmeasurehandle">typedef tirexMeasureHandle<a class="headerlink" href="#typedef-tirexmeasurehandle" title="Permanent link">&para;</a></h3>
+<p><em>Holds a handle to an ongoing measurement task.</em> 
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">tirexMeasureHandle_st</span><span class="w"> </span><span class="n">tirexMeasureHandle</span><span class="p">;</span>
+</span></code></pre></div></p>
+<hr>
+
+<h3 id="typedef-tirexmeasureinfo">typedef tirexMeasureInfo<a class="headerlink" href="#typedef-tirexmeasureinfo" title="Permanent link">&para;</a></h3>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">tirexMeasureInfo_st</span><span class="w"> </span><span class="n">tirexMeasureInfo</span><span class="p">;</span>
+</span></code></pre></div>
+<hr>
+
+<h3 id="enum-tirexmeasure_enum">enum tirexMeasure_enum<a class="headerlink" href="#enum-tirexmeasure_enum" title="Permanent link">&para;</a></h3>
+<p><em>Identifiers for all available measurements.</em> 
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">enum</span><span class="w"> </span><span class="nc">tirexMeasure_enum</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span><span class="n">TIREX_OS_NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="n">TIREX_OS_KERNEL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="n">TIREX_TIME_ELAPSED_WALL_CLOCK_MS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="n">TIREX_TIME_ELAPSED_USER_MS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="n">TIREX_TIME_ELAPSED_SYSTEM_MS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="n">TIREX_CPU_USED_PROCESS_PERCENT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">    </span><span class="n">TIREX_CPU_USED_SYSTEM_PERCENT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">    </span><span class="n">TIREX_CPU_AVAILABLE_SYSTEM_CORES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">    </span><span class="n">TIREX_CPU_ENERGY_SYSTEM_JOULES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">    </span><span class="n">TIREX_CPU_FEATURES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span>
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">    </span><span class="n">TIREX_CPU_FREQUENCY_MHZ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">    </span><span class="n">TIREX_CPU_FREQUENCY_MIN_MHZ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">11</span><span class="p">,</span>
+</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">    </span><span class="n">TIREX_CPU_FREQUENCY_MAX_MHZ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span>
+</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">    </span><span class="n">TIREX_CPU_VENDOR_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span>
+</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">    </span><span class="n">TIREX_CPU_BYTE_ORDER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">14</span><span class="p">,</span>
+</span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="w">    </span><span class="n">TIREX_CPU_ARCHITECTURE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span>
+</span><span id="__span-12-18"><a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="w">    </span><span class="n">TIREX_CPU_MODEL_NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span>
+</span><span id="__span-12-19"><a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="w">    </span><span class="n">TIREX_CPU_CORES_PER_SOCKET</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">17</span><span class="p">,</span>
+</span><span id="__span-12-20"><a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a><span class="w">    </span><span class="n">TIREX_CPU_THREADS_PER_CORE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">18</span><span class="p">,</span>
+</span><span id="__span-12-21"><a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a><span class="w">    </span><span class="n">TIREX_CPU_CACHES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">19</span><span class="p">,</span>
+</span><span id="__span-12-22"><a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a><span class="w">    </span><span class="n">TIREX_CPU_VIRTUALIZATION</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
+</span><span id="__span-12-23"><a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a><span class="w">    </span><span class="n">TIREX_RAM_USED_PROCESS_KB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">21</span><span class="p">,</span>
+</span><span id="__span-12-24"><a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a><span class="w">    </span><span class="n">TIREX_RAM_USED_SYSTEM_MB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">22</span><span class="p">,</span>
+</span><span id="__span-12-25"><a id="__codelineno-12-25" name="__codelineno-12-25" href="#__codelineno-12-25"></a><span class="w">    </span><span class="n">TIREX_RAM_AVAILABLE_SYSTEM_MB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">23</span><span class="p">,</span>
+</span><span id="__span-12-26"><a id="__codelineno-12-26" name="__codelineno-12-26" href="#__codelineno-12-26"></a><span class="w">    </span><span class="n">TIREX_RAM_ENERGY_SYSTEM_JOULES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">24</span><span class="p">,</span>
+</span><span id="__span-12-27"><a id="__codelineno-12-27" name="__codelineno-12-27" href="#__codelineno-12-27"></a><span class="w">    </span><span class="n">TIREX_GPU_SUPPORTED</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span>
+</span><span id="__span-12-28"><a id="__codelineno-12-28" name="__codelineno-12-28" href="#__codelineno-12-28"></a><span class="w">    </span><span class="n">TIREX_GPU_MODEL_NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">26</span><span class="p">,</span>
+</span><span id="__span-12-29"><a id="__codelineno-12-29" name="__codelineno-12-29" href="#__codelineno-12-29"></a><span class="w">    </span><span class="n">TIREX_GPU_NUM_CORES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">27</span><span class="p">,</span>
+</span><span id="__span-12-30"><a id="__codelineno-12-30" name="__codelineno-12-30" href="#__codelineno-12-30"></a><span class="w">    </span><span class="n">TIREX_GPU_USED_PROCESS_PERCENT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">28</span><span class="p">,</span>
+</span><span id="__span-12-31"><a id="__codelineno-12-31" name="__codelineno-12-31" href="#__codelineno-12-31"></a><span class="w">    </span><span class="n">TIREX_GPU_USED_SYSTEM_PERCENT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">29</span><span class="p">,</span>
+</span><span id="__span-12-32"><a id="__codelineno-12-32" name="__codelineno-12-32" href="#__codelineno-12-32"></a><span class="w">    </span><span class="n">TIREX_GPU_VRAM_USED_PROCESS_MB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span>
+</span><span id="__span-12-33"><a id="__codelineno-12-33" name="__codelineno-12-33" href="#__codelineno-12-33"></a><span class="w">    </span><span class="n">TIREX_GPU_VRAM_USED_SYSTEM_MB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">31</span><span class="p">,</span>
+</span><span id="__span-12-34"><a id="__codelineno-12-34" name="__codelineno-12-34" href="#__codelineno-12-34"></a><span class="w">    </span><span class="n">TIREX_GPU_VRAM_AVAILABLE_SYSTEM_MB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">32</span><span class="p">,</span>
+</span><span id="__span-12-35"><a id="__codelineno-12-35" name="__codelineno-12-35" href="#__codelineno-12-35"></a><span class="w">    </span><span class="n">TIREX_GPU_ENERGY_SYSTEM_JOULES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">33</span><span class="p">,</span>
+</span><span id="__span-12-36"><a id="__codelineno-12-36" name="__codelineno-12-36" href="#__codelineno-12-36"></a><span class="w">    </span><span class="n">TIREX_GIT_IS_REPO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">34</span><span class="p">,</span>
+</span><span id="__span-12-37"><a id="__codelineno-12-37" name="__codelineno-12-37" href="#__codelineno-12-37"></a><span class="w">    </span><span class="n">TIREX_GIT_HASH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">35</span><span class="p">,</span>
+</span><span id="__span-12-38"><a id="__codelineno-12-38" name="__codelineno-12-38" href="#__codelineno-12-38"></a><span class="w">    </span><span class="n">TIREX_GIT_LAST_COMMIT_HASH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">36</span><span class="p">,</span>
+</span><span id="__span-12-39"><a id="__codelineno-12-39" name="__codelineno-12-39" href="#__codelineno-12-39"></a><span class="w">    </span><span class="n">TIREX_GIT_BRANCH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">37</span><span class="p">,</span>
+</span><span id="__span-12-40"><a id="__codelineno-12-40" name="__codelineno-12-40" href="#__codelineno-12-40"></a><span class="w">    </span><span class="n">TIREX_GIT_BRANCH_UPSTREAM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">38</span><span class="p">,</span>
+</span><span id="__span-12-41"><a id="__codelineno-12-41" name="__codelineno-12-41" href="#__codelineno-12-41"></a><span class="w">    </span><span class="n">TIREX_GIT_TAGS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">39</span><span class="p">,</span>
+</span><span id="__span-12-42"><a id="__codelineno-12-42" name="__codelineno-12-42" href="#__codelineno-12-42"></a><span class="w">    </span><span class="n">TIREX_GIT_REMOTE_ORIGIN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">40</span><span class="p">,</span>
+</span><span id="__span-12-43"><a id="__codelineno-12-43" name="__codelineno-12-43" href="#__codelineno-12-43"></a><span class="w">    </span><span class="n">TIREX_GIT_UNCOMMITTED_CHANGES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">41</span><span class="p">,</span>
+</span><span id="__span-12-44"><a id="__codelineno-12-44" name="__codelineno-12-44" href="#__codelineno-12-44"></a><span class="w">    </span><span class="n">TIREX_GIT_UNPUSHED_CHANGES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span>
+</span><span id="__span-12-45"><a id="__codelineno-12-45" name="__codelineno-12-45" href="#__codelineno-12-45"></a><span class="w">    </span><span class="n">TIREX_GIT_UNCHECKED_FILES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">43</span><span class="p">,</span>
+</span><span id="__span-12-46"><a id="__codelineno-12-46" name="__codelineno-12-46" href="#__codelineno-12-46"></a><span class="w">    </span><span class="n">TIREX_TIME_START</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">44</span><span class="p">,</span>
+</span><span id="__span-12-47"><a id="__codelineno-12-47" name="__codelineno-12-47" href="#__codelineno-12-47"></a><span class="w">    </span><span class="n">TIREX_TIME_STOP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">45</span><span class="p">,</span>
+</span><span id="__span-12-48"><a id="__codelineno-12-48" name="__codelineno-12-48" href="#__codelineno-12-48"></a><span class="w">    </span><span class="n">TIREX_GIT_ROOT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">46</span><span class="p">,</span>
+</span><span id="__span-12-49"><a id="__codelineno-12-49" name="__codelineno-12-49" href="#__codelineno-12-49"></a><span class="w">    </span><span class="n">TIREX_GIT_ARCHIVE_PATH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">47</span><span class="p">,</span>
+</span><span id="__span-12-50"><a id="__codelineno-12-50" name="__codelineno-12-50" href="#__codelineno-12-50"></a><span class="w">    </span><span class="n">TIREX_VERSION_MEASURE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">48</span><span class="p">,</span>
+</span><span id="__span-12-51"><a id="__codelineno-12-51" name="__codelineno-12-51" href="#__codelineno-12-51"></a><span class="w">    </span><span class="n">TIREX_INVOCATION</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">49</span><span class="p">,</span>
+</span><span id="__span-12-52"><a id="__codelineno-12-52" name="__codelineno-12-52" href="#__codelineno-12-52"></a><span class="w">    </span><span class="n">TIREX_DEVCONTAINER_CONF_PATHS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
+</span><span id="__span-12-53"><a id="__codelineno-12-53" name="__codelineno-12-53" href="#__codelineno-12-53"></a><span class="w">    </span><span class="n">TIREX_MEASURE_COUNT</span><span class="p">,</span>
+</span><span id="__span-12-54"><a id="__codelineno-12-54" name="__codelineno-12-54" href="#__codelineno-12-54"></a><span class="w">    </span><span class="n">TIREX_MEASURE_INVALID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span>
+</span><span id="__span-12-55"><a id="__codelineno-12-55" name="__codelineno-12-55" href="#__codelineno-12-55"></a><span class="p">};</span>
+</span></code></pre></div></p>
+<p>Different types (EnvInfo, Time Series, Measure) </p>
+<hr>
+
+<h3 id="typedef-tirexresult">typedef tirexResult<a class="headerlink" href="#typedef-tirexresult" title="Permanent link">&para;</a></h3>
+<p><em>Holds a handle to the results of a measurement.</em> 
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">tirexResult_st</span><span class="w"> </span><span class="n">tirexResult</span><span class="p">;</span>
+</span></code></pre></div></p>
+<p>The measurement result is structed as a tree of categories, subcategories and (at the leaves) values.</p>
+<p><strong>See also:</strong> tirexStopTracking(tirexMeasureHandle*, char**) </p>
+<hr>
+
+<h3 id="typedef-tirexresultentry">typedef tirexResultEntry<a class="headerlink" href="#typedef-tirexresultentry" title="Permanent link">&para;</a></h3>
+<p><em>Holds a result entry, i.e., a key-value pair of a name (string) and a value (tirexResult).</em> 
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">tirexResultEntry_st</span><span class="w"> </span><span class="n">tirexResultEntry</span><span class="p">;</span>
+</span></code></pre></div></p>
+<hr>
+
+<h3 id="typedef-tirexresulttype">typedef tirexResultType<a class="headerlink" href="#typedef-tirexresulttype" title="Permanent link">&para;</a></h3>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="nc">tirexResultType_enum</span><span class="w"> </span><span class="n">tirexResultType</span><span class="p">;</span>
+</span></code></pre></div>
+<p>Note: Currently unused </p>
+<hr>
+
+<h3 id="enum-tirexresulttype_enum">enum tirexResultType_enum<a class="headerlink" href="#enum-tirexresulttype_enum" title="Permanent link">&para;</a></h3>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">enum</span><span class="w"> </span><span class="nc">tirexResultType_enum</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span><span class="n">TIREX_STRING</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span><span class="n">TIREX_INTEGER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">    </span><span class="n">TIREX_FLOATING</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">    </span><span class="n">TIREX_BOOLEAN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="w">    </span><span class="n">TIREX_WSTRING</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="w">    </span><span class="n">TIREX_LIST</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="w">    </span><span class="n">TIREX_STRING_LIST</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TIREX_STRING</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">TIREX_LIST</span><span class="p">,</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="w">    </span><span class="n">TIREX_INTEGER_LIST</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TIREX_INTEGER</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">TIREX_LIST</span><span class="p">,</span>
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="w">    </span><span class="n">TIREX_FLOATING_LIST</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TIREX_FLOATING</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">TIREX_LIST</span><span class="p">,</span>
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="w">    </span><span class="n">TIREX_BOOLEAN_LIST</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TIREX_BOOLEAN</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">TIREX_LIST</span><span class="p">,</span>
+</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="w">    </span><span class="n">TIREX_WSTRING_LIST</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TIREX_WSTRING</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">TIREX_LIST</span>
+</span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="p">};</span>
+</span></code></pre></div>
+<p>Note: Currently unused </p>
+<hr>
+<h2 id="public-static-attributes-documentation">Public Static Attributes Documentation<a class="headerlink" href="#public-static-attributes-documentation" title="Permanent link">&para;</a></h2>
+<h3 id="variable-tirexnullconf">variable tirexNullConf<a class="headerlink" href="#variable-tirexnullconf" title="Permanent link">&para;</a></h3>
+<p><em>Represents an invalid measurement configuration.</em> 
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">const</span><span class="w"> </span><span class="n">tirexMeasureConf</span><span class="w"> </span><span class="n">tirexNullConf</span><span class="p">;</span>
+</span></code></pre></div></p>
+<p>The null configuration should be used as a sentinel value to mark the end of the configuration in tirexStartTracking. </p>
+<hr>
+<h2 id="public-functions-documentation">Public Functions Documentation<a class="headerlink" href="#public-functions-documentation" title="Permanent link">&para;</a></h2>
+<h3 id="function-tirexdataprovidergetall">function tirexDataProviderGetAll<a class="headerlink" href="#function-tirexdataprovidergetall" title="Permanent link">&para;</a></h3>
+<p><em>Populates the given buffer with all available providers (or at most</em> <code>bufsize</code> <em>if</em><code>buf</code> <em>is not large enugh) and returns the total number of available providers.</em>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">tirexDataProviderGetAll</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">    </span><span class="n">tirexDataProvider</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">providers</span><span class="p">,</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">bufsize</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="p">)</span><span class="w"> </span>
+</span></code></pre></div></p>
+<p>If <code>buf</code> is <code>NULL</code> , <code>bufsize</code> is ignored and only the number of available providers are returned. A typical call may look as follows: 
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">num</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tirexDataProviderGetAll</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="k">struct</span><span class="w"> </span><span class="nc">tirexDataProvider</span><span class="o">*</span><span class="w"> </span><span class="n">buf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">tirexDataProvider</span><span class="o">*</span><span class="p">)</span><span class="n">calloc</span><span class="p">(</span><span class="n">num</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">tirexDataProvider</span><span class="p">));</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="n">tirexDataProviderGetAll</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="n">num</span><span class="p">);</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="c1">// ...</span>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="n">free</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+</span></code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>providers</code> </li>
+<li><code>bufsize</code> </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>The number of available data providers. </p>
+<hr>
+
+<h3 id="function-tirexfetchinfo">function tirexFetchInfo<a class="headerlink" href="#function-tirexfetchinfo" title="Permanent link">&para;</a></h3>
+<p><em>Fetches the system information from the measures requested in</em> <code>measures</code> <em>.</em>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexFetchInfo</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tirexMeasureConf</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">measures</span><span class="p">,</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">    </span><span class="n">tirexResult</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">result</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="p">)</span><span class="w"> </span>
+</span></code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>measures</code> </li>
+<li><code>result</code> </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>TIREX_SUCCESS on success or an error code. </p>
+<hr>
+
+<h3 id="function-tirexmeasureinfoget">function tirexMeasureInfoGet<a class="headerlink" href="#function-tirexmeasureinfoget" title="Permanent link">&para;</a></h3>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexMeasureInfoGet</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">    </span><span class="n">tirexMeasure</span><span class="w"> </span><span class="n">measure</span><span class="p">,</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tirexMeasureInfo</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">info</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="p">)</span><span class="w"> </span>
+</span></code></pre></div>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>measure</code> </li>
+<li><code>info</code> </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>TIREX_SUCCESS on success or an error code. </p>
+<hr>
+
+<h3 id="function-tirexresultentrygetbyindex">function tirexResultEntryGetByIndex<a class="headerlink" href="#function-tirexresultentrygetbyindex" title="Permanent link">&para;</a></h3>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexResultEntryGetByIndex</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tirexResult</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">result</span><span class="p">,</span>
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">index</span><span class="p">,</span>
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="w">    </span><span class="n">tirexResultEntry</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">entry</span>
+</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="p">)</span><span class="w"> </span>
+</span></code></pre></div>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>result</code> </li>
+<li><code>index</code> </li>
+<li><code>entry</code> </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>TIREX_SUCCESS on success or an error code. </p>
+<hr>
+
+<h3 id="function-tirexresultentrynum">function tirexResultEntryNum<a class="headerlink" href="#function-tirexresultentrynum" title="Permanent link">&para;</a></h3>
+<p><em>Returns the number of entries contained in the result set.</em> 
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexResultEntryNum</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tirexResult</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">result</span><span class="p">,</span>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">num</span>
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="p">)</span><span class="w"> </span>
+</span></code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>result</code> </li>
+<li><code>num</code> </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>TIREX_SUCCESS on success or an error code. </p>
+<hr>
+
+<h3 id="function-tirexresultfree">function tirexResultFree<a class="headerlink" href="#function-tirexresultfree" title="Permanent link">&para;</a></h3>
+<p><em>Deinitializes and frees the result pointed at by</em> <code>result</code> <em>.</em>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">tirexResultFree</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="w">    </span><span class="n">tirexResult</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">result</span>
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="p">)</span><span class="w"> </span>
+</span></code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>result</code> The result to be destructed. </li>
+</ul>
+<hr>
+
+<h3 id="function-tirexsetabortcallback">function tirexSetAbortCallback<a class="headerlink" href="#function-tirexsetabortcallback" title="Permanent link">&para;</a></h3>
+<p><em>Set a callback that should be used in case the program needs to abort.</em> 
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">tirexSetAbortCallback</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="w">    </span><span class="n">tirexAbortCallback</span><span class="w"> </span><span class="n">callback</span>
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="p">)</span><span class="w"> </span>
+</span></code></pre></div></p>
+<p>Per default, <a href="https://en.cppreference.com/w/c/program/abort.html"><code>abort()</code></a> is used.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>callback</code> </li>
+</ul>
+<hr>
+
+<h3 id="function-tirexsetabortlevel">function tirexSetAbortLevel<a class="headerlink" href="#function-tirexsetabortlevel" title="Permanent link">&para;</a></h3>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">tirexSetAbortLevel</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="w">    </span><span class="n">tirexLogLevel</span><span class="w"> </span><span class="n">level</span>
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="p">)</span><span class="w"> </span>
+</span></code></pre></div>
+<hr>
+
+<h3 id="function-tirexsetlogcallback">function tirexSetLogCallback<a class="headerlink" href="#function-tirexsetlogcallback" title="Permanent link">&para;</a></h3>
+<p><em>Set a callback that should be used for all future logs.</em> 
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">tirexSetLogCallback</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="w">    </span><span class="n">tirexLogCallback</span><span class="w"> </span><span class="n">callback</span>
+</span><span id="__span-27-3"><a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="p">)</span><span class="w"> </span>
+</span></code></pre></div></p>
+<p>Per default, nothing is logged and passing NULL for <code>callback</code> disables logging.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>callback</code> Points to a function that takes in a log level, component, and message which should be logged. Pass NULL to disable logging. </li>
+</ul>
+<hr>
+
+<h3 id="function-tirexstarttracking">function tirexStartTracking<a class="headerlink" href="#function-tirexstarttracking" title="Permanent link">&para;</a></h3>
+<p><em>Initializes the providers set in the configuration and starts measuring.</em> 
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexStartTracking</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tirexMeasureConf</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">measures</span><span class="p">,</span>
+</span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">pollIntervalMs</span><span class="p">,</span>
+</span><span id="__span-28-4"><a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="w">    </span><span class="n">tirexMeasureHandle</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">handle</span>
+</span><span id="__span-28-5"><a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a><span class="p">)</span><span class="w"> </span>
+</span></code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>measures</code> </li>
+<li><code>pollIntervalMs</code> </li>
+<li><code>handle</code> a handle to the running measurement. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>TIREX_SUCCESS on success or an error code.</p>
+<p><strong>See also:</strong> <a href="./#function-tirexstoptracking"><strong>tirexStopTracking</strong></a> </p>
+<hr>
+
+<h3 id="function-tirexstoptracking">function tirexStopTracking<a class="headerlink" href="#function-tirexstoptracking" title="Permanent link">&para;</a></h3>
+<p><em>Stops the measurement and deinitializes the data providers.</em> 
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexStopTracking</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="w">    </span><span class="n">tirexMeasureHandle</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">handle</span><span class="p">,</span>
+</span><span id="__span-29-3"><a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a><span class="w">    </span><span class="n">tirexResult</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">result</span>
+</span><span id="__span-29-4"><a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="p">)</span><span class="w"> </span>
+</span></code></pre></div></p>
+<p>This function <strong>must</strong> be called <strong>exactly once</strong> for each measurement job.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>handle</code> The handle of the running measurement that should be stopped. </li>
+<li><code>result</code> a handle to the result tree of the measurement. Must be freed by the caller using <a href="./#function-tirexresultfree"><strong>tirexResultFree(tirexResult*)</strong></a> </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>TIREX_SUCCESS on success or an error code.</p>
+<p><strong>See also:</strong> <a href="./#function-tirexstarttracking"><strong>tirexStartTracking</strong></a> </p>
+<hr>
+<h2 id="macro-definition-documentation">Macro Definition Documentation<a class="headerlink" href="#macro-definition-documentation" title="Permanent link">&para;</a></h2>
+<h3 id="define-tirex_agg_max">define TIREX_AGG_MAX<a class="headerlink" href="#define-tirex_agg_max" title="Permanent link">&para;</a></h3>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="cp">#define TIREX_AGG_MAX `(1 &lt;&lt; 2)`</span>
+</span></code></pre></div>
+<p>For each aggregation intervall, store the maximum value. </p>
+<hr>
+
+<h3 id="define-tirex_agg_mean">define TIREX_AGG_MEAN<a class="headerlink" href="#define-tirex_agg_mean" title="Permanent link">&para;</a></h3>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="cp">#define TIREX_AGG_MEAN `(1 &lt;&lt; 4)`</span>
+</span></code></pre></div>
+<p>For each aggregation intervall, store the average value. </p>
+<hr>
+
+<h3 id="define-tirex_agg_min">define TIREX_AGG_MIN<a class="headerlink" href="#define-tirex_agg_min" title="Permanent link">&para;</a></h3>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="cp">#define TIREX_AGG_MIN `(1 &lt;&lt; 3)`</span>
+</span></code></pre></div>
+<p>For each aggregation intervall, store the minimum value. </p>
+<hr>
+
+<h3 id="define-tirex_agg_no">define TIREX_AGG_NO<a class="headerlink" href="#define-tirex_agg_no" title="Permanent link">&para;</a></h3>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="cp">#define TIREX_AGG_NO `(1 &lt;&lt; 1)`</span>
+</span></code></pre></div>
+<p>Perform no aggregation. </p>
+<hr>
+
+<h3 id="define-static_assert">define static_assert<a class="headerlink" href="#define-static_assert" title="Permanent link">&para;</a></h3>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="cp">#define static_assert (</span>
+</span><span id="__span-34-2"><a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a><span class="w">    </span><span class="n">cond</span><span class="p">,</span>
+</span><span id="__span-34-3"><a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a><span class="w">    </span><span class="n">msg</span>
+</span><span id="__span-34-4"><a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a><span class="p">)</span><span class="w"> </span>
+</span></code></pre></div>
+<hr>
+
+<hr />
+<p>The documentation for this class was generated from the following file <code>c/include/tirex_tracker.h</code></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 Webis
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

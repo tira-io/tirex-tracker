@@ -1,0 +1,119 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="group__error" kind="group">
+    <compoundname>error</compoundname>
+    <title>Error handling</title>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="group__error_1ga95bf37b92d9652af1f827abc80c5cce7" prot="public" static="no" strong="no">
+        <type></type>
+        <name>tirexError_enum</name>
+        <enumvalue id="group__error_1gga95bf37b92d9652af1f827abc80c5cce7af29744557ef70aa6fbd487062199ba35" prot="public">
+          <name>TIREX_SUCCESS</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__error_1gga95bf37b92d9652af1f827abc80c5cce7a378b529d5bf4dee77010da2533fc0cde" prot="public">
+          <name>TIREX_INVALID_ARGUMENT</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Categorizes different classes of error. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="59" column="1" bodyfile="c/include/tirex_tracker.h" bodystart="59" bodyend="59"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="group__error_1gad614149e5fc1433cb2b8252452cbbd5a" prot="public" static="no">
+        <type>enum <ref refid="group__error_1ga95bf37b92d9652af1f827abc80c5cce7" kindref="member">tirexError_enum</ref></type>
+        <definition>typedef enum tirexError_enum tirexError</definition>
+        <argsstring></argsstring>
+        <name>tirexError</name>
+        <briefdescription>
+<para>Categorizes different classes of error. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="59" column="40"/>
+      </memberdef>
+      <memberdef kind="typedef" id="group__error_1ga8bf2f167347a7ddddf774dddf1ffa85b" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* tirexAbortCallback) (const char *message)</definition>
+        <argsstring>)(const char *message)</argsstring>
+        <name>tirexAbortCallback</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="61" column="9" bodyfile="c/include/tirex_tracker.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__error_1gaef69ee11ca4bf51a97a026b1ab9b4c33" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>TIREX_TRACKER_EXPORT void</type>
+        <definition>TIREX_TRACKER_EXPORT void tirexSetAbortLevel</definition>
+        <argsstring>(tirexLogLevel level)</argsstring>
+        <name>tirexSetAbortLevel</name>
+        <param>
+          <type><ref refid="group__logging_1gafe7f959d1851d667439faa86bfdb44ac" kindref="member">tirexLogLevel</ref></type>
+          <declname>level</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="63" column="27" declfile="c/include/tirex_tracker.h" declline="63" declcolumn="27"/>
+      </memberdef>
+      <memberdef kind="function" id="group__error_1ga2fa6107b92a081ce58bbc2db1917d8de" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>TIREX_TRACKER_EXPORT void</type>
+        <definition>TIREX_TRACKER_EXPORT void tirexSetAbortCallback</definition>
+        <argsstring>(tirexAbortCallback callback)</argsstring>
+        <name>tirexSetAbortCallback</name>
+        <param>
+          <type><ref refid="group__error_1ga8bf2f167347a7ddddf774dddf1ffa85b" kindref="member">tirexAbortCallback</ref></type>
+          <declname>callback</declname>
+        </param>
+        <briefdescription>
+<para>Set a callback that should be used in case the program needs to abort. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Per default, <ulink url="https://en.cppreference.com/w/c/program/abort.html"><computeroutput>abort()</computeroutput></ulink> is used.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>callback</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="71" column="27" declfile="c/include/tirex_tracker.h" declline="71" declcolumn="27"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Functions and constants for error handling. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>
