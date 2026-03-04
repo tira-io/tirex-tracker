@@ -1,0 +1,21 @@
+version: 2
+
+build:
+  os: ubuntu-24.04
+  tools:
+    python: "3.13"
+  apt_packages:
+    - doxygen  # required by mkdoxy for C/C++ API generation
+
+mkdocs:
+  configuration: mkdocs.yml
+
+python:
+  install:
+    # Install the published tirex-tracker wheel from PyPI.
+    # The wheel bundles the pre-compiled native library (libtirex_tracker.so),
+    # which is required for mkdocstrings to import the Python package.
+    - method: pip
+      packages:
+        - tirex-tracker
+    - requirements: docs/requirements.txt

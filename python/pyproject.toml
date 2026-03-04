@@ -46,6 +46,7 @@ docs = [
     "mkdocs~=1.6",
     "mkdocstrings[python]~=0.28.2",
     "mkdocs-material~=9.6",
+    "mkdoxy>=1.2",
     "sphinx~=8.1",
     "myst-parser>=4",
 ]
