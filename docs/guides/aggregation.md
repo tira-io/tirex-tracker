@@ -63,33 +63,6 @@ tirexMeasureConf conf[] = {
     };
     ```
 
-=== "Python"
-
-    ```python
-    from tirex_tracker import Aggregation, Measure, tracking
-
-    measures = {
-        Measure.CPU_USED_PROCESS_PERCENT: Aggregation.MAX,
-        Measure.RAM_USED_PROCESS_KB:      Aggregation.MAX | Aggregation.MEAN,
-        Measure.CPU_FREQUENCY_MHZ:        Aggregation.NO,
-    }
-    with tracking(measures=measures) as results:
-        run_experiment()
-    ```
-
-=== "Kotlin"
-
-    ```kotlin
-    import io.tira.tirex.tracker.*
-
-    val result = track(
-        measures = setOf(Measure.CPU_USED_PROCESS_PERCENT),
-        aggregations = setOf(Aggregation.MAX)
-    ) {
-        runExperiment()
-    }
-    ```
-
 ## Poll interval and time series length
 
 The poll interval controls how frequently dynamic measures are sampled:

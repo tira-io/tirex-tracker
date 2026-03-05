@@ -123,8 +123,7 @@ Attach arbitrary key-value metadata before or during tracking:
 ```python
 from tirex_tracker import register_metadata, tracking
 
-register_metadata("dataset", "msmarco-v2")
-register_metadata("model", "bm25")
+register_metadata({"dataset": "msmarco-v2", "model": "bm25"})
 
 with tracking(export_format=ExportFormat.IR_METADATA,
               export_file_path="ir_metadata.yml") as results:

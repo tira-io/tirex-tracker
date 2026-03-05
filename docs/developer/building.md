@@ -34,8 +34,6 @@ cd tirex-tracker
 ```shell
 cmake -S c/ -B c/build/ \
   -G "Ninja Multi-Config" \
-  -D CMAKE_C_COMPILER=gcc-13 \
-  -D CMAKE_CXX_COMPILER=g++-13 \
   -D BUILD_SHARED_LIBS=YES \
   -D TIREX_TRACKER_BUILD_EXAMPLES=YES \
   -D TIREX_TRACKER_BUILD_TESTS=YES

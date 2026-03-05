@@ -42,7 +42,7 @@ This records CPU usage, RAM usage, wall-clock time, GPU metrics (if available), 
 By default, TIREx Tracker prints a YAML summary to standard output after the command completes. To export in the [`ir_metadata`](../guides/ir-metadata.md) format instead, use the `--output` flag:
 
 ```shell
-tirex-tracker --output ir_metadata.yml "python train.py"
+tirex-tracker --fromat irmetadata -o ir_metadata.yml "python train.py"
 ```
 
 ## Selecting measures
@@ -50,7 +50,7 @@ tirex-tracker --output ir_metadata.yml "python train.py"
 By default, all available measures are collected. To restrict tracking to specific groups, use the `--measures` flag:
 
 ```shell
-tirex-tracker --measures system,energy "python train.py"
+tirex-tracker --source system --source energy "python train.py"
 ```
 
 Available groups: `system`, `git`, `energy`, `gpu`, `devcontainer`.

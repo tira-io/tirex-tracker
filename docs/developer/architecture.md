@@ -22,13 +22,13 @@ This document describes the internal structure of the TIREx Tracker C library. U
                │  initializes and drives
                ▼
 ┌──────────────────────────────────────────────────────────┐
-│                 StatsProvider (provider.hpp)              │
+│                 StatsProvider (provider.hpp)             │
 │                                                          │
-│  start() ──► [measure starts]                           │
-│  step()  ──► [called every pollIntervalMs]              │
-│  stop()  ──► [measure ends]                             │
-│  getStats() → Stats  (after stop)                       │
-│  getInfo()  → Stats  (static info, no tracking needed)  │
+│  start() ──► [measure starts]                            │
+│  step()  ──► [called every pollIntervalMs]               │
+│  stop()  ──► [measure ends]                              │
+│  getStats() → Stats  (after stop)                        │
+│  getInfo()  → Stats  (static info, no tracking needed)   │
 └──────────┬───────────────────────────────────────────────┘
            │  implemented by
            ▼
