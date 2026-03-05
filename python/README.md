@@ -1,21 +1,14 @@
 # TIREx Tracker
 
 [![CI](https://img.shields.io/github/actions/workflow/status/tira-io/tirex-tracker/ci.yml?branch=master&style=flat-square)](https://github.com/tira-io/tirex-tracker/actions/workflows/ci.yml)
-[![Maintenance](https://img.shields.io/maintenance/yes/2025?style=flat-square)](https://github.com/tira-io/tirex-tracker/graphs/contributors)
-[![Code coverage](https://img.shields.io/codecov/c/github/tira-io/tirex-tracker?style=flat-square)](https://codecov.io/github/tira-io/tirex-tracker/)
-\
+[![Maintenance](https://img.shields.io/maintenance/yes/2026?style=flat-square)](https://github.com/tira-io/tirex-tracker/graphs/contributors) [![Code coverage](https://img.shields.io/codecov/c/github/tira-io/tirex-tracker?style=flat-square)](https://codecov.io/github/tira-io/tirex-tracker/) \
 [![Release](https://img.shields.io/github/v/tag/tira-io/tirex-tracker?style=flat-square&label=library)](https://github.com/tira-io/tirex-tracker/releases/)
 [![Ubuntu](https://img.shields.io/badge/ubuntu-18.04_%7C_20.04_%7C_22.04_%7C_24.04_%7C_25.04-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
 [![macOS](https://img.shields.io/badge/macos-13_%7C_14_%7C_15-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
 [![Windows](https://img.shields.io/badge/windows-2022_%7C_2025-blue?style=flat-square)](https://github.com/tira-io/tirex-tracker/releases/)
 \
-[![PyPi](https://img.shields.io/pypi/v/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/)
-[![Python](https://img.shields.io/pypi/pyversions/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/)
-[![Downloads](https://img.shields.io/pypi/dm/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/)
-\
-[![Issues](https://img.shields.io/github/issues/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/issues)
-[![Commit activity](https://img.shields.io/github/commit-activity/m/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/commits)
-[![License](https://img.shields.io/github/license/tira-io/tirex-tracker?style=flat-square)](LICENSE)
+[![PyPi](https://img.shields.io/pypi/v/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Python](https://img.shields.io/pypi/pyversions/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Downloads](https://img.shields.io/pypi/dm/tirex-tracker?style=flat-square)](https://pypi.org/project/tirex-tracker/) [![Docs](https://img.shields.io/badge/docs-github%20pages-blue?style=flat-square)](https://tira-io.github.io/tirex-tracker/) \
+[![Issues](https://img.shields.io/github/issues/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/issues) [![Commit activity](https://img.shields.io/github/commit-activity/m/tira-io/tirex-tracker?style=flat-square)](https://github.com/tira-io/tirex-tracker/commits) [![License](https://img.shields.io/github/license/tira-io/tirex-tracker?style=flat-square)](LICENSE)
 
 
 The TIREx tracker is a command line tool and API to automatically track resource usage, hardware specifications, and other metadata when running information retrieval experiments.
@@ -23,11 +16,21 @@ It can be used easily in [Python applications](#python-api). For more informatio
 
 ## Python API
 
+The Python API can be [installed](#pip-dependency) via Pip from [PyPI](https://pypi.org/project/tirex-tracker/).
+After installing the package, you can use the TIREx tracker in your [Python](#python-usage).
+
+### Pip Dependency
+
 First, install the TIREx tracker Python package from [PyPI](https://pypi.org/project/tirex-tracker/):
 
 ```shell
 pip install tirex-tracker
 ```
+
+### Python Usage
+
+> [!TIP]
+> An exhaustive documentation of the TIREx tracker's Python API can be found on [GitHub Pages](https://tira-io.github.io/tirex-tracker/).
 
 Now, you can track the hardware metrics and metadata of your Python code by using the [context manager](https://geeksforgeeks.org/context-manager-in-python/):
 

@@ -46,8 +46,14 @@ EOF
 ########################################################################################################################
 # Create User                                                                                                          #
 ########################################################################################################################
-# Change root Password to 1234
-RUN echo 'root:1234' | chpasswd
-# Create new user: "dev"
-RUN useradd -ms /bin/bash dev
+# For some reason, an ubuntu user is created by default.
+RUN userdel -r ubuntu || true
+# Create new user: "dev" and add it to sudo group
+RUN <<EOF
+set -e
+useradd -ms /bin/bash dev
+usermod -aG sudo dev
+# Do not ask for password for sudo commands
+echo "dev ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+EOF
 USER dev

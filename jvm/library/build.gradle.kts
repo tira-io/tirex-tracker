@@ -1,5 +1,6 @@
 import groovy.lang.Closure
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.jetbrains.dokka.gradle.DokkaTask
 import org.jreleaser.gradle.plugin.tasks.AbstractJReleaserTask
 import org.jreleaser.model.Active
 
@@ -90,6 +91,10 @@ tasks {
         javaCompiler = project.javaToolchains.compilerFor {
             languageVersion = javaLanguageVersionTest
         }
+    }
+
+    withType<DokkaTask>().configureEach {
+        moduleName = "tirex-tracker"
     }
 
     register<Jar>("htmlDocsJar") {

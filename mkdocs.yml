@@ -1,0 +1,119 @@
+site_name: TIREx Tracker
+site_url: https://tira-io.github.io/tirex-tracker/
+site_description: Automatic resource and metadata tracking for information retrieval experiments.
+repo_url: https://github.com/tira-io/tirex-tracker
+repo_name: tira-io/tirex-tracker
+copyright: Copyright &copy; 2026 Webis
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [python]
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+            show_bases: true
+            members_order: source
+            separate_signature: true
+            show_signature_annotations: true
+  - mkdoxy:
+      projects:
+        tirex_tracker_c:
+          src-dirs: "c/include c/extensions"
+          full-doc: true
+          doxy-cfg:
+            PROJECT_NAME: "TIREx Tracker C API"
+            PROJECT_BRIEF: "Automatic resource and metadata tracking"
+            FILE_PATTERNS: "*.h"
+            RECURSIVE: "YES"
+            EXTRACT_ALL: "YES"
+            OPTIMIZE_OUTPUT_FOR_C: "YES"
+            GENERATE_HTML: "NO"
+            GENERATE_XML: "YES"
+            QUIET: "YES"
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - tables
+  - footnotes
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+extra:
+  version:
+    provider: mike
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - CLI Tool: getting-started/cli.md
+      - Python: getting-started/python.md
+      - Java / Kotlin: getting-started/java.md
+      - C / C++: getting-started/c.md
+  - Guides:
+      - Tracked Measures: guides/measures.md
+      - Aggregation: guides/aggregation.md
+      - IR Metadata Extension: guides/ir-metadata.md
+  - Developer Guide:
+      - Architecture: developer/architecture.md
+      - Adding a New Measure: developer/adding-measures.md
+      - Building from Source: developer/building.md
+  - API Reference:
+      - Python API: api/python.md
+      - C / C++ API:
+          - Overview: api/c.md
+          - Generated Reference: tirex_tracker_c/modules.md
+      - Java / Kotlin API: api/java.md
