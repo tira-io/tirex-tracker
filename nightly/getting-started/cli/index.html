@@ -1406,11 +1406,11 @@
 <p>This records CPU usage, RAM usage, wall-clock time, GPU metrics (if available), energy consumption, and Git repository state for the duration of <code>python train.py --epochs 10</code>.</p>
 <h2 id="output-format">Output format<a class="headerlink" href="#output-format" title="Permanent link">&para;</a></h2>
 <p>By default, TIREx Tracker prints a YAML summary to standard output after the command completes. To export in the <a href="../../guides/ir-metadata/"><code>ir_metadata</code></a> format instead, use the <code>--output</code> flag:</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>tirex-tracker<span class="w"> </span>--output<span class="w"> </span>ir_metadata.yml<span class="w"> </span><span class="s2">&quot;python train.py&quot;</span>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>tirex-tracker<span class="w"> </span>--fromat<span class="w"> </span>irmetadata<span class="w"> </span>-o<span class="w"> </span>ir_metadata.yml<span class="w"> </span><span class="s2">&quot;python train.py&quot;</span>
 </span></code></pre></div>
 <h2 id="selecting-measures">Selecting measures<a class="headerlink" href="#selecting-measures" title="Permanent link">&para;</a></h2>
 <p>By default, all available measures are collected. To restrict tracking to specific groups, use the <code>--measures</code> flag:</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>tirex-tracker<span class="w"> </span>--measures<span class="w"> </span>system,energy<span class="w"> </span><span class="s2">&quot;python train.py&quot;</span>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>tirex-tracker<span class="w"> </span>--source<span class="w"> </span>system<span class="w"> </span>--source<span class="w"> </span>energy<span class="w"> </span><span class="s2">&quot;python train.py&quot;</span>
 </span></code></pre></div>
 <p>Available groups: <code>system</code>, <code>git</code>, <code>energy</code>, <code>gpu</code>, <code>devcontainer</code>.</p>
 <h2 id="poll-interval">Poll interval<a class="headerlink" href="#poll-interval" title="Permanent link">&para;</a></h2>
