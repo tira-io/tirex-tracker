@@ -44,7 +44,7 @@ tests = [
 ]
 docs = [
     "mkdocs~=1.6",
-    "mkdocstrings[python]~=0.28.2",
+    "mkdocstrings[python]>=0.28.2,<0.31.0",
     "mkdocs-material~=9.6",
     "mkdoxy>=1.2",
 ]
