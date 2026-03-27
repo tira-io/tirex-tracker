@@ -1,3 +1,4 @@
+import platform as _platform_module
 import sys
 from ctypes import CDLL, POINTER, Structure, c_char_p, c_int, c_size_t, c_void_p, cdll
 from importlib import resources
@@ -160,13 +161,21 @@ class _TirexTrackerLibrary(CDLL):
 
 
 def __get_library() -> ContextManager[Path]:
+    machine = _platform_module.machine().lower()
+    if machine in ("x86_64", "amd64"):
+        arch = "x86_64"
+    elif machine in ("aarch64", "arm64"):
+        arch = "aarch64"
+    else:
+        raise RuntimeError(f"Unsupported architecture: {machine}")
+
     path: str
     if platform == "linux":
-        path = "libtirex_tracker.so"
+        path = f"libtirex_tracker_linux_{arch}.so"
     elif platform == "darwin":
-        path = "libtirex_tracker.dylib"
+        path = f"libtirex_tracker_macos_{arch}.dylib"
     elif platform == "win32":
-        path = "tirex_tracker.dll"
+        path = f"tirex_tracker_windows_{arch}.dll"
     else:
         raise RuntimeError("Unsupported platform.")
     top_package = __package__.split(".", maxsplit=1)[0]  # Should evaluate to "tirex_tracker"
