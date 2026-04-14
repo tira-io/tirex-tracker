@@ -5,6 +5,7 @@
 #include "devcontainerstats.hpp"
 #include "energystats.hpp"
 #include "gitstats.hpp"
+#include "ioreportstats.hpp"
 #include "nvmlstats.hpp"
 #include "systemstats.hpp"
 
@@ -13,6 +14,7 @@
 using tirex::DevContainerStats;
 using tirex::EnergyStats;
 using tirex::GitStats;
+using tirex::IOReportStats;
 using tirex::NVMLStats;
 using tirex::StatsProvider;
 using tirex::SystemStats;
@@ -22,6 +24,9 @@ const std::map<std::string, tirex::ProviderEntry> tirex::providers{
 		 {std::make_unique<SystemStats>, SystemStats::measures, SystemStats::version, SystemStats::description}},
 		{"energy",
 		 {std::make_unique<EnergyStats>, EnergyStats::measures, EnergyStats::version, EnergyStats::description}},
+		{"ioreport",
+		 {std::make_unique<IOReportStats>, IOReportStats::measures, IOReportStats::version,
+		  IOReportStats::description}},
 		{"git", {std::make_unique<GitStats>, GitStats::measures, GitStats::version, GitStats::description}},
 		{"gpu", {std::make_unique<NVMLStats>, NVMLStats::measures, NVMLStats::version, NVMLStats::description}},
 		{"devcontainer",

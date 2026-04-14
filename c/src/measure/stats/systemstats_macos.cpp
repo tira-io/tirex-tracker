@@ -161,43 +161,6 @@ void SystemStats::start() {
 
 	lastTotal = lastIdle = lastProcActiveMs = 0;
 	getUtilization(); // Call getUtilization once to init CPU Utilization tracking
-
-	// Experimenting around with ioreport (used to get energy readings and CPU frequency)
-#if 0
-	IOReportLib ioreport;
-
-	CFDictionaryRef channel;
-	auto str1 = CFStringCreateWithCString(kCFAllocatorDefault, "Energy Model", kCFStringEncodingASCII);
-	auto str2 = CFStringCreateWithCString(kCFAllocatorDefault, "CPU Stats", kCFStringEncodingASCII);
-	auto str3 = CFStringCreateWithCString(kCFAllocatorDefault, "CPU Core Performance States", kCFStringEncodingASCII);
-	channel = ioreport.copyChannelsInGroup(str1, nullptr, 0, 0, 0);
-	auto channel2 = ioreport.copyChannelsInGroup(str2, str3, 0, 0, 0);
-	ioreport.mergeChannels(channel, channel2, nullptr);
-	CFRelease(channel2);
-	CFRelease(str1);
-	CFRelease(str2);
-	CFRelease(str3);
-	auto size = CFDictionaryGetCount(channel);
-	auto mutchan = CFDictionaryCreateMutableCopy(kCFAllocatorDefault, size, channel);
-
-	CFMutableDictionaryRef dict;
-	auto sub = ioreport.createSubscription(nullptr, mutchan, dict, 0, nullptr);
-	auto sample1 = ioreport.createSamples(sub, mutchan, nullptr);
-	sleep(10);
-	auto sample2 = ioreport.createSamples(sub, mutchan, nullptr);
-
-	auto delta = ioreport.createSamplesDelta(sample1, sample2, nullptr);
-	auto tmp = CFStringCreateWithCString(kCFAllocatorDefault, "IOReportChannels", kCFStringEncodingASCII);
-	auto tmp2 = (CFArrayRef)CFDictionaryGetValue(delta, tmp);
-	for (size_t i = 0; i < CFArrayGetCount(tmp2); ++i) {
-		auto tmp = (CFDictionaryRef)CFArrayGetValueAtIndex(tmp2, i);
-		auto group = ioreport.channelGetGroup(tmp);
-		auto subgroup = ioreport.channelGetSubGroup(tmp);
-		auto channel = ioreport.channelGetChannelName(tmp);
-		auto unit = ioreport.channelGetUnitLabel(tmp);
-	}
-	CFShow(delta);
-#endif
 }
 
 void SystemStats::step() {

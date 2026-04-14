@@ -4,14 +4,22 @@
 
 #include <optional>
 
-using namespace std::string_literals;
-
 using tirex::EnergyStats;
 using tirex::Stats;
 
+const char* EnergyStats::version = nullptr;
+
+#if !defined(__APPLE__)
+
+using namespace std::string_literals;
+
+const std::set<tirexMeasure> EnergyStats::measures{
+		TIREX_CPU_ENERGY_SYSTEM_JOULES, TIREX_RAM_ENERGY_SYSTEM_JOULES, TIREX_GPU_ENERGY_SYSTEM_JOULES
+};
+
 /**
  * @brief Returns the value of the mapping \p m for the key \p key . If this entry does not exist, empty is returned.
- * 
+ *
  * @param m A mapping in which the key should be found.
  * @param key The key to return the value for.
  * @return Empty if the mapping \p m did not contain \p k . Otherwise the value of \p m at \p k is returned.
@@ -26,7 +34,7 @@ static auto tryget(const C& m, K const& key) -> std::optional<decltype(m.begin()
 
 /**
  * @brief If \p opt is empty, empty is returned. Otherwise \p transform is applied to the value and returned.
- * 
+ *
  * @param opt The optional to transform.
  * @param transform The transformation to be applied.
  * @return A new optional with the transformed value of \p opt .
@@ -39,11 +47,6 @@ static auto transform(const std::optional<T>& opt, const Fn& transform)
 		return std::make_optional(transform(opt.value()));
 	return std::nullopt;
 }
-
-const char* EnergyStats::version = nullptr;
-const std::set<tirexMeasure> EnergyStats::measures{
-		TIREX_CPU_ENERGY_SYSTEM_JOULES, TIREX_RAM_ENERGY_SYSTEM_JOULES, TIREX_GPU_ENERGY_SYSTEM_JOULES
-};
 
 EnergyStats::EnergyStats() : tracker() {}
 
@@ -75,3 +78,18 @@ Stats EnergyStats::getStats() {
 			std::pair{TIREX_GPU_ENERGY_SYSTEM_JOULES, json(transform(tryget(results, "nvidia_gpu_0"), divide(1000)))}
 	);
 }
+
+#else
+
+// Energy tracking on macOS is handled by IOReportStats and not by the energystats.cpp, which uses CPPJoules
+
+const std::set<tirexMeasure> EnergyStats::measures{};
+
+EnergyStats::EnergyStats() = default;
+
+std::set<tirexMeasure> EnergyStats::providedMeasures() noexcept { return {}; }
+void EnergyStats::start() {}
+void EnergyStats::stop() {}
+Stats EnergyStats::getStats() { return {}; }
+
+#endif
