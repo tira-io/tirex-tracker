@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtirexDataProvider__st" kind="struct" language="C++" prot="public">
+    <compoundname>tirexDataProvider_st</compoundname>
+    <includes refid="tirex__tracker_8h" local="no">tirex_tracker.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structtirexDataProvider__st_1ad5fcb307543c8153bcec0b919d30631d" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* tirexDataProvider_st::name</definition>
+        <argsstring></argsstring>
+        <name>name</name>
+        <briefdescription>
+<para>The human legible name of the data provider. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="349" column="12" bodyfile="c/include/tirex_tracker.h" bodystart="349" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtirexDataProvider__st_1a2da13dd98596ec5797cad26b9205a1f9" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* tirexDataProvider_st::description</definition>
+        <argsstring></argsstring>
+        <name>description</name>
+        <briefdescription>
+<para>The humand legible description of the data provider. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="350" column="12" bodyfile="c/include/tirex_tracker.h" bodystart="350" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtirexDataProvider__st_1a313948d3b1932a39c3647ad361888ba2" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* tirexDataProvider_st::version</definition>
+        <argsstring></argsstring>
+        <name>version</name>
+        <briefdescription>
+<para>A textual representation of the provider&apos;s version. May contain linefeeds. May be NULL. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="354" column="12" bodyfile="c/include/tirex_tracker.h" bodystart="354" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Contains information about a data provider. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Data providers are modules tasked with collecting associated metrics about the program. </para>
+    </detaileddescription>
+    <location file="c/include/tirex_tracker.h" line="348" column="1" bodyfile="c/include/tirex_tracker.h" bodystart="348" bodyend="355"/>
+    <listofallmembers>
+      <member refid="structtirexDataProvider__st_1a2da13dd98596ec5797cad26b9205a1f9" prot="public" virt="non-virtual"><scope>tirexDataProvider_st</scope><name>description</name></member>
+      <member refid="structtirexDataProvider__st_1ad5fcb307543c8153bcec0b919d30631d" prot="public" virt="non-virtual"><scope>tirexDataProvider_st</scope><name>name</name></member>
+      <member refid="structtirexDataProvider__st_1a313948d3b1932a39c3647ad361888ba2" prot="public" virt="non-virtual"><scope>tirexDataProvider_st</scope><name>version</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

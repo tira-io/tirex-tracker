@@ -1,0 +1,302 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="group__tirexresult" kind="group">
+    <compoundname>tirexresult</compoundname>
+    <title>Result</title>
+    <innerclass refid="structtirexResultEntry__st" prot="public">tirexResultEntry_st</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="group__tirexresult_1gab61149f2f745940a62e22a4d2623a60e" prot="public" static="no" strong="no">
+        <type></type>
+        <name>tirexResultType_enum</name>
+        <enumvalue id="group__tirexresult_1ggab61149f2f745940a62e22a4d2623a60ea57dd297dd27e880fec35fca90726d51a" prot="public">
+          <name>TIREX_STRING</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__tirexresult_1ggab61149f2f745940a62e22a4d2623a60eacc31cf7f21f1e610d658ef7aff98f2e5" prot="public">
+          <name>TIREX_INTEGER</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__tirexresult_1ggab61149f2f745940a62e22a4d2623a60ea13a2b05707521e61deca5a26763a95b1" prot="public">
+          <name>TIREX_FLOATING</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__tirexresult_1ggab61149f2f745940a62e22a4d2623a60ea3a75b4efccf7218ed5d75e837b78a398" prot="public">
+          <name>TIREX_BOOLEAN</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__tirexresult_1ggab61149f2f745940a62e22a4d2623a60ea007b85f8459a066909b23d7f2545dc42" prot="public">
+          <name>TIREX_WSTRING</name>
+          <initializer>= 4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__tirexresult_1ggab61149f2f745940a62e22a4d2623a60ea466aa704fce061fb67e540d5e7dfffcc" prot="public">
+          <name>TIREX_LIST</name>
+          <initializer>= 1 &lt;&lt; 7</initializer>
+          <briefdescription>
+<para>Denotes a list type. TIREX_LIST itself is not a valid datatype but can be used to check if a type is an aggregate via <computeroutput>int islist = (type &amp; TIREX_LIST) != 0;</computeroutput>. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__tirexresult_1ggab61149f2f745940a62e22a4d2623a60ea6ab52115434c10208197cf7092c9c419" prot="public">
+          <name>TIREX_STRING_LIST</name>
+          <initializer>= TIREX_STRING | TIREX_LIST</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__tirexresult_1ggab61149f2f745940a62e22a4d2623a60eaba84e7559a37fdc53c757cf28fcd5919" prot="public">
+          <name>TIREX_INTEGER_LIST</name>
+          <initializer>= TIREX_INTEGER | TIREX_LIST</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__tirexresult_1ggab61149f2f745940a62e22a4d2623a60eac7db00df0d729a9e8f936be3f6edbd5c" prot="public">
+          <name>TIREX_FLOATING_LIST</name>
+          <initializer>= TIREX_FLOATING | TIREX_LIST</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__tirexresult_1ggab61149f2f745940a62e22a4d2623a60ea4c833608df890227baa153aa822eb1f0" prot="public">
+          <name>TIREX_BOOLEAN_LIST</name>
+          <initializer>= TIREX_BOOLEAN | TIREX_LIST</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__tirexresult_1ggab61149f2f745940a62e22a4d2623a60ea9098168c95fe556f000bf971e28667de" prot="public">
+          <name>TIREX_WSTRING_LIST</name>
+          <initializer>= TIREX_WSTRING | TIREX_LIST</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Note: Currently unused </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="205" column="1" bodyfile="c/include/tirex_tracker.h" bodystart="205" bodyend="221"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="group__tirexresult_1gabcc42c927741bed4d7ac87ced6951bb8" prot="public" static="no">
+        <type>enum <ref refid="group__tirexresult_1gab61149f2f745940a62e22a4d2623a60e" kindref="member">tirexResultType_enum</ref></type>
+        <definition>typedef enum tirexResultType_enum tirexResultType</definition>
+        <argsstring></argsstring>
+        <name>tirexResultType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Note: Currently unused </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="221" column="17"/>
+      </memberdef>
+      <memberdef kind="typedef" id="group__tirexresult_1gae3dc7f40e0e661137a892273787b5643" prot="public" static="no">
+        <type>struct tirexResult_st</type>
+        <definition>typedef struct tirexResult_st tirexResult</definition>
+        <argsstring></argsstring>
+        <name>tirexResult</name>
+        <briefdescription>
+<para>Holds a handle to the results of a measurement. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The measurement result is structed as a tree of categories, subcategories and (at the leaves) values.</para>
+<para><simplesect kind="see"><para>tirexStopTracking(tirexMeasureHandle*, char**) </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="234" column="1" bodyfile="c/include/tirex_tracker.h" bodystart="242" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="group__tirexresult_1ga60a569948087a41c952b08c4ec3741f6" prot="public" static="no">
+        <type>struct <ref refid="structtirexResultEntry__st" kindref="compound">tirexResultEntry_st</ref></type>
+        <definition>typedef struct tirexResultEntry_st tirexResultEntry</definition>
+        <argsstring></argsstring>
+        <name>tirexResultEntry</name>
+        <briefdescription>
+<para>Holds a result entry, i.e., a key-value pair of a name (string) and a value (tirexResult). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="251" column="18"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__tirexresult_1gade4e38799aa67ca927515f4438314ad2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>TIREX_TRACKER_EXPORT <ref refid="group__error_1gad614149e5fc1433cb2b8252452cbbd5a" kindref="member">tirexError</ref></type>
+        <definition>TIREX_TRACKER_EXPORT tirexError tirexResultEntryGetByIndex</definition>
+        <argsstring>(const tirexResult *result, size_t index, tirexResultEntry *entry)</argsstring>
+        <name>tirexResultEntryGetByIndex</name>
+        <param>
+          <type>const <ref refid="group__tirexresult_1gae3dc7f40e0e661137a892273787b5643" kindref="member">tirexResult</ref> *</type>
+          <declname>result</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type><ref refid="group__tirexresult_1ga60a569948087a41c952b08c4ec3741f6" kindref="member">tirexResultEntry</ref> *</type>
+          <declname>entry</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">result</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">entry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>TIREX_SUCCESS on success or an error code. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="262" column="1" declfile="c/include/tirex_tracker.h" declline="262" declcolumn="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__tirexresult_1ga9c2c6c7723c651929254f2db7e9ad761" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>TIREX_TRACKER_EXPORT <ref refid="group__error_1gad614149e5fc1433cb2b8252452cbbd5a" kindref="member">tirexError</ref></type>
+        <definition>TIREX_TRACKER_EXPORT tirexError tirexResultEntryNum</definition>
+        <argsstring>(const tirexResult *result, size_t *num)</argsstring>
+        <name>tirexResultEntryNum</name>
+        <param>
+          <type>const <ref refid="group__tirexresult_1gae3dc7f40e0e661137a892273787b5643" kindref="member">tirexResult</ref> *</type>
+          <declname>result</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>num</declname>
+        </param>
+        <briefdescription>
+<para>Returns the number of entries contained in the result set. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>result</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>TIREX_SUCCESS on success or an error code. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="271" column="33" declfile="c/include/tirex_tracker.h" declline="271" declcolumn="33"/>
+      </memberdef>
+      <memberdef kind="function" id="group__tirexresult_1gaa6a62a4724ebca020580640f6ee010da" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>TIREX_TRACKER_EXPORT void</type>
+        <definition>TIREX_TRACKER_EXPORT void tirexResultFree</definition>
+        <argsstring>(tirexResult *result)</argsstring>
+        <name>tirexResultFree</name>
+        <param>
+          <type><ref refid="group__tirexresult_1gae3dc7f40e0e661137a892273787b5643" kindref="member">tirexResult</ref> *</type>
+          <declname>result</declname>
+        </param>
+        <briefdescription>
+<para>Deinitializes and frees the result pointed at by <computeroutput>result</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>result</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The result to be destructed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="278" column="27" declfile="c/include/tirex_tracker.h" declline="278" declcolumn="27"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="group__tirexresult_1ga5de4bb4a71c09d00407b33fb528a0e3b" prot="public" static="no">
+        <name>static_assert</name>
+        <param><defname>cond</defname></param>
+        <param><defname>msg</defname></param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="230" column="9" bodyfile="c/include/tirex_tracker.h" bodystart="230" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

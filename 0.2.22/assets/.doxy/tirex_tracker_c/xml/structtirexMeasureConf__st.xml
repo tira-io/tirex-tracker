@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtirexMeasureConf__st" kind="struct" language="C++" prot="public">
+    <compoundname>tirexMeasureConf_st</compoundname>
+    <includes refid="tirex__tracker_8h" local="no">tirex_tracker.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structtirexMeasureConf__st_1a26b62e5eb1d12cdfc256b9ac3e585a19" prot="public" static="no" mutable="no">
+        <type><ref refid="group__measure_1gaae382e16dd82b3177241819061e4c828" kindref="member">tirexMeasure</ref></type>
+        <definition>tirexMeasure tirexMeasureConf_st::source</definition>
+        <argsstring></argsstring>
+        <name>source</name>
+        <briefdescription>
+<para>The measurement to be configured. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="285" column="14" bodyfile="c/include/tirex_tracker.h" bodystart="285" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtirexMeasureConf__st_1aff59541498348c776a377ae29fcc290c" prot="public" static="no" mutable="no">
+        <type><ref refid="group__measure_1ga36adcfa9a42cff584414e51aa49cf11c" kindref="member">tirexAggregateFn</ref></type>
+        <definition>tirexAggregateFn tirexMeasureConf_st::aggregate</definition>
+        <argsstring></argsstring>
+        <name>aggregate</name>
+        <briefdescription>
+<para>The type of aggregation to use. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="286" column="18" bodyfile="c/include/tirex_tracker.h" bodystart="286" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="c/include/tirex_tracker.h" line="284" column="1" bodyfile="c/include/tirex_tracker.h" bodystart="284" bodyend="287"/>
+    <listofallmembers>
+      <member refid="structtirexMeasureConf__st_1aff59541498348c776a377ae29fcc290c" prot="public" virt="non-virtual"><scope>tirexMeasureConf_st</scope><name>aggregate</name></member>
+      <member refid="structtirexMeasureConf__st_1a26b62e5eb1d12cdfc256b9ac3e585a19" prot="public" virt="non-virtual"><scope>tirexMeasureConf_st</scope><name>source</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

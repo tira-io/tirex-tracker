@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="group__measureinfo" kind="group">
+    <compoundname>measureinfo</compoundname>
+    <title>Measure Info</title>
+    <innerclass refid="structtirexMeasureInfo__st" prot="public">tirexMeasureInfo_st</innerclass>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="group__measureinfo_1ga32c662d7c60e3c7982fb86aeb08f909f" prot="public" static="no">
+        <type>struct <ref refid="structtirexMeasureInfo__st" kindref="compound">tirexMeasureInfo_st</ref></type>
+        <definition>typedef struct tirexMeasureInfo_st tirexMeasureInfo</definition>
+        <argsstring></argsstring>
+        <name>tirexMeasureInfo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="390" column="18"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__measureinfo_1ga202a43df8fe9307e310af035ade9898d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>TIREX_TRACKER_EXPORT <ref refid="group__error_1gad614149e5fc1433cb2b8252452cbbd5a" kindref="member">tirexError</ref></type>
+        <definition>TIREX_TRACKER_EXPORT tirexError tirexMeasureInfoGet</definition>
+        <argsstring>(tirexMeasure measure, const tirexMeasureInfo **info)</argsstring>
+        <name>tirexMeasureInfoGet</name>
+        <param>
+          <type><ref refid="group__measure_1gaae382e16dd82b3177241819061e4c828" kindref="member">tirexMeasure</ref></type>
+          <declname>measure</declname>
+        </param>
+        <param>
+          <type>const <ref refid="group__measureinfo_1ga32c662d7c60e3c7982fb86aeb08f909f" kindref="member">tirexMeasureInfo</ref> **</type>
+          <declname>info</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">measure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">info</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>TIREX_SUCCESS on success or an error code. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="399" column="33" declfile="c/include/tirex_tracker.h" declline="399" declcolumn="33"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

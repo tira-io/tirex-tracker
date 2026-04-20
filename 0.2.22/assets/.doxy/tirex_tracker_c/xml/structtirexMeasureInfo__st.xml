@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtirexMeasureInfo__st" kind="struct" language="C++" prot="public">
+    <compoundname>tirexMeasureInfo_st</compoundname>
+    <includes refid="tirex__tracker_8h" local="no">tirex_tracker.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structtirexMeasureInfo__st_1a41508b2dd868b181719197dc0376b4bd" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* tirexMeasureInfo_st::description</definition>
+        <argsstring></argsstring>
+        <name>description</name>
+        <briefdescription>
+<para>A human legible description of the measurement. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="387" column="12" bodyfile="c/include/tirex_tracker.h" bodystart="387" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtirexMeasureInfo__st_1af4719ea336f7dd54baadd8ae036e1a43" prot="public" static="no" mutable="no">
+        <type><ref refid="group__tirexresult_1gabcc42c927741bed4d7ac87ced6951bb8" kindref="member">tirexResultType</ref></type>
+        <definition>tirexResultType tirexMeasureInfo_st::datatype</definition>
+        <argsstring></argsstring>
+        <name>datatype</name>
+        <briefdescription>
+<para>The datatype of the measurment. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="388" column="17" bodyfile="c/include/tirex_tracker.h" bodystart="388" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtirexMeasureInfo__st_1abffe03c1747db01cde92b3ed0ee943ab" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* tirexMeasureInfo_st::example</definition>
+        <argsstring></argsstring>
+        <name>example</name>
+        <briefdescription>
+<para>An example value of what a value may look like. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="389" column="12" bodyfile="c/include/tirex_tracker.h" bodystart="389" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="c/include/tirex_tracker.h" line="386" column="1" bodyfile="c/include/tirex_tracker.h" bodystart="386" bodyend="390"/>
+    <listofallmembers>
+      <member refid="structtirexMeasureInfo__st_1af4719ea336f7dd54baadd8ae036e1a43" prot="public" virt="non-virtual"><scope>tirexMeasureInfo_st</scope><name>datatype</name></member>
+      <member refid="structtirexMeasureInfo__st_1a41508b2dd868b181719197dc0376b4bd" prot="public" virt="non-virtual"><scope>tirexMeasureInfo_st</scope><name>description</name></member>
+      <member refid="structtirexMeasureInfo__st_1abffe03c1747db01cde92b3ed0ee943ab" prot="public" virt="non-virtual"><scope>tirexMeasureInfo_st</scope><name>example</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

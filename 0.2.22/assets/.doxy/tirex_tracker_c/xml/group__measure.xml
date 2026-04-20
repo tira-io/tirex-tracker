@@ -1,0 +1,665 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="group__measure" kind="group">
+    <compoundname>measure</compoundname>
+    <title>Measuring</title>
+      <sectiondef kind="user-defined">
+      <memberdef kind="function" id="group__measure_1gaf9e3894f9e4e241c1ffdbd32e7c869eb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>TIREX_TRACKER_EXPORT <ref refid="group__error_1gad614149e5fc1433cb2b8252452cbbd5a" kindref="member">tirexError</ref></type>
+        <definition>TIREX_TRACKER_EXPORT tirexError tirexStartTracking</definition>
+        <argsstring>(const tirexMeasureConf *measures, size_t pollIntervalMs, tirexMeasureHandle **handle)</argsstring>
+        <name>tirexStartTracking</name>
+        <param>
+          <type>const <ref refid="tirex__tracker_8h_1a9ff3497be407208454f9c88149abc98f" kindref="member">tirexMeasureConf</ref> *</type>
+          <declname>measures</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>pollIntervalMs</declname>
+        </param>
+        <param>
+          <type><ref refid="group__measure_1ga9a7666f6aedaa87f50ef6eca9ac83704" kindref="member">tirexMeasureHandle</ref> **</type>
+          <declname>handle</declname>
+        </param>
+        <briefdescription>
+<para>Initializes the providers set in the configuration and starts measuring. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>measures</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pollIntervalMs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">handle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a handle to the running measurement. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>TIREX_SUCCESS on success or an error code.</para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="group__measure_1gad1a71133482156761c8ec7071aadcf10" kindref="member">tirexStopTracking</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="320" column="1" declfile="c/include/tirex_tracker.h" declline="320" declcolumn="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__measure_1gad1a71133482156761c8ec7071aadcf10" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>TIREX_TRACKER_EXPORT <ref refid="group__error_1gad614149e5fc1433cb2b8252452cbbd5a" kindref="member">tirexError</ref></type>
+        <definition>TIREX_TRACKER_EXPORT tirexError tirexStopTracking</definition>
+        <argsstring>(tirexMeasureHandle *handle, tirexResult **result)</argsstring>
+        <name>tirexStopTracking</name>
+        <param>
+          <type><ref refid="group__measure_1ga9a7666f6aedaa87f50ef6eca9ac83704" kindref="member">tirexMeasureHandle</ref> *</type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type><ref refid="group__tirexresult_1gae3dc7f40e0e661137a892273787b5643" kindref="member">tirexResult</ref> **</type>
+          <declname>result</declname>
+        </param>
+        <briefdescription>
+<para>Stops the measurement and deinitializes the data providers. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function <bold>must</bold> be called <bold>exactly once</bold> for each measurement job.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>handle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The handle of the running measurement that should be stopped. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">result</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a handle to the result tree of the measurement. Must be freed by the caller using <ref refid="group__tirexresult_1gaa6a62a4724ebca020580640f6ee010da" kindref="member">tirexResultFree(tirexResult*)</ref> </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>TIREX_SUCCESS on success or an error code.</para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="group__measure_1gaf9e3894f9e4e241c1ffdbd32e7c869eb" kindref="member">tirexStartTracking</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="333" column="33" declfile="c/include/tirex_tracker.h" declline="333" declcolumn="33"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="group__measure_1gaa07f0d4dae58e407981edba7350896eb" prot="public" static="no" strong="no">
+        <type></type>
+        <name>tirexMeasure_enum</name>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896ebaa41d235de637187ef76c8b0bc9b0c5fc" prot="public">
+          <name>TIREX_OS_NAME</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Retrieve the name of the operating system (EnvInfo). </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba86a4e665274c8bf95191e81694f1b890" prot="public">
+          <name>TIREX_OS_KERNEL</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Retrieve the version of the kernel (EnvInfo). </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba2800ebedf1a81f1e7d6376447158fe33" prot="public">
+          <name>TIREX_TIME_ELAPSED_WALL_CLOCK_MS</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+<para>Measure the &quot;real&quot; (wall clock) time in milliseconds that elapsed between tirexStartTracking and tirexStopTracking (Measurement). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba31d59a4acb75b603a534d4dfb5536665" prot="public">
+          <name>TIREX_TIME_ELAPSED_USER_MS</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+<para>Measure the time in milliseconds that the program spend in user mode between tirexStartTracking and tirexStopTracking (Measurement). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba74888a7169db1a755d6bc92168820534" prot="public">
+          <name>TIREX_TIME_ELAPSED_SYSTEM_MS</name>
+          <initializer>= 4</initializer>
+          <briefdescription>
+<para>Measure the time in milliseconds that the program spend in kernel mode between tirexStartTracking and tirexStopTracking (Measurement). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896ebab9cc323263e348122633e6653be85f5e" prot="public">
+          <name>TIREX_CPU_USED_PROCESS_PERCENT</name>
+          <initializer>= 5</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba52da840c05ba1944e313b758a0a9ff17" prot="public">
+          <name>TIREX_CPU_USED_SYSTEM_PERCENT</name>
+          <initializer>= 6</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba9e70d0542c53ecb4383130d57945c34c" prot="public">
+          <name>TIREX_CPU_AVAILABLE_SYSTEM_CORES</name>
+          <initializer>= 7</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896ebadc3dcb83e452c320ccf532b3632aac5f" prot="public">
+          <name>TIREX_CPU_ENERGY_SYSTEM_JOULES</name>
+          <initializer>= 8</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896ebafbe7d0b6bd8e53be30b2f952e355dc64" prot="public">
+          <name>TIREX_CPU_FEATURES</name>
+          <initializer>= 9</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896ebaba75bb32018771a91327756d200cb399" prot="public">
+          <name>TIREX_CPU_FREQUENCY_MHZ</name>
+          <initializer>= 10</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba530aeb0efbc1f8f46f071016f6aafaad" prot="public">
+          <name>TIREX_CPU_FREQUENCY_MIN_MHZ</name>
+          <initializer>= 11</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896ebaf764b81d6f82f312d5b21291dc1a7df5" prot="public">
+          <name>TIREX_CPU_FREQUENCY_MAX_MHZ</name>
+          <initializer>= 12</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba900909bec9c924ca28d52af989a0c554" prot="public">
+          <name>TIREX_CPU_VENDOR_ID</name>
+          <initializer>= 13</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba0f987ab40211400bb1d497f1ace8cefe" prot="public">
+          <name>TIREX_CPU_BYTE_ORDER</name>
+          <initializer>= 14</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896ebac13c55ab182b79725b00d353ffb45fee" prot="public">
+          <name>TIREX_CPU_ARCHITECTURE</name>
+          <initializer>= 15</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba1cc108275cc6a91633dcaf339ae6ab01" prot="public">
+          <name>TIREX_CPU_MODEL_NAME</name>
+          <initializer>= 16</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896ebaeb62f208aed06d4d7473cc1a6852b2f4" prot="public">
+          <name>TIREX_CPU_CORES_PER_SOCKET</name>
+          <initializer>= 17</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba2ad4e0bd6b54f907d618ff9cb246b8e9" prot="public">
+          <name>TIREX_CPU_THREADS_PER_CORE</name>
+          <initializer>= 18</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba0f39209be365376aae3f0fa666aefb4c" prot="public">
+          <name>TIREX_CPU_CACHES</name>
+          <initializer>= 19</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba1df7118717aad697d4eabd22ea77c148" prot="public">
+          <name>TIREX_CPU_VIRTUALIZATION</name>
+          <initializer>= 20</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba5e3fe870bd3e45cd8fba0a361ba8361e" prot="public">
+          <name>TIREX_RAM_USED_PROCESS_KB</name>
+          <initializer>= 21</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba342d75d47105b1fdaaef95557d723f30" prot="public">
+          <name>TIREX_RAM_USED_SYSTEM_MB</name>
+          <initializer>= 22</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba902da4f5bdb5a3010732a454d08444f0" prot="public">
+          <name>TIREX_RAM_AVAILABLE_SYSTEM_MB</name>
+          <initializer>= 23</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba4608a4e39523d160651aa25a86bde3fb" prot="public">
+          <name>TIREX_RAM_ENERGY_SYSTEM_JOULES</name>
+          <initializer>= 24</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896ebade98fe6ac0f77b5f0b9915ed88904d5b" prot="public">
+          <name>TIREX_GPU_SUPPORTED</name>
+          <initializer>= 25</initializer>
+          <briefdescription>
+<para>Boolean value (0 or 1) representing whether GPU measurements are supported or not. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896ebaa6ebf3fc46782d594999be858faf6186" prot="public">
+          <name>TIREX_GPU_MODEL_NAME</name>
+          <initializer>= 26</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba030063b06cdfaa49f382887bf20778b4" prot="public">
+          <name>TIREX_GPU_NUM_CORES</name>
+          <initializer>= 27</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896ebabc76ed16ba1f2633ea5ef06b0469023c" prot="public">
+          <name>TIREX_GPU_USED_PROCESS_PERCENT</name>
+          <initializer>= 28</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba572882f7f899a08e2169bd91bf8a960d" prot="public">
+          <name>TIREX_GPU_USED_SYSTEM_PERCENT</name>
+          <initializer>= 29</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896ebadf9877e7ba55875c9fe2f5bb608455a7" prot="public">
+          <name>TIREX_GPU_VRAM_USED_PROCESS_MB</name>
+          <initializer>= 30</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba4a361306fac5df46b3aa2941fec3ac88" prot="public">
+          <name>TIREX_GPU_VRAM_USED_SYSTEM_MB</name>
+          <initializer>= 31</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba59c2449cb975af381a5d19343a949a0c" prot="public">
+          <name>TIREX_GPU_VRAM_AVAILABLE_SYSTEM_MB</name>
+          <initializer>= 32</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba76bdfae73db3e86a5b04474e46038e14" prot="public">
+          <name>TIREX_GPU_ENERGY_SYSTEM_JOULES</name>
+          <initializer>= 33</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba1a470977463846a67a1196d25ea16ea6" prot="public">
+          <name>TIREX_GIT_IS_REPO</name>
+          <initializer>= 34</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896ebafc96f0447c9dd692c585e7e6ba3f41be" prot="public">
+          <name>TIREX_GIT_HASH</name>
+          <initializer>= 35</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba0d7eb873d8ed8b8b9e505f3c070f8214" prot="public">
+          <name>TIREX_GIT_LAST_COMMIT_HASH</name>
+          <initializer>= 36</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba59a70eb7920a77d956f83d2ffc8f26bc" prot="public">
+          <name>TIREX_GIT_BRANCH</name>
+          <initializer>= 37</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896ebae6cf273f823843e75a7f26cd94a3946b" prot="public">
+          <name>TIREX_GIT_BRANCH_UPSTREAM</name>
+          <initializer>= 38</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896ebab68bd18bcd307bf3bfdb09226e8b7325" prot="public">
+          <name>TIREX_GIT_TAGS</name>
+          <initializer>= 39</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba017a8b03b493e6abc773dd56c7304fbc" prot="public">
+          <name>TIREX_GIT_REMOTE_ORIGIN</name>
+          <initializer>= 40</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba08f837ebc3c05845d90ee77edc534539" prot="public">
+          <name>TIREX_GIT_UNCOMMITTED_CHANGES</name>
+          <initializer>= 41</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba8ab6d2ceae6cc6b4575b8cb5fe6b5c5b" prot="public">
+          <name>TIREX_GIT_UNPUSHED_CHANGES</name>
+          <initializer>= 42</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba2e420334b01529868ef1c3c6df0bde2f" prot="public">
+          <name>TIREX_GIT_UNCHECKED_FILES</name>
+          <initializer>= 43</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba137d61a261df20e225ab1aadf199ee54" prot="public">
+          <name>TIREX_TIME_START</name>
+          <initializer>= 44</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Timestamp when the tracking was started. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba9c5ec5b14347dc35a36a882ae1fdb3c9" prot="public">
+          <name>TIREX_TIME_STOP</name>
+          <initializer>= 45</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Timestamp when the tracking was started. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba52f0cb9a8e9f9deae9c6439137672ef8" prot="public">
+          <name>TIREX_GIT_ROOT</name>
+          <initializer>= 46</initializer>
+          <briefdescription>
+<para>The &quot;working directory&quot; of the repository (i.e. the path at which the root of the repository&apos;s file tree is located). Empty, if the repository is bare. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896ebad8ddedc9187cc510ee1131e157886e0c" prot="public">
+          <name>TIREX_GIT_ARCHIVE_PATH</name>
+          <initializer>= 47</initializer>
+          <briefdescription>
+<para>If requested, a zip archive is created that contains all files inside the repository that are not ignored by the gitignore. The path to the archive is returned as the value for this measure. The archive is created in a temporary location and is automatically deleted when the result object is freed. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba669dad7ccb3ed41b9ba4884538027c76" prot="public">
+          <name>TIREX_VERSION_MEASURE</name>
+          <initializer>= 48</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Reports the version of the TIREx Tracker that was used to collect the metadata. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba9b7a8354c5a8b96c11cc00e7a8a9edce" prot="public">
+          <name>TIREX_INVOCATION</name>
+          <initializer>= 49</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Reports the command that was used to spawn the tracked process. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896ebabf58d10226abd2a7b6fc6402d866061e" prot="public">
+          <name>TIREX_DEVCONTAINER_CONF_PATHS</name>
+          <initializer>= 50</initializer>
+          <briefdescription>
+<para>Searches for devcontainer configuration files and reports their location. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba6f2e6e10f13eb83c79d5c41011194356" prot="public">
+          <name>TIREX_MEASURE_COUNT</name>
+          <briefdescription>
+<para>The total number of supported measures. </para>
+          </briefdescription>
+          <detaileddescription>
+<para>It can be assumed that every number in the range <computeroutput>[0, TIREX_MEASURE_COUNT]</computeroutput> is a valid enum value. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__measure_1ggaa07f0d4dae58e407981edba7350896eba8b5b8f39b9da2e0a9e5d3b6fe045a2b1" prot="public">
+          <name>TIREX_MEASURE_INVALID</name>
+          <initializer>= -1</initializer>
+          <briefdescription>
+<para>Represents an invalid measurement. </para>
+          </briefdescription>
+          <detaileddescription>
+<para><simplesect kind="see"><para>tirexNullConf </para>
+</simplesect>
+</para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Identifiers for all available measurements. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Different types (EnvInfo, Time Series, Measure) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="84" column="1" bodyfile="c/include/tirex_tracker.h" bodystart="84" bodyend="181"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="group__measure_1gaae382e16dd82b3177241819061e4c828" prot="public" static="no">
+        <type>enum <ref refid="group__measure_1gaa07f0d4dae58e407981edba7350896eb" kindref="member">tirexMeasure_enum</ref></type>
+        <definition>typedef enum tirexMeasure_enum tirexMeasure</definition>
+        <argsstring></argsstring>
+        <name>tirexMeasure</name>
+        <briefdescription>
+<para>Identifiers for all available measurements. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Different types (EnvInfo, Time Series, Measure) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="181" column="14"/>
+      </memberdef>
+      <memberdef kind="typedef" id="group__measure_1ga36adcfa9a42cff584414e51aa49cf11c" prot="public" static="no">
+        <type>uint8_t</type>
+        <definition>typedef uint8_t tirexAggregateFn</definition>
+        <argsstring></argsstring>
+        <name>tirexAggregateFn</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="188" column="17" bodyfile="c/include/tirex_tracker.h" bodystart="188" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="group__measure_1ga9a7666f6aedaa87f50ef6eca9ac83704" prot="public" static="no">
+        <type>struct tirexMeasureHandle_st</type>
+        <definition>typedef struct tirexMeasureHandle_st tirexMeasureHandle</definition>
+        <argsstring></argsstring>
+        <name>tirexMeasureHandle</name>
+        <briefdescription>
+<para>Holds a handle to an ongoing measurement task. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="188" column="17" bodyfile="c/include/tirex_tracker.h" bodystart="193" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="group__measure_1ga96d9be2464ea67e8c6dff3c5a433491a" prot="public" static="no">
+        <name>TIREX_AGG_NO</name>
+        <initializer>(1 &lt;&lt; 1)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Perform no aggregation. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="183" column="9" bodyfile="c/include/tirex_tracker.h" bodystart="183" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="group__measure_1gab6ee86c0c2f5871f13036e29779efb17" prot="public" static="no">
+        <name>TIREX_AGG_MAX</name>
+        <initializer>(1 &lt;&lt; 2)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>For each aggregation intervall, store the maximum value. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="184" column="9" bodyfile="c/include/tirex_tracker.h" bodystart="184" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="group__measure_1gad86f4ab57a6fe2d4edf08d7150e3c7a0" prot="public" static="no">
+        <name>TIREX_AGG_MIN</name>
+        <initializer>(1 &lt;&lt; 3)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>For each aggregation intervall, store the minimum value. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="185" column="9" bodyfile="c/include/tirex_tracker.h" bodystart="185" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="group__measure_1gae8832aa3c4186a7d3b0d810c12c3468a" prot="public" static="no">
+        <name>TIREX_AGG_MEAN</name>
+        <initializer>(1 &lt;&lt; 4)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>For each aggregation intervall, store the average value. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="186" column="9" bodyfile="c/include/tirex_tracker.h" bodystart="186" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

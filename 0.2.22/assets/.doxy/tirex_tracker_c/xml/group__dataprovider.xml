@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="group__dataprovider" kind="group">
+    <compoundname>dataprovider</compoundname>
+    <title>Data Providers</title>
+    <innerclass refid="structtirexDataProvider__st" prot="public">tirexDataProvider_st</innerclass>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="group__dataprovider_1ga366996afc76428b9a88616cb72d2e0b4" prot="public" static="no">
+        <type>struct <ref refid="structtirexDataProvider__st" kindref="compound">tirexDataProvider_st</ref></type>
+        <definition>typedef struct tirexDataProvider_st tirexDataProvider</definition>
+        <argsstring></argsstring>
+        <name>tirexDataProvider</name>
+        <briefdescription>
+<para>Contains information about a data provider. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Data providers are modules tasked with collecting associated metrics about the program. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="355" column="19"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__dataprovider_1ga16039e345ab27ed2b9c53437fc7484d7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>TIREX_TRACKER_EXPORT size_t</type>
+        <definition>TIREX_TRACKER_EXPORT size_t tirexDataProviderGetAll</definition>
+        <argsstring>(tirexDataProvider *providers, size_t bufsize)</argsstring>
+        <name>tirexDataProviderGetAll</name>
+        <param>
+          <type><ref refid="group__dataprovider_1ga366996afc76428b9a88616cb72d2e0b4" kindref="member">tirexDataProvider</ref> *</type>
+          <declname>providers</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>bufsize</declname>
+        </param>
+        <briefdescription>
+<para>Populates the given buffer with all available providers (or at most <computeroutput>bufsize</computeroutput> if <computeroutput>buf</computeroutput> is not large enugh) and returns the total number of available providers. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If <computeroutput>buf</computeroutput> is <computeroutput>NULL</computeroutput> , <computeroutput>bufsize</computeroutput> is ignored and only the number of available providers are returned. A typical call may look as follows: <programlisting filename=".c"><codeline><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num<sp/>=<sp/><ref refid="group__dataprovider_1ga16039e345ab27ed2b9c53437fc7484d7" kindref="member">tirexDataProviderGetAll</ref>(NULL,<sp/>0);</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtirexDataProvider__st" kindref="compound">tirexDataProvider</ref>*<sp/>buf<sp/>=<sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtirexDataProvider__st" kindref="compound">tirexDataProvider</ref>*)calloc(num,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtirexDataProvider__st" kindref="compound">tirexDataProvider</ref>));</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="group__dataprovider_1ga16039e345ab27ed2b9c53437fc7484d7" kindref="member">tirexDataProviderGetAll</ref>(buf,<sp/>num);</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>...</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">free(buf);</highlight></codeline>
+</programlisting></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">providers</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">bufsize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The number of available data providers. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="374" column="29" declfile="c/include/tirex_tracker.h" declline="374" declcolumn="29"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Methods and definitions necessary to fetch information about the underlying data sources. Dataproviders are the underlying mechanism for collecting the requested metadata and are abstracted away by the API. The following definitions can be used to get more information (e.g., to report detailed version information). </para>
+    </detaileddescription>
+  </compounddef>
+</doxygen>
