@@ -470,7 +470,7 @@ jobs:
         run: jvm/gradlew --project-dir jvm/ check
       - name: 📤 Upload coverage to Codecov
         if: matrix.java == '21'
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: jvm/library/build/reports/jacoco/test/jacocoTestReport.xml
@@ -643,6 +643,8 @@ jobs:
         run: pip install build twine
       - name: 🏗️ Build Python wheels
         run: python -m build python
+        env:
+          SETUPTOOLS_SCM_PRETEND_VERSION_FOR_TIREX_TRACKER: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
       - name: 🧪 Check package bundles
         run: twine check python/dist/*
       - name: 📤 Upload Python wheels
@@ -907,7 +909,7 @@ jobs:
         run: pytest --cov --cov-report xml python
       - name: 📤 Upload coverage to Codecov
         if: matrix.python == '3.13'
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage.xml
