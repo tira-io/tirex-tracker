@@ -643,6 +643,8 @@ jobs:
         run: pip install build twine
       - name: 🏗️ Build Python wheels
         run: python -m build python
+        env:
+          SETUPTOOLS_SCM_PRETEND_VERSION_FOR_TIREX_TRACKER: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
       - name: 🧪 Check package bundles
         run: twine check python/dist/*
       - name: 📤 Upload Python wheels
