@@ -220,6 +220,9 @@ Stats NVMLStats::getStats() {
 		return {};
 	}
 }
+
+Stats NVMLStats::peekStats() { return getStats(); }
+
 Stats NVMLStats::getInfo() {
 	if (nvml.supported) {
 		std::string modelName;
