@@ -470,7 +470,7 @@ jobs:
         run: jvm/gradlew --project-dir jvm/ check
       - name: 📤 Upload coverage to Codecov
         if: matrix.java == '21'
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: jvm/library/build/reports/jacoco/test/jacocoTestReport.xml
@@ -909,7 +909,7 @@ jobs:
         run: pytest --cov --cov-report xml python
       - name: 📤 Upload coverage to Codecov
         if: matrix.python == '3.13'
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage.xml
