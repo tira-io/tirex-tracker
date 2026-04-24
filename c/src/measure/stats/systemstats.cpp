@@ -483,3 +483,21 @@ Stats SystemStats::getStats() {
 			std::pair{TIREX_RAM_USED_PROCESS_KB, std::cref(ram)}, std::pair{TIREX_RAM_USED_SYSTEM_MB, std::cref(sysRam)}
 	);
 }
+
+Stats SystemStats::peekStats() {
+	auto nowTimer = steady_clock::now();
+	auto wallclocktime =
+			std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(nowTimer - starttimer).count());
+	auto [curSysTime, curUTime] = getSysAndUserTime();
+
+	return makeFilteredStats(
+			enabled, std::pair{TIREX_TIME_START, _fmt::format("{:%FT%T%z}", startTimepoint)},
+			std::pair{TIREX_TIME_ELAPSED_WALL_CLOCK_MS, wallclocktime},
+			std::pair{TIREX_TIME_ELAPSED_USER_MS, std::to_string(tickToMs(curUTime - startUTime))},
+			std::pair{TIREX_TIME_ELAPSED_SYSTEM_MS, std::to_string(tickToMs(curSysTime - startSysTime))},
+			std::pair{TIREX_CPU_USED_PROCESS_PERCENT, std::cref(cpuUtil)},
+			std::pair{TIREX_CPU_USED_SYSTEM_PERCENT, std::cref(sysCpuUtil)},
+			std::pair{TIREX_CPU_FREQUENCY_MHZ, std::cref(frequency)},
+			std::pair{TIREX_RAM_USED_PROCESS_KB, std::cref(ram)}, std::pair{TIREX_RAM_USED_SYSTEM_MB, std::cref(sysRam)}
+	);
+}

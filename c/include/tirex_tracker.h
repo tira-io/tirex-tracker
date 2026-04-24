@@ -322,15 +322,38 @@ tirexStartTracking(const tirexMeasureConf* measures, size_t pollIntervalMs, tire
 /**
  * @brief Stops the measurement and deinitializes the data providers.
  * @details This function **must** be called **exactly once** for each measurement job.
- * 
+ *
  * @param handle The handle of the running measurement that should be stopped.
  * @param[out] result a handle to the result tree of the measurement. Must be freed by the caller using
  * tirexResultFree(tirexResult*)
  * @return TIREX_SUCCESS on success or an error code.
- * 
+ *
  * @see tirexStartTracking
  */
 TIREX_TRACKER_EXPORT tirexError tirexStopTracking(tirexMeasureHandle* handle, tirexResult** result);
+
+/**
+ * @brief Returns a snapshot of the current measurement state without stopping the tracking.
+ * @details This function may be called any number of times between tirexStartTracking() and tirexStopTracking(). It is
+ * thread-safe with respect to the internal polling thread.
+ *
+ * Time-series measures (e.g. CPU and RAM utilisation) reflect all data collected to date. Elapsed-time measures (e.g.
+ * #TIREX_TIME_ELAPSED_WALL_CLOCK_MS) reflect the duration so far. Measures that require tracking to have stopped (e.g.
+ * #TIREX_TIME_STOP) are omitted from the snapshot.
+ *
+ * The returned result must be freed by the caller using tirexResultFree().
+ * 
+ * Caution: calling peek result often will impact the tracking results since this synchronizes the calling thread with
+ * the tracking thread to avoid race conditions.
+ *
+ * @param[in] handle The handle of the running measurement.
+ * @param[out] result Snapshot of the current measurement state.
+ * @return TIREX_SUCCESS on success or an error code.
+ *
+ * @see tirexStartTracking
+ * @see tirexStopTracking
+ */
+TIREX_TRACKER_EXPORT tirexError tirexPeekResult(const tirexMeasureHandle* handle, tirexResult** result);
 /** @} */ // end of measure
 
 /**
