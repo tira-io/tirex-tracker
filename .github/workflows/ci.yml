@@ -93,25 +93,39 @@ jobs:
         run: cmake -S c/ -B c/build/ ${{ (matrix.compiler != 'msvc') && '-G "Ninja Multi-Config"' || ''}} --preset=conf-release-full-shared-lib-static-deps
       - name: 🏗️ Build library
         run: cmake --build c/build/ --config Release --target tirex_tracker -j 16
-      - name: 📤 Upload Linux library
+      - name: 📤 Upload Linux x86_64 library
         if: matrix.platform.host == 'ubuntu-latest' && matrix.platform.container.image == 'ubuntu:20.04' && matrix.compiler == 'llvm-19'
         uses: actions/upload-artifact@v7
         with:
-          name: c-library-linux
+          name: c-library-linux-x86_64
           if-no-files-found: error
           path: c/build/src/Release/libtirex_tracker.so
-      - name: 📤 Upload macOS library
+      - name: 📤 Upload Linux aarch64 library
+        if: matrix.platform.host == 'ubuntu-22.04-arm' && matrix.compiler == 'llvm-20'
+        uses: actions/upload-artifact@v7
+        with:
+          name: c-library-linux-aarch64
+          if-no-files-found: error
+          path: c/build/src/Release/libtirex_tracker.so
+      - name: 📤 Upload macOS aarch64 library
         if: matrix.platform.host == 'macos-14' && matrix.compiler == 'apple-clang'
         uses: actions/upload-artifact@v7
         with:
-          name: c-library-macos
+          name: c-library-macos-aarch64
           if-no-files-found: error
           path: c/build/src/Release/libtirex_tracker.dylib
-      - name: 📤 Upload Windows library
+      - name: 📤 Upload Windows x86_64 library
         if: matrix.platform.host == 'windows-2022' && matrix.compiler == 'msvc'
         uses: actions/upload-artifact@v7
         with:
-          name: c-library-windows
+          name: c-library-windows-x86_64
+          if-no-files-found: error
+          path: c/build/src/Release/tirex_tracker.dll
+      - name: 📤 Upload Windows aarch64 library
+        if: matrix.platform.host == 'windows-11-arm' && matrix.compiler == 'msvc'
+        uses: actions/upload-artifact@v7
+        with:
+          name: c-library-windows-aarch64
           if-no-files-found: error
           path: c/build/src/Release/tirex_tracker.dll
   c-check-format:
@@ -347,21 +361,31 @@ jobs:
           cache-dependency-path: |
             jvm/example/build.gradle.kts
             jvm/library/build.gradle.kts
-      - name: 📥 Download Linux library
+      - name: 📥 Download Linux x86_64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-linux
-          path: jvm/library/src/main/resources/
-      - name: 📥 Download macOS library
+          name: c-library-linux-x86_64
+          path: jvm/library/src/main/resources/linux-x86-64/
+      - name: 📥 Download Linux aarch64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-macos
-          path: jvm/library/src/main/resources/
-      - name: 📥 Download Windows library
+          name: c-library-linux-aarch64
+          path: jvm/library/src/main/resources/linux-aarch64/
+      - name: 📥 Download macOS aarch64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-windows
-          path: jvm/library/src/main/resources/
+          name: c-library-macos-aarch64
+          path: jvm/library/src/main/resources/darwin-aarch64/
+      - name: 📥 Download Windows x86_64 library
+        uses: actions/download-artifact@v8
+        with:
+          name: c-library-windows-x86_64
+          path: jvm/library/src/main/resources/win32-x86-64/
+      - name: 📥 Download Windows aarch64 library
+        uses: actions/download-artifact@v8
+        with:
+          name: c-library-windows-aarch64
+          path: jvm/library/src/main/resources/win32-aarch64/
       - name: 🏗️ Build project
         run: jvm/gradlew --project-dir jvm/ build
   jvm-check:
@@ -376,6 +400,7 @@ jobs:
           - "21"
         runs-on:
           - ubuntu-22.04
+          - ubuntu-22.04-arm
           # - ubuntu-24.04 # FIXME: Re-enable
           # - macos-14 # FIXME: JDK 8 cannot be installed.
           # - macos-15 # FIXME: JDK 8 cannot be installed.
@@ -416,26 +441,36 @@ jobs:
           cache-dependency-path: |
             jvm/example/build.gradle.kts
             jvm/library/build.gradle.kts
-      - name: 📥 Download Linux library
+      - name: 📥 Download Linux x86_64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-linux
-          path: jvm/library/src/main/resources/
-      - name: 📥 Download macOS library
+          name: c-library-linux-x86_64
+          path: jvm/library/src/main/resources/linux-x86-64/
+      - name: 📥 Download Linux aarch64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-macos
-          path: jvm/library/src/main/resources/
-      - name: 📥 Download Windows library
+          name: c-library-linux-aarch64
+          path: jvm/library/src/main/resources/linux-aarch64/
+      - name: 📥 Download macOS aarch64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-windows
-          path: jvm/library/src/main/resources/
+          name: c-library-macos-aarch64
+          path: jvm/library/src/main/resources/darwin-aarch64/
+      - name: 📥 Download Windows x86_64 library
+        uses: actions/download-artifact@v8
+        with:
+          name: c-library-windows-x86_64
+          path: jvm/library/src/main/resources/win32-x86-64/
+      - name: 📥 Download Windows aarch64 library
+        uses: actions/download-artifact@v8
+        with:
+          name: c-library-windows-aarch64
+          path: jvm/library/src/main/resources/win32-aarch64/
       - name: 🧪 Test and check with Gradle
         run: jvm/gradlew --project-dir jvm/ check
       - name: 📤 Upload coverage to Codecov
         if: matrix.java == '21'
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: jvm/library/build/reports/jacoco/test/jacocoTestReport.xml
@@ -479,21 +514,31 @@ jobs:
           cache-dependency-path: |
             jvm/example/build.gradle.kts
             jvm/library/build.gradle.kts
-      - name: 📥 Download Linux library
+      - name: 📥 Download Linux x86_64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-linux
-          path: jvm/library/src/main/resources/
-      - name: 📥 Download macOS library
+          name: c-library-linux-x86_64
+          path: jvm/library/src/main/resources/linux-x86-64/
+      - name: 📥 Download Linux aarch64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-macos
-          path: jvm/library/src/main/resources/
-      - name: 📥 Download Windows library
+          name: c-library-linux-aarch64
+          path: jvm/library/src/main/resources/linux-aarch64/
+      - name: 📥 Download macOS aarch64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-windows
-          path: jvm/library/src/main/resources/
+          name: c-library-macos-aarch64
+          path: jvm/library/src/main/resources/darwin-aarch64/
+      - name: 📥 Download Windows x86_64 library
+        uses: actions/download-artifact@v8
+        with:
+          name: c-library-windows-x86_64
+          path: jvm/library/src/main/resources/win32-x86-64/
+      - name: 📥 Download Windows aarch64 library
+        uses: actions/download-artifact@v8
+        with:
+          name: c-library-windows-aarch64
+          path: jvm/library/src/main/resources/win32-aarch64/
       - name: 🚀 Publish JVM library to Maven Local
         run: jvm/gradlew --project-dir jvm/ publishToMavenLocal
       - name: 📤 Upload JVM JAR
@@ -562,25 +607,44 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python }}
-      - name: 📥 Download Linux library
+      - name: 📥 Download Linux x86_64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-linux
-          path: python/tirex_tracker/
-      - name: 📥 Download macOS library
+          name: c-library-linux-x86_64
+          path: ${{ runner.temp }}/c-library-linux-x86_64/
+      - name: 📥 Download Linux aarch64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-macos
-          path: python/tirex_tracker/
-      - name: 📥 Download Windows library
+          name: c-library-linux-aarch64
+          path: ${{ runner.temp }}/c-library-linux-aarch64/
+      - name: 📥 Download macOS aarch64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-windows
-          path: python/tirex_tracker/
+          name: c-library-macos-aarch64
+          path: ${{ runner.temp }}/c-library-macos-aarch64/
+      - name: 📥 Download Windows x86_64 library
+        uses: actions/download-artifact@v8
+        with:
+          name: c-library-windows-x86_64
+          path: ${{ runner.temp }}/c-library-windows-x86_64/
+      - name: 📥 Download Windows aarch64 library
+        uses: actions/download-artifact@v8
+        with:
+          name: c-library-windows-aarch64
+          path: ${{ runner.temp }}/c-library-windows-aarch64/
+      - name: 📦 Copy libraries with architecture-specific names
+        run: |
+          cp "$RUNNER_TEMP/c-library-linux-x86_64/libtirex_tracker.so" python/tirex_tracker/libtirex_tracker_linux_x86_64.so
+          cp "$RUNNER_TEMP/c-library-linux-aarch64/libtirex_tracker.so" python/tirex_tracker/libtirex_tracker_linux_aarch64.so
+          cp "$RUNNER_TEMP/c-library-macos-aarch64/libtirex_tracker.dylib" python/tirex_tracker/libtirex_tracker_macos_aarch64.dylib
+          cp "$RUNNER_TEMP/c-library-windows-x86_64/tirex_tracker.dll" python/tirex_tracker/tirex_tracker_windows_x86_64.dll
+          cp "$RUNNER_TEMP/c-library-windows-aarch64/tirex_tracker.dll" python/tirex_tracker/tirex_tracker_windows_aarch64.dll
       - name: 🧰 Install dependencies
         run: pip install build twine
       - name: 🏗️ Build Python wheels
         run: python -m build python
+        env:
+          SETUPTOOLS_SCM_PRETEND_VERSION_FOR_TIREX_TRACKER: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
       - name: 🧪 Check package bundles
         run: twine check python/dist/*
       - name: 📤 Upload Python wheels
@@ -615,21 +679,38 @@ jobs:
           python-version: ${{ matrix.python }}
           cache: pip
           cache-dependency-path: python/pyproject.toml
-      - name: 📥 Download Linux library
+      - name: 📥 Download Linux x86_64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-linux
-          path: python/tirex_tracker/
-      - name: 📥 Download macOS library
+          name: c-library-linux-x86_64
+          path: ${{ runner.temp }}/c-library-linux-x86_64/
+      - name: 📥 Download Linux aarch64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-macos
-          path: python/tirex_tracker/
-      - name: 📥 Download Windows library
+          name: c-library-linux-aarch64
+          path: ${{ runner.temp }}/c-library-linux-aarch64/
+      - name: 📥 Download macOS aarch64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-windows
-          path: python/tirex_tracker/
+          name: c-library-macos-aarch64
+          path: ${{ runner.temp }}/c-library-macos-aarch64/
+      - name: 📥 Download Windows x86_64 library
+        uses: actions/download-artifact@v8
+        with:
+          name: c-library-windows-x86_64
+          path: ${{ runner.temp }}/c-library-windows-x86_64/
+      - name: 📥 Download Windows aarch64 library
+        uses: actions/download-artifact@v8
+        with:
+          name: c-library-windows-aarch64
+          path: ${{ runner.temp }}/c-library-windows-aarch64/
+      - name: 📦 Copy libraries with architecture-specific names
+        run: |
+          cp "$RUNNER_TEMP/c-library-linux-x86_64/libtirex_tracker.so" python/tirex_tracker/libtirex_tracker_linux_x86_64.so
+          cp "$RUNNER_TEMP/c-library-linux-aarch64/libtirex_tracker.so" python/tirex_tracker/libtirex_tracker_linux_aarch64.so
+          cp "$RUNNER_TEMP/c-library-macos-aarch64/libtirex_tracker.dylib" python/tirex_tracker/libtirex_tracker_macos_aarch64.dylib
+          cp "$RUNNER_TEMP/c-library-windows-x86_64/tirex_tracker.dll" python/tirex_tracker/tirex_tracker_windows_x86_64.dll
+          cp "$RUNNER_TEMP/c-library-windows-aarch64/tirex_tracker.dll" python/tirex_tracker/tirex_tracker_windows_aarch64.dll
       - name: 🧰 Install dependencies
         run: pip install -e python[tests]
       - name: 🔍 Check Python code
@@ -659,21 +740,38 @@ jobs:
           python-version: ${{ matrix.python }}
           cache: pip
           cache-dependency-path: python/pyproject.toml
-      - name: 📥 Download Linux library
+      - name: 📥 Download Linux x86_64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-linux
-          path: python/tirex_tracker/
-      - name: 📥 Download macOS library
+          name: c-library-linux-x86_64
+          path: ${{ runner.temp }}/c-library-linux-x86_64/
+      - name: 📥 Download Linux aarch64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-macos
-          path: python/tirex_tracker/
-      - name: 📥 Download Windows library
+          name: c-library-linux-aarch64
+          path: ${{ runner.temp }}/c-library-linux-aarch64/
+      - name: 📥 Download macOS aarch64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-windows
-          path: python/tirex_tracker/
+          name: c-library-macos-aarch64
+          path: ${{ runner.temp }}/c-library-macos-aarch64/
+      - name: 📥 Download Windows x86_64 library
+        uses: actions/download-artifact@v8
+        with:
+          name: c-library-windows-x86_64
+          path: ${{ runner.temp }}/c-library-windows-x86_64/
+      - name: 📥 Download Windows aarch64 library
+        uses: actions/download-artifact@v8
+        with:
+          name: c-library-windows-aarch64
+          path: ${{ runner.temp }}/c-library-windows-aarch64/
+      - name: 📦 Copy libraries with architecture-specific names
+        run: |
+          cp "$RUNNER_TEMP/c-library-linux-x86_64/libtirex_tracker.so" python/tirex_tracker/libtirex_tracker_linux_x86_64.so
+          cp "$RUNNER_TEMP/c-library-linux-aarch64/libtirex_tracker.so" python/tirex_tracker/libtirex_tracker_linux_aarch64.so
+          cp "$RUNNER_TEMP/c-library-macos-aarch64/libtirex_tracker.dylib" python/tirex_tracker/libtirex_tracker_macos_aarch64.dylib
+          cp "$RUNNER_TEMP/c-library-windows-x86_64/tirex_tracker.dll" python/tirex_tracker/tirex_tracker_windows_x86_64.dll
+          cp "$RUNNER_TEMP/c-library-windows-aarch64/tirex_tracker.dll" python/tirex_tracker/tirex_tracker_windows_aarch64.dll
       - name: 🧰 Install dependencies
         run: pip install -e python[tests]
       - name: 🔍 Check Python static typing
@@ -704,21 +802,38 @@ jobs:
           python-version: ${{ matrix.python }}
           cache: pip
           cache-dependency-path: python/pyproject.toml
-      - name: 📥 Download Linux library
+      - name: 📥 Download Linux x86_64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-linux
-          path: python/tirex_tracker/
-      - name: 📥 Download macOS library
+          name: c-library-linux-x86_64
+          path: ${{ runner.temp }}/c-library-linux-x86_64/
+      - name: 📥 Download Linux aarch64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-macos
-          path: python/tirex_tracker/
-      - name: 📥 Download Windows library
+          name: c-library-linux-aarch64
+          path: ${{ runner.temp }}/c-library-linux-aarch64/
+      - name: 📥 Download macOS aarch64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-windows
-          path: python/tirex_tracker/
+          name: c-library-macos-aarch64
+          path: ${{ runner.temp }}/c-library-macos-aarch64/
+      - name: 📥 Download Windows x86_64 library
+        uses: actions/download-artifact@v8
+        with:
+          name: c-library-windows-x86_64
+          path: ${{ runner.temp }}/c-library-windows-x86_64/
+      - name: 📥 Download Windows aarch64 library
+        uses: actions/download-artifact@v8
+        with:
+          name: c-library-windows-aarch64
+          path: ${{ runner.temp }}/c-library-windows-aarch64/
+      - name: 📦 Copy libraries with architecture-specific names
+        run: |
+          cp "$RUNNER_TEMP/c-library-linux-x86_64/libtirex_tracker.so" python/tirex_tracker/libtirex_tracker_linux_x86_64.so
+          cp "$RUNNER_TEMP/c-library-linux-aarch64/libtirex_tracker.so" python/tirex_tracker/libtirex_tracker_linux_aarch64.so
+          cp "$RUNNER_TEMP/c-library-macos-aarch64/libtirex_tracker.dylib" python/tirex_tracker/libtirex_tracker_macos_aarch64.dylib
+          cp "$RUNNER_TEMP/c-library-windows-x86_64/tirex_tracker.dll" python/tirex_tracker/tirex_tracker_windows_x86_64.dll
+          cp "$RUNNER_TEMP/c-library-windows-aarch64/tirex_tracker.dll" python/tirex_tracker/tirex_tracker_windows_aarch64.dll
       - name: 🧰 Install dependencies
         run: pip install -e python[tests]
       - name: 🔍 Check Python code security
@@ -737,6 +852,7 @@ jobs:
           - "3.13"
         runs-on:
           - ubuntu-22.04
+          - ubuntu-22.04-arm
           - ubuntu-24.04
           - macos-14
           - macos-15
@@ -755,28 +871,45 @@ jobs:
           python-version: ${{ matrix.python }}
           cache: pip
           cache-dependency-path: python/pyproject.toml
-      - name: 📥 Download Linux library
+      - name: 📥 Download Linux x86_64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-linux
-          path: python/tirex_tracker/
-      - name: 📥 Download macOS library
+          name: c-library-linux-x86_64
+          path: ${{ runner.temp }}/c-library-linux-x86_64/
+      - name: 📥 Download Linux aarch64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-macos
-          path: python/tirex_tracker/
-      - name: 📥 Download Windows library
+          name: c-library-linux-aarch64
+          path: ${{ runner.temp }}/c-library-linux-aarch64/
+      - name: 📥 Download macOS aarch64 library
         uses: actions/download-artifact@v8
         with:
-          name: c-library-windows
-          path: python/tirex_tracker/
+          name: c-library-macos-aarch64
+          path: ${{ runner.temp }}/c-library-macos-aarch64/
+      - name: 📥 Download Windows x86_64 library
+        uses: actions/download-artifact@v8
+        with:
+          name: c-library-windows-x86_64
+          path: ${{ runner.temp }}/c-library-windows-x86_64/
+      - name: 📥 Download Windows aarch64 library
+        uses: actions/download-artifact@v8
+        with:
+          name: c-library-windows-aarch64
+          path: ${{ runner.temp }}/c-library-windows-aarch64/
+      - name: 📦 Copy libraries with architecture-specific names
+        run: |
+          cp "$RUNNER_TEMP/c-library-linux-x86_64/libtirex_tracker.so" python/tirex_tracker/libtirex_tracker_linux_x86_64.so
+          cp "$RUNNER_TEMP/c-library-linux-aarch64/libtirex_tracker.so" python/tirex_tracker/libtirex_tracker_linux_aarch64.so
+          cp "$RUNNER_TEMP/c-library-macos-aarch64/libtirex_tracker.dylib" python/tirex_tracker/libtirex_tracker_macos_aarch64.dylib
+          cp "$RUNNER_TEMP/c-library-windows-x86_64/tirex_tracker.dll" python/tirex_tracker/tirex_tracker_windows_x86_64.dll
+          cp "$RUNNER_TEMP/c-library-windows-aarch64/tirex_tracker.dll" python/tirex_tracker/tirex_tracker_windows_aarch64.dll
       - name: 🧰 Install dependencies
         run: pip install -e python[tests]
       - name: 🧪 Test Python code
         run: pytest --cov --cov-report xml python
       - name: 📤 Upload coverage to Codecov
         if: matrix.python == '3.13'
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage.xml
@@ -883,12 +1016,39 @@ jobs:
     steps:
       - name: 📥 Check-out
         uses: actions/checkout@v6
-      - name: 📥 Download Native Libraries
+      - name: 📥 Download Linux x86_64 library
         uses: actions/download-artifact@v8
         with:
-          pattern: c-library-*
-          merge-multiple: true
-          path: tmp/c/
+          name: c-library-linux-x86_64
+          path: ${{ runner.temp }}/c-library-linux-x86_64/
+      - name: 📥 Download Linux aarch64 library
+        uses: actions/download-artifact@v8
+        with:
+          name: c-library-linux-aarch64
+          path: ${{ runner.temp }}/c-library-linux-aarch64/
+      - name: 📥 Download macOS aarch64 library
+        uses: actions/download-artifact@v8
+        with:
+          name: c-library-macos-aarch64
+          path: ${{ runner.temp }}/c-library-macos-aarch64/
+      - name: 📥 Download Windows x86_64 library
+        uses: actions/download-artifact@v8
+        with:
+          name: c-library-windows-x86_64
+          path: ${{ runner.temp }}/c-library-windows-x86_64/
+      - name: 📥 Download Windows aarch64 library
+        uses: actions/download-artifact@v8
+        with:
+          name: c-library-windows-aarch64
+          path: ${{ runner.temp }}/c-library-windows-aarch64/
+      - name: 📦 Copy native libraries with architecture-specific names
+        run: |
+          mkdir -p tmp/c/
+          cp "$RUNNER_TEMP/c-library-linux-x86_64/libtirex_tracker.so" tmp/c/libtirex_tracker_linux_x86_64.so
+          cp "$RUNNER_TEMP/c-library-linux-aarch64/libtirex_tracker.so" tmp/c/libtirex_tracker_linux_aarch64.so
+          cp "$RUNNER_TEMP/c-library-macos-aarch64/libtirex_tracker.dylib" tmp/c/libtirex_tracker_macos_aarch64.dylib
+          cp "$RUNNER_TEMP/c-library-windows-x86_64/tirex_tracker.dll" tmp/c/tirex_tracker_windows_x86_64.dll
+          cp "$RUNNER_TEMP/c-library-windows-aarch64/tirex_tracker.dll" tmp/c/tirex_tracker_windows_aarch64.dll
       - name: 📥 Download Linux CLI
         uses: actions/download-artifact@v8
         with:
