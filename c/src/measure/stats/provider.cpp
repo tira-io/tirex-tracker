@@ -25,8 +25,8 @@ const std::map<std::string, tirex::ProviderEntry> tirex::providers{
 		{"energy",
 		 {std::make_unique<EnergyStats>, EnergyStats::measures, EnergyStats::version, EnergyStats::description}},
 		{"ioreport",
-		 {std::make_unique<IOReportStats>, IOReportStats::measures, IOReportStats::version,
-		  IOReportStats::description}},
+		 {std::make_unique<IOReportStats>, IOReportStats::measures, IOReportStats::version, IOReportStats::description}
+		},
 		{"git", {std::make_unique<GitStats>, GitStats::measures, GitStats::version, GitStats::description}},
 		{"gpu", {std::make_unique<NVMLStats>, NVMLStats::measures, NVMLStats::version, NVMLStats::description}},
 		{"devcontainer",
