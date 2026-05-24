@@ -91,22 +91,21 @@ set(ZLIB_LIBRARIES "zlibstatic")
 get_target_property(ZLIB_INCLUDE_DIRS zlibstatic INTERFACE_INCLUDE_DIRECTORIES)
 add_library(ZLIB::ZLIB ALIAS zlibstatic)  # ALIAS ZLIB::ZLIB to static since we want to link it statically to libzip
 
-# LibGit
-CPMAddPackage(
-	URI "gh:libgit2/libgit2@1.8.4"
-	OPTIONS "USE_SSH OFF" "USE_HTTPS OFF" "REGEX_BACKEND builtin" "USE_BUNDLED_ZLIB OFF" "BUILD_CLI OFF" "BUILD_TESTS OFF" "DEPRECATE_HARD OFF"
-	EXCLUDE_FROM_ALL YES
-)
-target_link_libraries(tirex_tracker PRIVATE libgit2 libgit2package)
-
 # libzip
 CPMAddPackage(
-	URI "gh:nih-at/libzip@1.11.3"
+	URI "gh:nih-at/libzip@1.11.4"
 	OPTIONS "LIBZIP_DO_INSTALL OFF" "ENABLE_ZSTD OFF" "ENABLE_OPENSSL OFF" "BUILD_TOOLS OFF" "BUILD_REGRESS OFF" "BUILD_OSSFUZZ OFF" "BUILD_EXAMPLES OFF" "BUILD_DOC OFF"
 	EXCLUDE_FROM_ALL YES
 )
 target_link_libraries(tirex_tracker PRIVATE zip)
 
+# LibGit
+CPMAddPackage(
+	URI "gh:libgit2/libgit2@1.9.2"
+	OPTIONS "USE_SSH OFF" "USE_HTTPS OFF" "REGEX_BACKEND builtin" "USE_BUNDLED_ZLIB OFF" "BUILD_CLI OFF" "BUILD_TESTS OFF" "DEPRECATE_HARD OFF" "USE_NSEC OFF"
+	EXCLUDE_FROM_ALL YES
+)
+target_link_libraries(tirex_tracker PRIVATE libgit2 libgit2package)
 
 # NVML (We load the go-nvml bindings since there does not seem to be a repo with just the header)
 FetchContent_Declare(nvml GIT_REPOSITORY https://github.com/NVIDIA/go-nvml.git GIT_TAG v0.12.4-0 EXCLUDE_FROM_ALL)
@@ -114,12 +113,12 @@ FetchContent_MakeAvailable(nvml)
 target_include_directories(tirex_tracker PRIVATE ${nvml_SOURCE_DIR}/gen/)
 
 # FMT (remove in the future when std::format can be assumed)
-CPMAddPackage(URI "gh:fmtlib/fmt#11.1.3" EXCLUDE_FROM_ALL YES)
+CPMAddPackage(URI "gh:fmtlib/fmt#12.1.0" EXCLUDE_FROM_ALL YES)
 target_link_libraries(tirex_tracker PRIVATE fmt::fmt)
 
 # expected (remove in the future when std::expected can be assumed)
 CPMAddPackage(
-	URI "gh:TartanLlama/expected@1.1.0"
+	URI "gh:TartanLlama/expected@1.3.1"
 	OPTIONS "EXPECTED_BUILD_TESTS OFF" "EXPECTED_BUILD_PACKAGE_DEB OFF"
 	EXCLUDE_FROM_ALL YES
 )
@@ -128,7 +127,7 @@ target_link_libraries(tirex_tracker PRIVATE tl::expected)
 
 # cpuinfo
 CPMAddPackage(
-	URI "gh:pytorch/cpuinfo#5e3d2445e6a84d9599bee2bf78edbb4d80865e1d"
+	URI "gh:pytorch/cpuinfo#f9a03241f8c3d4ed0c9728f5d70bff873d43d4e0"
 	OPTIONS "CPUINFO_BUILD_TOOLS OFF" "CPUINFO_BUILD_UNIT_TESTS OFF" "CPUINFO_BUILD_MOCK_TESTS OFF"
 			"CPUINFO_BUILD_BENCHMARKS OFF" # "CPUINFO_LOG_TO_STDIO OFF"
 	EXCLUDE_FROM_ALL YES

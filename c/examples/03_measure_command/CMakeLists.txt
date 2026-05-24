@@ -16,7 +16,7 @@ option(TIREX_TRACKER_BUILD_CMD_DEB "Build the debian package for the measure com
 ##########################################################################################
 # spdlog for logging
 CPMAddPackage(
-	URI "gh:gabime/spdlog@1.15.3"
+	URI "gh:gabime/spdlog@1.17.0"
 	OPTIONS "SPDLOG_FMT_EXTERNAL ON"
 	EXCLUDE_FROM_ALL YES
 )
@@ -24,7 +24,7 @@ set_property(TARGET spdlog PROPERTY POSITION_INDEPENDENT_CODE ON)  # Is this nee
 target_link_libraries(measure spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 
 # CLI11
-CPMAddPackage(URI "gh:CLIUtils/CLI11@2.4.2" EXCLUDE_FROM_ALL YES)
+CPMAddPackage(URI "gh:CLIUtils/CLI11@2.6.1" EXCLUDE_FROM_ALL YES)
 target_link_libraries(measure CLI11::CLI11)
 
 
