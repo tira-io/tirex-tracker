@@ -2,6 +2,7 @@
 
 #include "../../logging.hpp"
 
+#include <filesystem>
 #include <optional>
 
 using namespace std::string_literals;
@@ -40,12 +41,33 @@ static auto transform(const std::optional<T>& opt, const Fn& transform)
 	return std::nullopt;
 }
 
+/**
+ * @brief Whether the kernel exposes a RAPL energy backend (Intel/AMD via the powercap subsystem).
+ */
+static bool raplBackendPresent() {
+	namespace fs = std::filesystem;
+	std::error_code ec;
+	for (const auto& entry : fs::directory_iterator("/sys/class/powercap", ec)) {
+		if (entry.path().filename().string().starts_with("intel-rapl") &&
+			fs::exists(entry.path() / "energy_uj", ec))
+			return true;
+	}
+	return false;
+}
+
 const char* EnergyStats::version = nullptr;
 const std::set<tirexMeasure> EnergyStats::measures{
 		TIREX_CPU_ENERGY_SYSTEM_JOULES, TIREX_RAM_ENERGY_SYSTEM_JOULES, TIREX_GPU_ENERGY_SYSTEM_JOULES
 };
 
-EnergyStats::EnergyStats() : tracker() {}
+EnergyStats::EnergyStats() : tracker() {
+	const bool rapl = raplBackendPresent();
+	usePmic = !rapl && PmicReader::available();
+	if (usePmic)
+		tirex::log::info("energy", "Using Raspberry Pi PMIC for CPU/RAM energy");
+	else if (rapl)
+		tirex::log::info("energy", "Using RAPL for CPU/RAM energy");
+}
 
 std::set<tirexMeasure> EnergyStats::providedMeasures() noexcept {
 	std::set<tirexMeasure> measures{};
@@ -56,11 +78,27 @@ std::set<tirexMeasure> EnergyStats::providedMeasures() noexcept {
 		measures.insert(TIREX_RAM_ENERGY_SYSTEM_JOULES);
 	if (cap & cppjoules::Capability::GPU_PROFILE)
 		measures.insert(TIREX_GPU_ENERGY_SYSTEM_JOULES);
+	if (usePmic) {
+		measures.insert(TIREX_CPU_ENERGY_SYSTEM_JOULES);
+		measures.insert(TIREX_RAM_ENERGY_SYSTEM_JOULES);
+	}
 	return measures;
 }
 
-void EnergyStats::start() { tracker.start(); }
-void EnergyStats::stop() { tracker.stop(); }
+void EnergyStats::start() {
+	tracker.start();
+	if (usePmic)
+		pmic.start();
+}
+void EnergyStats::stop() {
+	tracker.stop();
+	if (usePmic)
+		pmic.stop();
+}
+void EnergyStats::step() {
+	if (usePmic)
+		pmic.step();
+}
 Stats EnergyStats::getStats() {
 	using json = nlohmann::json;
 	auto results = tracker.calculate_energy().energy;
@@ -68,10 +106,19 @@ Stats EnergyStats::getStats() {
 		tirex::log::debug("cppjoules", "[{}] {}", device, result);
 	// Divide by 1000'000 since CPPJoules reports micro Joule (uJ)
 	auto divide = [](long long divisor) { return [divisor](long long divident) { return divident / divisor; }; };
-	return makeFilteredStats(
+	auto stats = makeFilteredStats(
 			enabled,
 			std::pair{TIREX_CPU_ENERGY_SYSTEM_JOULES, json(transform(tryget(results, "core-0"), divide(1000'000)))},
 			std::pair{TIREX_RAM_ENERGY_SYSTEM_JOULES, json(transform(tryget(results, "dram-0"), divide(1000'000)))},
 			std::pair{TIREX_GPU_ENERGY_SYSTEM_JOULES, json(transform(tryget(results, "nvidia_gpu_0"), divide(1000)))}
 	);
+	if (usePmic) {
+		// Override CPU/RAM with the PMIC measurements (joules already); any GPU energy reported by
+		// cppjoules is left intact, so both sources coexist on a hypothetical RAPL+PMIC machine.
+		if (enabled.contains(TIREX_CPU_ENERGY_SYSTEM_JOULES))
+			stats[TIREX_CPU_ENERGY_SYSTEM_JOULES] = json(pmic.coreJoules());
+		if (enabled.contains(TIREX_RAM_ENERGY_SYSTEM_JOULES))
+			stats[TIREX_RAM_ENERGY_SYSTEM_JOULES] = json(pmic.ramJoules());
+	}
+	return stats;
 }
