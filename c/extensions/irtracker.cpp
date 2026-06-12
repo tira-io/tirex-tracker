@@ -64,7 +64,8 @@ static const std::map<std::string, std::set<tirexMeasure>> measuresPerVersion{
 		  TIREX_GIT_UNCHECKED_FILES,
 		  TIREX_GIT_ROOT,
 		  TIREX_GIT_ARCHIVE_PATH,
-      TIREX_DEVCONTAINER_CONF_PATHS}}
+      TIREX_DEVCONTAINER_CONF_PATHS,
+	  TIREX_CPU_TEMPERATURE_CELSIUS}}
 };
 
 static std::function<bool(const tirexResultEntry&)> versionFilter(const std::string& version) {
@@ -228,6 +229,8 @@ static void writeResources(const ResultMap& results, std::ostream& stream) {
 		stream << "    used system: " << it->second << '\n';
 	if (ResultMap::const_iterator it; (it = results.find(TIREX_CPU_ENERGY_SYSTEM_JOULES)) != results.end())
 		stream << "    energy used system: " << it->second << " J\n";
+	if (ResultMap::const_iterator it; (it = results.find(TIREX_CPU_TEMPERATURE_CELSIUS)) != results.end())
+		stream << "    temperature: " << it->second << '\n';
 	//// GPU DATA
 	stream << "  gpu:\n";
 	if (ResultMap::const_iterator it; (it = results.find(TIREX_GPU_USED_PROCESS_PERCENT)) != results.end())

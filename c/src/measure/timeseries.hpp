@@ -167,9 +167,11 @@ namespace tirex {
 
 		private:
 			clock::time_point starttime;
-			T max; /**< @brief Minimum value encountered in the time series **/
-			T min; /**< @brief Maximum value encountered in the time series **/
-			T avg; /**< @brief Average value encountered in the time series **/
+			T max;			 /**< @brief Maximum value encountered in the time series **/
+			T min;			 /**< @brief Minimum value encountered in the time series **/
+			T avg;			 /**< @brief Average value encountered in the time series **/
+			double sum;		 /**< @brief Sum over all values, used to compute the average **/
+			size_t numAdded; /**< @brief Number of values added, used to compute the average **/
 			std::vector<std::chrono::milliseconds> timepoints;
 			std::vector<T> values;
 
@@ -179,7 +181,7 @@ namespace tirex {
 		public:
 			StoreImpl() : StoreImpl(clock::now()) {}
 			explicit StoreImpl(clock::time_point starttime)
-					: starttime(starttime), max(), min(), avg(), timepoints(), values() {}
+					: starttime(starttime), max(), min(), avg(), sum(0), numAdded(0), timepoints(), values() {}
 			StoreImpl(StoreImpl&& other) = default;
 
 			StoreImpl& operator=(StoreImpl&& other) = default;
@@ -191,9 +193,15 @@ namespace tirex {
 			void addValue(const T& value, const std::chrono::milliseconds& timestamp) noexcept override {
 				timepoints.emplace_back(timestamp);
 				values.emplace_back(value);
-				max = maxFn(max, value);
-				min = minFn(min, value);
-				/** \todo update average **/
+				if (numAdded == 0)
+					max = min = value;
+				else {
+					max = maxFn(max, value);
+					min = minFn(min, value);
+				}
+				sum += static_cast<double>(value);
+				numAdded += 1;
+				avg = static_cast<T>(sum / static_cast<double>(numAdded));
 			}
 
 			const T& maxValue() const noexcept override { return max; }

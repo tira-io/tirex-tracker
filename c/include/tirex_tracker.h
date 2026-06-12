@@ -168,6 +168,12 @@ typedef enum tirexMeasure_enum {
 	TIREX_DEVCONTAINER_CONF_PATHS = 50,
 
 	/**
+	 * @brief The CPU package temperature in degree Celsius, tracked as a time series (with minimum, maximum, and
+	 * average) over the tracked period (Measurement).
+	 */
+	TIREX_CPU_TEMPERATURE_CELSIUS = 51,
+
+	/**
 	 * @brief The total number of supported measures.
 	 * @details It can be assumed that every number in the range `[0, TIREX_MEASURE_COUNT]` is a valid enum value.
 	 */

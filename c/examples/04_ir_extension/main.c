@@ -83,6 +83,7 @@ int main(int argc, char* argv[]) {
 			{TIREX_VERSION_MEASURE, TIREX_AGG_NO},
 			{TIREX_INVOCATION, TIREX_AGG_NO},
 			{TIREX_DEVCONTAINER_CONF_PATHS, TIREX_AGG_NO},
+			{TIREX_CPU_TEMPERATURE_CELSIUS, TIREX_AGG_NO},
 			tirexNullConf
 	};
 	tirexSetLogCallback(logcallback);

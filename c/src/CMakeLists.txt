@@ -38,6 +38,7 @@ target_sources(tirex_tracker
 		measure/stats/systemstats_linux.cpp
 		measure/stats/systemstats_macos.cpp
 		measure/stats/systemstats_windows.cpp
+		measure/stats/temperaturestats.cpp
 
 		${TIREX_EXT_SOURCES}
 )
