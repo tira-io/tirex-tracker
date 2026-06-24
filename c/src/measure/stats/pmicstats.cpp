@@ -3,7 +3,9 @@
 #include "../../logging.hpp"
 
 #include <cstdlib>
+#include <functional>
 #include <map>
+#include <regex>
 #include <string>
 
 using tirex::PmicReader;
@@ -18,9 +20,9 @@ using tirex::PmicReader;
 
 namespace {
 	// VideoCore mailbox property interface, as used by `vcgencmd` (raspberrypi/utils).
-	constexpr unsigned MAILBOX_GENCMD_TAG = 0x00030080u;	  // GET_GENCMD_RESULT
-	constexpr int MAILBOX_BUFFER_BYTES = 4 * 1024;			  // vcgencmd's MAX_STRING
-	const unsigned long MAILBOX_IOCTL_PROPERTY = _IOWR(100, 0, char*);
+	constexpr unsigned MailboxGencmdTag = 0x00030080u;	  // GET_GENCMD_RESULT
+	constexpr int MailboxBufferBytes = 4 * 1024;			  // vcgencmd's MAX_STRING
+	constexpr unsigned long MailboxIoctlProperty = _IOWR(100, 0, char*);
 
 	int openMailbox() {
 		for (const char* dev : {"/dev/vcio_gencmd", "/dev/vcio"}) {
@@ -41,36 +43,36 @@ namespace {
 			return {};
 
 		const size_t len = std::strlen(command);
-		if (len + 1 >= static_cast<size_t>(MAILBOX_BUFFER_BYTES)) {
+		if (len + 1 >= static_cast<size_t>(MailboxBufferBytes)) {
 			close(fd);
 			return {};
 		}
 
-		constexpr int words = (MAILBOX_BUFFER_BYTES >> 2) + 7;
+		constexpr int words = (MailboxBufferBytes >> 2) + 7;
 		std::vector<unsigned> p(words, 0u);
 		int i = 0;
 		p[i++] = 0;						// total size (set below)
 		p[i++] = 0;						// process request
-		p[i++] = MAILBOX_GENCMD_TAG;	// tag
-		p[i++] = MAILBOX_BUFFER_BYTES;	// value buffer length
+		p[i++] = MailboxGencmdTag;		// tag
+		p[i++] = MailboxBufferBytes;	// value buffer length
 		p[i++] = 0;						// request length
 		p[i++] = 0;						// error / result word (p[5])
 		std::memcpy(p.data() + i, command, len + 1); // command string at p[6]
-		i += MAILBOX_BUFFER_BYTES >> 2;
+		i += MailboxBufferBytes >> 2;
 		p[i++] = 0;						// end tag
 		p[0] = static_cast<unsigned>(i * sizeof(unsigned));
 
-		const int rc = ioctl(fd, MAILBOX_IOCTL_PROPERTY, p.data());
+		const int rc = ioctl(fd, MailboxIoctlProperty, p.data());
 		close(fd);
 		if (rc < 0)
 			return {};
 
 		// Response string starts at word offset 6; the firmware NUL-terminates it.
 		const char* resp = reinterpret_cast<const char*>(p.data() + 6);
-		const size_t cap = static_cast<size_t>(MAILBOX_BUFFER_BYTES);
+		const size_t cap = static_cast<size_t>(MailboxBufferBytes);
 		return std::string(resp, ::strnlen(resp, cap));
 	}
-} // namespace
+}
 
 std::optional<PmicReader::Sample> PmicReader::readOnce() { return parseAdc(runGencmd("pmic_read_adc")); }
 
@@ -90,54 +92,27 @@ bool PmicReader::available() { return false; }
 #endif
 
 std::optional<PmicReader::Sample> PmicReader::parseAdc(std::string_view output) {
-	// `pmic_read_adc` prints one line per rail, e.g.:
-	//   VDD_CORE_A current(7)=1.89316000A
-	//   VDD_CORE_V volt(15)=0.91142770V
-	// Collect current (suffix _A) and voltage (suffix _V) per rail and form the power U*I.
 	if (output.empty())
 		return std::nullopt;
 
-	std::map<std::string, double> amp, volt;
-	size_t pos = 0;
-	while (pos < output.size()) {
-		size_t nl = output.find('\n', pos);
-		const std::string_view line =
-				output.substr(pos, nl == std::string_view::npos ? std::string_view::npos : nl - pos);
-		pos = (nl == std::string_view::npos) ? output.size() : nl + 1;
-
-		const auto eq = line.find('=');
-		if (eq == std::string_view::npos)
-			continue;
-		const auto begin = line.find_first_not_of(" \t");
-		if (begin == std::string_view::npos)
-			continue;
-		const auto ws = line.find_first_of(" \t", begin);
-		if (ws == std::string_view::npos || ws > eq)
-			continue;
-		const std::string_view token = line.substr(begin, ws - begin); // e.g. "VDD_CORE_A"
-		if (token.size() < 3 || token[token.size() - 2] != '_')
-			continue;
-		const char kind = token.back();
-		if (kind != 'A' && kind != 'V')
-			continue;
-		const std::string rail(token.substr(0, token.size() - 2)); // strip trailing "_A"/"_V"
-		const double value = std::strtod(std::string(line.substr(eq + 1)).c_str(), nullptr);
-		(kind == 'A' ? amp : volt)[rail] = value;
-	}
+	static const std::regex re(R"((\w+)_([AV])\s[^=\n]*=\s*([-0-9.eE+]+))");
+	std::map<std::string, double, std::less<>> amp, volt; 
+	for (std::cregex_iterator it(output.data(), output.data() + output.size(), re), end; it != end; ++it)
+		(((*it)[2] == "A") ? amp : volt)[(*it)[1].str()] = std::strtod((*it)[3].str().c_str(), nullptr);
 
 	if (amp.empty() && volt.empty())
 		return std::nullopt;
 
-	const auto power = [&](const char* rail) -> double {
+	const auto power = [&](std::string_view rail) -> double {
 		const auto a = amp.find(rail);
 		const auto v = volt.find(rail);
 		return (a == amp.end() || v == volt.end()) ? 0.0 : a->second * v->second;
 	};
 
-	Sample sample{};
-	sample.coreW = power("VDD_CORE");
-	sample.ramW = power("DDR_VDD2") + power("DDR_VDDQ");
-	return sample;
+	return Sample{
+			.coreW = power("VDD_CORE"),
+			.ramW = power("DDR_VDD2") + power("DDR_VDDQ"),
+	};
 }
 
 void PmicReader::start() {
@@ -148,17 +123,17 @@ void PmicReader::start() {
 
 void PmicReader::step() {
 	const auto sample = readOnce();
+	if (!sample)
+		return;
 	const auto now = std::chrono::steady_clock::now();
-	if (sample && hasPrev) {
+	if (hasPrev) {
 		const double dt = std::chrono::duration<double>(now - prevTime).count();
 		coreJ += 0.5 * (prev.coreW + sample->coreW) * dt;
 		ramJ += 0.5 * (prev.ramW + sample->ramW) * dt;
 	}
-	if (sample) {
-		prev = *sample;
-		prevTime = now;
-		hasPrev = true;
-	}
+	prev = *sample;
+	prevTime = now;
+	hasPrev = true;
 }
 
 void PmicReader::stop() { step(); }

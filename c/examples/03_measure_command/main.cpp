@@ -68,7 +68,7 @@ static std::map<std::string, std::vector<tirexMeasureConf>> confGroups = {
 		  {TIREX_GPU_VRAM_USED_SYSTEM_MB, TIREX_AGG_NO},
 		  {TIREX_GPU_VRAM_AVAILABLE_SYSTEM_MB, TIREX_AGG_NO}}},
 		{"devcontainer", {{TIREX_DEVCONTAINER_CONF_PATHS, TIREX_AGG_NO}}},
-		{"temperature", {{TIREX_CPU_TEMPERATURE_CELSIUS, TIREX_AGG_NO}}}
+		{"temperature", {{TIREX_CPU_TEMPERATURE_CELSIUS, TIREX_AGG_MEAN}}}
 };
 
 static void logCallback(tirexLogLevel level, const char* component, const char* message) {

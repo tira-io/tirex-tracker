@@ -20,18 +20,16 @@ const std::set<tirexMeasure> TemperatureStats::measures{TIREX_CPU_TEMPERATURE_CE
  */
 static std::filesystem::path findCPUTemperatureSensor() {
 	namespace fs = std::filesystem;
-	std::error_code ec;
-	static const char* const zonetypes[] = {"x86_pkg_temp", "cpu-thermal", "cpu_thermal", "soc-thermal", "soc_thermal"};
-	for (const auto& entry : fs::directory_iterator("/sys/class/thermal", ec)) {
-		if (!entry.path().filename().string().starts_with("thermal_zone"))
+	static constexpr auto zonetypes = std::set<std::string_view>({"x86_pkg_temp", "cpu-thermal", "cpu_thermal", "soc-thermal", "soc_thermal"});
+	std::string type;
+	for (std::error_code ec; const auto& entry : fs::directory_iterator("/sys/class/thermal", ec)) {
+		if (!entry.path().filename().native().starts_with("thermal_zone"))
 			continue;
 		std::ifstream stream(entry.path() / "type");
-		std::string type;
-		if (!stream || !std::getline(stream, type))
+		if (!std::getline(stream, type))
 			continue;
-		for (const char* wanted : zonetypes)
-			if (type == wanted)
-				return entry.path() / "temp";
+		if (zonetypes.contains(type))
+			return entry.path() / "temp";
 	}
 	return {};
 }
@@ -48,10 +46,9 @@ std::optional<unsigned> TemperatureStats::readTemperature() {
 	if (sensor.empty())
 		return std::nullopt;
 	std::ifstream stream(sensor);
-	long millidegrees;
-	if (!stream || !(stream >> millidegrees))
-		return std::nullopt;
-	return static_cast<unsigned>((millidegrees + 500) / 1000);
+	if (long millidegrees; stream >> millidegrees)
+		return static_cast<unsigned>((millidegrees + 500) / 1000);
+	return std::nullopt;
 }
 #else
 std::optional<unsigned> TemperatureStats::readTemperature() {
