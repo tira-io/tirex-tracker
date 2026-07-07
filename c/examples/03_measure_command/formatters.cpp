@@ -89,5 +89,5 @@ void tirex::jsonFormatter(std::ostream& stream, const tirexResult* info, const t
 extern tirexError writeIrMetadata(const tirexResult* info, const tirexResult* result, std::ostream& stream);
 
 void tirex::irmetadataFormatter(std::ostream& stream, const tirexResult* info, const tirexResult* result) noexcept {
-	writeIrMetadata(result, nullptr, stream);
+	writeIrMetadata(info, result, stream);
 }
