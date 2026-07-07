@@ -1,6 +1,6 @@
-#include "pmicstats.hpp"
+#include "pmicreader.hpp"
 
-#include "../../logging.hpp"
+#include "../../../../logging.hpp"
 
 #include <cstdlib>
 #include <functional>
@@ -16,12 +16,14 @@ using tirex::PmicReader;
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#include <vector>
+#include <array>
 
+// Adapted from the Raspberry Pi vcgencmd utility:
+// https://github.com/raspberrypi/utils/blob/master/vcgencmd/vcgencmd.c
 namespace {
 	// VideoCore mailbox property interface, as used by `vcgencmd` (raspberrypi/utils).
 	constexpr unsigned MailboxGencmdTag = 0x00030080u;	  // GET_GENCMD_RESULT
-	constexpr int MailboxBufferBytes = 4 * 1024;			  // vcgencmd's MAX_STRING
+	constexpr unsigned MailboxBufferBytes = 4 * 1024;		  // vcgencmd's MAX_STRING
 	constexpr unsigned long MailboxIoctlProperty = _IOWR(100, 0, char*);
 
 	int openMailbox() {
@@ -49,8 +51,8 @@ namespace {
 		}
 
 		constexpr int words = (MailboxBufferBytes >> 2) + 7;
-		std::vector<unsigned> p(words, 0u);
-		int i = 0;
+		std::array<unsigned, words> p{};
+		size_t i = 0;
 		p[i++] = 0;						// total size (set below)
 		p[i++] = 0;						// process request
 		p[i++] = MailboxGencmdTag;		// tag
@@ -69,8 +71,7 @@ namespace {
 
 		// Response string starts at word offset 6; the firmware NUL-terminates it.
 		const char* resp = reinterpret_cast<const char*>(p.data() + 6);
-		const size_t cap = static_cast<size_t>(MailboxBufferBytes);
-		return std::string(resp, ::strnlen(resp, cap));
+		return std::string(resp, ::strnlen(resp, static_cast<size_t>(MailboxBufferBytes)));
 	}
 }
 
@@ -97,7 +98,7 @@ std::optional<PmicReader::Sample> PmicReader::parseAdc(std::string_view output) 
 
 	static const std::regex re(R"((\w+)_([AV])\s[^=\n]*=\s*([-0-9.eE+]+))");
 	std::map<std::string, double, std::less<>> amp, volt; 
-	for (std::cregex_iterator it(output.data(), output.data() + output.size(), re), end; it != end; ++it)
+	for (std::regex_iterator it(std::begin(output), std::end(output), re), end; it != end; ++it)
 		(((*it)[2] == "A") ? amp : volt)[(*it)[1].str()] = std::strtod((*it)[3].str().c_str(), nullptr);
 
 	if (amp.empty() && volt.empty())

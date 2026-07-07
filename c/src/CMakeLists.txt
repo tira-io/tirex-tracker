@@ -31,7 +31,7 @@ target_sources(tirex_tracker
 
 		measure/stats/devcontainerstats.cpp
 		measure/stats/energystats.cpp
-		measure/stats/pmicstats.cpp
+		measure/stats/details/raspberrypi/pmicreader.cpp
 		measure/stats/gitstats.cpp
 		measure/stats/nvmlstats.cpp
 		measure/stats/systemstats.cpp

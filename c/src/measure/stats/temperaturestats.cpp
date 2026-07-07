@@ -61,10 +61,6 @@ std::set<tirexMeasure> TemperatureStats::providedMeasures() noexcept {
 	return readTemperature().has_value() ? measures : std::set<tirexMeasure>{};
 }
 
-void TemperatureStats::start() { step(); }
-
-void TemperatureStats::stop() { step(); }
-
 void TemperatureStats::step() {
 	if (auto temp = readTemperature(); temp.has_value())
 		temperature.addValue(temp.value());

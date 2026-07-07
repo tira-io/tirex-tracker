@@ -30,8 +30,6 @@ namespace tirex {
 
 	public:
 		std::set<tirexMeasure> providedMeasures() noexcept override;
-		void start() override;
-		void stop() override;
 		void step() override;
 		Stats getStats() override;
 

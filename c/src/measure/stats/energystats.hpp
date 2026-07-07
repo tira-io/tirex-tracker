@@ -1,7 +1,7 @@
 #ifndef STATS_ENERGYSTATS_HPP
 #define STATS_ENERGYSTATS_HPP
 
-#include "pmicstats.hpp"
+#include "details/raspberrypi/pmicreader.hpp"
 #include "provider.hpp"
 
 #include <cppjoules/cppjoules.hpp>
