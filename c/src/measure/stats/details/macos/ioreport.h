@@ -19,7 +19,7 @@ struct IOReportLib final : tirex::utils::SharedLib {
 	using MERGE_CHANNELS = void (*)(CFDictionaryRef a, CFDictionaryRef b, CFTypeRef c);
 	MERGE_CHANNELS mergeChannels = load<MERGE_CHANNELS>({"IOReportMergeChannels"});
 	using CREATE_SUBSCRIPTION = IOReportSubscriptionRef (*)(
-			const void* a, CFMutableDictionaryRef b, CFMutableDictionaryRef c, uint64_t d, CFTypeRef e
+			const void* a, CFMutableDictionaryRef b, CFMutableDictionaryRef* c, uint64_t d, CFTypeRef e
 	);
 	CREATE_SUBSCRIPTION createSubscription = load<CREATE_SUBSCRIPTION>({"IOReportCreateSubscription"});
 	using CREATE_SAMPLES = CFDictionaryRef (*)(IOReportSubscriptionRef a, CFMutableDictionaryRef b, CFTypeRef c);
