@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          - {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}}
+          #- {host: ubuntu-latest, container: {image: "ubuntu:18.04", volumes: ["/tmp:/__e/node20"]}} # setup-cpp fails
           - {host: ubuntu-latest, container: {image: "ubuntu:20.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-latest, container: {image: "ubuntu:25.04", volumes: ["/tmp:/__e/node20"]}}
           - {host: ubuntu-24.04-arm, container: {image: "node:20.18.1-bullseye" }}
