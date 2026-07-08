@@ -93,15 +93,25 @@ namespace tirex {
 		/**
 		 * @brief Returns the statistics collected during the last measurement. This should be called once after
 		 * StatsProvider::stop().
-		 * 
+		 *
 		 * @returns the statistics that were measured
 		 */
 		virtual Stats getStats() { return {}; }
 
 		/**
+		 * @brief Returns a snapshot of current accumulated state without stopping.
+		 * @details Safe to call while tracking is ongoing (i.e., between start() and stop()). Time-series measures
+		 * reflect all data collected to date. Measures that require stop() to have been called (e.g., final elapsed
+		 * time) are omitted or approximated. Default implementation returns an empty Stats map.
+		 *
+		 * @returns a snapshot of the statistics collected so far
+		 */
+		virtual Stats peekStats() { return {}; }
+
+		/**
 		 * @brief Returns the information collected by this provider.
-		 * 
-		 * @return the system information that is collected by this provider. 
+		 *
+		 * @return the system information that is collected by this provider.
 		 */
 		virtual Stats getInfo() { return {}; }
 	};
