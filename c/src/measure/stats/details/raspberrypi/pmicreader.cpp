@@ -98,7 +98,7 @@ std::optional<PmicReader::Sample> PmicReader::parseAdc(std::string_view output) 
 
 	static const std::regex re(R"((\w+)_([AV])\s[^=\n]*=\s*([-0-9.eE+]+))");
 	std::map<std::string, double, std::less<>> amp, volt; 
-	for (std::regex_iterator it(std::begin(output), std::end(output), re), end; it != end; ++it)
+	for (std::cregex_iterator it(output.data(), output.data() + output.size(), re), end; it != end; ++it)
 		(((*it)[2] == "A") ? amp : volt)[(*it)[1].str()] = std::strtod((*it)[3].str().c_str(), nullptr);
 
 	if (amp.empty() && volt.empty())
