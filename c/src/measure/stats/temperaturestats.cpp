@@ -20,7 +20,7 @@ const std::set<tirexMeasure> TemperatureStats::measures{TIREX_CPU_TEMPERATURE_CE
  */
 static std::filesystem::path findCPUTemperatureSensor() {
 	namespace fs = std::filesystem;
-	static constexpr auto zonetypes = std::set<std::string_view>({"x86_pkg_temp", "cpu-thermal", "cpu_thermal", "soc-thermal", "soc_thermal"});
+	static const auto zonetypes = std::set<std::string_view>({"x86_pkg_temp", "cpu-thermal", "cpu_thermal", "soc-thermal", "soc_thermal"});
 	std::string type;
 	for (std::error_code ec; const auto& entry : fs::directory_iterator("/sys/class/thermal", ec)) {
 		if (!entry.path().filename().native().starts_with("thermal_zone"))
