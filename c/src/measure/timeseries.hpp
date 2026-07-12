@@ -170,7 +170,7 @@ namespace tirex {
 			T max;			 /**< @brief Maximum value encountered in the time series **/
 			T min;			 /**< @brief Minimum value encountered in the time series **/
 			T avg;			 /**< @brief Average value encountered in the time series **/
-			double mean;		 /**< @brief Running mean, used to compute the average **/
+			double mean;	 /**< @brief Running mean, used to compute the average **/
 			size_t numAdded; /**< @brief Number of values added, used to compute the average **/
 			std::vector<std::chrono::milliseconds> timepoints;
 			std::vector<T> values;

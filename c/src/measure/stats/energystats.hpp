@@ -10,8 +10,9 @@ namespace tirex {
 	class EnergyStats final : public StatsProvider {
 	private:
 		cppjoules::EnergyTracker tracker;
-		PmicReader pmic;	   
-		bool usePmic = false;  
+		PmicReader pmic;
+		bool usePmic = false;
+
 	public:
 		EnergyStats();
 

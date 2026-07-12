@@ -48,8 +48,7 @@ static bool raplBackendPresent() {
 	namespace fs = std::filesystem;
 	std::error_code ec;
 	for (const auto& entry : fs::directory_iterator("/sys/class/powercap", ec)) {
-		if (entry.path().filename().string().starts_with("intel-rapl") &&
-			fs::exists(entry.path() / "energy_uj", ec))
+		if (entry.path().filename().string().starts_with("intel-rapl") && fs::exists(entry.path() / "energy_uj", ec))
 			return true;
 	}
 	return false;

@@ -22,8 +22,8 @@ using tirex::PmicReader;
 // https://github.com/raspberrypi/utils/blob/master/vcgencmd/vcgencmd.c
 namespace {
 	// VideoCore mailbox property interface, as used by `vcgencmd` (raspberrypi/utils).
-	constexpr unsigned MailboxGencmdTag = 0x00030080u;	  // GET_GENCMD_RESULT
-	constexpr unsigned MailboxBufferBytes = 4 * 1024;		  // vcgencmd's MAX_STRING
+	constexpr unsigned MailboxGencmdTag = 0x00030080u; // GET_GENCMD_RESULT
+	constexpr unsigned MailboxBufferBytes = 4 * 1024;  // vcgencmd's MAX_STRING
 	constexpr unsigned long MailboxIoctlProperty = _IOWR(100, 0, char*);
 
 	int openMailbox() {
@@ -53,15 +53,15 @@ namespace {
 		constexpr int words = (MailboxBufferBytes >> 2) + 7;
 		std::array<unsigned, words> p{};
 		size_t i = 0;
-		p[i++] = 0;						// total size (set below)
-		p[i++] = 0;						// process request
-		p[i++] = MailboxGencmdTag;		// tag
-		p[i++] = MailboxBufferBytes;	// value buffer length
-		p[i++] = 0;						// request length
-		p[i++] = 0;						// error / result word (p[5])
+		p[i++] = 0;									 // total size (set below)
+		p[i++] = 0;									 // process request
+		p[i++] = MailboxGencmdTag;					 // tag
+		p[i++] = MailboxBufferBytes;				 // value buffer length
+		p[i++] = 0;									 // request length
+		p[i++] = 0;									 // error / result word (p[5])
 		std::memcpy(p.data() + i, command, len + 1); // command string at p[6]
 		i += MailboxBufferBytes >> 2;
-		p[i++] = 0;						// end tag
+		p[i++] = 0; // end tag
 		p[0] = static_cast<unsigned>(i * sizeof(unsigned));
 
 		const int rc = ioctl(fd, MailboxIoctlProperty, p.data());
@@ -73,7 +73,7 @@ namespace {
 		const char* resp = reinterpret_cast<const char*>(p.data() + 6);
 		return std::string(resp, ::strnlen(resp, static_cast<size_t>(MailboxBufferBytes)));
 	}
-}
+} // namespace
 
 std::optional<PmicReader::Sample> PmicReader::readOnce() { return parseAdc(runGencmd("pmic_read_adc")); }
 
@@ -97,7 +97,7 @@ std::optional<PmicReader::Sample> PmicReader::parseAdc(std::string_view output) 
 		return std::nullopt;
 
 	static const std::regex re(R"((\w+)_([AV])\s[^=\n]*=\s*([-0-9.eE+]+))");
-	std::map<std::string, double, std::less<>> amp, volt; 
+	std::map<std::string, double, std::less<>> amp, volt;
 	for (std::cregex_iterator it(output.data(), output.data() + output.size(), re), end; it != end; ++it)
 		(((*it)[2] == "A") ? amp : volt)[(*it)[1].str()] = std::strtod((*it)[3].str().c_str(), nullptr);
 
