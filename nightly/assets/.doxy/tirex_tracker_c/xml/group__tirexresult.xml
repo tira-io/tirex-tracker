@@ -104,7 +104,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="c/include/tirex_tracker.h" line="205" column="1" bodyfile="c/include/tirex_tracker.h" bodystart="205" bodyend="221"/>
+        <location file="c/include/tirex_tracker.h" line="211" column="1" bodyfile="c/include/tirex_tracker.h" bodystart="211" bodyend="227"/>
       </memberdef>
       </sectiondef>
       <sectiondef kind="typedef">
@@ -120,7 +120,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="c/include/tirex_tracker.h" line="221" column="17"/>
+        <location file="c/include/tirex_tracker.h" line="227" column="17"/>
       </memberdef>
       <memberdef kind="typedef" id="group__tirexresult_1gae3dc7f40e0e661137a892273787b5643" prot="public" static="no">
         <type>struct tirexResult_st</type>
@@ -138,7 +138,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="c/include/tirex_tracker.h" line="234" column="1" bodyfile="c/include/tirex_tracker.h" bodystart="242" bodyend="-1"/>
+        <location file="c/include/tirex_tracker.h" line="240" column="1" bodyfile="c/include/tirex_tracker.h" bodystart="248" bodyend="-1"/>
       </memberdef>
       <memberdef kind="typedef" id="group__tirexresult_1ga60a569948087a41c952b08c4ec3741f6" prot="public" static="no">
         <type>struct <ref refid="structtirexResultEntry__st" kindref="compound">tirexResultEntry_st</ref></type>
@@ -152,7 +152,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="c/include/tirex_tracker.h" line="251" column="18"/>
+        <location file="c/include/tirex_tracker.h" line="257" column="18"/>
       </memberdef>
       </sectiondef>
       <sectiondef kind="func">
@@ -207,7 +207,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="c/include/tirex_tracker.h" line="262" column="1" declfile="c/include/tirex_tracker.h" declline="262" declcolumn="1"/>
+        <location file="c/include/tirex_tracker.h" line="268" column="1" declfile="c/include/tirex_tracker.h" declline="268" declcolumn="1"/>
       </memberdef>
       <memberdef kind="function" id="group__tirexresult_1ga9c2c6c7723c651929254f2db7e9ad761" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>TIREX_TRACKER_EXPORT <ref refid="group__error_1gad614149e5fc1433cb2b8252452cbbd5a" kindref="member">tirexError</ref></type>
@@ -249,7 +249,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="c/include/tirex_tracker.h" line="271" column="33" declfile="c/include/tirex_tracker.h" declline="271" declcolumn="33"/>
+        <location file="c/include/tirex_tracker.h" line="277" column="33" declfile="c/include/tirex_tracker.h" declline="277" declcolumn="33"/>
       </memberdef>
       <memberdef kind="function" id="group__tirexresult_1gaa6a62a4724ebca020580640f6ee010da" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>TIREX_TRACKER_EXPORT void</type>
@@ -277,7 +277,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="c/include/tirex_tracker.h" line="278" column="27" declfile="c/include/tirex_tracker.h" declline="278" declcolumn="27"/>
+        <location file="c/include/tirex_tracker.h" line="284" column="27" declfile="c/include/tirex_tracker.h" declline="284" declcolumn="27"/>
       </memberdef>
       </sectiondef>
       <sectiondef kind="define">
@@ -291,7 +291,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="c/include/tirex_tracker.h" line="230" column="9" bodyfile="c/include/tirex_tracker.h" bodystart="230" bodyend="-1"/>
+        <location file="c/include/tirex_tracker.h" line="236" column="9" bodyfile="c/include/tirex_tracker.h" bodystart="236" bodyend="-1"/>
       </memberdef>
       </sectiondef>
     <briefdescription>

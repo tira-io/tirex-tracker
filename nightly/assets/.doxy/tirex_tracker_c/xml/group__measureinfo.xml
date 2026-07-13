@@ -16,7 +16,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="c/include/tirex_tracker.h" line="390" column="18"/>
+        <location file="c/include/tirex_tracker.h" line="396" column="18"/>
       </memberdef>
       </sectiondef>
       <sectiondef kind="func">
@@ -59,7 +59,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="c/include/tirex_tracker.h" line="399" column="33" declfile="c/include/tirex_tracker.h" declline="399" declcolumn="33"/>
+        <location file="c/include/tirex_tracker.h" line="405" column="33" declfile="c/include/tirex_tracker.h" declline="405" declcolumn="33"/>
       </memberdef>
       </sectiondef>
     <briefdescription>

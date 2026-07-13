@@ -98,6 +98,8 @@ typedef enum tirexMeasure_enum {
     TIREX_INVOCATION = 49,      
     TIREX_DEVCONTAINER_CONF_PATHS = 50,
 
+    TIREX_CPU_TEMPERATURE_CELSIUS = 51,
+
     TIREX_MEASURE_COUNT,
     TIREX_MEASURE_INVALID = -1
 } tirexMeasure;

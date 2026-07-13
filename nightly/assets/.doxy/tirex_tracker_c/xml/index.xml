@@ -92,6 +92,7 @@
     <member refid="group__measure_1ggaa07f0d4dae58e407981edba7350896eba669dad7ccb3ed41b9ba4884538027c76" kind="enumvalue"><name>TIREX_VERSION_MEASURE</name></member>
     <member refid="group__measure_1ggaa07f0d4dae58e407981edba7350896eba9b7a8354c5a8b96c11cc00e7a8a9edce" kind="enumvalue"><name>TIREX_INVOCATION</name></member>
     <member refid="group__measure_1ggaa07f0d4dae58e407981edba7350896ebabf58d10226abd2a7b6fc6402d866061e" kind="enumvalue"><name>TIREX_DEVCONTAINER_CONF_PATHS</name></member>
+    <member refid="group__measure_1ggaa07f0d4dae58e407981edba7350896ebae79e4b08b437beef472ce6f8c427a493" kind="enumvalue"><name>TIREX_CPU_TEMPERATURE_CELSIUS</name></member>
     <member refid="group__measure_1ggaa07f0d4dae58e407981edba7350896eba6f2e6e10f13eb83c79d5c41011194356" kind="enumvalue"><name>TIREX_MEASURE_COUNT</name></member>
     <member refid="group__measure_1ggaa07f0d4dae58e407981edba7350896eba8b5b8f39b9da2e0a9e5d3b6fe045a2b1" kind="enumvalue"><name>TIREX_MEASURE_INVALID</name></member>
     <member refid="group__tirexresult_1gab61149f2f745940a62e22a4d2623a60e" kind="enum"><name>tirexResultType_enum</name></member>
@@ -206,6 +207,7 @@
     <member refid="group__measure_1ggaa07f0d4dae58e407981edba7350896eba669dad7ccb3ed41b9ba4884538027c76" kind="enumvalue"><name>TIREX_VERSION_MEASURE</name></member>
     <member refid="group__measure_1ggaa07f0d4dae58e407981edba7350896eba9b7a8354c5a8b96c11cc00e7a8a9edce" kind="enumvalue"><name>TIREX_INVOCATION</name></member>
     <member refid="group__measure_1ggaa07f0d4dae58e407981edba7350896ebabf58d10226abd2a7b6fc6402d866061e" kind="enumvalue"><name>TIREX_DEVCONTAINER_CONF_PATHS</name></member>
+    <member refid="group__measure_1ggaa07f0d4dae58e407981edba7350896ebae79e4b08b437beef472ce6f8c427a493" kind="enumvalue"><name>TIREX_CPU_TEMPERATURE_CELSIUS</name></member>
     <member refid="group__measure_1ggaa07f0d4dae58e407981edba7350896eba6f2e6e10f13eb83c79d5c41011194356" kind="enumvalue"><name>TIREX_MEASURE_COUNT</name></member>
     <member refid="group__measure_1ggaa07f0d4dae58e407981edba7350896eba8b5b8f39b9da2e0a9e5d3b6fe045a2b1" kind="enumvalue"><name>TIREX_MEASURE_INVALID</name></member>
     <member refid="group__measure_1gaae382e16dd82b3177241819061e4c828" kind="typedef"><name>tirexMeasure</name></member>
