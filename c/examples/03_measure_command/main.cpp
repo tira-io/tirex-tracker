@@ -67,7 +67,8 @@ static std::map<std::string, std::vector<tirexMeasureConf>> confGroups = {
 		  {TIREX_GPU_VRAM_USED_PROCESS_MB, TIREX_AGG_NO},
 		  {TIREX_GPU_VRAM_USED_SYSTEM_MB, TIREX_AGG_NO},
 		  {TIREX_GPU_VRAM_AVAILABLE_SYSTEM_MB, TIREX_AGG_NO}}},
-		{"devcontainer", {{TIREX_DEVCONTAINER_CONF_PATHS, TIREX_AGG_NO}}}
+		{"devcontainer", {{TIREX_DEVCONTAINER_CONF_PATHS, TIREX_AGG_NO}}},
+		{"temperature", {{TIREX_CPU_TEMPERATURE_CELSIUS, TIREX_AGG_MEAN}}}
 };
 
 static void logCallback(tirexLogLevel level, const char* component, const char* message) {
@@ -151,7 +152,7 @@ int main(int argc, char* argv[]) {
 	app.add_option("--format,-f", measureArgs.formatter, "Specified how the output should be formatted")
 			->default_val("simple");
 	app.add_option("--source,-s", measureArgs.statproviders, "The datasources to poll information from")
-			->default_val(std::vector<std::string>{"git", "system", "energy", "gpu"});
+			->default_val(std::vector<std::string>{"git", "system", "energy", "gpu", "temperature"});
 	app.add_option("--poll-interval", measureArgs.pollIntervalMs)
 			->description(
 					"The interval in milliseconds in which to poll for updated stats like energy consumption and RAM "

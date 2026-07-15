@@ -53,7 +53,8 @@ static const char* measureToName[] = {
 		/*[TIREX_GIT_ARCHIVE_PATH] =*/"git archive path",
 		/*[TIREX_VERSION_MEASURE] =*/"version",
 		/*[TIREX_INVOCATION] =*/"invocation",
-		/*[TIREX_DEVCONTAINER_CONF_PATHS] =*/"devcontainer configuration paths"
+		/*[TIREX_DEVCONTAINER_CONF_PATHS] =*/"devcontainer configuration paths",
+		/*[TIREX_CPU_TEMPERATURE_CELSIUS] =*/"cpu temperature celsius"
 };
 static_assert((sizeof(measureToName) / sizeof(*measureToName)) == TIREX_MEASURE_COUNT);
 
