@@ -86,7 +86,7 @@ jobs:
           opencppcoverage: false
           git: true
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: 📥 Fetch tags
         continue-on-error: true
         run: |
@@ -143,7 +143,7 @@ jobs:
           clangtidy: true
           setup-cpp: false
       - name: 📥 Check-out
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: 🔍 Check Codestyle
         working-directory: ${{github.workspace}}/c/
         run: find src/ include/ -type f -iregex '^.*\.\(c\|h\|cpp\|hpp\|cc\|hh\)$' | xargs clang-format-19 --dry-run --Werror --Wno-error=unknown
@@ -220,7 +220,7 @@ jobs:
           opencppcoverage: false
           git: true
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: 📥 Fetch tags
         continue-on-error: true
         run: |
@@ -282,7 +282,7 @@ jobs:
           opencppcoverage: false
           git: true
       - name: 📥 Check-out
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: 📥 Fetch tags
         continue-on-error: true
         run: |
@@ -324,7 +324,7 @@ jobs:
           opencppcoverage: false
           git: true
       - name: 📥 Check-out
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: 🔧 Configure CMake
         run: cmake -S c/ -B c/build/ -G "Ninja Multi-Config" --preset=conf-dev -D TIREX_TRACKER_BUILD_DOCS=NO
       - name: 🏗️ Build tests
@@ -348,7 +348,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: 🧰 Install JDK 8 (for compiling)
         uses: actions/setup-java@v5
         with:
@@ -428,7 +428,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: 🧰 Install JDK 8 (for compiling)
         uses: actions/setup-java@v5
         with:
@@ -501,7 +501,7 @@ jobs:
       - jvm-check
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: 🧰 Install JDK 8 (for compiling)
         uses: actions/setup-java@v5
         with:
@@ -608,7 +608,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: 🧰 Install Python
         uses: actions/setup-python@v6
         with:
@@ -678,7 +678,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: 🧰 Install Python
         uses: actions/setup-python@v6
         with:
@@ -739,7 +739,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: 🧰 Install Python
         uses: actions/setup-python@v6
         with:
@@ -801,7 +801,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: 🧰 Install Python
         uses: actions/setup-python@v6
         with:
@@ -870,7 +870,7 @@ jobs:
       - c-check-format
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: 🧰 Install Python
         uses: actions/setup-python@v6
         with:
@@ -935,7 +935,7 @@ jobs:
       id-token: write
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: 📥 Download Python wheels
         uses: actions/download-artifact@v8
         with:
@@ -951,7 +951,7 @@ jobs:
       contents: write
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: 🧰 Install Python
@@ -980,7 +980,7 @@ jobs:
       contents: write
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: 🧰 Install Python
@@ -1021,7 +1021,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Check-out
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: 📥 Download Linux x86_64 library
         uses: actions/download-artifact@v8
         with:
