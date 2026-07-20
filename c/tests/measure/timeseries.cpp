@@ -47,6 +47,26 @@ TEST_CASE("Timeseries", "[Batched]") {
 	}
 }
 
+TEST_CASE("Timeseries", "[MinMaxAvg]") {
+	{
+		auto timeseries = store<unsigned>();
+		timeseries.addValue(20, 0ms);
+		CHECK(timeseries.minValue() == 20);
+		CHECK(timeseries.maxValue() == 20);
+		CHECK(timeseries.avgValue() == 20);
+
+		timeseries.addValue(60, 1ms);
+		CHECK(timeseries.minValue() == 20);
+		CHECK(timeseries.maxValue() == 60);
+		CHECK(timeseries.avgValue() == 40);
+
+		timeseries.addValue(10, 2ms);
+		CHECK(timeseries.minValue() == 10);
+		CHECK(timeseries.maxValue() == 60);
+		CHECK(timeseries.avgValue() == 30);
+	}
+}
+
 TEST_CASE("Timeseries", "[Limit]") {
 	{
 		auto timeseries = store<unsigned>() | Limit(4, TIREX_AGG_MAX);
