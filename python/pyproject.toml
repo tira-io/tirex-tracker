@@ -24,7 +24,7 @@ classifiers = [
 dependencies = [
     "typing-extensions~=4.0",
     "importlib-metadata~=8.0",
-    "importlib-resources~=6.0",
+    "importlib-resources>=6,<8",
     "ipython",
     "pyyaml~=6.0",
 ]
