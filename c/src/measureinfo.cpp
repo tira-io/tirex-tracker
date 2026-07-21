@@ -244,7 +244,12 @@ static const tirexMeasureInfo measureInfos[]{
 		/*[TIREX_DEVCONTAINER_CONF_PATHS] = */
 		{.description = "Searches for devcontainer configuration files and reports their location.",
 		 .datatype = tirexResultType::TIREX_STRING,
-		 .example = "[\"folder/.devcontainer/devcontainer.json\"]"}
+		 .example = "[\"folder/.devcontainer/devcontainer.json\"]"},
+		/*[TIREX_CPU_TEMPERATURE_CELSIUS] = */
+		{.description = "The CPU package temperature in degree Celsius tracked over the measured period.",
+		 .datatype = tirexResultType::TIREX_STRING,
+		 .example = "{\"max\": 62, \"min\": 48, \"avg\": 55, \"timeseries\": {\"timestamps\": [\"108ms\"], \"values\": "
+					"[55]}}"}
 };
 static_assert((sizeof(measureInfos) / sizeof(*measureInfos)) == TIREX_MEASURE_COUNT);
 
