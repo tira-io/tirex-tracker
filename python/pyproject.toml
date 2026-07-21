@@ -61,7 +61,7 @@ examples = [
 "Bug Tracker" = "https://github.com/tira-io/tirex-tracker/issues"
 
 [build-system]
-requires = ["setuptools>=75,<83", "setuptools-scm>=8,<11"]
+requires = ["setuptools>=75,<84", "setuptools-scm>=8,<11"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
