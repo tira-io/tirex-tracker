@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_38a876d14b5516144c7bcccda62f37ac" kind="dir">
+    <compoundname>c/extensions</compoundname>
+    <innerfile refid="irtracker_8h">irtracker.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="c/extensions/"/>
+  </compounddef>
+</doxygen>

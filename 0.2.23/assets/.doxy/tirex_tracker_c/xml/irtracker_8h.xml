@@ -1,0 +1,118 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="irtracker_8h" kind="file" language="C++">
+    <compoundname>irtracker.h</compoundname>
+    <includes refid="tirex__tracker_8h" local="no">tirex_tracker.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>stdbool.h</label>
+      </node>
+      <node id="6">
+        <label>tirex_tracker_export.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="2">
+        <label>tirex_tracker.h</label>
+        <link refid="tirex__tracker_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>c/extensions/irtracker.h</label>
+        <link refid="irtracker_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__irtracking_1ga6773ca7a4d65e4fd20a0ba025499a6d4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>TIREX_TRACKER_EXPORT <ref refid="group__error_1gad614149e5fc1433cb2b8252452cbbd5a" kindref="member">tirexError</ref></type>
+        <definition>TIREX_TRACKER_EXPORT tirexError tirexResultExportIrMetadata</definition>
+        <argsstring>(const tirexResult *info, const tirexResult *result, const char *filepath)</argsstring>
+        <name>tirexResultExportIrMetadata</name>
+        <param>
+          <type>const <ref refid="group__tirexresult_1gae3dc7f40e0e661137a892273787b5643" kindref="member">tirexResult</ref> *</type>
+          <declname>info</declname>
+        </param>
+        <param>
+          <type>const <ref refid="group__tirexresult_1gae3dc7f40e0e661137a892273787b5643" kindref="member">tirexResult</ref> *</type>
+          <declname>result</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>filepath</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>info</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>result</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>filepath</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>TIREX_TRACKER_EXPORT </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/extensions/irtracker.h" line="29" column="1" declfile="c/extensions/irtracker.h" declline="29" declcolumn="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Contains the ir extension for tirex tracker. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TIREX_TRACKEREXT_IRTRACKER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TIREX_TRACKEREXT_IRTRACKER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="tirex__tracker_8h" kindref="compound">tirex_tracker.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal">TIREX_TRACKER_EXPORT<sp/><ref refid="group__error_1gad614149e5fc1433cb2b8252452cbbd5a" kindref="member">tirexError</ref></highlight></codeline>
+<codeline lineno="29" refid="group__irtracking_1ga6773ca7a4d65e4fd20a0ba025499a6d4" refkind="member"><highlight class="normal"><ref refid="group__irtracking_1ga6773ca7a4d65e4fd20a0ba025499a6d4" kindref="member">tirexResultExportIrMetadata</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="group__tirexresult_1gae3dc7f40e0e661137a892273787b5643" kindref="member">tirexResult</ref>*<sp/>info,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="group__tirexresult_1gae3dc7f40e0e661137a892273787b5643" kindref="member">tirexResult</ref>*<sp/>result,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>filepath);</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/></highlight><highlight class="comment">//<sp/>end<sp/>of<sp/>irtracking</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="35"><highlight class="preprocessor">#endif</highlight></codeline>
+    </programlisting>
+    <location file="c/extensions/irtracker.h"/>
+  </compounddef>
+</doxygen>
