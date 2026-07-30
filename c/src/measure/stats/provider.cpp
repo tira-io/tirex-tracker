@@ -7,6 +7,7 @@
 #include "gitstats.hpp"
 #include "nvmlstats.hpp"
 #include "systemstats.hpp"
+#include "temperaturestats.hpp"
 
 #include <algorithm>
 
@@ -16,6 +17,7 @@ using tirex::GitStats;
 using tirex::NVMLStats;
 using tirex::StatsProvider;
 using tirex::SystemStats;
+using tirex::TemperatureStats;
 
 const std::map<std::string, tirex::ProviderEntry> tirex::providers{
 		{"system",
@@ -24,6 +26,9 @@ const std::map<std::string, tirex::ProviderEntry> tirex::providers{
 		 {std::make_unique<EnergyStats>, EnergyStats::measures, EnergyStats::version, EnergyStats::description}},
 		{"git", {std::make_unique<GitStats>, GitStats::measures, GitStats::version, GitStats::description}},
 		{"gpu", {std::make_unique<NVMLStats>, NVMLStats::measures, NVMLStats::version, NVMLStats::description}},
+		{"temperature",
+		 {std::make_unique<TemperatureStats>, TemperatureStats::measures, TemperatureStats::version,
+		  TemperatureStats::description}},
 		{"devcontainer",
 		 {std::make_unique<DevContainerStats>, DevContainerStats::measures, DevContainerStats::version,
 		  DevContainerStats::description}},

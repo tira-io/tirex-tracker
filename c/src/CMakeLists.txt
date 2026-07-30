@@ -31,12 +31,14 @@ target_sources(tirex_tracker
 
 		measure/stats/devcontainerstats.cpp
 		measure/stats/energystats.cpp
+		measure/stats/details/raspberrypi/pmicreader.cpp
 		measure/stats/gitstats.cpp
 		measure/stats/nvmlstats.cpp
 		measure/stats/systemstats.cpp
 		measure/stats/systemstats_linux.cpp
 		measure/stats/systemstats_macos.cpp
 		measure/stats/systemstats_windows.cpp
+		measure/stats/temperaturestats.cpp
 
 		${TIREX_EXT_SOURCES}
 )
