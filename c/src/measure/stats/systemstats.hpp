@@ -141,6 +141,7 @@ namespace tirex {
 		void stop() override;
 		void step() override;
 		Stats getStats() override;
+		Stats peekStats() override;
 		Stats getInfo() override;
 
 		static constexpr const char* description = "Collects system components and utilization metrics.";

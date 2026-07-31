@@ -31,6 +31,7 @@ namespace tirex {
 		std::set<tirexMeasure> providedMeasures() noexcept override;
 		void step() override;
 		Stats getStats() override;
+		Stats peekStats() override;
 		Stats getInfo() override;
 
 		static constexpr const char* description = "Collects GPU related metrics for NVIDIA GPUs.";

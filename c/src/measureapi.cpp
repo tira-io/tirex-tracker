@@ -8,6 +8,7 @@
 #include <cstring>
 #include <future>
 #include <iostream>
+#include <mutex>
 #include <sstream>
 #include <thread>
 #include <vector>
@@ -17,6 +18,7 @@ struct tirexMeasureHandle_st final {
 	const std::vector<std::unique_ptr<tirex::StatsProvider>> providers;
 	std::thread monitorthread;
 	std::promise<void> signal;
+	mutable std::mutex stepMutex;
 
 	tirexMeasureHandle_st(tirexMeasureHandle_st& other) = delete;
 
@@ -54,6 +56,7 @@ struct tirexMeasureHandle_st final {
 		auto future = self->signal.get_future();
 		std::chrono::milliseconds intervall{self->pollIntervalMs};
 		do {
+			std::lock_guard<std::mutex> lock(self->stepMutex);
 			for (auto& provider : self->providers)
 				provider->step();
 		} while (future.wait_for(intervall) != std::future_status::ready);
@@ -106,5 +109,18 @@ tirexError tirexStopTracking(tirexMeasureHandle* measure, tirexResult** result) 
 	auto res = measure->stop();
 	*result = createMsrResultFromStats(std::move(res));
 	delete measure;
+	return TIREX_SUCCESS;
+}
+
+tirexError tirexPeekResult(const tirexMeasureHandle* handle, tirexResult** result) {
+	if (handle == nullptr || result == nullptr)
+		return TIREX_INVALID_ARGUMENT;
+	// Hold the lock for the full duration: Stats may contain reference_wrappers into
+	// TimeSeries data that must not be mutated by the monitor thread while we serialize.
+	std::lock_guard<std::mutex> lock(handle->stepMutex);
+	tirex::Stats stats{};
+	for (auto& provider : handle->providers)
+		stats.merge(provider->peekStats());
+	*result = createMsrResultFromStats(std::move(stats));
 	return TIREX_SUCCESS;
 }
