@@ -26,6 +26,7 @@ namespace std23 {
 } // namespace std23
 #endif
 
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <string>
@@ -176,13 +177,11 @@ static std::string hashAllFiles(git_repository* repo) {
 	std::filesystem::path root = git_repository_workdir(repo);
 	for (size_t i = 0; i < changes; ++i) {
 		auto entry = git_status_byindex(list, i);
+		const char* path = entry->index_to_workdir->new_file.path;
 		if (entry->status == GIT_STATUS_INDEX_DELETED || entry->status == GIT_STATUS_WT_DELETED)
 			continue;
-		if (!std::filesystem::is_regular_file(root / entry->index_to_workdir->new_file.path)) {
-			tirex::log::warn(
-					"gitstats", "The folder {} is not checked into the repository nor ignored!",
-					entry->index_to_workdir->new_file.path
-			);
+		if (!std::filesystem::is_regular_file(root / path)) {
+			tirex::log::warn("gitstats", "The folder {} is not checked into the repository nor ignored!", path);
 			tirex::log::warn(
 					"gitstats", "I will not include it in the hash. Please add it to the .gitignore if is not part of "
 								"your codebase or check it into the repository if it should be."
@@ -190,11 +189,20 @@ static std::string hashAllFiles(git_repository* repo) {
 			tirex::abort(tirexLogLevel::WARN, "Folders that are not checked into the repository are ignored.");
 			continue;
 		}
-		std::ifstream is(root / entry->index_to_workdir->new_file.path, std::ios::binary);
-		if (!is) {
-			tirex::log::error("gitstats", "Error opening file: {}", entry->index_to_workdir->new_file.path);
+		size_t pathLen = std::strnlen(path, GIT_PATH_MAX + 1);
+		if (pathLen > GIT_PATH_MAX) {
+			tirex::log::warn("gitstats", "Path exceeds the maximum git path length of {}, skipping: {}", GIT_PATH_MAX, path);
 			continue;
 		}
+		std::ifstream is(root / path, std::ios::binary);
+		if (!is) {
+			tirex::log::error("gitstats", "Error opening file: {}", path);
+			continue;
+		}
+		/** Mix in the file's repo-relative path (not just its content), so that renaming a file, or otherwise
+		 * rearranging an identical set of file contents across paths, changes the hash. The NUL separator prevents e.g.
+		 * ("ab", "c") and ("a", "bc") from hashing identically. */
+		hash.addData(path, pathLen+1);
 		for (char buffer[8192]; is; is.read(buffer, sizeof(buffer)))
 			hash.addData(buffer, is.gcount());
 	}
@@ -292,9 +300,17 @@ static GitStatusStats getStatusStats(git_repository* repo) {
 		auto changes = git_status_list_entrycount(list);
 		for (size_t i = 0; i < changes; ++i) {
 			auto entry = git_status_byindex(list, i);
-			if (entry->status & (git_status_t::GIT_STATUS_INDEX_NEW | GIT_STATUS_WT_NEW))
+			if (entry->status & (git_status_t::GIT_STATUS_INDEX_NEW | git_status_t::GIT_STATUS_WT_NEW))
 				++stats.numNew;
-			else if (entry->status & (git_status_t::GIT_STATUS_INDEX_MODIFIED | git_status_t::GIT_STATUS_WT_MODIFIED))
+			/** Any other kind of change to an already-tracked file (not just content modification) also counts as an
+			 * uncommitted change: deletions, renames, type changes, and merge conflicts. */
+			else if (
+					entry->status & (git_status_t::GIT_STATUS_INDEX_MODIFIED | git_status_t::GIT_STATUS_WT_MODIFIED |
+									 git_status_t::GIT_STATUS_INDEX_DELETED | git_status_t::GIT_STATUS_WT_DELETED |
+									 git_status_t::GIT_STATUS_INDEX_RENAMED | git_status_t::GIT_STATUS_WT_RENAMED |
+									 git_status_t::GIT_STATUS_INDEX_TYPECHANGE |
+									 git_status_t::GIT_STATUS_WT_TYPECHANGE | git_status_t::GIT_STATUS_CONFLICTED)
+			)
 				++stats.numModified;
 		}
 		git_status_list_free(list);

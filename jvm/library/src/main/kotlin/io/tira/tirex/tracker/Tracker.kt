@@ -275,8 +275,8 @@ internal open class NativeProviderInfo(pointer: Pointer? = null) : Structure(poi
 
 
 private val JAVA_PROVIDER = ProviderInfo(
-    name = "Python",
-    description = "Python-specific measures.",
+    name = "Java",
+    description = "Java-specific measures.",
     version = Build.VERSION,
 )
 
@@ -801,7 +801,7 @@ class TrackingHandle private constructor(
         javaVm["vendor"] = javaInfo.getValue(Measure.JAVA_VM_VENDOR).value?.let { json.decodeFromString<String?>(it) }
         javaVm["name"] = javaInfo.getValue(Measure.JAVA_VM_NAME).value?.let { json.decodeFromString<String?>(it) }
         val javaVmSpecification: MutableMap<String, Any?> =
-            javaVm.getOrPut("vm") { mutableMapOf<String, Any?>() } as MutableMap<String, Any?>
+            javaVm.getOrPut("specification") { mutableMapOf<String, Any?>() } as MutableMap<String, Any?>
         javaVmSpecification["version"] =
             javaInfo.getValue(Measure.JAVA_VM_SPECIFICATION_VERSION).value?.let { json.decodeFromString<String?>(it) }
         javaVmSpecification["vendor"] =
@@ -809,7 +809,7 @@ class TrackingHandle private constructor(
         javaVmSpecification["name"] =
             javaInfo.getValue(Measure.JAVA_VM_SPECIFICATION_NAME).value?.let { json.decodeFromString<String?>(it) }
         val javaSpecification: MutableMap<String, Any?> =
-            java.getOrPut("vm") { mutableMapOf<String, Any?>() } as MutableMap<String, Any?>
+            java.getOrPut("specification") { mutableMapOf<String, Any?>() } as MutableMap<String, Any?>
         javaSpecification["version"] =
             javaInfo.getValue(Measure.JAVA_SPECIFICATION_VERSION).value?.let { json.decodeFromString<String?>(it) }
         javaSpecification["maintenance version"] =

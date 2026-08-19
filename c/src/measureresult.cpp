@@ -70,6 +70,11 @@ template <typename T>
 static std::string toYAML(const tirex::TimeSeries<T>& timeseries) {
 	const auto& [timestamps, values] = timeseries.timeseries();
 	static_assert(std::is_same_v<decltype(timestamps), const std::vector<std::chrono::milliseconds>&>);
+	if (timestamps.empty()) {
+		// maxValue()/minValue()/avgValue() are undefined behavior on an empty series, and joining an empty timestamps
+		// range would otherwise produce a spurious `[""]` instead of `[]`.
+		return "{\"max\": null, \"min\": null, \"avg\": null, \"timeseries\": {\"timestamps\": [], \"values\": []}}";
+	}
 	return _fmt::format(
 			"{{\"max\": {}, \"min\": {}, \"avg\": {}, \"timeseries\": {{\"timestamps\": [\"{}\"], \"values\": [{}]}}}}",
 			timeseries.maxValue(), timeseries.minValue(), timeseries.avgValue(),

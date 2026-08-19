@@ -18,6 +18,7 @@
 #include <psapi.h>
 #include <versionhelpers.h>
 
+#include <cstring>
 #include <tuple>
 
 using namespace std::string_literals;
@@ -169,13 +170,13 @@ static unsigned getSystemRAMUsageMB() {
 	}
 }
 
-uint8_t SystemStats::getCPUUtilization() {
+unsigned SystemStats::getCPUUtilization() {
 	FILETIME sysIdle, sysKernel, sysUser;
 	if (GetSystemTimes(&sysIdle, &sysKernel, &sysUser) == 0) {
 		tirex::log::error("windowsstats", "Failed to get system times");
 		return 0;
 	}
-	uint8_t util = 1;
+	unsigned util = 1;
 	if (prevSysIdle.dwLowDateTime != 0 && prevSysIdle.dwHighDateTime != 0) {
 		auto sysIdleDiff = fileTimeToUint64(sysIdle) - fileTimeToUint64(prevSysIdle);
 		auto sysKernelDiff = fileTimeToUint64(sysKernel) - fileTimeToUint64(prevSysKernel);
@@ -185,7 +186,7 @@ uint8_t SystemStats::getCPUUtilization() {
 				sysKernelDiff - sysIdleDiff; // kernelTime - IdleTime = kernelTime, because sysKernel include IdleTime
 
 		if (sysTotal > 0) // sometimes kernelTime > idleTime
-			util = static_cast<uint8_t>(((kernelTotal + sysUserDiff) * 100) / sysTotal);
+			util = static_cast<unsigned>(((kernelTotal + sysUserDiff) * 100) / sysTotal);
 	}
 
 	prevSysIdle = sysIdle;
@@ -195,25 +196,30 @@ uint8_t SystemStats::getCPUUtilization() {
 	return util;
 }
 
-uint8_t SystemStats::getProcCPUUtilization() {
+unsigned SystemStats::getProcCPUUtilization() {
 	FILETIME ftime, fsys, fuser;
 	ULARGE_INTEGER now, sys, user;
-	size_t percent;
+	size_t percent = 0;
 
 	GetSystemTimeAsFileTime(&ftime);
-	memcpy(&now, &ftime, sizeof(FILETIME));
+	std::memcpy(&now, &ftime, sizeof(FILETIME));
 
 	GetProcessTimes(pid, &ftime, &ftime, &fsys, &fuser);
-	memcpy(&sys, &fsys, sizeof(FILETIME));
-	memcpy(&user, &fuser, sizeof(FILETIME));
-	percent = (sys.QuadPart - lastSysCPU.QuadPart) + (user.QuadPart - lastUserCPU.QuadPart);
-	percent /= (now.QuadPart - lastCPU.QuadPart);
-	percent *= 100;
-	percent /= numProcessors;
+	std::memcpy(&sys, &fsys, sizeof(FILETIME));
+	std::memcpy(&user, &fuser, sizeof(FILETIME));
+	auto elapsed = now.QuadPart - lastCPU.QuadPart;
+	if (elapsed != 0) {
+		// Multiply by 100 before dividing so that CPU usage below 100% doesn't get truncated to 0.
+		percent = ((sys.QuadPart - lastSysCPU.QuadPart) + (user.QuadPart - lastUserCPU.QuadPart)) * 100;
+		percent /= elapsed;
+		percent /= numProcessors;
+	} else {
+		tirex::log::warn("windowsstats", "Called too quickly apart (0 ticks elapsed)");
+	}
 	lastCPU = now;
 	lastUserCPU = user;
 	lastSysCPU = sys;
-	return static_cast<uint8_t>(percent);
+	return static_cast<unsigned>(percent);
 }
 
 SystemStats::Utilization SystemStats::getUtilization() {

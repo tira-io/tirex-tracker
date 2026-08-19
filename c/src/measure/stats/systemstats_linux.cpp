@@ -16,7 +16,9 @@
 #include <cinttypes>
 #include <filesystem>
 #include <fstream>
+#include <limits>
 #include <optional>
+#include <sstream>
 
 using std::chrono::steady_clock;
 using std::chrono::system_clock;
@@ -31,13 +33,13 @@ extern "C" {
 uint32_t cpuinfo_linux_get_processor_cur_frequency(uint32_t processor);
 }
 
-uint8_t SystemStats::getProcCPUUtilization() {
+unsigned SystemStats::getProcCPUUtilization() {
 	auto [systime, utime] = getSysAndUserTime();
 	auto time = steady_clock::now();
 	auto timeActiveMs = tickToMs(systime + utime);
 	auto totTime = std::chrono::duration_cast<std::chrono::milliseconds>(time - lastProcTime).count();
 	if (totTime != 0) {
-		auto percent = static_cast<uint8_t>((timeActiveMs - lastProcActiveMs) * 100 / totTime);
+		auto percent = static_cast<unsigned>((timeActiveMs - lastProcActiveMs) * 100 / totTime);
 		lastProcTime = time;
 		lastProcActiveMs = timeActiveMs;
 		return percent;
@@ -55,15 +57,28 @@ size_t SystemStats::tickToMs(size_t tick) {
 std::tuple<size_t, size_t> SystemStats::getSysAndUserTime() const {
 	// Table 1-4 in https://www.kernel.org/doc/html/latest/filesystems/proc.html
 	auto statFile = std::filesystem::path("/") / "proc" / std::to_string(pid) / "stat";
-	auto is = std::ifstream(statFile.c_str());
+	std::ifstream is(statFile.c_str());
+	std::string line;
+	if (!std::getline(is, line)) {
+		tirex::log::error("linuxstats", "Failed to read {}", statFile.string());
+		return {0, 0};
+	}
+	/** The `comm` field is parenthesized and, per proc(5), may itself contain ')' (e.g. a process renamed via
+	 *  prctl(PR_SET_NAME)) without the kernel escaping it. As such, we need to scan for the *last* ')' to correctly
+	 *  locate the end of the comm field. */
+	auto closeParen = line.rfind(')');
+	if (closeParen == std::string::npos) {
+		tirex::log::error("linuxstats", "Unexpected format in {}", statFile.string());
+		return {0, 0};
+	}
+	std::istringstream rest(line.substr(closeParen + 1));
 	size_t ignore, utime, stime;
 	char cignore;
-	is >> ignore;
-	// Skip filename
-	while (is && is.get() != ')')
-		;
-	is >> cignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >>
-			utime >> stime;
+	if (!(rest >> cignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >>
+		  ignore >> utime >> stime)) {
+		tirex::log::error("linuxstats", "Failed to parse {}", statFile.string());
+		return {0, 0};
+	}
 	return {stime, utime};
 }
 
@@ -149,31 +164,73 @@ SystemStats::Utilization SystemStats::getUtilization() {
 	Utilization utilization;
 	parseStat(utilization);
 	parseStatm(pid, utilization);
-
-	struct sysinfo info;
-	sysinfo(&info);
-	utilization.system.ramUsedMB =
-			((std::uint64_t)(info.totalram - info.freeram - info.bufferram - info.freehigh) * info.mem_unit) / 1000 /
-			1000;
+	parseMemInfo(utilization);
 	utilization.cpuUtilization = getProcCPUUtilization();
 
 	return utilization;
 }
 
+namespace {
+	/** @brief The subset of /proc/meminfo fields needed to compute "used" RAM without counting reclaimable page
+	 *  cache/slab as used. All values are in kibibytes, as reported by the kernel. */
+	struct MemInfoFields {
+		std::optional<std::uint64_t> memTotalKB;
+		std::optional<std::uint64_t> memFreeKB;
+		std::optional<std::uint64_t> buffersKB;
+		std::optional<std::uint64_t> cachedKB;
+		std::optional<std::uint64_t> sreclaimableKB;
+	};
+
+	/**
+	 * @brief Parses the fields of MemInfoFields out of a stream formatted like /proc/meminfo.
+	 * @details Factored out from the file-reading code so it can be unit tested against a synthetic input without
+	 * needing a real /proc/meminfo.
+	 */
+	MemInfoFields parseMemInfoFields(std::istream& is) {
+		MemInfoFields fields;
+		std::string key;
+		std::uint64_t value;
+		while (is >> key >> value) {
+			if (key == "MemTotal:")
+				fields.memTotalKB = value;
+			else if (key == "MemFree:")
+				fields.memFreeKB = value;
+			else if (key == "Buffers:")
+				fields.buffersKB = value;
+			else if (key == "Cached:")
+				fields.cachedKB = value;
+			else if (key == "SReclaimable:")
+				fields.sreclaimableKB = value;
+			// Discard the rest of the line (e.g. the trailing "kB" unit).
+			is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		}
+		return fields;
+	}
+} // namespace
+
 void SystemStats::parseMemInfo(Utilization& utilization) {
 	auto file = std::filesystem::path("/") / "proc" / "meminfo";
 	auto is = std::ifstream(file.c_str());
-	std::string key;
+	auto fields = parseMemInfoFields(is);
 
-	while (is) {
-		is >> key;
-		if (key == "MemTotal:") {
-
-		} else {
-			std::getline(is, key); // Write to key to throw away
-		}
+	if (fields.memTotalKB && fields.memFreeKB && fields.buffersKB && fields.cachedKB && fields.sreclaimableKB) {
+		auto usedKB =
+				*fields.memTotalKB - *fields.memFreeKB - *fields.buffersKB - *fields.cachedKB - *fields.sreclaimableKB;
+		utilization.system.ramUsedMB = static_cast<unsigned>(usedKB / 1000);
+		return;
 	}
-	/** \todo: memory used = MemTotal - MemFree - Buffers - Cached - SReclaimable **/
+
+	tirex::log::warn(
+			"linuxstats", "Failed to parse /proc/meminfo; falling back to a sysinfo()-based approximation that "
+						   "does not exclude reclaimable page cache from \"used\" RAM"
+	);
+	struct sysinfo info;
+	sysinfo(&info);
+	utilization.system.ramUsedMB =
+			static_cast<unsigned>(
+					((std::uint64_t)(info.totalram - info.freeram - info.bufferram - info.freehigh) * info.mem_unit)
+			) /
+			1000 / 1000;
 }
 
 void SystemStats::parseStat(Utilization& utilization) {
@@ -186,8 +243,8 @@ void SystemStats::parseStat(Utilization& utilization) {
 
 	auto total = user + nice + system + idle + iowait + irq + softirq + steal + guest + guestnice;
 	if (total - lastTotal == 0) {
-		// Not enough time has passed
-		utilization.system.cpuUtilization = 100;
+		tirex::log::warn("linuxstats", "Called too quickly apart (0 jiffies elapsed)");
+		utilization.system.cpuUtilization = 0;
 	} else {
 		utilization.system.cpuUtilization = 100 - (((idle - lastIdle) * 100) / (total - lastTotal));
 
@@ -201,8 +258,12 @@ void SystemStats::parseStatm(pid_t pid, Utilization& utilization) {
 	auto statFile = std::filesystem::path("/") / "proc" / std::to_string(pid) / "statm";
 	auto is = std::ifstream(statFile.c_str());
 	size_t ignore, resident;
-	is >> ignore >> resident;
-	utilization.ramUsedKB = (resident * getpagesize()) / 1000;
+	if (is >> ignore >> resident) {
+		utilization.ramUsedKB = static_cast<unsigned>((resident * getpagesize()) / 1000);
+	} else {
+		tirex::log::error("linuxstats", "Failed to read {}", statFile.string());
+		utilization.ramUsedKB = 0;
+	}
 }
 
 #endif

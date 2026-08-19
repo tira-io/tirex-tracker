@@ -346,9 +346,12 @@ SystemStats::CPUInfo::VirtFlags getVirtSupport() { return {.svm = false, .vmx = 
 #elif defined(__linux__)
 SystemStats::CPUInfo::VirtFlags getVirtSupport() {
 	/** This is a crude implementation for now that only takes into account the flags of the very first processor **/
+	/** x86 exposes CPU flags (including "svm"/"vmx") under the "flags" field; ARM/aarch64 uses "Features" instead
+	 * (which never contains svm/vmx, since those are x86-only concepts). Check both so this works on either
+	 * architecture without needing a separate compile-time branch. **/
 	std::ifstream is("/proc/cpuinfo");
 	for (std::string line; std::getline(is, line);)
-		if (line.starts_with("Features"))
+		if (line.starts_with("flags") || line.starts_with("Features"))
 			return {.svm = line.find("svm") != std::string::npos, .vmx = line.find("vmx") != std::string::npos};
 	return {.svm = false, .vmx = false};
 }

@@ -30,20 +30,23 @@ static std::string getKernelDesc() {
 	return _fmt::format("{} {}", getSysctl<std::string>("kern.ostype"), getSysctl<std::string>("kern.osrelease"));
 }
 
-uint8_t SystemStats::getProcCPUUtilization() {
+unsigned SystemStats::getProcCPUUtilization() {
 	auto [systime, utime] = getSysAndUserTime();
 	auto time = steady_clock::now();
 	auto timeActiveMs = tickToMs(systime + utime);
-	auto percent = static_cast<uint8_t>(
-			(timeActiveMs - lastProcActiveMs) * 100 /
-			std::chrono::duration_cast<std::chrono::milliseconds>(time - lastProcTime).count()
-	);
-	lastProcTime = time;
-	lastProcActiveMs = timeActiveMs;
-	return percent;
+	auto totTime = std::chrono::duration_cast<std::chrono::milliseconds>(time - lastProcTime).count();
+	if (totTime != 0) {
+		auto percent = static_cast<unsigned>((timeActiveMs - lastProcActiveMs) * 100 / totTime);
+		lastProcTime = time;
+		lastProcActiveMs = timeActiveMs;
+		return percent;
+	} else {
+		tirex::log::warn("macosstats", "Called too quickly apart ({} ms)", totTime);
+	}
+	return 0;
 }
 
-uint8_t SystemStats::getCPUUtilization() {
+unsigned SystemStats::getCPUUtilization() {
 	static thread_local host_cpu_load_info cpuLoad;
 	auto count = HOST_CPU_LOAD_INFO_COUNT;
 	if (kern_return_t err;
@@ -54,7 +57,7 @@ uint8_t SystemStats::getCPUUtilization() {
 	}
 	size_t total = (size_t)cpuLoad.cpu_ticks[CPU_STATE_USER] + (size_t)cpuLoad.cpu_ticks[CPU_STATE_SYSTEM] +
 				   (size_t)cpuLoad.cpu_ticks[CPU_STATE_IDLE] + (size_t)cpuLoad.cpu_ticks[CPU_STATE_NICE];
-	uint8_t util = 0;
+	unsigned util = 0;
 	if ((total - lastTotal) > 0) { // Otherwise not enough time has passed yet
 		util = 100 - (((cpuLoad.cpu_ticks[CPU_STATE_IDLE] - lastIdle) * 100) / (total - lastTotal));
 		lastIdle = cpuLoad.cpu_ticks[CPU_STATE_IDLE];
@@ -100,10 +103,16 @@ static unsigned getSystemRAMUsageMB() {
 		tirex::log::error("macosstats", "Failed to fetch VM statistics with error code {}", err);
 		return 0;
 	}
-	return ((uint64_t)vmstat.active_count + (uint64_t)vmstat.inactive_count + (uint64_t)vmstat.wire_count +
-			(uint64_t)vmstat.speculative_count + (uint64_t)vmstat.compressor_page_count -
-			(uint64_t)vmstat.purgeable_count - (uint64_t)vmstat.external_page_count) *
-		   page_size / 1000'000u;
+	uint64_t usedPages = (uint64_t)vmstat.active_count + (uint64_t)vmstat.inactive_count +
+						 (uint64_t)vmstat.wire_count + (uint64_t)vmstat.speculative_count +
+						 (uint64_t)vmstat.compressor_page_count;
+	uint64_t excludedPages = (uint64_t)vmstat.purgeable_count + (uint64_t)vmstat.external_page_count;
+	/** Guard against unsigned underflow: excludedPages could in principle exceed usedPages (e.g. a system with a large
+	 * amount of purgeable/file-backed memory relative to the other categories), which would otherwise wrap around to a
+	 * value near UINT64_MAX. */
+	if (excludedPages > usedPages)
+		return 0;
+	return (usedPages - excludedPages) * page_size / 1000'000u;
 }
 
 SystemStats::Utilization SystemStats::getUtilization() {

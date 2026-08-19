@@ -87,18 +87,18 @@ namespace tirex {
 		size_t startSysTime, stopSysTime;
 
 		struct Utilization {
-			unsigned ramUsedKB;		/**< Amount of RAM used by the monitored process alone **/
-			uint8_t cpuUtilization; /**< CPU utilization (in percent) of the tracked process **/
+			unsigned ramUsedKB;		 /**< Amount of RAM used by the monitored process alone **/
+			unsigned cpuUtilization; /**< CPU utilization (in percent) of the tracked process **/
 			struct {
-				unsigned ramUsedMB;		/**< Amount of RAM (in Megabytes) used by all processes **/
-				uint8_t cpuUtilization; /**< CPU utilization of all processes **/
+				unsigned ramUsedMB;		 /**< Amount of RAM (in Megabytes) used by all processes **/
+				unsigned cpuUtilization; /**< CPU utilization of all processes **/
 			} system;
 		};
 		Utilization getUtilization();
 		std::tuple<size_t, size_t> getSysAndUserTime() const;
 		static size_t tickToMs(size_t tick);
 
-		uint8_t getProcCPUUtilization();
+		unsigned getProcCPUUtilization();
 
 		/**
 		 * @brief Gets the command line arguments of the invocation of the tracked process.
@@ -122,7 +122,7 @@ namespace tirex {
 		ULARGE_INTEGER lastCPU, lastSysCPU, lastUserCPU;
 		unsigned numProcessors;
 
-		uint8_t getCPUUtilization();
+		unsigned getCPUUtilization();
 #elif __APPLE__
 		pid_t pid; /**< The process identifier of the tracked process. */
 		size_t lastIdle = 0;
@@ -130,7 +130,7 @@ namespace tirex {
 		size_t lastProcActiveMs = 0;
 		std::chrono::steady_clock::time_point lastProcTime{};
 
-		uint8_t getCPUUtilization();
+		unsigned getCPUUtilization();
 #endif
 
 	public:

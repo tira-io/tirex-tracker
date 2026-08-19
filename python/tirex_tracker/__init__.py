@@ -3,7 +3,7 @@ from __future__ import annotations
 import zipfile
 from collections import defaultdict
 from ctypes import CFUNCTYPE, c_char_p, c_int, c_size_t, pointer
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from functools import wraps
 from gzip import open as gzip_open
@@ -322,6 +322,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
     _export_file_path: Optional[PathLike]
     _export_format: Optional[ExportFormat]
     results: MutableMapping[Measure, ResultEntry]
+    _stopped: bool = field(default=False, init=False, compare=False)
 
     # TODO: Add aggregation(s) (mapping) parameter.
     @classmethod
@@ -368,6 +369,12 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         )
 
     def stop(self) -> Mapping[Measure, ResultEntry]:
+        # Guard against being called twice (e.g. a manual .stop() followed by __exit__ from a `with` block): the native
+        # handle is freed by the first call, so calling tirexStopTracking again would be a use-after-free.
+        if self._stopped:
+            return self.results
+        object.__setattr__(self, "_stopped", True)
+
         result_pointer = pointer(pointer(_Result()))
         error_int = _LIBRARY.tirexStopTracking(self._tracking_handle, result_pointer)
         _handle_error(error_int)
