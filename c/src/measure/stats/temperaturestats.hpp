@@ -7,8 +7,6 @@
 #include <optional>
 
 namespace tirex {
-	using namespace std::chrono_literals;
-
 	/**
 	 * @brief Tracks the CPU package temperature over the measured period as a time series.
 	 * @details The temperature is read from the operating system's thermal interface. On Linux this is the sysfs
@@ -18,9 +16,7 @@ namespace tirex {
 	 */
 	class TemperatureStats final : public StatsProvider {
 	private:
-		tirex::TimeSeries<unsigned> temperature =
-				ts::store<unsigned>() | ts::Limit(300, TIREX_AGG_MEAN) |
-				ts::Batched(100ms, TIREX_AGG_MEAN, 300); /** \todo make agg configurable */
+		tirex::TimeSeries<unsigned> temperature{300, TIREX_AGG_MEAN}; /** \todo make agg configurable */
 
 		/**
 		 * @brief Reads the current CPU temperature in degree Celsius.

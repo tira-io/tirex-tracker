@@ -189,9 +189,11 @@ static std::string hashAllFiles(git_repository* repo) {
 			tirex::abort(tirexLogLevel::WARN, "Folders that are not checked into the repository are ignored.");
 			continue;
 		}
-		size_t pathLen = std::strnlen(path, GIT_PATH_MAX + 1);
+		size_t pathLen = strnlen(path, GIT_PATH_MAX + 1);
 		if (pathLen > GIT_PATH_MAX) {
-			tirex::log::warn("gitstats", "Path exceeds the maximum git path length of {}, skipping: {}", GIT_PATH_MAX, path);
+			tirex::log::warn(
+					"gitstats", "Path exceeds the maximum git path length of {}, skipping: {}", GIT_PATH_MAX, path
+			);
 			continue;
 		}
 		std::ifstream is(root / path, std::ios::binary);
@@ -202,7 +204,7 @@ static std::string hashAllFiles(git_repository* repo) {
 		/** Mix in the file's repo-relative path (not just its content), so that renaming a file, or otherwise
 		 * rearranging an identical set of file contents across paths, changes the hash. The NUL separator prevents e.g.
 		 * ("ab", "c") and ("a", "bc") from hashing identically. */
-		hash.addData(path, pathLen+1);
+		hash.addData(path, pathLen + 1);
 		for (char buffer[8192]; is; is.read(buffer, sizeof(buffer)))
 			hash.addData(buffer, is.gcount());
 	}

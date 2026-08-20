@@ -69,7 +69,7 @@ void tirexResultFree(tirexResult* result) { delete result; }
 template <typename T>
 static std::string toYAML(const tirex::TimeSeries<T>& timeseries) {
 	const auto& [timestamps, values] = timeseries.timeseries();
-	static_assert(std::is_same_v<decltype(timestamps), const std::vector<std::chrono::milliseconds>&>);
+	static_assert(std::is_same_v<decltype(timestamps), const std::vector<std::chrono::milliseconds>>);
 	if (timestamps.empty()) {
 		// maxValue()/minValue()/avgValue() are undefined behavior on an empty series, and joining an empty timestamps
 		// range would otherwise produce a spurious `[""]` instead of `[]`.
