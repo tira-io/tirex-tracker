@@ -293,18 +293,36 @@ def _prepare_measure_configurations(
     return configs_array
 
 
+def _create_tracking_conf(
+    measures: "Array[_MeasureConfiguration]",
+    pid: Optional[int],
+    track_subprocesses: bool,
+    poll_intervall_ms: int,
+) -> _TrackingConf:
+    return _TrackingConf(
+        measures=measures,
+        pid=(_TIREX_PID_SELF if pid is None else pid),
+        trackSubprocesses=track_subprocesses,
+        pollIntervalMs=poll_intervall_ms,
+    )
+
+
 # TODO: Add aggregation(s) (mapping) parameter.
 def fetch_info(
     measures: Iterable[Measure] = ALL_MEASURES,
+    pid: Optional[int] = None,
+    track_subprocesses: bool = True,
 ) -> Mapping[Measure, ResultEntry]:
     # Get Python info first, and then strip Python measures from the list.
     python_info, remaining_measures = _get_python_info(measures)
 
     # Prepare the measure configurations.
     configs_array = _prepare_measure_configurations(remaining_measures)
+    # pollIntervalMs is irrelevant here (fetch_info doesn't poll), so 0 is fine.
+    tracking_conf = _create_tracking_conf(configs_array, pid, track_subprocesses, poll_intervall_ms=0)
 
     result_pointer = pointer(pointer(_Result()))
-    error_int = _LIBRARY.tirexFetchInfo(configs_array, result_pointer)
+    error_int = _LIBRARY.tirexFetchInfo(tracking_conf, result_pointer)
     _handle_error(error_int)
 
     return {
@@ -344,10 +362,12 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
 
         # Prepare the measure configurations.
         configs_array = _prepare_measure_configurations(measures)
+        # Both calls target the same process, so they share one config (poll interval is irrelevant to fetchInfo).
+        tracking_conf = _create_tracking_conf(configs_array, pid, track_subprocesses, poll_intervall_ms)
 
         # Get other info, first, before starting the tracking.
         result_pointer = pointer(pointer(_Result()))
-        error_int = _LIBRARY.tirexFetchInfo(configs_array, result_pointer)
+        error_int = _LIBRARY.tirexFetchInfo(tracking_conf, result_pointer)
         _handle_error(error_int)
         fetch_info_result = result_pointer.contents
 
@@ -355,12 +375,6 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         error_handle = _init_error_handling()
 
         # Start the tracking.
-        tracking_conf = _TrackingConf(
-            measures=configs_array,
-            pid=(_TIREX_PID_SELF if pid is None else pid),
-            trackSubprocesses=track_subprocesses,
-            pollIntervalMs=poll_intervall_ms,
-        )
         tracking_handle_pointer = pointer(pointer(_TrackingHandle()))
         error_int = _LIBRARY.tirexStartTracking(tracking_conf, tracking_handle_pointer)
         _handle_error(error_int)

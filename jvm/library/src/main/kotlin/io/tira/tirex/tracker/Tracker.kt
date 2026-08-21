@@ -488,7 +488,7 @@ private interface TrackerLibrary : Library {
     fun tirexResultEntryGetByIndex(result: Pointer, index: LibCAPI.size_t, entry: Pointer): Int
     fun tirexResultEntryNum(result: Pointer, num: Pointer): Int
     fun tirexResultFree(result: Pointer)
-    fun tirexFetchInfo(measures: Array<NativeMeasureConfiguration>, result: Pointer): Int
+    fun tirexFetchInfo(conf: NativeTrackingConf, result: Pointer): Int
     fun tirexStartTracking(conf: NativeTrackingConf, handle: Pointer): Int
 
     fun tirexStopTracking(handle: Pointer, result: Pointer): Int
@@ -603,19 +603,35 @@ private fun prepareMeasureConfigurations(measures: Iterable<Measure>): Array<Nat
     return configArray
 }
 
+private fun createTrackingConf(
+    configArray: Array<NativeMeasureConfiguration>,
+    pid: Long?,
+    trackSubprocesses: Boolean,
+    pollIntervalMillis: Long,
+): NativeTrackingConf = NativeTrackingConf().also {
+    it.measures = configArray[0].pointer
+    it.pid = pid ?: TIREX_PID_SELF
+    it.trackSubprocesses = trackSubprocesses
+    it.pollIntervalMs = LibCAPI.size_t(pollIntervalMillis)
+}
+
 // TODO: Add aggregation(s) (mapping) parameter.
 @JvmOverloads
 fun fetchInfo(
     measures: Iterable<Measure> = ALL_MEASURES,
+    pid: Long? = null,
+    trackSubprocesses: Boolean = true,
 ): Map<Measure, ResultEntry> {
     // Get Java info first, and then strip Java measures from the list.
     val (javaInfo, remainingMeasures) = getJavaInfo(measures)
 
     // Prepare the measure configurations.
     val configArray = prepareMeasureConfigurations(remainingMeasures)
+    // pollIntervalMillis is irrelevant here (fetchInfo doesn't poll), so 0 is fine.
+    val trackingConf = createTrackingConf(configArray, pid, trackSubprocesses, pollIntervalMillis = 0)
 
     val result: Pointer = usePointer { resultPointer ->
-        val errorInt = LIBRARY.tirexFetchInfo(configArray, resultPointer)
+        val errorInt = LIBRARY.tirexFetchInfo(trackingConf, resultPointer)
         handleError(errorInt)
         resultPointer.getPointer(0)
     }
@@ -655,20 +671,18 @@ class TrackingHandle private constructor(
             // Prepare the measure configurations.
             val configArray = prepareMeasureConfigurations(remainingMeasures)
 
+            // Both calls target the same process, so they share one config (poll interval is irrelevant to
+            // tirexFetchInfo).
+            val trackingConf = createTrackingConf(configArray, pid, trackSubprocesses, pollIntervalMillis)
+
             // Get other info, first, before starting the tracking.
             val fetchInfoResult: Pointer = usePointer { resultPointer ->
-                val errorInt = LIBRARY.tirexFetchInfo(configArray, resultPointer)
+                val errorInt = LIBRARY.tirexFetchInfo(trackingConf, resultPointer)
                 handleError(errorInt)
                 resultPointer.getPointer(0)
             }
 
             // Start the tracking.
-            val trackingConf = NativeTrackingConf().also {
-                it.measures = configArray[0].pointer
-                it.pid = pid ?: TIREX_PID_SELF
-                it.trackSubprocesses = trackSubprocesses
-                it.pollIntervalMs = LibCAPI.size_t(pollIntervalMillis)
-            }
             val trackingHandle = usePointer { measurementHandlePointer ->
                 val errorInt = LIBRARY.tirexStartTracking(trackingConf, measurementHandlePointer)
                 handleError(errorInt)

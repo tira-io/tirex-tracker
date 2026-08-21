@@ -300,15 +300,6 @@ typedef struct tirexMeasureConf_st {
 static const tirexMeasureConf tirexNullConf = {.source = TIREX_MEASURE_INVALID};
 
 /**
- * @brief Fetches the system information from the measures requested in \p measures.
- * 
- * @param[in] measures 
- * @param[out] result 
- * @return TIREX_SUCCESS on success or an error code. 
- */
-TIREX_TRACKER_EXPORT tirexError tirexFetchInfo(const tirexMeasureConf* measures, tirexResult** result);
-
-/**
  * @ingroup measure
  * @{
  */
@@ -338,9 +329,23 @@ typedef struct tirexTrackingConf_st {
 	 * warning is logged if it is set to true.
 	 */
 	bool trackSubprocesses;
-	/** @brief The interval, in milliseconds, at which to poll for updated stats. */
+	/** @brief The interval, in milliseconds, at which to poll for updated stats. Ignored by tirexFetchInfo, which
+	 * does not poll. */
 	size_t pollIntervalMs;
 } tirexTrackingConf;
+
+/**
+ * @brief Fetches the system information from the measures requested in \p conf , about the process identified by
+ * \p conf.pid (TIREX_PID_SELF, the default, for the calling process).
+ * @details \p conf.pollIntervalMs is ignored, since this is a one-shot fetch rather than an ongoing tracking session.
+ * Some measures depend on which process is targeted (e.g., TIREX_INVOCATION and the git- and devcontainer-related
+ * measures are resolved relative to \p conf.pid 's working directory).
+ *
+ * @param[in] conf
+ * @param[out] result
+ * @return TIREX_SUCCESS on success or an error code.
+ */
+TIREX_TRACKER_EXPORT tirexError tirexFetchInfo(tirexTrackingConf conf, tirexResult** result);
 
 /**
  * @brief Initializes the providers set in the configuration and starts measuring.

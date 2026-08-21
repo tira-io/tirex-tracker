@@ -165,7 +165,7 @@ class _TirexTrackerLibrary(CDLL):
     tirexResultEntryGetByIndex: Callable[["Pointer[_Result]", c_size_t, "Pointer[_ResultEntry]"], int]
     tirexResultEntryNum: Callable[["Pointer[_Result]", "Pointer[c_size_t]"], int]
     tirexResultFree: Callable[["Pointer[_Result]"], None]
-    tirexFetchInfo: Callable[["Array[_MeasureConfiguration]", "Pointer[Pointer[_Result]]"], int]
+    tirexFetchInfo: Callable[[_TrackingConf, "Pointer[Pointer[_Result]]"], int]
     tirexStartTracking: Callable[[_TrackingConf, "Pointer[Pointer[_TrackingHandle]]"], int]
     tirexStopTracking: Callable[["Pointer[_TrackingHandle]", "Pointer[Pointer[_Result]]"], int]
     tirexSetLogCallback: Callable[["Optional[CFunctionType]"], None]
@@ -213,7 +213,7 @@ def _load_library() -> _TirexTrackerLibrary:
     library.tirexResultFree.argtypes = [POINTER(_Result)]
     library.tirexResultFree.restype = c_void_p
     library.tirexFetchInfo.argtypes = [
-        POINTER(_MeasureConfiguration),
+        _TrackingConf,
         POINTER(POINTER(_Result)),
     ]
     library.tirexFetchInfo.restype = c_int

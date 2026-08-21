@@ -83,9 +83,10 @@ static tirexError initProviders(
 	return TIREX_SUCCESS;
 }
 
-tirexError tirexFetchInfo(const tirexMeasureConf* measures, tirexResult** result) {
+tirexError tirexFetchInfo(tirexTrackingConf conf, tirexResult** result) {
 	std::vector<std::unique_ptr<tirex::StatsProvider>> providers;
-	if (tirexError err; (err = initProviders(measures, providers)) != TIREX_SUCCESS)
+	tirex::TrackingTarget target{.pid = conf.pid, .trackSubprocesses = conf.trackSubprocesses};
+	if (tirexError err; (err = initProviders(conf.measures, providers, target)) != TIREX_SUCCESS)
 		return err;
 	tirex::Stats stats{};
 	for (auto& provider : providers)

@@ -89,11 +89,11 @@ int main(int argc, char* argv[]) {
 	tirexSetLogCallback(logcallback);
 
 	// Print information about the system (e.g., OS Information, HW Specs, ...)
-	if (tirexFetchInfo(providers, &info) != TIREX_SUCCESS)
+	tirexTrackingConf conf = {.measures = providers, .pollIntervalMs = 100};
+	if (tirexFetchInfo(conf, &info) != TIREX_SUCCESS)
 		abort();
 
 	// Track metadata
-	tirexTrackingConf conf = {.measures = providers, .pollIntervalMs = 100};
 	if (tirexStartTracking(conf, &measure) != TIREX_SUCCESS)
 		abort();
 	{

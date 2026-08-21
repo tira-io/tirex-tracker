@@ -12,7 +12,8 @@ TEST_CASE("Tracker", "[Archive]") {
 		std::cout << "[" << lvl << "][" << component << "] " << msg << std::endl;
 	});
 	{
-		tirexMeasureConf conf[]{{TIREX_GIT_ARCHIVE_PATH, TIREX_AGG_NO}, tirexNullConf};
+		tirexMeasureConf measures[]{{TIREX_GIT_ARCHIVE_PATH, TIREX_AGG_NO}, tirexNullConf};
+		tirexTrackingConf conf{.measures = measures};
 		tirexResult* result;
 		REQUIRE(tirexFetchInfo(conf, &result) == tirexError::TIREX_SUCCESS);
 

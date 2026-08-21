@@ -178,13 +178,13 @@ int main(int argc, char* argv[]) {
 	tirexSetLogCallback(logcallback);
 
 	// Print information about the system (e.g., OS Information, HW Specs, ...)
-	if (tirexFetchInfo(providers, &result) != TIREX_SUCCESS)
+	tirexTrackingConf conf = {.measures = providers, .pollIntervalMs = 100};
+	if (tirexFetchInfo(conf, &result) != TIREX_SUCCESS)
 		abort();
 	printResult(result, NULL);
 	tirexResultFree(result);
 
 	// Track metadata
-	tirexTrackingConf conf = {.measures = providers, .pollIntervalMs = 100};
 	if (tirexStartTracking(conf, &measure) != TIREX_SUCCESS)
 		abort();
 	{
