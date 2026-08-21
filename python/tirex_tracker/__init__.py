@@ -46,6 +46,7 @@ from yaml import safe_load as yaml_safe_load
 from ._utils.archive import add_python_notebook_to_archive as _add_python_notebook_to_archive
 from ._utils.constants import ALL_AGGREGATIONS, ALL_MEASURES, Aggregation, Error, LogLevel, Measure, ResultType
 from ._utils.constants import ENCODING as _ENCODING
+from ._utils.constants import TIREX_PID_SELF as _TIREX_PID_SELF
 from ._utils.errorhandling import ABORT_HANDLE as _ABORT_HANDLE
 from ._utils.errorhandling import deinit_error_handling as _deinit_error_handling
 from ._utils.errorhandling import init_error_handling as _init_error_handling
@@ -59,6 +60,7 @@ from ._utils.library import (
     _ProviderInfo,
     _Result,
     _ResultEntry,
+    _TrackingConf,
     _TrackingHandle,
     provider_version,
 )
@@ -334,6 +336,8 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         system_description: Optional[str] = None,
         export_file_path: Optional[PathLike] = None,
         export_format: Optional[ExportFormat] = None,
+        pid: Optional[int] = None,
+        track_subprocesses: bool = True,
     ) -> Self:
         # Get Python info first, and then strip Python measures from the list.
         python_info, measures = _get_python_info(measures=measures, export_file_path=export_file_path)
@@ -351,8 +355,14 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         error_handle = _init_error_handling()
 
         # Start the tracking.
+        tracking_conf = _TrackingConf(
+            measures=configs_array,
+            pid=(_TIREX_PID_SELF if pid is None else pid),
+            trackSubprocesses=track_subprocesses,
+            pollIntervalMs=poll_intervall_ms,
+        )
         tracking_handle_pointer = pointer(pointer(_TrackingHandle()))
-        error_int = _LIBRARY.tirexStartTracking(configs_array, poll_intervall_ms, tracking_handle_pointer)
+        error_int = _LIBRARY.tirexStartTracking(tracking_conf, tracking_handle_pointer)
         _handle_error(error_int)
         tracking_handle = tracking_handle_pointer.contents
 
@@ -578,6 +588,8 @@ def start_tracking(
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
     export_format: Optional[ExportFormat] = None,
+    pid: Optional[int] = None,
+    track_subprocesses: bool = True,
 ) -> TrackingHandle:
     return TrackingHandle.start(
         measures=measures,
@@ -586,6 +598,8 @@ def start_tracking(
         system_description=system_description,
         export_file_path=export_file_path,
         export_format=export_format,
+        pid=pid,
+        track_subprocesses=track_subprocesses,
     )
 
 
@@ -603,6 +617,8 @@ def tracking(
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
     export_format: Optional[ExportFormat] = None,
+    pid: Optional[int] = None,
+    track_subprocesses: bool = True,
 ) -> TrackingHandle:
     return TrackingHandle.start(
         measures=measures,
@@ -611,6 +627,8 @@ def tracking(
         system_description=system_description,
         export_file_path=None if export_file_path is None else Path(export_file_path),
         export_format=export_format,
+        pid=pid,
+        track_subprocesses=track_subprocesses,
     )
 
 
@@ -623,6 +641,8 @@ def track(
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
     export_format: Optional[ExportFormat] = None,
+    pid: Optional[int] = None,
+    track_subprocesses: bool = True,
 ) -> Mapping[Measure, ResultEntry]:
     with tracking(
         measures=measures,
@@ -631,6 +651,8 @@ def track(
         system_description=system_description,
         export_file_path=export_file_path,
         export_format=export_format,
+        pid=pid,
+        track_subprocesses=track_subprocesses,
     ) as handle:
         block()
         return handle.results
@@ -649,6 +671,8 @@ def tracked(
     system_description: Optional[str] = ...,
     export_file_path: Optional[PathLike] = ...,
     export_format: Optional[ExportFormat] = ...,
+    pid: Optional[int] = ...,
+    track_subprocesses: bool = ...,
 ) -> Callable[[Callable[P, T]], Union[Callable[P, T], ResultsAccessor]]:
     pass
 
@@ -661,6 +685,8 @@ def tracked(
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
     export_format: Optional[ExportFormat] = None,
+    pid: Optional[int] = None,
+    track_subprocesses: bool = True,
 ) -> Union[
     Union[Callable[P, T], ResultsAccessor],
     Callable[[Callable[P, T]], Union[Callable[P, T], ResultsAccessor]],
@@ -699,6 +725,8 @@ def tracked(
                     system_description=system_description,
                     export_file_path=export_file_path,
                     export_format=export_format,
+                    pid=pid,
+                    track_subprocesses=track_subprocesses,
                 )
                 try:
                     return f(*args, **kwds)

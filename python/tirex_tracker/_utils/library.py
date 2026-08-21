@@ -1,6 +1,6 @@
 import platform as _platform_module
 import sys
-from ctypes import CDLL, POINTER, Structure, c_char_p, c_int, c_size_t, c_void_p, cdll
+from ctypes import CDLL, POINTER, Structure, c_bool, c_char_p, c_int, c_int64, c_size_t, c_void_p, cdll
 from importlib import resources
 from json import dumps
 from pathlib import Path
@@ -37,6 +37,20 @@ class _MeasureConfiguration(Structure):
 
 
 NULL_MEASURE_CONFIGURATION = _MeasureConfiguration(INVALID_MEASURE, INVALID_AGGREGATION)
+
+
+class _TrackingConf(Structure):
+    measures: "Array[_MeasureConfiguration]"
+    pid: int
+    track_subprocesses: bool
+    poll_interval_ms: int
+
+    _fields_ = [
+        ("measures", POINTER(_MeasureConfiguration)),
+        ("pid", c_int64),
+        ("trackSubprocesses", c_bool),
+        ("pollIntervalMs", c_size_t),
+    ]
 
 
 class _Result(Structure):
@@ -152,7 +166,7 @@ class _TirexTrackerLibrary(CDLL):
     tirexResultEntryNum: Callable[["Pointer[_Result]", "Pointer[c_size_t]"], int]
     tirexResultFree: Callable[["Pointer[_Result]"], None]
     tirexFetchInfo: Callable[["Array[_MeasureConfiguration]", "Pointer[Pointer[_Result]]"], int]
-    tirexStartTracking: Callable[["Array[_MeasureConfiguration]", int, "Pointer[Pointer[_TrackingHandle]]"], int]
+    tirexStartTracking: Callable[[_TrackingConf, "Pointer[Pointer[_TrackingHandle]]"], int]
     tirexStopTracking: Callable[["Pointer[_TrackingHandle]", "Pointer[Pointer[_Result]]"], int]
     tirexSetLogCallback: Callable[["Optional[CFunctionType]"], None]
     tirexDataProviderGetAll: Callable[["Array[_ProviderInfo]", int], int]
@@ -204,8 +218,7 @@ def _load_library() -> _TirexTrackerLibrary:
     ]
     library.tirexFetchInfo.restype = c_int
     library.tirexStartTracking.argtypes = [
-        POINTER(_MeasureConfiguration),
-        c_size_t,
+        _TrackingConf,
         POINTER(POINTER(_TrackingHandle)),
     ]
     library.tirexStartTracking.restype = c_int

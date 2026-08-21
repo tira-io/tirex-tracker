@@ -2,6 +2,7 @@
 
 #include "../../abort.hpp"
 #include "../../logging.hpp"
+#include "../utils/osutils.hpp"
 #include "../utils/rangeutils.hpp"
 
 #include <git2.h>
@@ -53,10 +54,10 @@ const std::set<tirexMeasure> GitStats::measures{
 		TIREX_GIT_ARCHIVE_PATH
 };
 
-std::optional<std::filesystem::path> GitStats::getRepoRootDir() {
+std::optional<std::filesystem::path> GitStats::getRepoRootDir(const std::filesystem::path& searchFrom) {
 	git_libgit2_init();
 	git_repository* repo;
-	auto root = (git_repository_open_ext(&repo, "./", 0, nullptr) == 0)
+	auto root = (git_repository_open_ext(&repo, searchFrom.string().c_str(), 0, nullptr) == 0)
 						? std::make_optional<std::filesystem::path>(git_repository_workdir(repo))
 						: std::nullopt;
 	git_libgit2_shutdown();
@@ -336,9 +337,18 @@ static GitStatusStats getStatusStats(git_repository* repo) {
 	return stats;
 }
 
-GitStats::GitStats() : repo(nullptr) {
+GitStats::GitStats(const tirex::TrackingTarget& target) : repo(nullptr) {
 	git_libgit2_init();
-	if (int err; git_repository_open_ext(&repo, "./", 0, nullptr) < 0)
+	auto cwd = tirex::utils::getProcessWorkingDirectory(target.pid);
+	if (!cwd) {
+		tirex::log::warn(
+				"gitstats",
+				"Falling back to the tracker's own working directory to locate the git repository of process {}",
+				target.pid
+		);
+		cwd = std::filesystem::current_path();
+	}
+	if (int err; git_repository_open_ext(&repo, cwd->string().c_str(), 0, nullptr) < 0)
 		tirex::log::error("gitstats", "Failed to open git repository: {}", git_error_last()->message);
 }
 GitStats::~GitStats() { git_libgit2_shutdown(); }

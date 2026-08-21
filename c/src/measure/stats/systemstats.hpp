@@ -73,6 +73,9 @@ namespace tirex {
 		tirex::TimeSeries<unsigned> sysCpuUtil{300, TIREX_AGG_MEAN}; /** \todo make agg configurable */
 		tirex::TimeSeries<uint32_t> frequency{300, TIREX_AGG_MAX};	 /** \todo make agg configurable */
 
+		/** @brief Not yet acted upon; see tirexTrackingConf::trackSubprocesses. */
+		bool trackSubprocesses;
+
 		size_t startUTime, stopUTime;
 		size_t startSysTime, stopSysTime;
 
@@ -124,7 +127,7 @@ namespace tirex {
 #endif
 
 	public:
-		SystemStats();
+		explicit SystemStats(const TrackingTarget& target);
 
 		std::set<tirexMeasure> providedMeasures() noexcept override;
 		void start() override;

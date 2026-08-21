@@ -93,7 +93,8 @@ int main(int argc, char* argv[]) {
 		abort();
 
 	// Track metadata
-	if (tirexStartTracking(providers, 100, &measure) != TIREX_SUCCESS)
+	tirexTrackingConf conf = {.measures = providers, .pollIntervalMs = 100};
+	if (tirexStartTracking(conf, &measure) != TIREX_SUCCESS)
 		abort();
 	{
 		char* data = calloc(24 * 1000 * 1000, 1);	  // allocate 24 MB

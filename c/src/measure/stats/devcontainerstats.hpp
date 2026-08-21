@@ -3,11 +3,15 @@
 
 #include "provider.hpp"
 
+#include <filesystem>
+
 namespace tirex {
 	class DevContainerStats final : public StatsProvider {
 	private:
+		std::filesystem::path targetWorkingDir;
+
 	public:
-		DevContainerStats();
+		explicit DevContainerStats(const TrackingTarget& target);
 
 		std::set<tirexMeasure> providedMeasures() noexcept override;
 		Stats getInfo() override;

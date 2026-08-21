@@ -225,9 +225,31 @@ namespace tirex {
 			if (right == segments.begin())
 				return;
 			Iter left = std::prev(right);
-			pairCosts.push(
-					PairCost{ts::details::mergeCost(*left, *right), left->id, right->id, left->version, right->version}
+			pairCosts.emplace(
+					ts::details::mergeCost(*left, *right), left->id, right->id, left->version, right->version
 			);
+		}
+
+		/**
+		 * @brief Rebuilds pairCosts from the currently-live segments, discarding every stale entry at once.
+		 * @details pushPairCost() runs on every addValue() call, including when a run only *extends* the last segment
+		 * (which does not change segments.size()); but entries are only ever popped inside rebalanceIfNeeded()'s loop,
+		 * which only runs when the capacity is exceeded. Without this, a constant timeseries keeps segments.size()
+		 * comfortably under maxSegments while still pushing one stale entry per call, forever, since nothing ever
+		 * triggers a pop: unbounded growth of pairCosts despite the class being intended to be bounded-memory.
+		 */
+		void compactPairCostsIfNeeded() {
+			const size_t numAdjPairs = segments.empty() ? 0 : (segments.size() - 1);
+			/* Rebuilding costs O(numAdjPairs) (one pushPairCost() per live pair), so triggering it only once pairCosts
+			 * has grown to a multiple of numAdjPairs keeps the *amortized* cost O(1) per addValue(): between two
+			 * rebuilds, ~3*numAdjPairs pushes happen first, so the rebuild's cost is spread thin. The flat "+16" floor
+			 * exists for when numAdjPairs itself is tiny (0-3 segments): without it, e.g. numAdjPairs=0 would give a
+			 * threshold of 0 and force a (pointless) rebuild on every single call. */
+			if (pairCosts.size() <= 4 * numAdjPairs + 16)
+				return;
+			pairCosts = decltype(pairCosts){};
+			for (auto it = std::next(segments.begin()); it != segments.end(); ++it)
+				pushPairCost(it);
 		}
 
 		/**
@@ -314,6 +336,7 @@ namespace tirex {
 			lastRawValue = value;
 			lastRawTimestamp = timestamp;
 			rebalanceIfNeeded();
+			compactPairCostsIfNeeded();
 		}
 
 		[[nodiscard]] std::chrono::milliseconds currentTimestamp() const noexcept {

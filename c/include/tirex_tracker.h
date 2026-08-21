@@ -313,23 +313,51 @@ TIREX_TRACKER_EXPORT tirexError tirexFetchInfo(const tirexMeasureConf* measures,
  * @{
  */
 /**
+ * @brief Sentinel tirexTrackingConf::pid value meaning "track the calling process." This is the default: a
+ * zero-initialized tirexTrackingConf tracks the caller.
+ * @details Safe as a sentinel since 0 is never a real process ID (reserved for kernel/scheduler bookkeeping on POSIX,
+ * and for the System Idle Process on Windows).
+ */
+#define TIREX_PID_SELF ((int64_t)0)
+
+/**
+ * @brief Configures a tracking session: which measures to collect, which process (and optionally its descendants) to
+ * measure, and how often to poll.
+ * @details For a minimal config, use`tirexTrackingConf{.measures = ..., .pollIntervalMs = 100}` to track the current
+ * process without its children.
+ */
+typedef struct tirexTrackingConf_st {
+	/** @brief tirexNullConf-terminated array of measures to track. */
+	const tirexMeasureConf* measures;
+	/** @brief TIREX_PID_SELF (default) to track the calling process, or an explicit target process ID. */
+	int64_t pid;
+	/**
+	 * @brief If true, also discover and aggregate the descendants of \p pid over the tracking session, instead of
+	 * measuring \p pid alone.
+	 * @details \todo Not yet implemented; currently only \p pid itself is tracked regardless of this flag, and a
+	 * warning is logged if it is set to true.
+	 */
+	bool trackSubprocesses;
+	/** @brief The interval, in milliseconds, at which to poll for updated stats. */
+	size_t pollIntervalMs;
+} tirexTrackingConf;
+
+/**
  * @brief Initializes the providers set in the configuration and starts measuring.
- * 
- * @param measures 
- * @param pollIntervalMs 
+ *
+ * @param conf configures the tracking behavior (which measures, which process, ...).
  * @param[out] handle a handle to the running measurement.
  * @return TIREX_SUCCESS on success or an error code.
- * 
+ *
  * @see tirexStopTracking
  */
-TIREX_TRACKER_EXPORT tirexError
-tirexStartTracking(const tirexMeasureConf* measures, size_t pollIntervalMs, tirexMeasureHandle** handle);
+TIREX_TRACKER_EXPORT tirexError tirexStartTracking(tirexTrackingConf conf, tirexMeasureHandle** handle);
 
 /**
  * @brief Stops the measurement and deinitializes the data providers.
  * @details This function **must** be called **exactly once** for each measurement job.
  * 
- * @param handle The handle of the running measurement that should be stopped.
+ * @param[in] handle The handle of the running measurement that should be stopped.
  * @param[out] result a handle to the result tree of the measurement. Must be freed by the caller using
  * tirexResultFree(tirexResult*)
  * @return TIREX_SUCCESS on success or an error code.

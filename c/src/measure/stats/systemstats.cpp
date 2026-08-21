@@ -370,11 +370,32 @@ SystemStats::CPUInfo::VirtFlags getVirtSupport() {
 #endif
 
 #if defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
-SystemStats::SystemStats() : pid(GetCurrentProcess()) {}
+SystemStats::SystemStats(const tirex::TrackingTarget& target) : trackSubprocesses(target.trackSubprocesses) {
+	if (target.pid == TIREX_PID_SELF)
+		pid = GetCurrentProcess();
+	else {
+		pid = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, static_cast<DWORD>(target.pid));
+		if (pid == nullptr) {
+			tirex::log::error("windowsstats", "Failed to open process {} to track it", target.pid);
+			tirex::abort(tirexLogLevel::ERROR, "Failed to open the target process for tracking");
+			pid = GetCurrentProcess(); // Best-effort fallback so this object stays in a usable state.
+		}
+	}
+	if (target.trackSubprocesses)
+		tirex::log::warn("windowsstats", "trackSubprocesses is not yet implemented; tracking only the given process");
+}
 #elif defined(__linux__)
-SystemStats::SystemStats() : pid(getpid()) {}
+SystemStats::SystemStats(const tirex::TrackingTarget& target) : trackSubprocesses(target.trackSubprocesses) {
+	pid = (target.pid == TIREX_PID_SELF) ? getpid() : static_cast<pid_t>(target.pid);
+	if (target.trackSubprocesses)
+		tirex::log::warn("linuxstats", "trackSubprocesses is not yet implemented; tracking only the given process");
+}
 #elif defined(__APPLE__)
-SystemStats::SystemStats() : pid(getpid()) {}
+SystemStats::SystemStats(const tirex::TrackingTarget& target) : trackSubprocesses(target.trackSubprocesses) {
+	pid = (target.pid == TIREX_PID_SELF) ? getpid() : static_cast<pid_t>(target.pid);
+	if (target.trackSubprocesses)
+		tirex::log::warn("macosstats", "trackSubprocesses is not yet implemented; tracking only the given process");
+}
 #endif
 
 SystemStats::CPUInfo SystemStats::getCPUInfo() {

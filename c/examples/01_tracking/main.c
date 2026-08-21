@@ -184,7 +184,8 @@ int main(int argc, char* argv[]) {
 	tirexResultFree(result);
 
 	// Track metadata
-	if (tirexStartTracking(providers, 100, &measure) != TIREX_SUCCESS)
+	tirexTrackingConf conf = {.measures = providers, .pollIntervalMs = 100};
+	if (tirexStartTracking(conf, &measure) != TIREX_SUCCESS)
 		abort();
 	{
 		// 1) Sleep

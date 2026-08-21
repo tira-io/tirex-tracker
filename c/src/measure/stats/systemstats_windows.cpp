@@ -8,11 +8,7 @@
 #include "systemstats.hpp"
 
 #include "../../logging.hpp"
-#include "../utils/sharedlib.hpp"
-
-#define NOGDI // Otherwise we get problems with logging
-#include <windows.h>
-#include <winternl.h>
+#include "details/windows/ntdll.hpp"
 
 #include <powrprof.h>
 #include <psapi.h>
@@ -27,19 +23,6 @@ using std::chrono::system_clock;
 
 using tirex::Stats;
 using tirex::SystemStats;
-
-struct NTDLL final : tirex::utils::SharedLib {
-public:
-	using QUERY_INFORMATION_PROCESS = NTSTATUS (*)(
-			HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation,
-			ULONG ProcessInformationLength, PULONG ReturnLength
-	);
-	QUERY_INFORMATION_PROCESS queryInformationProcess = load<QUERY_INFORMATION_PROCESS>({"NtQueryInformationProcess"});
-
-	NTDLL() : tirex::utils::SharedLib(std::string{"ntdll.dll"}) {}
-};
-
-static NTDLL nt;
 
 static std::string getOSDesc() {
 	if (IsWindows10OrGreater())
@@ -241,7 +224,7 @@ std::vector<std::string> SystemStats::getInvocationCmd() {
 	ULONG bufsize;
 	char buffer[4096];
 	HANDLE handle = GetCurrentProcess();
-	NTSTATUS status = nt.queryInformationProcess(
+	NTSTATUS status = ntdll().queryInformationProcess(
 			handle, static_cast<PROCESSINFOCLASS>(60) /* ProcessCommandLineInformation */, buffer, sizeof(buffer),
 			&bufsize
 	);

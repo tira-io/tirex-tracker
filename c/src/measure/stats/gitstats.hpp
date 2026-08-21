@@ -15,7 +15,7 @@ namespace tirex {
 		static constexpr size_t archivalSizeLimit = 5 * 1000 * 1000; // 5MB
 
 	public:
-		GitStats();
+		explicit GitStats(const TrackingTarget& target);
 		~GitStats();
 
 		bool isRepository() const noexcept;
@@ -27,7 +27,7 @@ namespace tirex {
 		static const char* version;
 		static const std::set<tirexMeasure> measures;
 
-		static std::optional<std::filesystem::path> getRepoRootDir();
+		static std::optional<std::filesystem::path> getRepoRootDir(const std::filesystem::path& searchFrom);
 	};
 } // namespace tirex
 
