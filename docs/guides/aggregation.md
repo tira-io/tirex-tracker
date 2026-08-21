@@ -46,7 +46,7 @@ tirexMeasureConf conf[] = {
     {TIREX_OS_NAME,                    TIREX_AGG_NO},  // static — aggregation ignored
     {TIREX_CPU_USED_PROCESS_PERCENT,   TIREX_AGG_MAX}, // dynamic — take peak value
     {TIREX_RAM_USED_PROCESS_KB,        TIREX_AGG_MAX | TIREX_AGG_MEAN}, // both peak and average
-    tirexNullMeasureConf
+    tirexNullConf
 };
 ```
 
@@ -59,7 +59,7 @@ tirexMeasureConf conf[] = {
         {TIREX_CPU_USED_PROCESS_PERCENT, TIREX_AGG_MAX},
         {TIREX_RAM_USED_PROCESS_KB,      TIREX_AGG_MAX | TIREX_AGG_MEAN},
         {TIREX_CPU_FREQUENCY_MHZ,        TIREX_AGG_NO}, // full time series
-        tirexNullMeasureConf
+        tirexNullConf
     };
     ```
 

@@ -239,13 +239,14 @@ Add a test in [c/tests/tracker.cpp](https://github.com/tira-io/tirex-tracker/blo
 
 ```cpp
 TEST_CASE("TIREX_MY_NEW_MEASURE is collected", "[tracker]") {
-    tirexMeasureConf conf[] = {
+    tirexMeasureConf measures[] = {
         {TIREX_MY_NEW_MEASURE, TIREX_AGG_NO},
-        tirexNullMeasureConf
+        tirexNullConf
     };
+    tirexTrackingConf conf{.measures = measures};
     tirexResult* result = nullptr;
-    tirexTrackingHandle* handle = nullptr;
-    REQUIRE(tirexStartTracking(conf, 100, &handle) == TIREX_SUCCESS);
+    tirexMeasureHandle* handle = nullptr;
+    REQUIRE(tirexStartTracking(conf, &handle) == TIREX_SUCCESS);
     REQUIRE(tirexStopTracking(handle, &result) == TIREX_SUCCESS);
 
     size_t n = 0;

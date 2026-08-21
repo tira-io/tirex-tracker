@@ -382,19 +382,28 @@ SystemStats::SystemStats(const tirex::TrackingTarget& target) : trackSubprocesse
 		}
 	}
 	if (target.trackSubprocesses)
-		tirex::log::warn("windowsstats", "trackSubprocesses is not yet implemented; tracking only the given process");
+		tirex::log::info(
+				"windowsstats",
+				"Tracking CPU and (private-memory-approximated) RAM usage across the process tree rooted at {}",
+				GetProcessId(pid)
+		);
 }
 #elif defined(__linux__)
 SystemStats::SystemStats(const tirex::TrackingTarget& target) : trackSubprocesses(target.trackSubprocesses) {
 	pid = (target.pid == TIREX_PID_SELF) ? getpid() : static_cast<pid_t>(target.pid);
 	if (target.trackSubprocesses)
-		tirex::log::warn("linuxstats", "trackSubprocesses is not yet implemented; tracking only the given process");
+		tirex::log::info(
+				"linuxstats", "Tracking CPU and (PSS-approximated) RAM usage across the process tree rooted at {}", pid
+		);
 }
 #elif defined(__APPLE__)
 SystemStats::SystemStats(const tirex::TrackingTarget& target) : trackSubprocesses(target.trackSubprocesses) {
 	pid = (target.pid == TIREX_PID_SELF) ? getpid() : static_cast<pid_t>(target.pid);
 	if (target.trackSubprocesses)
-		tirex::log::warn("macosstats", "trackSubprocesses is not yet implemented; tracking only the given process");
+		tirex::log::info(
+				"macosstats",
+				"Tracking CPU and (memory-footprint-approximated) RAM usage across the process tree rooted at {}", pid
+		);
 }
 #endif
 

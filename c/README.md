@@ -34,11 +34,11 @@ int main() {
     tirexMeasureConf conf[] = { 
         {TIREX_TIME_ELAPSED_WALL_CLOCK_MS, TIREX_AGG_NO},
         // Further measures...
-        tirexNullMeasureConf // sentinel value
+        tirexNullConf // sentinel value
     };
-    size_t pollIntervalMs = 100;
-    tirexTrackingHandle* handle;
-    tirexStartTracking(conf, pollIntervalMs, &handle);
+    tirexTrackingConf trackingConf = {.measures = conf, .pollIntervalMs = 100};
+    tirexMeasureHandle* handle;
+    tirexStartTracking(trackingConf, &handle);
 
     // Do something...
 
@@ -47,6 +47,18 @@ int main() {
     // Analyze the results.
     tirexResultFree(result);
 }
+```
+
+By default, `tirexStartTracking` tracks the calling process. To track a subprocess instead (and optionally everything it
+spawns), set `pid` and `trackSubprocesses`:
+
+```c
+tirexTrackingConf trackingConf = {
+    .measures = conf,
+    .pid = child_pid,          // e.g. from fork()/posix_spawn(), instead of TIREX_PID_SELF
+    .trackSubprocesses = true, // also aggregate the child's own descendants
+    .pollIntervalMs = 100,
+};
 ```
 
 <!-- TODO: ir_metadata export instructions. -->

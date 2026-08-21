@@ -325,8 +325,16 @@ typedef struct tirexTrackingConf_st {
 	/**
 	 * @brief If true, also discover and aggregate the descendants of \p pid over the tracking session, instead of
 	 * measuring \p pid alone.
-	 * @details \todo Not yet implemented; currently only \p pid itself is tracked regardless of this flag, and a
-	 * warning is logged if it is set to true.
+	 * @details Applies to both TIREX_CPU_USED_PROCESS_PERCENT and TIREX_RAM_USED_PROCESS_KB, summed across \p pid
+	 * and every descendant process discovered at each poll. CPU time is simply additive (never shared between
+	 * processes), so that figure is exact. RAM cannot simply be summed (that would double-count pages shared between
+	 * processes, e.g. shared libraries or fork()-inherited copy-on-write pages), so each platform instead uses its own
+	 * best-available deduplicated approximation: PSS on Linux (divides each shared page's cost by its global mapper
+	 * count; may slightly undercount pages also shared with processes outside the tracked tree), ri_phys_footprint on
+	 * macOS (Apple's own per-process accounting, but not a fair-share scheme; can overcount memory the tree's own
+	 * members share with each other), and PrivateUsage on Windows (excludes all shared memory entirely, so it cannot
+	 * double-count but does undercount by any memory shared within the tree; also tracks committed virtual memory
+	 * rather than strictly resident physical memory, unlike the single-process figure).
 	 */
 	bool trackSubprocesses;
 	/** @brief The interval, in milliseconds, at which to poll for updated stats. Ignored by tirexFetchInfo, which

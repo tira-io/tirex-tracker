@@ -146,7 +146,7 @@ jobs:
         uses: actions/checkout@v6
       - name: 🔍 Check Codestyle
         working-directory: ${{github.workspace}}/c/
-        run: find src/ include/ -type f -iregex '^.*\.\(c\|h\|cpp\|hpp\|cc\|hh\)$' | xargs clang-format-19 --dry-run --Werror --Wno-error=unknown
+        run: find src/ include/ tests/ -type f -iregex '^.*\.\(c\|h\|cpp\|hpp\|cc\|hh\)$' | xargs clang-format-19 --dry-run --Werror --Wno-error=unknown
   c-build-cli:
     name: 🏗️ Build C CLI
     strategy:

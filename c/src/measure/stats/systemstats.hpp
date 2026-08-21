@@ -7,6 +7,7 @@
 #include <chrono>
 #include <string>
 #include <tuple>
+#include <unordered_map>
 #include <vector>
 
 #if defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
@@ -92,6 +93,25 @@ namespace tirex {
 		static size_t tickToMs(size_t tick);
 
 		unsigned getProcCPUUtilization();
+		/**
+		 * @brief Like getProcCPUUtilization(), but sums the CPU usage of `pid` and every descendant process discovered
+		 * via tirex::utils::discoverProcessTree() at the time of the call.
+		 * @details Only used when trackSubprocesses is set; safe to sum across processes since CPU time, unlike RAM, is
+		 * never shared between them.
+		 * @see SystemStats::getProcCPUUtilization
+
+		 */
+		unsigned getTreeCPUUtilization();
+		/**
+		 * @brief Sums an approximation of unique RAM usage across `pid` and every descendant process discovered via
+		 * tirex::utils::discoverProcessTree() at the time of the call, without double-counting memory pages shared
+		 * between them (e.g. shared libraries, fork()-inherited copy-on-write pages).
+		 * @details Only used when trackSubprocesses is set. Unlike CPU time, RAM cannot simply be summed per-process
+		 * (that would double-count shared pages), so each platform uses its own best-available deduplicated
+		 * accounting: PSS on Linux, ri_phys_footprint on macOS, PrivateWorkingSetSize on Windows. Each has different
+		 * precision characteristics (documented in their respective implementations) so this remains an approximation.
+		 */
+		unsigned getTreeRAMUsageKB();
 
 		/**
 		 * @brief Gets the command line arguments of the invocation of the tracked process.
@@ -105,6 +125,10 @@ namespace tirex {
 		size_t lastTotal = 0;
 		size_t lastProcActiveMs = 0;
 		std::chrono::steady_clock::time_point lastProcTime{};
+		/** @brief Per-PID active-CPU-ms as of the last getTreeCPUUtilization() call, for every process that was part of
+		 * the tree at that time. Pruned to the current tree on every call, so a PID that leaves the tree (or was reused
+		 * by an unrelated process) doesn't linger and doesn't get a misleading delta computed against its old state. */
+		std::unordered_map<int64_t, size_t> treeLastActiveMs;
 
 		void parseMemInfo(Utilization& utilization);
 		void parseStat(Utilization& utilization);
@@ -113,7 +137,9 @@ namespace tirex {
 		HANDLE pid; /**< The process identifier of the tracked process. */
 		FILETIME prevSysIdle, prevSysKernel, prevSysUser;
 		ULARGE_INTEGER lastCPU, lastSysCPU, lastUserCPU;
-		unsigned numProcessors;
+		/** @brief Per-PID cumulative (kernel+user) CPU time as of the last getTreeCPUUtilization() call. See the Linux
+		 * treeLastActiveMs member for why this is pruned to the current tree on every call. */
+		std::unordered_map<int64_t, ULONGLONG> treeLastActiveCpu;
 
 		unsigned getCPUUtilization();
 #elif __APPLE__
@@ -122,6 +148,9 @@ namespace tirex {
 		size_t lastTotal = 0;
 		size_t lastProcActiveMs = 0;
 		std::chrono::steady_clock::time_point lastProcTime{};
+		/** @brief Per-PID active-CPU-ms as of the last getTreeCPUUtilization() call. See the Linux treeLastActiveMs
+		 * member for why this is pruned to the current tree on every call. */
+		std::unordered_map<int64_t, size_t> treeLastActiveMs;
 
 		unsigned getCPUUtilization();
 #endif

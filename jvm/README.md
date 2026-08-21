@@ -77,15 +77,32 @@ void main() {
 Alternatively, use the [try-with-resources syntax](https://baeldung.com/java-try-with-resources) like this:
 
 ```java
-Tracked tracked = new Tracked();
-try (tracked) {
+TrackingHandle handle = TrackingHandle.start();
+try (handle) {
     // Do something...
 }
-    
-System.out.println(tracked.result);
+
+System.out.println(handle.getResults());
 ```
 
-<!-- TODO: Explain parameters. -->
+By default, tracking targets the calling process. Because `pid` and `trackSubprocesses` are the last two parameters of
+`start`/`track`, and Java has no named arguments, reaching them means passing every optional parameter in between
+explicitly:
+
+```java
+Process proc = new ProcessBuilder("some-command").start();
+TrackingHandle handle = TrackingHandle.start(
+    Tracker.getALL_MEASURES(), /*pollIntervalMillis=*/1000L,
+    /*systemName=*/null, /*systemDescription=*/null,
+    /*exportFilePath=*/null, /*exportFormat=*/null,
+    /*pid=*/proc.pid(), /*trackSubprocesses=*/true
+);
+try (handle) {
+    proc.waitFor();
+}
+
+System.out.println(handle.getResults());
+```
 
 ### Kotlin Usage
 
@@ -105,7 +122,15 @@ fun main() {
 }
 ```
 
-<!-- TODO: Explain parameters. -->
+By default, tracking targets the calling process. Kotlin's named arguments make `pid` and `trackSubprocesses` easy to
+reach directly, to track a subprocess instead (and optionally everything it spawns):
+
+```kotlin
+val proc = ProcessBuilder("some-command").start()
+val result = track(pid = proc.pid(), trackSubprocesses = true) {
+    proc.waitFor()
+}
+```
 
 <!-- TODO: ir_metadata export instructions. -->
 

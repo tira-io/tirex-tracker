@@ -93,10 +93,11 @@ Replace `x.x.x` with the [latest version tag](https://central.sonatype.com/artif
     ### Try-with-resources
 
     ```java
-    try (Tracked tracked = new Tracked()) {
+    TrackingHandle handle = TrackingHandle.start();
+    try (handle) {
         trainModel();
     }
-    System.out.println(tracked.result);
+    System.out.println(handle.getResults());
     ```
 
     ### With specific measures
@@ -110,6 +111,42 @@ Replace `x.x.x` with the [latest version tag](https://central.sonatype.com/artif
         Measure.RAM_USED_PROCESS_KB
     );
     var result = Tracker.track(measures, 100L, () -> trainModel());
+    ```
+
+## Tracking a subprocess
+
+By default, tracking targets the calling process. To track a different process instead (e.g. a spawned subprocess), pass
+its PID explicitly; setting `trackSubprocesses` additionally aggregates whatever that process itself goes on to spawn.
+See [Tracked Measures](../guides/measures.md) for the per-platform RAM-accuracy caveats of tree-mode tracking.
+
+=== "Kotlin"
+
+    Named arguments make `pid` and `trackSubprocesses` easy to reach directly:
+
+    ```kotlin
+    val proc = ProcessBuilder("some-command").start()
+    val result = track(pid = proc.pid(), trackSubprocesses = true) {
+        proc.waitFor()
+    }
+    ```
+
+=== "Java"
+
+    `pid` and `trackSubprocesses` are the last two parameters of every overload. Since Java has no named arguments,
+    reaching them means passing every optional parameter in between explicitly:
+
+    ```java
+    Process proc = new ProcessBuilder("some-command").start();
+    TrackingHandle handle = TrackingHandle.start(
+        Tracker.getALL_MEASURES(), /*pollIntervalMillis=*/1000L,
+        /*systemName=*/null, /*systemDescription=*/null,
+        /*exportFilePath=*/null, /*exportFormat=*/null,
+        /*pid=*/proc.pid(), /*trackSubprocesses=*/true
+    );
+    try (handle) {
+        proc.waitFor();
+    }
+    System.out.println(handle.getResults());
     ```
 
 ## Reading results

@@ -63,9 +63,9 @@ std::set<tirexMeasure> DevContainerStats::providedMeasures() noexcept { return m
 
 Stats DevContainerStats::getInfo() {
 	return makeFilteredStats(
-			enabled,
-			std::pair{
-					TIREX_DEVCONTAINER_CONF_PATHS, "["s + utils::join(searchDevcontainerFiles(targetWorkingDir), ", ") + "]"
-			}
+			enabled, std::pair{
+							 TIREX_DEVCONTAINER_CONF_PATHS,
+							 "["s + utils::join(searchDevcontainerFiles(targetWorkingDir), ", ") + "]"
+					 }
 	);
 }

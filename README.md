@@ -73,11 +73,11 @@ int main() {
     tirexMeasureConf conf[] = { 
         {TIREX_TIME_ELAPSED_WALL_CLOCK_MS, TIREX_AGG_NO},
         // Further measures...
-        tirexNullMeasureConf // sentinel value
+        tirexNullConf // sentinel value
     };
-    size_t pollIntervalMs = 100;
-    tirexTrackingHandle* handle;
-    tirexStartTracking(conf, pollIntervalMs, &handle);
+    tirexTrackingConf trackingConf = {.measures = conf, .pollIntervalMs = 100};
+    tirexMeasureHandle* handle;
+    tirexStartTracking(trackingConf, &handle);
 
     // Do something...
 
@@ -91,6 +91,18 @@ int main() {
 The TIREx tracker will automatically track the specified metrics and metadata for everything that is run between `tirexStartTracking` and `tirexStopTracking`.
 
 You can customize the measures to track by adjusting the `conf` array in the example above.
+
+By default, `tirexStartTracking` tracks the calling process only. To track a subprocess instead
+(and optionally everything it spawns), set `pid` and `trackSubprocesses`:
+
+```c
+tirexTrackingConf trackingConf = {
+    .measures = conf,
+    .pid = child_pid,          // e.g. from fork()/posix_spawn(), instead of TIREX_PID_SELF
+    .trackSubprocesses = true, // also aggregate the child's own descendants
+    .pollIntervalMs = 100,
+};
+```
 
 <!-- TODO: ir_metadata export instructions. -->
 
@@ -151,7 +163,19 @@ finally:
 print(results)
 ```
 
-<!-- TODO: Explain parameters. -->
+By default, tracking targets the calling process. To track a subprocess instead (and optionally
+everything it spawns), pass `pid` and `track_subprocesses`:
+
+```python
+import subprocess
+from tirex_tracker import tracking
+
+proc = subprocess.Popen(["some-command"])
+with tracking(pid=proc.pid, track_subprocesses=True) as results:
+    proc.wait()
+
+print(results)
+```
 
 <!-- TODO: ir_metadata export instructions. -->
 
@@ -217,15 +241,32 @@ void main() {
 Alternatively, use the [try-with-resources syntax](https://baeldung.com/java-try-with-resources) like this:
 
 ```java
-Tracked tracked = new Tracked();
-try (tracked) {
+TrackingHandle handle = TrackingHandle.start();
+try (handle) {
     // Do something...
 }
-    
-System.out.println(tracked.result);
+
+System.out.println(handle.getResults());
 ```
 
-<!-- TODO: Explain parameters. -->
+By default, tracking targets the calling process. Because `pid` and `trackSubprocesses` are the
+last two parameters of `start`/`track`, and Java has no named arguments, reaching them means
+passing every optional parameter in between explicitly:
+
+```java
+Process proc = new ProcessBuilder("some-command").start();
+TrackingHandle handle = TrackingHandle.start(
+    Tracker.getALL_MEASURES(), /*pollIntervalMillis=*/1000L,
+    /*systemName=*/null, /*systemDescription=*/null,
+    /*exportFilePath=*/null, /*exportFormat=*/null,
+    /*pid=*/proc.pid(), /*trackSubprocesses=*/true
+);
+try (handle) {
+    proc.waitFor();
+}
+
+System.out.println(handle.getResults());
+```
 
 ### Kotlin Usage
 
@@ -245,7 +286,16 @@ fun main() {
 }
 ```
 
-<!-- TODO: Explain parameters. -->
+By default, tracking targets the calling process. Kotlin's named arguments make `pid` and
+`trackSubprocesses` easy to reach directly, to track a subprocess instead (and optionally
+everything it spawns):
+
+```kotlin
+val proc = ProcessBuilder("some-command").start()
+val result = track(pid = proc.pid(), trackSubprocesses = true) {
+    proc.waitFor()
+}
+```
 
 <!-- TODO: ir_metadata export instructions. -->
 
