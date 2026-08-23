@@ -3,7 +3,7 @@ from __future__ import annotations
 import zipfile
 from collections import defaultdict
 from ctypes import CFUNCTYPE, c_char_p, c_int, c_size_t, pointer
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from functools import wraps
 from gzip import open as gzip_open
@@ -46,6 +46,7 @@ from yaml import safe_load as yaml_safe_load
 from ._utils.archive import add_python_notebook_to_archive as _add_python_notebook_to_archive
 from ._utils.constants import ALL_AGGREGATIONS, ALL_MEASURES, Aggregation, Error, LogLevel, Measure, ResultType
 from ._utils.constants import ENCODING as _ENCODING
+from ._utils.constants import TIREX_PID_SELF as _TIREX_PID_SELF
 from ._utils.errorhandling import ABORT_HANDLE as _ABORT_HANDLE
 from ._utils.errorhandling import deinit_error_handling as _deinit_error_handling
 from ._utils.errorhandling import init_error_handling as _init_error_handling
@@ -59,6 +60,7 @@ from ._utils.library import (
     _ProviderInfo,
     _Result,
     _ResultEntry,
+    _TrackingConf,
     _TrackingHandle,
     provider_version,
 )
@@ -291,18 +293,36 @@ def _prepare_measure_configurations(
     return configs_array
 
 
+def _create_tracking_conf(
+    measures: "Array[_MeasureConfiguration]",
+    pid: Optional[int],
+    track_subprocesses: bool,
+    poll_intervall_ms: int,
+) -> _TrackingConf:
+    return _TrackingConf(
+        measures=measures,
+        pid=(_TIREX_PID_SELF if pid is None else pid),
+        trackSubprocesses=track_subprocesses,
+        pollIntervalMs=poll_intervall_ms,
+    )
+
+
 # TODO: Add aggregation(s) (mapping) parameter.
 def fetch_info(
     measures: Iterable[Measure] = ALL_MEASURES,
+    pid: Optional[int] = None,
+    track_subprocesses: bool = True,
 ) -> Mapping[Measure, ResultEntry]:
     # Get Python info first, and then strip Python measures from the list.
     python_info, remaining_measures = _get_python_info(measures)
 
     # Prepare the measure configurations.
     configs_array = _prepare_measure_configurations(remaining_measures)
+    # pollIntervalMs is irrelevant here (fetch_info doesn't poll), so 0 is fine.
+    tracking_conf = _create_tracking_conf(configs_array, pid, track_subprocesses, poll_intervall_ms=0)
 
     result_pointer = pointer(pointer(_Result()))
-    error_int = _LIBRARY.tirexFetchInfo(configs_array, result_pointer)
+    error_int = _LIBRARY.tirexFetchInfo(tracking_conf, result_pointer)
     _handle_error(error_int)
 
     return {
@@ -322,6 +342,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
     _export_file_path: Optional[PathLike]
     _export_format: Optional[ExportFormat]
     results: MutableMapping[Measure, ResultEntry]
+    _stopped: bool = field(default=False, init=False, compare=False)
 
     # TODO: Add aggregation(s) (mapping) parameter.
     @classmethod
@@ -333,16 +354,20 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         system_description: Optional[str] = None,
         export_file_path: Optional[PathLike] = None,
         export_format: Optional[ExportFormat] = None,
+        pid: Optional[int] = None,
+        track_subprocesses: bool = True,
     ) -> Self:
         # Get Python info first, and then strip Python measures from the list.
         python_info, measures = _get_python_info(measures=measures, export_file_path=export_file_path)
 
         # Prepare the measure configurations.
         configs_array = _prepare_measure_configurations(measures)
+        # Both calls target the same process, so they share one config (poll interval is irrelevant to fetchInfo).
+        tracking_conf = _create_tracking_conf(configs_array, pid, track_subprocesses, poll_intervall_ms)
 
         # Get other info, first, before starting the tracking.
         result_pointer = pointer(pointer(_Result()))
-        error_int = _LIBRARY.tirexFetchInfo(configs_array, result_pointer)
+        error_int = _LIBRARY.tirexFetchInfo(tracking_conf, result_pointer)
         _handle_error(error_int)
         fetch_info_result = result_pointer.contents
 
@@ -351,7 +376,7 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
 
         # Start the tracking.
         tracking_handle_pointer = pointer(pointer(_TrackingHandle()))
-        error_int = _LIBRARY.tirexStartTracking(configs_array, poll_intervall_ms, tracking_handle_pointer)
+        error_int = _LIBRARY.tirexStartTracking(tracking_conf, tracking_handle_pointer)
         _handle_error(error_int)
         tracking_handle = tracking_handle_pointer.contents
 
@@ -368,6 +393,12 @@ class TrackingHandle(ContextManager["TrackingHandle"], Mapping[Measure, ResultEn
         )
 
     def stop(self) -> Mapping[Measure, ResultEntry]:
+        # Guard against being called twice (e.g. a manual .stop() followed by __exit__ from a `with` block): the native
+        # handle is freed by the first call, so calling tirexStopTracking again would be a use-after-free.
+        if self._stopped:
+            return self.results
+        object.__setattr__(self, "_stopped", True)
+
         result_pointer = pointer(pointer(_Result()))
         error_int = _LIBRARY.tirexStopTracking(self._tracking_handle, result_pointer)
         _handle_error(error_int)
@@ -571,6 +602,8 @@ def start_tracking(
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
     export_format: Optional[ExportFormat] = None,
+    pid: Optional[int] = None,
+    track_subprocesses: bool = True,
 ) -> TrackingHandle:
     return TrackingHandle.start(
         measures=measures,
@@ -579,6 +612,8 @@ def start_tracking(
         system_description=system_description,
         export_file_path=export_file_path,
         export_format=export_format,
+        pid=pid,
+        track_subprocesses=track_subprocesses,
     )
 
 
@@ -596,6 +631,8 @@ def tracking(
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
     export_format: Optional[ExportFormat] = None,
+    pid: Optional[int] = None,
+    track_subprocesses: bool = True,
 ) -> TrackingHandle:
     return TrackingHandle.start(
         measures=measures,
@@ -604,6 +641,8 @@ def tracking(
         system_description=system_description,
         export_file_path=None if export_file_path is None else Path(export_file_path),
         export_format=export_format,
+        pid=pid,
+        track_subprocesses=track_subprocesses,
     )
 
 
@@ -616,6 +655,8 @@ def track(
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
     export_format: Optional[ExportFormat] = None,
+    pid: Optional[int] = None,
+    track_subprocesses: bool = True,
 ) -> Mapping[Measure, ResultEntry]:
     with tracking(
         measures=measures,
@@ -624,6 +665,8 @@ def track(
         system_description=system_description,
         export_file_path=export_file_path,
         export_format=export_format,
+        pid=pid,
+        track_subprocesses=track_subprocesses,
     ) as handle:
         block()
         return handle.results
@@ -642,6 +685,8 @@ def tracked(
     system_description: Optional[str] = ...,
     export_file_path: Optional[PathLike] = ...,
     export_format: Optional[ExportFormat] = ...,
+    pid: Optional[int] = ...,
+    track_subprocesses: bool = ...,
 ) -> Callable[[Callable[P, T]], Union[Callable[P, T], ResultsAccessor]]:
     pass
 
@@ -654,6 +699,8 @@ def tracked(
     system_description: Optional[str] = None,
     export_file_path: Optional[PathLike] = None,
     export_format: Optional[ExportFormat] = None,
+    pid: Optional[int] = None,
+    track_subprocesses: bool = True,
 ) -> Union[
     Union[Callable[P, T], ResultsAccessor],
     Callable[[Callable[P, T]], Union[Callable[P, T], ResultsAccessor]],
@@ -692,6 +739,8 @@ def tracked(
                     system_description=system_description,
                     export_file_path=export_file_path,
                     export_format=export_format,
+                    pid=pid,
+                    track_subprocesses=track_subprocesses,
                 )
                 try:
                     return f(*args, **kwds)

@@ -178,13 +178,14 @@ int main(int argc, char* argv[]) {
 	tirexSetLogCallback(logcallback);
 
 	// Print information about the system (e.g., OS Information, HW Specs, ...)
-	if (tirexFetchInfo(providers, &result) != TIREX_SUCCESS)
+	tirexTrackingConf conf = {.measures = providers, .pollIntervalMs = 100};
+	if (tirexFetchInfo(conf, &result) != TIREX_SUCCESS)
 		abort();
 	printResult(result, NULL);
 	tirexResultFree(result);
 
 	// Track metadata
-	if (tirexStartTracking(providers, 100, &measure) != TIREX_SUCCESS)
+	if (tirexStartTracking(conf, &measure) != TIREX_SUCCESS)
 		abort();
 	{
 		// 1) Sleep
@@ -204,7 +205,7 @@ int main(int argc, char* argv[]) {
 
 		// 4) Allocate some more memory then sleep
 		{
-			char* data = calloc(48 * 1000 * 1000, 1);	  // allocate 24 MB
+			char* data = calloc(48 * 1000 * 1000, 1);	  // allocate 48 MB
 			for (size_t i = 0; i < 48 * 1000 * 1000; ++i) // Access the data so it is not optimized away
 				data[i] = 1;
 			thrd_sleep(&(struct timespec){.tv_sec = 1}, NULL);

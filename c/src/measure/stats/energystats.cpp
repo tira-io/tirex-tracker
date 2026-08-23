@@ -103,12 +103,15 @@ Stats EnergyStats::getStats() {
 	auto results = tracker.calculate_energy().energy;
 	for (auto& [device, result] : results)
 		tirex::log::debug("cppjoules", "[{}] {}", device, result);
-	// Divide by 1000'000 since CPPJoules reports micro Joule (uJ)
 	auto divide = [](long long divisor) { return [divisor](long long divident) { return divident / divisor; }; };
 	auto stats = makeFilteredStats(
 			enabled,
+			// CPU/RAM figures come from RAPL (via the powercap "energy_uj" backend, or the Raspberry Pi PMIC
+			// path below), which reports microjoules, hence dividing by 1'000'000 to get joules.
 			std::pair{TIREX_CPU_ENERGY_SYSTEM_JOULES, json(transform(tryget(results, "core-0"), divide(1000'000)))},
 			std::pair{TIREX_RAM_ENERGY_SYSTEM_JOULES, json(transform(tryget(results, "dram-0"), divide(1000'000)))},
+			// GPU figures come from NVML's nvmlDeviceGetTotalEnergyConsumption, which reports millijoules,
+			// hence dividing by only 1'000 to get joules.
 			std::pair{TIREX_GPU_ENERGY_SYSTEM_JOULES, json(transform(tryget(results, "nvidia_gpu_0"), divide(1000)))}
 	);
 	if (usePmic) {

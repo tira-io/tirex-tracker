@@ -30,17 +30,18 @@ Then include the header in your source files:
 
 int main() {
     /* 1. Configure which measures to track.
-     *    The array must be terminated with tirexNullMeasureConf. */
+     *    The array must be terminated with tirexNullConf. */
     tirexMeasureConf conf[] = {
         {TIREX_TIME_ELAPSED_WALL_CLOCK_MS, TIREX_AGG_NO},
         {TIREX_CPU_USED_PROCESS_PERCENT,   TIREX_AGG_MAX},
         {TIREX_RAM_USED_PROCESS_KB,        TIREX_AGG_MAX},
-        tirexNullMeasureConf   /* sentinel — do not omit */
+        tirexNullConf   /* sentinel — do not omit */
     };
 
     /* 2. Start tracking. Poll every 100 ms for time-series measures. */
-    tirexTrackingHandle* handle;
-    tirexStartTracking(conf, /*pollIntervalMs=*/100, &handle);
+    tirexTrackingConf trackingConf = {.measures = conf, .pollIntervalMs = 100};
+    tirexMeasureHandle* handle;
+    tirexStartTracking(trackingConf, &handle);
 
     /* 3. Run your experiment. */
     run_experiment();
@@ -76,14 +77,64 @@ tirexMeasureConf info_conf[] = {
     {TIREX_CPU_AVAILABLE_SYSTEM_CORES, TIREX_AGG_NO},
     {TIREX_RAM_AVAILABLE_SYSTEM_MB,    TIREX_AGG_NO},
     {TIREX_OS_NAME,                    TIREX_AGG_NO},
-    tirexNullMeasureConf
+    tirexNullConf
 };
 
 tirexResult* info;
-tirexFetchInfo(info_conf, &info);
+tirexFetchInfo((tirexTrackingConf){.measures = info_conf}, &info);
 /* ... inspect info ... */
 tirexResultFree(info);
 ```
+
+## Tracking a subprocess
+
+By default, `tirexTrackingConf.pid` is `TIREX_PID_SELF`, so tracking targets the calling process like in the examples
+above. To track a different process instead, spawn it first (so you have its PID) and pass that PID explicitly. Setting
+`trackSubprocesses` additionally aggregates whatever that process itself goes on to spawn:
+
+```c
+#include <tirex_tracker.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int main() {
+    pid_t child = fork();
+    if (child == 0) {
+        execlp("some-command", "some-command", NULL);
+        _exit(127); /* execlp only returns on failure */
+    }
+
+    tirexMeasureConf conf[] = {
+        {TIREX_CPU_USED_PROCESS_PERCENT, TIREX_AGG_MAX},
+        {TIREX_RAM_USED_PROCESS_KB,      TIREX_AGG_MAX},
+        tirexNullConf
+    };
+    tirexTrackingConf trackingConf = {
+        .measures = conf,
+        .pid = child,               /* track the child, not ourselves */
+        .trackSubprocesses = true,  /* also aggregate anything it spawns */
+        .pollIntervalMs = 100,
+    };
+    tirexMeasureHandle* handle;
+    tirexStartTracking(trackingConf, &handle);
+
+    int status;
+    waitpid(child, &status, 0);
+
+    tirexResult* result;
+    tirexStopTracking(handle, &result);
+    /* ... inspect result ... */
+    tirexResultFree(result);
+    return 0;
+}
+```
+
+RAM aggregation across a process tree is an approximation whose accuracy depends on the platform: Linux sums each
+process's PSS (proportional set size, from `/proc/<pid>/smaps_rollup`), so pages shared with processes *outside* the
+tracked tree are still divided by their global mapper count. macOS sums each process's `ri_phys_footprint` (via
+`proc_pid_rusage`), a per-process estimate with no cross-process dedup. Windows sums each process's `PrivateUsage`
+(`PROCESS_MEMORY_COUNTERS_EX`). CPU aggregation has no such caveat — CPU time is always additive across a tree on every
+platform. See [Tracked Measures](../guides/measures.md) for details.
 
 ## Listing available measures at runtime
 

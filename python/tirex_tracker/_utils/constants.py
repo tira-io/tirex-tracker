@@ -78,6 +78,9 @@ class Measure(IntEnum):
 
 INVALID_MEASURE = -1
 
+# Sentinel for tirexTrackingConf.pid: track the calling process (the default).
+TIREX_PID_SELF = 0
+
 
 ALL_MEASURES = set(Measure)
 

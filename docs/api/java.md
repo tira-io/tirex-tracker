@@ -16,11 +16,11 @@ For installation and usage examples, see the [Java / Kotlin getting started guid
 
 | Function / Class | Description |
 |---|---|
-| `track(measures, pollIntervalMs) { ... }` | Track a lambda block and return a result map. |
-| `tracking(measures, pollIntervalMs)` | Returns a `TrackingHandle` for use with `use { }`. |
-| `startTracking(measures, pollIntervalMs)` | Start tracking manually; returns a `TrackingHandle`. |
+| `track(measures, pollIntervalMs, ..., pid, trackSubprocesses) { ... }` | Track a lambda block and return a result map. |
+| `tracking(measures, pollIntervalMs, ..., pid, trackSubprocesses)` | Returns a `TrackingHandle` for use with `use { }`. |
+| `startTracking(measures, pollIntervalMs, ..., pid, trackSubprocesses)` | Start tracking manually; returns a `TrackingHandle`. |
 | `stopTracking(handle)` | Stop tracking and return the result map. |
-| `fetchInfo(measures)` | Query static hardware info without tracking. |
+| `fetchInfo(measures, pid, trackSubprocesses)` | Query static hardware/process info without tracking. |
 | `setLogCallback { level, component, message -> }` | Register a log callback. |
 | `providerInfos` | Returns a list of all available data providers. |
 | `measureInfos` | Returns a list of all available measures with metadata. |
@@ -29,14 +29,20 @@ For installation and usage examples, see the [Java / Kotlin getting started guid
 
 | Method | Description |
 |---|---|
-| `Tracker.track(measures, pollIntervalMs, callable)` | Track a `Callable` or lambda. |
-| `new Tracked(measures, pollIntervalMs)` | Try-with-resources handle. |
-| `Tracker.startTracking(measures, pollIntervalMs)` | Start tracking manually. |
+| `Tracker.track(measures, pollIntervalMs, ..., pid, trackSubprocesses, callable)` | Track a `Callable` or lambda. |
+| `TrackingHandle.start(measures, pollIntervalMs, ..., pid, trackSubprocesses)` | Try-with-resources handle. |
+| `Tracker.startTracking(measures, pollIntervalMs, ..., pid, trackSubprocesses)` | Start tracking manually. |
 | `Tracker.stopTracking(handle)` | Stop tracking and return results. |
-| `Tracker.fetchInfo(measures)` | Query static hardware info. |
+| `Tracker.fetchInfo(measures, pid, trackSubprocesses)` | Query static hardware/process info. |
 | `Tracker.setLogCallback(callback)` | Register a log callback. |
 | `Tracker.getProviderInfos()` | List available data providers. |
 | `Tracker.getMeasureInfos()` | List available measures with metadata. |
+
+`pid` (default: the calling process) and `trackSubprocesses` (default: `true`) are the last two
+parameters of every overload above. In Kotlin, named arguments make them reachable directly
+(`track(pid = proc.pid(), trackSubprocesses = true) { ... }`); in Java, since there are no named
+arguments, reaching them means passing every optional parameter in between explicitly — see the
+[getting started guide](../getting-started/java.md#tracking-a-subprocess) for a full example.
 
 ---
 

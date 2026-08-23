@@ -112,13 +112,19 @@ static int runMeasureCmd(const MeasureCmdArgs& args) {
 	}
 	measures.emplace_back(tirexNullConf);
 
+	tirexTrackingConf conf{
+			.measures = measures.data(), .trackSubprocesses = true, .pollIntervalMs = args.pollIntervalMs
+	};
+
 	// Fetch info
 	tirexResult* info;
-	tirexError err = tirexFetchInfo(measures.data(), &info);
+	tirexError err = tirexFetchInfo(conf, &info);
 	assert(err == TIREX_SUCCESS);
 
 	tirexMeasureHandle* handle;
-	err = tirexStartTracking(measures.data(), args.pollIntervalMs, &handle);
+	/** \todo This measures the CLI's own (idle) process as well, since runCommand() doesn't yet expose the child's PID
+	 * to target it (or set trackSubprocesses once tree-tracking is implemented). **/
+	err = tirexStartTracking(conf, &handle);
 	assert(err == TIREX_SUCCESS);
 
 	// Run the command

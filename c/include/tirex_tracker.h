@@ -300,36 +300,77 @@ typedef struct tirexMeasureConf_st {
 static const tirexMeasureConf tirexNullConf = {.source = TIREX_MEASURE_INVALID};
 
 /**
- * @brief Fetches the system information from the measures requested in \p measures.
- * 
- * @param[in] measures 
- * @param[out] result 
- * @return TIREX_SUCCESS on success or an error code. 
- */
-TIREX_TRACKER_EXPORT tirexError tirexFetchInfo(const tirexMeasureConf* measures, tirexResult** result);
-
-/**
  * @ingroup measure
  * @{
  */
 /**
+ * @brief Sentinel tirexTrackingConf::pid value meaning "track the calling process." This is the default: a
+ * zero-initialized tirexTrackingConf tracks the caller.
+ * @details Safe as a sentinel since 0 is never a real process ID (reserved for kernel/scheduler bookkeeping on POSIX,
+ * and for the System Idle Process on Windows).
+ */
+#define TIREX_PID_SELF ((int64_t)0)
+
+/**
+ * @brief Configures a tracking session: which measures to collect, which process (and optionally its descendants) to
+ * measure, and how often to poll.
+ * @details For a minimal config, use`tirexTrackingConf{.measures = ..., .pollIntervalMs = 100}` to track the current
+ * process without its children.
+ */
+typedef struct tirexTrackingConf_st {
+	/** @brief tirexNullConf-terminated array of measures to track. */
+	const tirexMeasureConf* measures;
+	/** @brief TIREX_PID_SELF (default) to track the calling process, or an explicit target process ID. */
+	int64_t pid;
+	/**
+	 * @brief If true, also discover and aggregate the descendants of \p pid over the tracking session, instead of
+	 * measuring \p pid alone.
+	 * @details Applies to both TIREX_CPU_USED_PROCESS_PERCENT and TIREX_RAM_USED_PROCESS_KB, summed across \p pid
+	 * and every descendant process discovered at each poll. CPU time is simply additive (never shared between
+	 * processes), so that figure is exact. RAM cannot simply be summed (that would double-count pages shared between
+	 * processes, e.g. shared libraries or fork()-inherited copy-on-write pages), so each platform instead uses its own
+	 * best-available deduplicated approximation: PSS on Linux (divides each shared page's cost by its global mapper
+	 * count; may slightly undercount pages also shared with processes outside the tracked tree), ri_phys_footprint on
+	 * macOS (Apple's own per-process accounting, but not a fair-share scheme; can overcount memory the tree's own
+	 * members share with each other), and PrivateUsage on Windows (excludes all shared memory entirely, so it cannot
+	 * double-count but does undercount by any memory shared within the tree; also tracks committed virtual memory
+	 * rather than strictly resident physical memory, unlike the single-process figure).
+	 */
+	bool trackSubprocesses;
+	/** @brief The interval, in milliseconds, at which to poll for updated stats. Ignored by tirexFetchInfo, which
+	 * does not poll. */
+	size_t pollIntervalMs;
+} tirexTrackingConf;
+
+/**
+ * @brief Fetches the system information from the measures requested in \p conf , about the process identified by
+ * \p conf.pid (TIREX_PID_SELF, the default, for the calling process).
+ * @details \p conf.pollIntervalMs is ignored, since this is a one-shot fetch rather than an ongoing tracking session.
+ * Some measures depend on which process is targeted (e.g., TIREX_INVOCATION and the git- and devcontainer-related
+ * measures are resolved relative to \p conf.pid 's working directory).
+ *
+ * @param[in] conf
+ * @param[out] result
+ * @return TIREX_SUCCESS on success or an error code.
+ */
+TIREX_TRACKER_EXPORT tirexError tirexFetchInfo(tirexTrackingConf conf, tirexResult** result);
+
+/**
  * @brief Initializes the providers set in the configuration and starts measuring.
- * 
- * @param measures 
- * @param pollIntervalMs 
+ *
+ * @param conf configures the tracking behavior (which measures, which process, ...).
  * @param[out] handle a handle to the running measurement.
  * @return TIREX_SUCCESS on success or an error code.
- * 
+ *
  * @see tirexStopTracking
  */
-TIREX_TRACKER_EXPORT tirexError
-tirexStartTracking(const tirexMeasureConf* measures, size_t pollIntervalMs, tirexMeasureHandle** handle);
+TIREX_TRACKER_EXPORT tirexError tirexStartTracking(tirexTrackingConf conf, tirexMeasureHandle** handle);
 
 /**
  * @brief Stops the measurement and deinitializes the data providers.
  * @details This function **must** be called **exactly once** for each measurement job.
  * 
- * @param handle The handle of the running measurement that should be stopped.
+ * @param[in] handle The handle of the running measurement that should be stopped.
  * @param[out] result a handle to the result tree of the measurement. Must be freed by the caller using
  * tirexResultFree(tirexResult*)
  * @return TIREX_SUCCESS on success or an error code.

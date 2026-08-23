@@ -56,6 +56,16 @@ namespace tirex {
 
 	tirexResult_st* createMsrResultFromStats(Stats&& stats);
 
+	/**
+	 * @brief Identifies which process(es) a tracking session should measure.
+	 * @details Decoupled from the public tirexTrackingConf so internal code doesn't depend on the exact public C struct
+	 * layout. Most providers are not process-specific and can simply ignore it.
+	 */
+	struct TrackingTarget {
+		int64_t pid = TIREX_PID_SELF;
+		bool trackSubprocesses = false;
+	};
+
 	class StatsProvider {
 	protected:
 		std::set<tirexMeasure> enabled;
@@ -106,7 +116,7 @@ namespace tirex {
 		virtual Stats getInfo() { return {}; }
 	};
 
-	using ProviderConstructor = std::function<std::unique_ptr<StatsProvider>(void)>;
+	using ProviderConstructor = std::function<std::unique_ptr<StatsProvider>(const TrackingTarget&)>;
 	struct ProviderEntry final {
 		ProviderConstructor constructor;
 		/**
@@ -130,13 +140,16 @@ namespace tirex {
 
 	/**
 	 * @brief Initializes all the providers necessary to track the requested measures.
-	 * 
+	 *
 	 * @param[in] measures The measures that are requested.
 	 * @param[out] providers A vector of StatsProvider which will be populated with the initialized providers.
+	 * @param[in] target Which process(es) the tracking session should measure.
 	 * @return A set of tirexMeasure which are not provided by any of the providers.
 	 */
-	std::set<tirexMeasure>
-	initProviders(std::set<tirexMeasure> measures, std::vector<std::unique_ptr<StatsProvider>>& providers);
+	std::set<tirexMeasure> initProviders(
+			std::set<tirexMeasure> measures, std::vector<std::unique_ptr<StatsProvider>>& providers,
+			const TrackingTarget& target
+	);
 
 	Stats makeFilteredStats(const std::set<tirexMeasure>& filter, CONVERTIBLE_TO_PAIR_CONCEPT auto&&... args) {
 		/** May be more readable when we can assume C++26 and expansion statements

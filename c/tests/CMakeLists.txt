@@ -13,6 +13,8 @@ add_executable(tests
 	tracker.cpp
     measure/timeseries.cpp
 	measure/stats/gitstats.cpp
+	measure/stats/subprocess_tracking.cpp
+	measure/utils/osutils.cpp
 )
 
 # file(COPY testfiles ${CMAKE_CURRENT_BINARY_DIR})

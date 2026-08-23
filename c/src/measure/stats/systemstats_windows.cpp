@@ -8,17 +8,17 @@
 #include "systemstats.hpp"
 
 #include "../../logging.hpp"
-#include "../utils/sharedlib.hpp"
-
-#define NOGDI // Otherwise we get problems with logging
-#include <windows.h>
-#include <winternl.h>
+#include "../utils/osutils.hpp"
+#include "details/windows/ntdll.hpp"
 
 #include <powrprof.h>
 #include <psapi.h>
 #include <versionhelpers.h>
 
+#include <cstring>
+#include <optional>
 #include <tuple>
+#include <unordered_map>
 
 using namespace std::string_literals;
 using std::chrono::steady_clock;
@@ -26,19 +26,6 @@ using std::chrono::system_clock;
 
 using tirex::Stats;
 using tirex::SystemStats;
-
-struct NTDLL final : tirex::utils::SharedLib {
-public:
-	using QUERY_INFORMATION_PROCESS = NTSTATUS (*)(
-			HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation,
-			ULONG ProcessInformationLength, PULONG ReturnLength
-	);
-	QUERY_INFORMATION_PROCESS queryInformationProcess = load<QUERY_INFORMATION_PROCESS>({"NtQueryInformationProcess"});
-
-	NTDLL() : tirex::utils::SharedLib(std::string{"ntdll.dll"}) {}
-};
-
-static NTDLL nt;
 
 static std::string getOSDesc() {
 	if (IsWindows10OrGreater())
@@ -156,6 +143,34 @@ static unsigned getRAMUsageKB(HANDLE pid) {
 	}
 }
 
+namespace {
+	/**
+	 * @brief Reads a process's private (non-shared) memory usage in bytes, via a fresh, short-lived handle and
+	 * GetProcessMemoryInfo's PROCESS_MEMORY_COUNTERS_EX::PrivateUsage. Unlike Linux's PSS (which fair-shares each
+	 * shared page's cost across every process mapping it), PrivateUsage *excludes* shared pages entirely from every
+	 * process's count; so summing it across a tree can never double-count shared memory, but it also *undercounts*  the
+	 * true unique footprint by whatever memory the tree's own members share with *each other* (there is no Windows
+	 * equivalent of PSS to give partial credit for that). It also tracks committed private virtual memory (closer to
+	 * Task Manager's "Commit Size"), not strictly currently-resident physical memory the way the single-process
+	 * WorkingSetSize-based getRAMUsageKB() above does; the two are not directly comparable figures. This is the best
+	 * available approximation without restructuring around Job Objects.
+	 * 
+	 * @returns std::nullopt if \p pid doesn't exist or can't be opened/inspected.
+	 */
+	std::optional<std::uint64_t> readProcessPrivateUsage(int64_t pid) {
+		HANDLE handle =
+				OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_VM_READ, FALSE, static_cast<DWORD>(pid));
+		if (handle == nullptr)
+			return std::nullopt;
+		PROCESS_MEMORY_COUNTERS_EX pmc;
+		bool ok = GetProcessMemoryInfo(handle, reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&pmc), sizeof(pmc));
+		CloseHandle(handle);
+		if (!ok)
+			return std::nullopt;
+		return static_cast<std::uint64_t>(pmc.PrivateUsage);
+	}
+} // namespace
+
 static unsigned getSystemRAMUsageMB() {
 	MEMORYSTATUSEX stat;
 	stat.dwLength = sizeof(MEMORYSTATUSEX);
@@ -169,13 +184,13 @@ static unsigned getSystemRAMUsageMB() {
 	}
 }
 
-uint8_t SystemStats::getCPUUtilization() {
+unsigned SystemStats::getCPUUtilization() {
 	FILETIME sysIdle, sysKernel, sysUser;
 	if (GetSystemTimes(&sysIdle, &sysKernel, &sysUser) == 0) {
 		tirex::log::error("windowsstats", "Failed to get system times");
 		return 0;
 	}
-	uint8_t util = 1;
+	unsigned util = 1;
 	if (prevSysIdle.dwLowDateTime != 0 && prevSysIdle.dwHighDateTime != 0) {
 		auto sysIdleDiff = fileTimeToUint64(sysIdle) - fileTimeToUint64(prevSysIdle);
 		auto sysKernelDiff = fileTimeToUint64(sysKernel) - fileTimeToUint64(prevSysKernel);
@@ -185,7 +200,7 @@ uint8_t SystemStats::getCPUUtilization() {
 				sysKernelDiff - sysIdleDiff; // kernelTime - IdleTime = kernelTime, because sysKernel include IdleTime
 
 		if (sysTotal > 0) // sometimes kernelTime > idleTime
-			util = static_cast<uint8_t>(((kernelTotal + sysUserDiff) * 100) / sysTotal);
+			util = static_cast<unsigned>(((kernelTotal + sysUserDiff) * 100) / sysTotal);
 	}
 
 	prevSysIdle = sysIdle;
@@ -195,31 +210,102 @@ uint8_t SystemStats::getCPUUtilization() {
 	return util;
 }
 
-uint8_t SystemStats::getProcCPUUtilization() {
+unsigned SystemStats::getProcCPUUtilization() {
 	FILETIME ftime, fsys, fuser;
 	ULARGE_INTEGER now, sys, user;
-	size_t percent;
+	size_t percent = 0;
 
 	GetSystemTimeAsFileTime(&ftime);
-	memcpy(&now, &ftime, sizeof(FILETIME));
+	std::memcpy(&now, &ftime, sizeof(FILETIME));
 
 	GetProcessTimes(pid, &ftime, &ftime, &fsys, &fuser);
-	memcpy(&sys, &fsys, sizeof(FILETIME));
-	memcpy(&user, &fuser, sizeof(FILETIME));
-	percent = (sys.QuadPart - lastSysCPU.QuadPart) + (user.QuadPart - lastUserCPU.QuadPart);
-	percent /= (now.QuadPart - lastCPU.QuadPart);
-	percent *= 100;
-	percent /= numProcessors;
+	std::memcpy(&sys, &fsys, sizeof(FILETIME));
+	std::memcpy(&user, &fuser, sizeof(FILETIME));
+	auto elapsed = now.QuadPart - lastCPU.QuadPart;
+	if (elapsed != 0) {
+		percent = ((sys.QuadPart - lastSysCPU.QuadPart) + (user.QuadPart - lastUserCPU.QuadPart)) * 100;
+		percent /= elapsed;
+	} else {
+		tirex::log::warn("windowsstats", "Called too quickly apart (0 ticks elapsed)");
+	}
 	lastCPU = now;
 	lastUserCPU = user;
 	lastSysCPU = sys;
-	return static_cast<uint8_t>(percent);
+	return static_cast<unsigned>(percent);
+}
+
+namespace {
+	/**
+	 * @brief Reads a process's cumulative (kernel, user) CPU time via GetProcessTimes, opening (and closing) a fresh,
+	 * short-lived handle for \p pid ; unlike the root process's own long-lived handle stored in SystemStats::pid, tree
+	 * members are only ever touched transiently, once per poll.
+	 * 
+	 * @returns std::nullopt if \p pid doesn't exist or can't be opened/inspected (e.g. a privileged system process).
+	 */
+	std::optional<std::tuple<ULONGLONG, ULONGLONG>> readProcessCpuTicks(int64_t pid) {
+		HANDLE handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, static_cast<DWORD>(pid));
+		if (handle == nullptr)
+			return std::nullopt;
+		FILETIME creationTime, exitTime, kernelTime, userTime;
+		bool ok = GetProcessTimes(handle, &creationTime, &exitTime, &kernelTime, &userTime);
+		CloseHandle(handle);
+		if (!ok)
+			return std::nullopt;
+		return std::make_tuple(fileTimeToUint64(kernelTime), fileTimeToUint64(userTime));
+	}
+} // namespace
+
+/**
+ * @brief Like getProcCPUUtilization(), but sums the CPU usage of `pid` and every descendant process discovered via
+ * tirex::utils::discoverProcessTree() at the time of the call. See the Linux implementation of this function for the
+ * full rationale; this mirrors it exactly (including *not* dividing by the number of processors, matching
+ * getProcCPUUtilization()'s own normalization above), just backed by GetProcessTimes on a per-member handle instead
+ * of /proc/<pid>/stat.
+ */
+unsigned SystemStats::getTreeCPUUtilization() {
+	FILETIME ftime;
+	ULARGE_INTEGER now;
+	GetSystemTimeAsFileTime(&ftime);
+	std::memcpy(&now, &ftime, sizeof(FILETIME));
+	auto elapsed = now.QuadPart - lastCPU.QuadPart;
+	if (elapsed == 0) {
+		tirex::log::warn("windowsstats", "Called too quickly apart (0 ticks elapsed)");
+		return 0;
+	}
+
+	size_t totalPercent = 0;
+	std::unordered_map<int64_t, ULONGLONG> newState;
+	for (int64_t member : tirex::utils::discoverProcessTree(static_cast<int64_t>(GetProcessId(pid)))) {
+		auto ticks = readProcessCpuTicks(member);
+		if (!ticks)
+			continue; // Vanished mid-scan, or couldn't be opened (e.g. a privileged process); excluded this tick.
+		ULONGLONG activeTicks = std::get<0>(*ticks) + std::get<1>(*ticks);
+		if (auto it = treeLastActiveCpu.find(member); it != treeLastActiveCpu.end() && activeTicks >= it->second) {
+			totalPercent += static_cast<size_t>((activeTicks - it->second) * 100) / static_cast<size_t>(elapsed);
+		}
+		// Else: first sighting of this PID (or its CPU time went backwards, e.g. PID reuse) -- contributes nothing
+		// this tick, matching the single-process "not enough history yet" behavior above.
+		newState[member] = activeTicks;
+	}
+	treeLastActiveCpu = std::move(newState); // Prune state for PIDs no longer in the tree.
+	lastCPU = now;
+	return static_cast<unsigned>(totalPercent);
+}
+
+unsigned SystemStats::getTreeRAMUsageKB() {
+	std::uint64_t totalBytes = 0;
+	for (int64_t member : tirex::utils::discoverProcessTree(static_cast<int64_t>(GetProcessId(pid)))) {
+		if (auto priv = readProcessPrivateUsage(member))
+			totalBytes += *priv;
+		// Else: vanished mid-scan, or couldn't be opened (e.g. a privileged process); excluded from this tick.
+	}
+	return static_cast<unsigned>(totalBytes / 1000);
 }
 
 SystemStats::Utilization SystemStats::getUtilization() {
 	return Utilization{
-			.ramUsedKB = getRAMUsageKB(pid),
-			.cpuUtilization = getProcCPUUtilization(),
+			.ramUsedKB = trackSubprocesses ? getTreeRAMUsageKB() : getRAMUsageKB(pid),
+			.cpuUtilization = trackSubprocesses ? getTreeCPUUtilization() : getProcCPUUtilization(),
 			.system = {.ramUsedMB = getSystemRAMUsageMB(), .cpuUtilization = getCPUUtilization()}
 	};
 }
@@ -235,7 +321,7 @@ std::vector<std::string> SystemStats::getInvocationCmd() {
 	ULONG bufsize;
 	char buffer[4096];
 	HANDLE handle = GetCurrentProcess();
-	NTSTATUS status = nt.queryInformationProcess(
+	NTSTATUS status = ntdll().queryInformationProcess(
 			handle, static_cast<PROCESSINFOCLASS>(60) /* ProcessCommandLineInformation */, buffer, sizeof(buffer),
 			&bufsize
 	);
@@ -254,10 +340,6 @@ void SystemStats::start() {
 	std::tie(startSysTime, startUTime) = getSysAndUserTime();
 	tirex::log::debug("windowsstats", "Start systime {} ms, utime {} ms", tickToMs(startSysTime), tickToMs(startUTime));
 	getUtilization(); // Call getUtilization once to init CPU Utilization tracking
-	//
-	SYSTEM_INFO sysInfo;
-	GetSystemInfo(&sysInfo);
-	numProcessors = sysInfo.dwNumberOfProcessors;
 }
 void SystemStats::step() {
 	thread_local static std::vector<uint32_t> cpuFreqs;

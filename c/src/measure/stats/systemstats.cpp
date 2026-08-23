@@ -346,9 +346,12 @@ SystemStats::CPUInfo::VirtFlags getVirtSupport() { return {.svm = false, .vmx = 
 #elif defined(__linux__)
 SystemStats::CPUInfo::VirtFlags getVirtSupport() {
 	/** This is a crude implementation for now that only takes into account the flags of the very first processor **/
+	/** x86 exposes CPU flags (including "svm"/"vmx") under the "flags" field; ARM/aarch64 uses "Features" instead
+	 * (which never contains svm/vmx, since those are x86-only concepts). Check both so this works on either
+	 * architecture without needing a separate compile-time branch. **/
 	std::ifstream is("/proc/cpuinfo");
 	for (std::string line; std::getline(is, line);)
-		if (line.starts_with("Features"))
+		if (line.starts_with("flags") || line.starts_with("Features"))
 			return {.svm = line.find("svm") != std::string::npos, .vmx = line.find("vmx") != std::string::npos};
 	return {.svm = false, .vmx = false};
 }
@@ -367,11 +370,41 @@ SystemStats::CPUInfo::VirtFlags getVirtSupport() {
 #endif
 
 #if defined(_WINDOWS) || defined(_WIN32) || defined(WIN32)
-SystemStats::SystemStats() : pid(GetCurrentProcess()) {}
+SystemStats::SystemStats(const tirex::TrackingTarget& target) : trackSubprocesses(target.trackSubprocesses) {
+	if (target.pid == TIREX_PID_SELF)
+		pid = GetCurrentProcess();
+	else {
+		pid = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, static_cast<DWORD>(target.pid));
+		if (pid == nullptr) {
+			tirex::log::error("windowsstats", "Failed to open process {} to track it", target.pid);
+			tirex::abort(tirexLogLevel::ERROR, "Failed to open the target process for tracking");
+			pid = GetCurrentProcess(); // Best-effort fallback so this object stays in a usable state.
+		}
+	}
+	if (target.trackSubprocesses)
+		tirex::log::info(
+				"windowsstats",
+				"Tracking CPU and (private-memory-approximated) RAM usage across the process tree rooted at {}",
+				GetProcessId(pid)
+		);
+}
 #elif defined(__linux__)
-SystemStats::SystemStats() : pid(getpid()) {}
+SystemStats::SystemStats(const tirex::TrackingTarget& target) : trackSubprocesses(target.trackSubprocesses) {
+	pid = (target.pid == TIREX_PID_SELF) ? getpid() : static_cast<pid_t>(target.pid);
+	if (target.trackSubprocesses)
+		tirex::log::info(
+				"linuxstats", "Tracking CPU and (PSS-approximated) RAM usage across the process tree rooted at {}", pid
+		);
+}
 #elif defined(__APPLE__)
-SystemStats::SystemStats() : pid(getpid()) {}
+SystemStats::SystemStats(const tirex::TrackingTarget& target) : trackSubprocesses(target.trackSubprocesses) {
+	pid = (target.pid == TIREX_PID_SELF) ? getpid() : static_cast<pid_t>(target.pid);
+	if (target.trackSubprocesses)
+		tirex::log::info(
+				"macosstats",
+				"Tracking CPU and (memory-footprint-approximated) RAM usage across the process tree rooted at {}", pid
+		);
+}
 #endif
 
 SystemStats::CPUInfo SystemStats::getCPUInfo() {

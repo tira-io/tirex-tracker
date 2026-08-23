@@ -12,6 +12,42 @@ Measures are either:
 
 ---
 
+## The tracked process
+
+Several measures below are scoped to "the tracked process" (e.g. `TIREX_CPU_USED_PROCESS_PERCENT`,
+`TIREX_RAM_USED_PROCESS_KB`, `TIREX_INVOCATION`, and the Git measures, which are resolved relative to that process's
+working directory). By default this is **the calling process itself**, i.e., the process that called
+`tirexStartTracking`/`tirexFetchInfo` (or the Python/JVM wrapper equivalent).
+
+Two independent options change this:
+
+- **Target a different process.** Pass an explicit process ID (e.g. the PID of a subprocess you just spawned) instead of
+  the default self-sentinel (`TIREX_PID_SELF` in C, `pid=None` in Python, `pid=null` in Kotlin/Java). This is the way to
+  track a driver process's worker, e.g. `subprocess.Popen`/`ProcessBuilder` output that does the actual experiment work.
+- **Follow that process's descendants.** Enable `trackSubprocesses` (on by default in Python and JVM; opt-in in C) to
+  also discover and aggregate whatever the targeted process itself spawns, rather than measuring it alone.
+
+These combine: tracking `{pid=<worker>, trackSubprocesses=true}` covers a worker that itself fans out further (e.g. a
+multiprocessing pool), aggregating CPU and RAM across the whole tree.
+
+**CPU** time is additive across a process tree on every platform. A tree-mode CPU measurement is exact, with no caveats.
+
+**RAM** cannot simply be summed across processes: doing so would double-count physical pages shared between them (shared
+libraries, `fork()`-inherited copy-on-write pages). Each platform therefore reports its own best-available approximation
+when `trackSubprocesses` is enabled:
+
+| Platform | Technique | Known imprecision |
+|---|---|---|
+| Linux | Sum of each process's PSS (`/proc/<pid>/smaps_rollup`) | May slightly undercount pages also shared with processes *outside* the tracked tree |
+| macOS | Sum of each process's `ri_phys_footprint` (`proc_pid_rusage`) | Not a fair-share scheme — can overcount memory the tree's own members share with each other |
+| Windows | Sum of each process's `PrivateUsage` (`PROCESS_MEMORY_COUNTERS_EX`) | Excludes all shared memory, so it undercounts memory shared *within* the tree; tracks committed virtual memory rather than resident physical memory |
+
+**Short-lived children:** the process tree is rediscovered at each poll tick. A child that starts and exits entirely
+within one poll interval may be missed or under-sampled — this is an inherent limitation of external (non-parent)
+process monitoring on Linux/macOS, not a bug. Lowering the poll interval reduces (but does not eliminate) this risk.
+
+---
+
 ## Operating System
 
 | Constant | Description | Type | Example |

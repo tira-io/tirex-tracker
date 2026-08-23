@@ -1,6 +1,7 @@
 #include "devcontainerstats.hpp"
 
 #include "../../logging.hpp"
+#include "../utils/osutils.hpp"
 #include "../utils/rangeutils.hpp"
 #include "./gitstats.hpp"
 
@@ -35,16 +36,17 @@ static std::vector<fs::path> searchDevcontainerFiles(fs::path basepath) {
 	return files;
 }
 
-DevContainerStats::DevContainerStats() {
-	auto devcontainerConfs = searchDevcontainerFiles(fs::current_path());
+DevContainerStats::DevContainerStats(const tirex::TrackingTarget& target)
+		: targetWorkingDir(tirex::utils::getProcessWorkingDirectory(target.pid).value_or(fs::current_path())) {
+	auto devcontainerConfs = searchDevcontainerFiles(targetWorkingDir);
 	tirex::log::info(
 			"devcontainer", "Found {} devcontainer configurations by searching started at {}", devcontainerConfs.size(),
-			fs::current_path().string().c_str()
+			targetWorkingDir.string().c_str()
 	);
 	for (const auto& path : devcontainerConfs) {
 		tirex::log::info("devcontainer", "  {}", path.string().c_str());
 	}
-	if (auto root = GitStats::getRepoRootDir(); root.has_value()) {
+	if (auto root = GitStats::getRepoRootDir(targetWorkingDir); root.has_value()) {
 		auto confs = searchDevcontainerFiles(*root);
 		tirex::log::info(
 				"devcontainer", "Found {} devcontainer configurations by searching started at git root ({})",
@@ -64,7 +66,7 @@ Stats DevContainerStats::getInfo() {
 			enabled,
 			std::pair{
 					TIREX_DEVCONTAINER_CONF_PATHS,
-					"["s + utils::join(searchDevcontainerFiles(fs::current_path()), ", ") + "]"
+					"["s + utils::join(searchDevcontainerFiles(targetWorkingDir), ", ") + "]"
 			}
 	);
 }

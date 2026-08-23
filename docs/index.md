@@ -71,10 +71,11 @@ TIREx Tracker is available as a CLI tool and as a library for C/C++, Python, and
             {TIREX_TIME_ELAPSED_WALL_CLOCK_MS, TIREX_AGG_NO},
             {TIREX_CPU_USED_PROCESS_PERCENT,   TIREX_AGG_MAX},
             {TIREX_RAM_USED_PROCESS_KB,        TIREX_AGG_MAX},
-            tirexNullMeasureConf
+            tirexNullConf
         };
-        tirexTrackingHandle* handle;
-        tirexStartTracking(conf, /*pollIntervalMs=*/100, &handle);
+        tirexTrackingConf trackingConf = {.measures = conf, .pollIntervalMs = 100};
+        tirexMeasureHandle* handle;
+        tirexStartTracking(trackingConf, &handle);
 
         run_experiment();
 

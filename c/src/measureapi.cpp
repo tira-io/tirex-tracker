@@ -60,8 +60,10 @@ struct tirexMeasureHandle_st final {
 	}
 };
 
-static tirexError
-initProviders(const tirexMeasureConf* measures, std::vector<std::unique_ptr<tirex::StatsProvider>>& providers) {
+static tirexError initProviders(
+		const tirexMeasureConf* measures, std::vector<std::unique_ptr<tirex::StatsProvider>>& providers,
+		const tirex::TrackingTarget& target = {}
+) {
 	std::set<tirexMeasure> tirexset;
 	for (auto conf = measures; conf->source != tirexMeasure::TIREX_MEASURE_INVALID; ++conf) {
 		auto [it, inserted] = tirexset.insert(conf->source); /** \todo implement conf->aggregate support **/
@@ -72,7 +74,7 @@ initProviders(const tirexMeasureConf* measures, std::vector<std::unique_ptr<tire
 			tirex::abort(tirexLogLevel::WARN, "A measure was requested multiple times");
 		}
 	}
-	auto unmatched = tirex::initProviders(tirexset, providers);
+	auto unmatched = tirex::initProviders(tirexset, providers, target);
 	if (!unmatched.empty()) {
 		tirex::log::warn("tracker", "Not all requested measures are associated with a data provider");
 		tirex::log::warn("tracker", "Unmatched: {}", tirex::utils::join(unmatched));
@@ -81,9 +83,10 @@ initProviders(const tirexMeasureConf* measures, std::vector<std::unique_ptr<tire
 	return TIREX_SUCCESS;
 }
 
-tirexError tirexFetchInfo(const tirexMeasureConf* measures, tirexResult** result) {
+tirexError tirexFetchInfo(tirexTrackingConf conf, tirexResult** result) {
 	std::vector<std::unique_ptr<tirex::StatsProvider>> providers;
-	if (tirexError err; (err = initProviders(measures, providers)) != TIREX_SUCCESS)
+	tirex::TrackingTarget target{.pid = conf.pid, .trackSubprocesses = conf.trackSubprocesses};
+	if (tirexError err; (err = initProviders(conf.measures, providers, target)) != TIREX_SUCCESS)
 		return err;
 	tirex::Stats stats{};
 	for (auto& provider : providers)
@@ -92,11 +95,12 @@ tirexError tirexFetchInfo(const tirexMeasureConf* measures, tirexResult** result
 	return TIREX_SUCCESS;
 }
 
-tirexError tirexStartTracking(const tirexMeasureConf* measures, size_t pollIntervalMs, tirexMeasureHandle** handle) {
+tirexError tirexStartTracking(tirexTrackingConf conf, tirexMeasureHandle** handle) {
 	std::vector<std::unique_ptr<tirex::StatsProvider>> providers;
-	if (tirexError err; (err = initProviders(measures, providers)) != TIREX_SUCCESS)
+	tirex::TrackingTarget target{.pid = conf.pid, .trackSubprocesses = conf.trackSubprocesses};
+	if (tirexError err; (err = initProviders(conf.measures, providers, target)) != TIREX_SUCCESS)
 		return err;
-	*handle = new tirexMeasureHandle{std::move(providers), pollIntervalMs};
+	*handle = new tirexMeasureHandle{std::move(providers), conf.pollIntervalMs};
 	return TIREX_SUCCESS;
 }
 

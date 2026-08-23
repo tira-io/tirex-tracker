@@ -201,6 +201,24 @@ private val NULL_MEASURE_CONFIGURATION = NativeMeasureConfiguration().also {
     it.aggregation = INVALID_AGGREGATION
 }
 
+/** Sentinel tirexTrackingConf.pid value meaning "track the calling process" (the default). */
+private const val TIREX_PID_SELF = 0L
+
+@FieldOrder("measures", "pid", "trackSubprocesses", "pollIntervalMs")
+internal open class NativeTrackingConf : Structure(), Structure.ByValue {
+    @JvmField
+    var measures: Pointer? = null
+
+    @JvmField
+    var pid: Long = TIREX_PID_SELF
+
+    @JvmField
+    var trackSubprocesses: Boolean = false
+
+    @JvmField
+    var pollIntervalMs: LibCAPI.size_t = LibCAPI.size_t(0)
+}
+
 
 enum class LogLevel(val value: Int) {
     TRACE(0), DEBUG(1), INFO(2), WARN(3), ERROR(4), ASSERT(5);
@@ -275,8 +293,8 @@ internal open class NativeProviderInfo(pointer: Pointer? = null) : Structure(poi
 
 
 private val JAVA_PROVIDER = ProviderInfo(
-    name = "Python",
-    description = "Python-specific measures.",
+    name = "Java",
+    description = "Java-specific measures.",
     version = Build.VERSION,
 )
 
@@ -470,10 +488,8 @@ private interface TrackerLibrary : Library {
     fun tirexResultEntryGetByIndex(result: Pointer, index: LibCAPI.size_t, entry: Pointer): Int
     fun tirexResultEntryNum(result: Pointer, num: Pointer): Int
     fun tirexResultFree(result: Pointer)
-    fun tirexFetchInfo(measures: Array<NativeMeasureConfiguration>, result: Pointer): Int
-    fun tirexStartTracking(
-        measures: Array<NativeMeasureConfiguration>, pollIntervalMs: LibCAPI.size_t, handle: Pointer
-    ): Int
+    fun tirexFetchInfo(conf: NativeTrackingConf, result: Pointer): Int
+    fun tirexStartTracking(conf: NativeTrackingConf, handle: Pointer): Int
 
     fun tirexStopTracking(handle: Pointer, result: Pointer): Int
     fun tirexSetLogCallback(callback: NativeLogCallback)
@@ -587,19 +603,35 @@ private fun prepareMeasureConfigurations(measures: Iterable<Measure>): Array<Nat
     return configArray
 }
 
+private fun createTrackingConf(
+    configArray: Array<NativeMeasureConfiguration>,
+    pid: Long?,
+    trackSubprocesses: Boolean,
+    pollIntervalMillis: Long,
+): NativeTrackingConf = NativeTrackingConf().also {
+    it.measures = configArray[0].pointer
+    it.pid = pid ?: TIREX_PID_SELF
+    it.trackSubprocesses = trackSubprocesses
+    it.pollIntervalMs = LibCAPI.size_t(pollIntervalMillis)
+}
+
 // TODO: Add aggregation(s) (mapping) parameter.
 @JvmOverloads
 fun fetchInfo(
     measures: Iterable<Measure> = ALL_MEASURES,
+    pid: Long? = null,
+    trackSubprocesses: Boolean = true,
 ): Map<Measure, ResultEntry> {
     // Get Java info first, and then strip Java measures from the list.
     val (javaInfo, remainingMeasures) = getJavaInfo(measures)
 
     // Prepare the measure configurations.
     val configArray = prepareMeasureConfigurations(remainingMeasures)
+    // pollIntervalMillis is irrelevant here (fetchInfo doesn't poll), so 0 is fine.
+    val trackingConf = createTrackingConf(configArray, pid, trackSubprocesses, pollIntervalMillis = 0)
 
     val result: Pointer = usePointer { resultPointer ->
-        val errorInt = LIBRARY.tirexFetchInfo(configArray, resultPointer)
+        val errorInt = LIBRARY.tirexFetchInfo(trackingConf, resultPointer)
         handleError(errorInt)
         resultPointer.getPointer(0)
     }
@@ -630,6 +662,8 @@ class TrackingHandle private constructor(
             systemDescription: String? = null,
             exportFilePath: File? = null,
             exportFormat: ExportFormat? = null,
+            pid: Long? = null,
+            trackSubprocesses: Boolean = true,
         ): TrackingHandle {
             // Get Java info first, and then strip Java measures from the list.
             val (javaInfo, remainingMeasures) = getJavaInfo(measures)
@@ -637,17 +671,20 @@ class TrackingHandle private constructor(
             // Prepare the measure configurations.
             val configArray = prepareMeasureConfigurations(remainingMeasures)
 
+            // Both calls target the same process, so they share one config (poll interval is irrelevant to
+            // tirexFetchInfo).
+            val trackingConf = createTrackingConf(configArray, pid, trackSubprocesses, pollIntervalMillis)
+
             // Get other info, first, before starting the tracking.
             val fetchInfoResult: Pointer = usePointer { resultPointer ->
-                val errorInt = LIBRARY.tirexFetchInfo(configArray, resultPointer)
+                val errorInt = LIBRARY.tirexFetchInfo(trackingConf, resultPointer)
                 handleError(errorInt)
                 resultPointer.getPointer(0)
             }
 
             // Start the tracking.
             val trackingHandle = usePointer { measurementHandlePointer ->
-                val errorInt =
-                    LIBRARY.tirexStartTracking(configArray, LibCAPI.size_t(pollIntervalMillis), measurementHandlePointer)
+                val errorInt = LIBRARY.tirexStartTracking(trackingConf, measurementHandlePointer)
                 handleError(errorInt)
                 measurementHandlePointer.getPointer(0)
             }
@@ -674,6 +711,8 @@ class TrackingHandle private constructor(
             systemDescription: String? = null,
             exportFilePath: Path,
             exportFormat: ExportFormat? = null,
+            pid: Long? = null,
+            trackSubprocesses: Boolean = true,
         ): TrackingHandle = start(
             measures = measures,
             pollIntervalMillis = pollIntervalMillis,
@@ -681,6 +720,8 @@ class TrackingHandle private constructor(
             systemDescription = systemDescription,
             exportFilePath = exportFilePath.toFile(),
             exportFormat = exportFormat,
+            pid = pid,
+            trackSubprocesses = trackSubprocesses,
         )
     }
 
@@ -801,7 +842,7 @@ class TrackingHandle private constructor(
         javaVm["vendor"] = javaInfo.getValue(Measure.JAVA_VM_VENDOR).value?.let { json.decodeFromString<String?>(it) }
         javaVm["name"] = javaInfo.getValue(Measure.JAVA_VM_NAME).value?.let { json.decodeFromString<String?>(it) }
         val javaVmSpecification: MutableMap<String, Any?> =
-            javaVm.getOrPut("vm") { mutableMapOf<String, Any?>() } as MutableMap<String, Any?>
+            javaVm.getOrPut("specification") { mutableMapOf<String, Any?>() } as MutableMap<String, Any?>
         javaVmSpecification["version"] =
             javaInfo.getValue(Measure.JAVA_VM_SPECIFICATION_VERSION).value?.let { json.decodeFromString<String?>(it) }
         javaVmSpecification["vendor"] =
@@ -809,7 +850,7 @@ class TrackingHandle private constructor(
         javaVmSpecification["name"] =
             javaInfo.getValue(Measure.JAVA_VM_SPECIFICATION_NAME).value?.let { json.decodeFromString<String?>(it) }
         val javaSpecification: MutableMap<String, Any?> =
-            java.getOrPut("vm") { mutableMapOf<String, Any?>() } as MutableMap<String, Any?>
+            java.getOrPut("specification") { mutableMapOf<String, Any?>() } as MutableMap<String, Any?>
         javaSpecification["version"] =
             javaInfo.getValue(Measure.JAVA_SPECIFICATION_VERSION).value?.let { json.decodeFromString<String?>(it) }
         javaSpecification["maintenance version"] =
@@ -855,6 +896,8 @@ fun startTracking(
     systemDescription: String? = null,
     exportFilePath: File? = null,
     exportFormat: ExportFormat? = null,
+    pid: Long? = null,
+    trackSubprocesses: Boolean = true,
 ) = TrackingHandle.start(
     measures = measures,
     pollIntervalMillis = pollIntervalMillis,
@@ -862,6 +905,8 @@ fun startTracking(
     systemDescription = systemDescription,
     exportFilePath = exportFilePath,
     exportFormat = exportFormat,
+    pid = pid,
+    trackSubprocesses = trackSubprocesses,
 )
 
 @Suppress("unused")
@@ -873,6 +918,8 @@ fun startTracking(
     systemDescription: String? = null,
     exportFilePath: Path,
     exportFormat: ExportFormat? = null,
+    pid: Long? = null,
+    trackSubprocesses: Boolean = true,
 ) = startTracking(
     measures = measures,
     pollIntervalMillis = pollIntervalMillis,
@@ -880,6 +927,8 @@ fun startTracking(
     systemDescription = systemDescription,
     exportFilePath = exportFilePath.toFile(),
     exportFormat = exportFormat,
+    pid = pid,
+    trackSubprocesses = trackSubprocesses,
 )
 
 
@@ -894,6 +943,8 @@ fun tracking(
     systemDescription: String? = null,
     exportFilePath: File? = null,
     exportFormat: ExportFormat? = null,
+    pid: Long? = null,
+    trackSubprocesses: Boolean = true,
 ) = TrackingHandle.start(
     measures = measures,
     pollIntervalMillis = pollIntervalMillis,
@@ -901,6 +952,8 @@ fun tracking(
     systemDescription = systemDescription,
     exportFilePath = exportFilePath,
     exportFormat = exportFormat,
+    pid = pid,
+    trackSubprocesses = trackSubprocesses,
 )
 
 @Suppress("unused")
@@ -912,6 +965,8 @@ fun tracking(
     systemDescription: String? = null,
     exportFilePath: Path,
     exportFormat: ExportFormat? = null,
+    pid: Long? = null,
+    trackSubprocesses: Boolean = true,
 ) = tracking(
     measures = measures,
     pollIntervalMillis = pollIntervalMillis,
@@ -919,6 +974,8 @@ fun tracking(
     systemDescription = systemDescription,
     exportFilePath = exportFilePath.toFile(),
     exportFormat = exportFormat,
+    pid = pid,
+    trackSubprocesses = trackSubprocesses,
 )
 
 @JvmOverloads
@@ -929,6 +986,8 @@ inline fun track(
     systemDescription: String? = null,
     exportFilePath: File? = null,
     exportFormat: ExportFormat? = null,
+    pid: Long? = null,
+    trackSubprocesses: Boolean = true,
     crossinline block: () -> Unit,
 ): Map<Measure, ResultEntry> {
     val measurement = startTracking(
@@ -938,6 +997,8 @@ inline fun track(
         systemDescription = systemDescription,
         exportFilePath = exportFilePath,
         exportFormat = exportFormat,
+        pid = pid,
+        trackSubprocesses = trackSubprocesses,
     )
     try {
         block()
@@ -957,6 +1018,8 @@ inline fun track(
     systemDescription: String? = null,
     exportFilePath: Path,
     exportFormat: ExportFormat? = null,
+    pid: Long? = null,
+    trackSubprocesses: Boolean = true,
     crossinline block: () -> Unit,
 ) = track(
     measures = measures,
@@ -965,6 +1028,8 @@ inline fun track(
     systemDescription = systemDescription,
     exportFilePath = exportFilePath.toFile(),
     exportFormat = exportFormat,
+    pid = pid,
+    trackSubprocesses = trackSubprocesses,
     block = block,
 )
 
@@ -980,6 +1045,8 @@ fun track(
     systemDescription: String? = null,
     exportFilePath: File? = null,
     exportFormat: ExportFormat? = null,
+    pid: Long? = null,
+    trackSubprocesses: Boolean = true,
     block: BlockCallback,
 ) = track(
     measures = measures,
@@ -988,6 +1055,8 @@ fun track(
     systemDescription = systemDescription,
     exportFilePath = exportFilePath,
     exportFormat = exportFormat,
+    pid = pid,
+    trackSubprocesses = trackSubprocesses,
     block = {
         block.invoke()
     },
@@ -1002,6 +1071,8 @@ fun track(
     systemDescription: String? = null,
     exportFilePath: Path,
     exportFormat: ExportFormat? = null,
+    pid: Long? = null,
+    trackSubprocesses: Boolean = true,
     block: BlockCallback,
 ) = track(
     measures = measures,
@@ -1010,5 +1081,7 @@ fun track(
     systemDescription = systemDescription,
     exportFilePath = exportFilePath.toFile(),
     exportFormat = exportFormat,
+    pid = pid,
+    trackSubprocesses = trackSubprocesses,
     block = block,
 )

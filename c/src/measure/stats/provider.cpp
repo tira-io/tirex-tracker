@@ -19,23 +19,33 @@ using tirex::StatsProvider;
 using tirex::SystemStats;
 using tirex::TemperatureStats;
 
+using tirex::TrackingTarget;
+
 const std::map<std::string, tirex::ProviderEntry> tirex::providers{
 		{"system",
-		 {std::make_unique<SystemStats>, SystemStats::measures, SystemStats::version, SystemStats::description}},
+		 {[](const TrackingTarget& target) { return std::make_unique<SystemStats>(target); }, SystemStats::measures,
+		  SystemStats::version, SystemStats::description}},
 		{"energy",
-		 {std::make_unique<EnergyStats>, EnergyStats::measures, EnergyStats::version, EnergyStats::description}},
-		{"git", {std::make_unique<GitStats>, GitStats::measures, GitStats::version, GitStats::description}},
-		{"gpu", {std::make_unique<NVMLStats>, NVMLStats::measures, NVMLStats::version, NVMLStats::description}},
+		 {[](const TrackingTarget&) { return std::make_unique<EnergyStats>(); }, EnergyStats::measures,
+		  EnergyStats::version, EnergyStats::description}},
+		{"git",
+		 {[](const TrackingTarget& target) { return std::make_unique<GitStats>(target); }, GitStats::measures,
+		  GitStats::version, GitStats::description}},
+		{"gpu",
+		 {[](const TrackingTarget&) { return std::make_unique<NVMLStats>(); }, NVMLStats::measures, NVMLStats::version,
+		  NVMLStats::description}},
 		{"temperature",
-		 {std::make_unique<TemperatureStats>, TemperatureStats::measures, TemperatureStats::version,
-		  TemperatureStats::description}},
+		 {[](const TrackingTarget&) { return std::make_unique<TemperatureStats>(); }, TemperatureStats::measures,
+		  TemperatureStats::version, TemperatureStats::description}},
 		{"devcontainer",
-		 {std::make_unique<DevContainerStats>, DevContainerStats::measures, DevContainerStats::version,
-		  DevContainerStats::description}},
+		 {[](const TrackingTarget& target) { return std::make_unique<DevContainerStats>(target); },
+		  DevContainerStats::measures, DevContainerStats::version, DevContainerStats::description}},
 };
 
-std::set<tirexMeasure>
-tirex::initProviders(std::set<tirexMeasure> measures, std::vector<std::unique_ptr<StatsProvider>>& providers) {
+std::set<tirexMeasure> tirex::initProviders(
+		std::set<tirexMeasure> measures, std::vector<std::unique_ptr<StatsProvider>>& providers,
+		const TrackingTarget& target
+) {
 	for (auto& [_, info] : tirex::providers) {
 		std::set<tirexMeasure> diff;
 		std::set_difference(
@@ -43,7 +53,7 @@ tirex::initProviders(std::set<tirexMeasure> measures, std::vector<std::unique_pt
 				std::inserter(diff, diff.begin())
 		);
 		if (diff.size() != measures.size()) { // The provider is responsible for some of the requested measures
-			auto& provider = providers.emplace_back(info.constructor());
+			auto& provider = providers.emplace_back(info.constructor(target));
 			provider->requestMeasures(measures);
 		}
 		measures = std::move(diff);
