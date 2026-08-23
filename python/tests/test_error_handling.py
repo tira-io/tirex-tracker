@@ -6,10 +6,12 @@ from threading import Event, Thread
 from tirex_tracker import (
     _LIBRARY,
     _NULL_MEASURE_CONFIGURATION,
+    _TIREX_PID_SELF,
     Aggregation,
     LogLevel,
     _MeasureConfiguration,
     _Result,
+    _TrackingConf,
     set_log_callback,
 )
 from tirex_tracker._utils.errorhandling import deinit_error_handling, init_error_handling
@@ -32,8 +34,14 @@ class TestErrorHandling(unittest.TestCase):
                 measures = [_MeasureConfiguration(-7, Aggregation.NO.value), _NULL_MEASURE_CONFIGURATION]
 
                 configs = (_MeasureConfiguration * (len(measures)))(*measures)
+                tracking_conf = _TrackingConf(
+                    measures=configs,
+                    pid=_TIREX_PID_SELF,
+                    trackSubprocesses=False,
+                    pollIntervalMs=0,
+                )
                 resultptr = pointer(_Result())
-                _LIBRARY.tirexFetchInfo(configs, pointer(resultptr))
+                _LIBRARY.tirexFetchInfo(tracking_conf, pointer(resultptr))
                 print(resultptr.contents)
                 latch_stopped.set()
 
