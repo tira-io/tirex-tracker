@@ -14,6 +14,7 @@
 * **TIREX\_AGG\_MEAN** ([**tirex\_tracker.h**](tirex__tracker_8h.md))
 * **TIREX\_AGG\_MIN** ([**tirex\_tracker.h**](tirex__tracker_8h.md))
 * **TIREX\_AGG\_NO** ([**tirex\_tracker.h**](tirex__tracker_8h.md))
+* **TIREX\_PID\_SELF** ([**tirex\_tracker.h**](tirex__tracker_8h.md))
 
 
 

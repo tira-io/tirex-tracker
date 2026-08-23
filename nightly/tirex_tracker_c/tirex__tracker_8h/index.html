@@ -1377,6 +1377,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#typedef-tirextrackingconf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        typedef tirexTrackingConf
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1605,6 +1616,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#define-tirex_pid_self" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define TIREX_PID_SELF
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#define-static_assert" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1674,6 +1696,10 @@
 <tr>
 <td style="text-align: right;">struct</td>
 <td style="text-align: left;"><a href="../structtirexResultEntry__st/"><strong>tirexResultEntry_st</strong></a> <br><em>Holds a result entry, i.e., a key-value pair of a name (string) and a value (tirexResult).</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">struct</td>
+<td style="text-align: left;"><a href="../structtirexTrackingConf__st/"><strong>tirexTrackingConf_st</strong></a> <br><em>Configures a tracking session: which measures to collect, which process (and optionally its descendants) to measure, and how often to poll.</em></td>
 </tr>
 </tbody>
 </table>
@@ -1754,6 +1780,10 @@
 <td style="text-align: right;">enum</td>
 <td style="text-align: left;"><a href="#enum-tirexresulttype_enum"><strong>tirexResultType_enum</strong></a>  <br></td>
 </tr>
+<tr>
+<td style="text-align: right;">typedef struct <a href="../structtirexTrackingConf__st/"><strong>tirexTrackingConf_st</strong></a></td>
+<td style="text-align: left;"><a href="#typedef-tirextrackingconf"><strong>tirexTrackingConf</strong></a>  <br><em>Configures a tracking session: which measures to collect, which process (and optionally its descendants) to measure, and how often to poll.</em></td>
+</tr>
 </tbody>
 </table>
 <h2 id="public-static-attributes">Public Static Attributes<a class="headerlink" href="#public-static-attributes" title="Permanent link">&para;</a></h2>
@@ -1786,7 +1816,7 @@
 </tr>
 <tr>
 <td style="text-align: right;">TIREX_TRACKER_EXPORT <a href="./#typedef-tirexerror"><strong>tirexError</strong></a></td>
-<td style="text-align: left;"><a href="#function-tirexfetchinfo"><strong>tirexFetchInfo</strong></a> (const <a href="./#typedef-tirexmeasureconf"><strong>tirexMeasureConf</strong></a> * measures, <a href="./#typedef-tirexresult"><strong>tirexResult</strong></a> ** result) <br><em>Fetches the system information from the measures requested in</em> <code>measures</code> <em>.</em></td>
+<td style="text-align: left;"><a href="#function-tirexfetchinfo"><strong>tirexFetchInfo</strong></a> (<a href="./#typedef-tirextrackingconf"><strong>tirexTrackingConf</strong></a> conf, <a href="./#typedef-tirexresult"><strong>tirexResult</strong></a> ** result) <br><em>Fetches the system information from the measures requested in</em> <code>conf</code> <em>, about the process identified by</em><code>conf.pid</code> <em>(TIREX_PID_SELF, the default, for the calling process).</em></td>
 </tr>
 <tr>
 <td style="text-align: right;">TIREX_TRACKER_EXPORT <a href="./#typedef-tirexerror"><strong>tirexError</strong></a></td>
@@ -1818,7 +1848,7 @@
 </tr>
 <tr>
 <td style="text-align: right;">TIREX_TRACKER_EXPORT <a href="./#typedef-tirexerror"><strong>tirexError</strong></a></td>
-<td style="text-align: left;"><a href="#function-tirexstarttracking"><strong>tirexStartTracking</strong></a> (const <a href="./#typedef-tirexmeasureconf"><strong>tirexMeasureConf</strong></a> * measures, size_t pollIntervalMs, <a href="./#typedef-tirexmeasurehandle"><strong>tirexMeasureHandle</strong></a> ** handle) <br><em>Initializes the providers set in the configuration and starts measuring.</em></td>
+<td style="text-align: left;"><a href="#function-tirexstarttracking"><strong>tirexStartTracking</strong></a> (<a href="./#typedef-tirextrackingconf"><strong>tirexTrackingConf</strong></a> conf, <a href="./#typedef-tirexmeasurehandle"><strong>tirexMeasureHandle</strong></a> ** handle) <br><em>Initializes the providers set in the configuration and starts measuring.</em></td>
 </tr>
 <tr>
 <td style="text-align: right;">TIREX_TRACKER_EXPORT <a href="./#typedef-tirexerror"><strong>tirexError</strong></a></td>
@@ -1850,6 +1880,10 @@
 <tr>
 <td style="text-align: right;">define</td>
 <td style="text-align: left;"><a href="./#define-tirex_agg_no"><strong>TIREX_AGG_NO</strong></a>  <code>(1 &amp;lt;&amp;lt; 1)</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-tirex_pid_self"><strong>TIREX_PID_SELF</strong></a>  <code>((int64\_t)0)</code><br><em>Sentinel</em> <a href="../structtirexTrackingConf__st/#variable-pid"><em><strong>tirexTrackingConf::pid</strong></em></a> <em>value meaning "track the calling process." This is the default: a zero-initialized tirexTrackingConf tracks the caller.</em></td>
 </tr>
 <tr>
 <td style="text-align: right;">define</td>
@@ -2040,27 +2074,34 @@
 </span></code></pre></div>
 <p>Note: Currently unused </p>
 <hr>
+
+<h3 id="typedef-tirextrackingconf">typedef tirexTrackingConf<a class="headerlink" href="#typedef-tirextrackingconf" title="Permanent link">&para;</a></h3>
+<p><em>Configures a tracking session: which measures to collect, which process (and optionally its descendants) to measure, and how often to poll.</em> 
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">tirexTrackingConf_st</span><span class="w"> </span><span class="n">tirexTrackingConf</span><span class="p">;</span>
+</span></code></pre></div></p>
+<p>For a minimal config, use<code>tirexTrackingConf{.measures = ..., .pollIntervalMs = 100}</code> to track the current process without its children. </p>
+<hr>
 <h2 id="public-static-attributes-documentation">Public Static Attributes Documentation<a class="headerlink" href="#public-static-attributes-documentation" title="Permanent link">&para;</a></h2>
 <h3 id="variable-tirexnullconf">variable tirexNullConf<a class="headerlink" href="#variable-tirexnullconf" title="Permanent link">&para;</a></h3>
 <p><em>Represents an invalid measurement configuration.</em> 
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">const</span><span class="w"> </span><span class="n">tirexMeasureConf</span><span class="w"> </span><span class="n">tirexNullConf</span><span class="p">;</span>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">const</span><span class="w"> </span><span class="n">tirexMeasureConf</span><span class="w"> </span><span class="n">tirexNullConf</span><span class="p">;</span>
 </span></code></pre></div></p>
 <p>The null configuration should be used as a sentinel value to mark the end of the configuration in tirexStartTracking. </p>
 <hr>
 <h2 id="public-functions-documentation">Public Functions Documentation<a class="headerlink" href="#public-functions-documentation" title="Permanent link">&para;</a></h2>
 <h3 id="function-tirexdataprovidergetall">function tirexDataProviderGetAll<a class="headerlink" href="#function-tirexdataprovidergetall" title="Permanent link">&para;</a></h3>
 <p><em>Populates the given buffer with all available providers (or at most</em> <code>bufsize</code> <em>if</em><code>buf</code> <em>is not large enugh) and returns the total number of available providers.</em>
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">tirexDataProviderGetAll</span><span class="w"> </span><span class="p">(</span>
-</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">    </span><span class="n">tirexDataProvider</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">providers</span><span class="p">,</span>
-</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">bufsize</span>
-</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="p">)</span><span class="w"> </span>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">tirexDataProviderGetAll</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">    </span><span class="n">tirexDataProvider</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">providers</span><span class="p">,</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">bufsize</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="p">)</span><span class="w"> </span>
 </span></code></pre></div></p>
 <p>If <code>buf</code> is <code>NULL</code> , <code>bufsize</code> is ignored and only the number of available providers are returned. A typical call may look as follows: 
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">num</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tirexDataProviderGetAll</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
-</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="k">struct</span><span class="w"> </span><span class="nc">tirexDataProvider</span><span class="o">*</span><span class="w"> </span><span class="n">buf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">tirexDataProvider</span><span class="o">*</span><span class="p">)</span><span class="n">calloc</span><span class="p">(</span><span class="n">num</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">tirexDataProvider</span><span class="p">));</span>
-</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="n">tirexDataProviderGetAll</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="n">num</span><span class="p">);</span>
-</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="c1">// ...</span>
-</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="n">free</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">num</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tirexDataProviderGetAll</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="k">struct</span><span class="w"> </span><span class="nc">tirexDataProvider</span><span class="o">*</span><span class="w"> </span><span class="n">buf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">tirexDataProvider</span><span class="o">*</span><span class="p">)</span><span class="n">calloc</span><span class="p">(</span><span class="n">num</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">tirexDataProvider</span><span class="p">));</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="n">tirexDataProviderGetAll</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="n">num</span><span class="p">);</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="c1">// ...</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="n">free</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
 </span></code></pre></div></p>
 <p><strong>Parameters:</strong></p>
 <ul>
@@ -2072,15 +2113,16 @@
 <hr>
 
 <h3 id="function-tirexfetchinfo">function tirexFetchInfo<a class="headerlink" href="#function-tirexfetchinfo" title="Permanent link">&para;</a></h3>
-<p><em>Fetches the system information from the measures requested in</em> <code>measures</code> <em>.</em>
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexFetchInfo</span><span class="w"> </span><span class="p">(</span>
-</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tirexMeasureConf</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">measures</span><span class="p">,</span>
-</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">    </span><span class="n">tirexResult</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">result</span>
-</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="p">)</span><span class="w"> </span>
+<p><em>Fetches the system information from the measures requested in</em> <code>conf</code> <em>, about the process identified by</em><code>conf.pid</code> <em>(TIREX_PID_SELF, the default, for the calling process).</em>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexFetchInfo</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">    </span><span class="n">tirexTrackingConf</span><span class="w"> </span><span class="n">conf</span><span class="p">,</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">    </span><span class="n">tirexResult</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">result</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="p">)</span><span class="w"> </span>
 </span></code></pre></div></p>
+<p><code>conf.pollIntervalMs</code> is ignored, since this is a one-shot fetch rather than an ongoing tracking session. Some measures depend on which process is targeted (e.g., TIREX_INVOCATION and the git- and devcontainer-related measures are resolved relative to <code>conf.pid</code> 's working directory).</p>
 <p><strong>Parameters:</strong></p>
 <ul>
-<li><code>measures</code> </li>
+<li><code>conf</code> </li>
 <li><code>result</code> </li>
 </ul>
 <p><strong>Returns:</strong></p>
@@ -2088,10 +2130,10 @@
 <hr>
 
 <h3 id="function-tirexmeasureinfoget">function tirexMeasureInfoGet<a class="headerlink" href="#function-tirexmeasureinfoget" title="Permanent link">&para;</a></h3>
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexMeasureInfoGet</span><span class="w"> </span><span class="p">(</span>
-</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">    </span><span class="n">tirexMeasure</span><span class="w"> </span><span class="n">measure</span><span class="p">,</span>
-</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tirexMeasureInfo</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">info</span>
-</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="p">)</span><span class="w"> </span>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexMeasureInfoGet</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w">    </span><span class="n">tirexMeasure</span><span class="w"> </span><span class="n">measure</span><span class="p">,</span>
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tirexMeasureInfo</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">info</span>
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="p">)</span><span class="w"> </span>
 </span></code></pre></div>
 <p><strong>Parameters:</strong></p>
 <ul>
@@ -2103,11 +2145,11 @@
 <hr>
 
 <h3 id="function-tirexresultentrygetbyindex">function tirexResultEntryGetByIndex<a class="headerlink" href="#function-tirexresultentrygetbyindex" title="Permanent link">&para;</a></h3>
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexResultEntryGetByIndex</span><span class="w"> </span><span class="p">(</span>
-</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tirexResult</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">result</span><span class="p">,</span>
-</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">index</span><span class="p">,</span>
-</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="w">    </span><span class="n">tirexResultEntry</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">entry</span>
-</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="p">)</span><span class="w"> </span>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexResultEntryGetByIndex</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tirexResult</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">result</span><span class="p">,</span>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">index</span><span class="p">,</span>
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="w">    </span><span class="n">tirexResultEntry</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">entry</span>
+</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="p">)</span><span class="w"> </span>
 </span></code></pre></div>
 <p><strong>Parameters:</strong></p>
 <ul>
@@ -2121,10 +2163,10 @@
 
 <h3 id="function-tirexresultentrynum">function tirexResultEntryNum<a class="headerlink" href="#function-tirexresultentrynum" title="Permanent link">&para;</a></h3>
 <p><em>Returns the number of entries contained in the result set.</em> 
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexResultEntryNum</span><span class="w"> </span><span class="p">(</span>
-</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tirexResult</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">result</span><span class="p">,</span>
-</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">num</span>
-</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="p">)</span><span class="w"> </span>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexResultEntryNum</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tirexResult</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">result</span><span class="p">,</span>
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">num</span>
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="p">)</span><span class="w"> </span>
 </span></code></pre></div></p>
 <p><strong>Parameters:</strong></p>
 <ul>
@@ -2137,9 +2179,9 @@
 
 <h3 id="function-tirexresultfree">function tirexResultFree<a class="headerlink" href="#function-tirexresultfree" title="Permanent link">&para;</a></h3>
 <p><em>Deinitializes and frees the result pointed at by</em> <code>result</code> <em>.</em>
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">tirexResultFree</span><span class="w"> </span><span class="p">(</span>
-</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="w">    </span><span class="n">tirexResult</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">result</span>
-</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="p">)</span><span class="w"> </span>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">tirexResultFree</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="w">    </span><span class="n">tirexResult</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">result</span>
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="p">)</span><span class="w"> </span>
 </span></code></pre></div></p>
 <p><strong>Parameters:</strong></p>
 <ul>
@@ -2149,9 +2191,9 @@
 
 <h3 id="function-tirexsetabortcallback">function tirexSetAbortCallback<a class="headerlink" href="#function-tirexsetabortcallback" title="Permanent link">&para;</a></h3>
 <p><em>Set a callback that should be used in case the program needs to abort.</em> 
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">tirexSetAbortCallback</span><span class="w"> </span><span class="p">(</span>
-</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="w">    </span><span class="n">tirexAbortCallback</span><span class="w"> </span><span class="n">callback</span>
-</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="p">)</span><span class="w"> </span>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">tirexSetAbortCallback</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="w">    </span><span class="n">tirexAbortCallback</span><span class="w"> </span><span class="n">callback</span>
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="p">)</span><span class="w"> </span>
 </span></code></pre></div></p>
 <p>Per default, <a href="https://en.cppreference.com/w/c/program/abort.html"><code>abort()</code></a> is used.</p>
 <p><strong>Parameters:</strong></p>
@@ -2161,17 +2203,17 @@
 <hr>
 
 <h3 id="function-tirexsetabortlevel">function tirexSetAbortLevel<a class="headerlink" href="#function-tirexsetabortlevel" title="Permanent link">&para;</a></h3>
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">tirexSetAbortLevel</span><span class="w"> </span><span class="p">(</span>
-</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="w">    </span><span class="n">tirexLogLevel</span><span class="w"> </span><span class="n">level</span>
-</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="p">)</span><span class="w"> </span>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">tirexSetAbortLevel</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="w">    </span><span class="n">tirexLogLevel</span><span class="w"> </span><span class="n">level</span>
+</span><span id="__span-27-3"><a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="p">)</span><span class="w"> </span>
 </span></code></pre></div>
 <hr>
 
 <h3 id="function-tirexsetlogcallback">function tirexSetLogCallback<a class="headerlink" href="#function-tirexsetlogcallback" title="Permanent link">&para;</a></h3>
 <p><em>Set a callback that should be used for all future logs.</em> 
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">tirexSetLogCallback</span><span class="w"> </span><span class="p">(</span>
-</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="w">    </span><span class="n">tirexLogCallback</span><span class="w"> </span><span class="n">callback</span>
-</span><span id="__span-27-3"><a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="p">)</span><span class="w"> </span>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">tirexSetLogCallback</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="w">    </span><span class="n">tirexLogCallback</span><span class="w"> </span><span class="n">callback</span>
+</span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="p">)</span><span class="w"> </span>
 </span></code></pre></div></p>
 <p>Per default, nothing is logged and passing NULL for <code>callback</code> disables logging.</p>
 <p><strong>Parameters:</strong></p>
@@ -2182,16 +2224,14 @@
 
 <h3 id="function-tirexstarttracking">function tirexStartTracking<a class="headerlink" href="#function-tirexstarttracking" title="Permanent link">&para;</a></h3>
 <p><em>Initializes the providers set in the configuration and starts measuring.</em> 
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexStartTracking</span><span class="w"> </span><span class="p">(</span>
-</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tirexMeasureConf</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">measures</span><span class="p">,</span>
-</span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">pollIntervalMs</span><span class="p">,</span>
-</span><span id="__span-28-4"><a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="w">    </span><span class="n">tirexMeasureHandle</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">handle</span>
-</span><span id="__span-28-5"><a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a><span class="p">)</span><span class="w"> </span>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexStartTracking</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="w">    </span><span class="n">tirexTrackingConf</span><span class="w"> </span><span class="n">conf</span><span class="p">,</span>
+</span><span id="__span-29-3"><a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a><span class="w">    </span><span class="n">tirexMeasureHandle</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">handle</span>
+</span><span id="__span-29-4"><a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="p">)</span><span class="w"> </span>
 </span></code></pre></div></p>
 <p><strong>Parameters:</strong></p>
 <ul>
-<li><code>measures</code> </li>
-<li><code>pollIntervalMs</code> </li>
+<li><code>conf</code> configures the tracking behavior (which measures, which process, ...). </li>
 <li><code>handle</code> a handle to the running measurement. </li>
 </ul>
 <p><strong>Returns:</strong></p>
@@ -2201,10 +2241,10 @@
 
 <h3 id="function-tirexstoptracking">function tirexStopTracking<a class="headerlink" href="#function-tirexstoptracking" title="Permanent link">&para;</a></h3>
 <p><em>Stops the measurement and deinitializes the data providers.</em> 
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexStopTracking</span><span class="w"> </span><span class="p">(</span>
-</span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="w">    </span><span class="n">tirexMeasureHandle</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">handle</span><span class="p">,</span>
-</span><span id="__span-29-3"><a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a><span class="w">    </span><span class="n">tirexResult</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">result</span>
-</span><span id="__span-29-4"><a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="p">)</span><span class="w"> </span>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexStopTracking</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-30-2"><a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="w">    </span><span class="n">tirexMeasureHandle</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">handle</span><span class="p">,</span>
+</span><span id="__span-30-3"><a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a><span class="w">    </span><span class="n">tirexResult</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">result</span>
+</span><span id="__span-30-4"><a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a><span class="p">)</span><span class="w"> </span>
 </span></code></pre></div></p>
 <p>This function <strong>must</strong> be called <strong>exactly once</strong> for each measurement job.</p>
 <p><strong>Parameters:</strong></p>
@@ -2218,34 +2258,41 @@
 <hr>
 <h2 id="macro-definition-documentation">Macro Definition Documentation<a class="headerlink" href="#macro-definition-documentation" title="Permanent link">&para;</a></h2>
 <h3 id="define-tirex_agg_max">define TIREX_AGG_MAX<a class="headerlink" href="#define-tirex_agg_max" title="Permanent link">&para;</a></h3>
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="cp">#define TIREX_AGG_MAX `(1 &lt;&lt; 2)`</span>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="cp">#define TIREX_AGG_MAX `(1 &lt;&lt; 2)`</span>
 </span></code></pre></div>
 <p>For each aggregation intervall, store the maximum value. </p>
 <hr>
 
 <h3 id="define-tirex_agg_mean">define TIREX_AGG_MEAN<a class="headerlink" href="#define-tirex_agg_mean" title="Permanent link">&para;</a></h3>
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="cp">#define TIREX_AGG_MEAN `(1 &lt;&lt; 4)`</span>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="cp">#define TIREX_AGG_MEAN `(1 &lt;&lt; 4)`</span>
 </span></code></pre></div>
 <p>For each aggregation intervall, store the average value. </p>
 <hr>
 
 <h3 id="define-tirex_agg_min">define TIREX_AGG_MIN<a class="headerlink" href="#define-tirex_agg_min" title="Permanent link">&para;</a></h3>
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="cp">#define TIREX_AGG_MIN `(1 &lt;&lt; 3)`</span>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="cp">#define TIREX_AGG_MIN `(1 &lt;&lt; 3)`</span>
 </span></code></pre></div>
 <p>For each aggregation intervall, store the minimum value. </p>
 <hr>
 
 <h3 id="define-tirex_agg_no">define TIREX_AGG_NO<a class="headerlink" href="#define-tirex_agg_no" title="Permanent link">&para;</a></h3>
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="cp">#define TIREX_AGG_NO `(1 &lt;&lt; 1)`</span>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="cp">#define TIREX_AGG_NO `(1 &lt;&lt; 1)`</span>
 </span></code></pre></div>
 <p>Perform no aggregation. </p>
 <hr>
 
+<h3 id="define-tirex_pid_self">define TIREX_PID_SELF<a class="headerlink" href="#define-tirex_pid_self" title="Permanent link">&para;</a></h3>
+<p><em>Sentinel</em> <a href="../structtirexTrackingConf__st/#variable-pid"><em><strong>tirexTrackingConf::pid</strong></em></a> <em>value meaning "track the calling process." This is the default: a zero-initialized tirexTrackingConf tracks the caller.</em>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-35-1"><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="cp">#define TIREX_PID_SELF `((int64_t)0)`</span>
+</span></code></pre></div></p>
+<p>Safe as a sentinel since 0 is never a real process ID (reserved for kernel/scheduler bookkeeping on POSIX, and for the System Idle Process on Windows). </p>
+<hr>
+
 <h3 id="define-static_assert">define static_assert<a class="headerlink" href="#define-static_assert" title="Permanent link">&para;</a></h3>
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="cp">#define static_assert (</span>
-</span><span id="__span-34-2"><a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a><span class="w">    </span><span class="n">cond</span><span class="p">,</span>
-</span><span id="__span-34-3"><a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a><span class="w">    </span><span class="n">msg</span>
-</span><span id="__span-34-4"><a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a><span class="p">)</span><span class="w"> </span>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-36-1"><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="cp">#define static_assert (</span>
+</span><span id="__span-36-2"><a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a><span class="w">    </span><span class="n">cond</span><span class="p">,</span>
+</span><span id="__span-36-3"><a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a><span class="w">    </span><span class="n">msg</span>
+</span><span id="__span-36-4"><a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a><span class="p">)</span><span class="w"> </span>
 </span></code></pre></div>
 <hr>
 

@@ -47,21 +47,89 @@
     </invincdepgraph>
     <innerclass refid="structtirexResultEntry__st" prot="public">tirexResultEntry_st</innerclass>
     <innerclass refid="structtirexMeasureConf__st" prot="public">tirexMeasureConf_st</innerclass>
+    <innerclass refid="structtirexTrackingConf__st" prot="public">tirexTrackingConf_st</innerclass>
     <innerclass refid="structtirexDataProvider__st" prot="public">tirexDataProvider_st</innerclass>
     <innerclass refid="structtirexMeasureInfo__st" prot="public">tirexMeasureInfo_st</innerclass>
       <sectiondef kind="user-defined">
-      <memberdef kind="function" id="group__measure_1gaf9e3894f9e4e241c1ffdbd32e7c869eb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="define" id="group__measure_1ga0f7e2c4e84fea3abb9f7b0ec4d16ff3c" prot="public" static="no">
+        <name>TIREX_PID_SELF</name>
+        <initializer>((int64_t)0)</initializer>
+        <briefdescription>
+<para>Sentinel <ref refid="structtirexTrackingConf__st_1a73fb21fe0bb20e864405d715407db6c0" kindref="member">tirexTrackingConf::pid</ref> value meaning &quot;track the calling process.&quot; This is the default: a zero-initialized tirexTrackingConf tracks the caller. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Safe as a sentinel since 0 is never a real process ID (reserved for kernel/scheduler bookkeeping on POSIX, and for the System Idle Process on Windows). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="312" column="9" bodyfile="c/include/tirex_tracker.h" bodystart="312" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="group__measure_1ga4ca5177f79c467d9e4b9f9f99f4577f3" prot="public" static="no">
+        <type>struct <ref refid="structtirexTrackingConf__st" kindref="compound">tirexTrackingConf_st</ref></type>
+        <definition>typedef struct tirexTrackingConf_st tirexTrackingConf</definition>
+        <argsstring></argsstring>
+        <name>tirexTrackingConf</name>
+        <briefdescription>
+<para>Configures a tracking session: which measures to collect, which process (and optionally its descendants) to measure, and how often to poll. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>For a minimal config, use<computeroutput>tirexTrackingConf{.measures = ..., .pollIntervalMs = 100}</computeroutput> to track the current process without its children. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="343" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="group__measure_1ga76de6fdd3c47d54d7d0ec623a7d64b3f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>TIREX_TRACKER_EXPORT <ref refid="group__error_1gad614149e5fc1433cb2b8252452cbbd5a" kindref="member">tirexError</ref></type>
-        <definition>TIREX_TRACKER_EXPORT tirexError tirexStartTracking</definition>
-        <argsstring>(const tirexMeasureConf *measures, size_t pollIntervalMs, tirexMeasureHandle **handle)</argsstring>
-        <name>tirexStartTracking</name>
+        <definition>TIREX_TRACKER_EXPORT tirexError tirexFetchInfo</definition>
+        <argsstring>(tirexTrackingConf conf, tirexResult **result)</argsstring>
+        <name>tirexFetchInfo</name>
         <param>
-          <type>const <ref refid="tirex__tracker_8h_1a9ff3497be407208454f9c88149abc98f" kindref="member">tirexMeasureConf</ref> *</type>
-          <declname>measures</declname>
+          <type><ref refid="group__measure_1ga4ca5177f79c467d9e4b9f9f99f4577f3" kindref="member">tirexTrackingConf</ref></type>
+          <declname>conf</declname>
         </param>
         <param>
-          <type>size_t</type>
-          <declname>pollIntervalMs</declname>
+          <type><ref refid="group__tirexresult_1gae3dc7f40e0e661137a892273787b5643" kindref="member">tirexResult</ref> **</type>
+          <declname>result</declname>
+        </param>
+        <briefdescription>
+<para>Fetches the system information from the measures requested in <computeroutput>conf</computeroutput> , about the process identified by <computeroutput>conf.pid</computeroutput> (TIREX_PID_SELF, the default, for the calling process). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><computeroutput>conf.pollIntervalMs</computeroutput> is ignored, since this is a one-shot fetch rather than an ongoing tracking session. Some measures depend on which process is targeted (e.g., TIREX_INVOCATION and the git- and devcontainer-related measures are resolved relative to <computeroutput>conf.pid</computeroutput> &apos;s working directory).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">conf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">result</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>TIREX_SUCCESS on success or an error code. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="356" column="33" declfile="c/include/tirex_tracker.h" declline="356" declcolumn="33"/>
+      </memberdef>
+      <memberdef kind="function" id="group__measure_1gaeb53f912a218f3b00e437f7e5c83224e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>TIREX_TRACKER_EXPORT <ref refid="group__error_1gad614149e5fc1433cb2b8252452cbbd5a" kindref="member">tirexError</ref></type>
+        <definition>TIREX_TRACKER_EXPORT tirexError tirexStartTracking</definition>
+        <argsstring>(tirexTrackingConf conf, tirexMeasureHandle **handle)</argsstring>
+        <name>tirexStartTracking</name>
+        <param>
+          <type><ref refid="group__measure_1ga4ca5177f79c467d9e4b9f9f99f4577f3" kindref="member">tirexTrackingConf</ref></type>
+          <declname>conf</declname>
         </param>
         <param>
           <type><ref refid="group__measure_1ga9a7666f6aedaa87f50ef6eca9ac83704" kindref="member">tirexMeasureHandle</ref> **</type>
@@ -73,18 +141,10 @@
         <detaileddescription>
 <para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
-<parametername>measures</parametername>
+<parametername>conf</parametername>
 </parameternamelist>
 <parameterdescription>
-<para></para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>pollIntervalMs</parametername>
-</parameternamelist>
-<parameterdescription>
-<para></para>
+<para>configures the tracking behavior (which measures, which process, ...). </para>
 </parameterdescription>
 </parameteritem>
 <parameteritem>
@@ -104,7 +164,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="c/include/tirex_tracker.h" line="326" column="1" declfile="c/include/tirex_tracker.h" declline="326" declcolumn="1"/>
+        <location file="c/include/tirex_tracker.h" line="367" column="33" declfile="c/include/tirex_tracker.h" declline="367" declcolumn="33"/>
       </memberdef>
       <memberdef kind="function" id="group__measure_1gad1a71133482156761c8ec7071aadcf10" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>TIREX_TRACKER_EXPORT <ref refid="group__error_1gad614149e5fc1433cb2b8252452cbbd5a" kindref="member">tirexError</ref></type>
@@ -126,7 +186,7 @@
 <para>This function <bold>must</bold> be called <bold>exactly once</bold> for each measurement job.</para>
 <para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
-<parametername>handle</parametername>
+<parametername direction="in">handle</parametername>
 </parameternamelist>
 <parameterdescription>
 <para>The handle of the running measurement that should be stopped. </para>
@@ -143,13 +203,13 @@
 </parameterlist>
 <simplesect kind="return"><para>TIREX_SUCCESS on success or an error code.</para>
 </simplesect>
-<simplesect kind="see"><para><ref refid="group__measure_1gaf9e3894f9e4e241c1ffdbd32e7c869eb" kindref="member">tirexStartTracking</ref> </para>
+<simplesect kind="see"><para><ref refid="group__measure_1gaeb53f912a218f3b00e437f7e5c83224e" kindref="member">tirexStartTracking</ref> </para>
 </simplesect>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="c/include/tirex_tracker.h" line="339" column="33" declfile="c/include/tirex_tracker.h" declline="339" declcolumn="33"/>
+        <location file="c/include/tirex_tracker.h" line="380" column="33" declfile="c/include/tirex_tracker.h" declline="380" declcolumn="33"/>
       </memberdef>
       </sectiondef>
       <sectiondef kind="define">
@@ -1036,7 +1096,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="c/include/tirex_tracker.h" line="361" column="19"/>
+        <location file="c/include/tirex_tracker.h" line="402" column="19"/>
       </memberdef>
       <memberdef kind="typedef" id="group__measureinfo_1ga32c662d7c60e3c7982fb86aeb08f909f" prot="public" static="no">
         <type>struct <ref refid="structtirexMeasureInfo__st" kindref="compound">tirexMeasureInfo_st</ref></type>
@@ -1049,7 +1109,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="c/include/tirex_tracker.h" line="396" column="18"/>
+        <location file="c/include/tirex_tracker.h" line="437" column="18"/>
       </memberdef>
       </sectiondef>
       <sectiondef kind="var">
@@ -1269,48 +1329,6 @@
         </inbodydescription>
         <location file="c/include/tirex_tracker.h" line="284" column="27" declfile="c/include/tirex_tracker.h" declline="284" declcolumn="27"/>
       </memberdef>
-      <memberdef kind="function" id="tirex__tracker_8h_1a1607ce4d18d35afc1e9f2c5d02ebee47" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>TIREX_TRACKER_EXPORT <ref refid="group__error_1gad614149e5fc1433cb2b8252452cbbd5a" kindref="member">tirexError</ref></type>
-        <definition>TIREX_TRACKER_EXPORT tirexError tirexFetchInfo</definition>
-        <argsstring>(const tirexMeasureConf *measures, tirexResult **result)</argsstring>
-        <name>tirexFetchInfo</name>
-        <param>
-          <type>const <ref refid="tirex__tracker_8h_1a9ff3497be407208454f9c88149abc98f" kindref="member">tirexMeasureConf</ref> *</type>
-          <declname>measures</declname>
-        </param>
-        <param>
-          <type><ref refid="group__tirexresult_1gae3dc7f40e0e661137a892273787b5643" kindref="member">tirexResult</ref> **</type>
-          <declname>result</declname>
-        </param>
-        <briefdescription>
-<para>Fetches the system information from the measures requested in <computeroutput>measures</computeroutput>. </para>
-        </briefdescription>
-        <detaileddescription>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername direction="in">measures</parametername>
-</parameternamelist>
-<parameterdescription>
-<para></para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername direction="out">result</parametername>
-</parameternamelist>
-<parameterdescription>
-<para></para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
-<simplesect kind="return"><para>TIREX_SUCCESS on success or an error code. </para>
-</simplesect>
-</para>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="c/include/tirex_tracker.h" line="309" column="33" declfile="c/include/tirex_tracker.h" declline="309" declcolumn="33"/>
-      </memberdef>
       <memberdef kind="function" id="group__dataprovider_1ga16039e345ab27ed2b9c53437fc7484d7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>TIREX_TRACKER_EXPORT size_t</type>
         <definition>TIREX_TRACKER_EXPORT size_t tirexDataProviderGetAll</definition>
@@ -1357,7 +1375,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="c/include/tirex_tracker.h" line="380" column="29" declfile="c/include/tirex_tracker.h" declline="380" declcolumn="29"/>
+        <location file="c/include/tirex_tracker.h" line="421" column="29" declfile="c/include/tirex_tracker.h" declline="421" declcolumn="29"/>
       </memberdef>
       <memberdef kind="function" id="group__measureinfo_1ga202a43df8fe9307e310af035ade9898d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>TIREX_TRACKER_EXPORT <ref refid="group__error_1gad614149e5fc1433cb2b8252452cbbd5a" kindref="member">tirexError</ref></type>
@@ -1398,7 +1416,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="c/include/tirex_tracker.h" line="405" column="33" declfile="c/include/tirex_tracker.h" declline="405" declcolumn="33"/>
+        <location file="c/include/tirex_tracker.h" line="446" column="33" declfile="c/include/tirex_tracker.h" declline="446" declcolumn="33"/>
       </memberdef>
       </sectiondef>
     <briefdescription>
@@ -1560,33 +1578,41 @@
 <codeline lineno="294"><highlight class="normal"></highlight></codeline>
 <codeline lineno="300"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structtirexMeasureConf__st" kindref="compound">tirexMeasureConf</ref><sp/>tirexNullConf<sp/>=<sp/>{.<ref refid="structtirexMeasureConf__st_1a26b62e5eb1d12cdfc256b9ac3e585a19" kindref="member">source</ref><sp/>=<sp/><ref refid="group__measure_1ggaa07f0d4dae58e407981edba7350896eba8b5b8f39b9da2e0a9e5d3b6fe045a2b1" kindref="member">TIREX_MEASURE_INVALID</ref>};</highlight></codeline>
 <codeline lineno="301"><highlight class="normal"></highlight></codeline>
-<codeline lineno="309" refid="tirex__tracker_8h_1a1607ce4d18d35afc1e9f2c5d02ebee47" refkind="member"><highlight class="normal">TIREX_TRACKER_EXPORT<sp/><ref refid="group__error_1gad614149e5fc1433cb2b8252452cbbd5a" kindref="member">tirexError</ref><sp/><ref refid="tirex__tracker_8h_1a1607ce4d18d35afc1e9f2c5d02ebee47" kindref="member">tirexFetchInfo</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structtirexMeasureConf__st" kindref="compound">tirexMeasureConf</ref>*<sp/>measures,<sp/><ref refid="group__tirexresult_1gae3dc7f40e0e661137a892273787b5643" kindref="member">tirexResult</ref>**<sp/>result);</highlight></codeline>
-<codeline lineno="310"><highlight class="normal"></highlight></codeline>
-<codeline lineno="325"><highlight class="normal">TIREX_TRACKER_EXPORT<sp/><ref refid="group__error_1gad614149e5fc1433cb2b8252452cbbd5a" kindref="member">tirexError</ref></highlight></codeline>
-<codeline lineno="326" refid="group__measure_1gaf9e3894f9e4e241c1ffdbd32e7c869eb" refkind="member"><highlight class="normal"><ref refid="group__measure_1gaf9e3894f9e4e241c1ffdbd32e7c869eb" kindref="member">tirexStartTracking</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structtirexMeasureConf__st" kindref="compound">tirexMeasureConf</ref>*<sp/>measures,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pollIntervalMs,<sp/><ref refid="group__measure_1ga9a7666f6aedaa87f50ef6eca9ac83704" kindref="member">tirexMeasureHandle</ref>**<sp/>handle);</highlight></codeline>
-<codeline lineno="327"><highlight class="normal"></highlight></codeline>
-<codeline lineno="339" refid="group__measure_1gad1a71133482156761c8ec7071aadcf10" refkind="member"><highlight class="normal">TIREX_TRACKER_EXPORT<sp/><ref refid="group__error_1gad614149e5fc1433cb2b8252452cbbd5a" kindref="member">tirexError</ref><sp/><ref refid="group__measure_1gad1a71133482156761c8ec7071aadcf10" kindref="member">tirexStopTracking</ref>(<ref refid="group__measure_1ga9a7666f6aedaa87f50ef6eca9ac83704" kindref="member">tirexMeasureHandle</ref>*<sp/>handle,<sp/><ref refid="group__tirexresult_1gae3dc7f40e0e661137a892273787b5643" kindref="member">tirexResult</ref>**<sp/>result);<sp/></highlight><highlight class="comment">//<sp/>end<sp/>of<sp/>measure</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="341"><highlight class="normal"></highlight></codeline>
-<codeline lineno="354" refid="structtirexDataProvider__st" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtirexDataProvider__st" kindref="compound">tirexDataProvider_st</ref><sp/>{</highlight></codeline>
-<codeline lineno="355" refid="structtirexDataProvider__st_1ad5fcb307543c8153bcec0b919d30631d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/><ref refid="structtirexDataProvider__st_1ad5fcb307543c8153bcec0b919d30631d" kindref="member">name</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="356" refid="structtirexDataProvider__st_1a2da13dd98596ec5797cad26b9205a1f9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/><ref refid="structtirexDataProvider__st_1a2da13dd98596ec5797cad26b9205a1f9" kindref="member">description</ref>;<sp/></highlight></codeline>
-<codeline lineno="360" refid="structtirexDataProvider__st_1a313948d3b1932a39c3647ad361888ba2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/><ref refid="structtirexDataProvider__st_1a313948d3b1932a39c3647ad361888ba2" kindref="member">version</ref>;</highlight></codeline>
-<codeline lineno="361" refid="group__dataprovider_1ga366996afc76428b9a88616cb72d2e0b4" refkind="member"><highlight class="normal">}<sp/><ref refid="group__dataprovider_1ga366996afc76428b9a88616cb72d2e0b4" kindref="member">tirexDataProvider</ref>;</highlight></codeline>
-<codeline lineno="362"><highlight class="normal"></highlight></codeline>
-<codeline lineno="380" refid="group__dataprovider_1ga16039e345ab27ed2b9c53437fc7484d7" refkind="member"><highlight class="normal">TIREX_TRACKER_EXPORT<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="group__dataprovider_1ga16039e345ab27ed2b9c53437fc7484d7" kindref="member">tirexDataProviderGetAll</ref>(<ref refid="structtirexDataProvider__st" kindref="compound">tirexDataProvider</ref>*<sp/>providers,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>bufsize);<sp/></highlight><highlight class="comment">//<sp/>end<sp/>of<sp/>dataprovider</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="312" refid="group__measure_1ga0f7e2c4e84fea3abb9f7b0ec4d16ff3c" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TIREX_PID_SELF<sp/>((int64_t)0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="313"><highlight class="normal"></highlight></codeline>
+<codeline lineno="320" refid="structtirexTrackingConf__st" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtirexTrackingConf__st" kindref="compound">tirexTrackingConf_st</ref><sp/>{</highlight></codeline>
+<codeline lineno="322" refid="structtirexTrackingConf__st_1ad5c5731ce31d8241b2626c31c5435ef4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structtirexMeasureConf__st" kindref="compound">tirexMeasureConf</ref>*<sp/><ref refid="structtirexTrackingConf__st_1ad5c5731ce31d8241b2626c31c5435ef4" kindref="member">measures</ref>;</highlight></codeline>
+<codeline lineno="324" refid="structtirexTrackingConf__st_1a73fb21fe0bb20e864405d715407db6c0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structtirexTrackingConf__st_1a73fb21fe0bb20e864405d715407db6c0" kindref="member">pid</ref>;</highlight></codeline>
+<codeline lineno="339" refid="structtirexTrackingConf__st_1ae77305274f2e97336f8bbc629604748b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structtirexTrackingConf__st_1ae77305274f2e97336f8bbc629604748b" kindref="member">trackSubprocesses</ref>;</highlight></codeline>
+<codeline lineno="342" refid="structtirexTrackingConf__st_1a2d178e2d40077188847ace9698e99470" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structtirexTrackingConf__st_1a2d178e2d40077188847ace9698e99470" kindref="member">pollIntervalMs</ref>;</highlight></codeline>
+<codeline lineno="343" refid="group__measure_1ga4ca5177f79c467d9e4b9f9f99f4577f3" refkind="member"><highlight class="normal">}<sp/><ref refid="group__measure_1ga4ca5177f79c467d9e4b9f9f99f4577f3" kindref="member">tirexTrackingConf</ref>;</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"></highlight></codeline>
+<codeline lineno="356" refid="group__measure_1ga76de6fdd3c47d54d7d0ec623a7d64b3f" refkind="member"><highlight class="normal">TIREX_TRACKER_EXPORT<sp/><ref refid="group__error_1gad614149e5fc1433cb2b8252452cbbd5a" kindref="member">tirexError</ref><sp/><ref refid="group__measure_1ga76de6fdd3c47d54d7d0ec623a7d64b3f" kindref="member">tirexFetchInfo</ref>(<ref refid="structtirexTrackingConf__st" kindref="compound">tirexTrackingConf</ref><sp/>conf,<sp/><ref refid="group__tirexresult_1gae3dc7f40e0e661137a892273787b5643" kindref="member">tirexResult</ref>**<sp/>result);</highlight></codeline>
+<codeline lineno="357"><highlight class="normal"></highlight></codeline>
+<codeline lineno="367" refid="group__measure_1gaeb53f912a218f3b00e437f7e5c83224e" refkind="member"><highlight class="normal">TIREX_TRACKER_EXPORT<sp/><ref refid="group__error_1gad614149e5fc1433cb2b8252452cbbd5a" kindref="member">tirexError</ref><sp/><ref refid="group__measure_1gaeb53f912a218f3b00e437f7e5c83224e" kindref="member">tirexStartTracking</ref>(<ref refid="structtirexTrackingConf__st" kindref="compound">tirexTrackingConf</ref><sp/>conf,<sp/><ref refid="group__measure_1ga9a7666f6aedaa87f50ef6eca9ac83704" kindref="member">tirexMeasureHandle</ref>**<sp/>handle);</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"></highlight></codeline>
+<codeline lineno="380" refid="group__measure_1gad1a71133482156761c8ec7071aadcf10" refkind="member"><highlight class="normal">TIREX_TRACKER_EXPORT<sp/><ref refid="group__error_1gad614149e5fc1433cb2b8252452cbbd5a" kindref="member">tirexError</ref><sp/><ref refid="group__measure_1gad1a71133482156761c8ec7071aadcf10" kindref="member">tirexStopTracking</ref>(<ref refid="group__measure_1ga9a7666f6aedaa87f50ef6eca9ac83704" kindref="member">tirexMeasureHandle</ref>*<sp/>handle,<sp/><ref refid="group__tirexresult_1gae3dc7f40e0e661137a892273787b5643" kindref="member">tirexResult</ref>**<sp/>result);<sp/></highlight><highlight class="comment">//<sp/>end<sp/>of<sp/>measure</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="382"><highlight class="normal"></highlight></codeline>
-<codeline lineno="392" refid="structtirexMeasureInfo__st" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtirexMeasureInfo__st" kindref="compound">tirexMeasureInfo_st</ref><sp/>{</highlight></codeline>
-<codeline lineno="393" refid="structtirexMeasureInfo__st_1a41508b2dd868b181719197dc0376b4bd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/><ref refid="structtirexMeasureInfo__st_1a41508b2dd868b181719197dc0376b4bd" kindref="member">description</ref>;<sp/><sp/></highlight></codeline>
-<codeline lineno="394" refid="structtirexMeasureInfo__st_1af4719ea336f7dd54baadd8ae036e1a43" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__tirexresult_1gabcc42c927741bed4d7ac87ced6951bb8" kindref="member">tirexResultType</ref><sp/><ref refid="structtirexMeasureInfo__st_1af4719ea336f7dd54baadd8ae036e1a43" kindref="member">datatype</ref>;<sp/></highlight></codeline>
-<codeline lineno="395" refid="structtirexMeasureInfo__st_1abffe03c1747db01cde92b3ed0ee943ab" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/><ref refid="structtirexMeasureInfo__st_1abffe03c1747db01cde92b3ed0ee943ab" kindref="member">example</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="396" refid="group__measureinfo_1ga32c662d7c60e3c7982fb86aeb08f909f" refkind="member"><highlight class="normal">}<sp/><ref refid="group__measureinfo_1ga32c662d7c60e3c7982fb86aeb08f909f" kindref="member">tirexMeasureInfo</ref>;</highlight></codeline>
-<codeline lineno="397"><highlight class="normal"></highlight></codeline>
-<codeline lineno="405" refid="group__measureinfo_1ga202a43df8fe9307e310af035ade9898d" refkind="member"><highlight class="normal">TIREX_TRACKER_EXPORT<sp/><ref refid="group__error_1gad614149e5fc1433cb2b8252452cbbd5a" kindref="member">tirexError</ref><sp/><ref refid="group__measureinfo_1ga202a43df8fe9307e310af035ade9898d" kindref="member">tirexMeasureInfoGet</ref>(<ref refid="group__measure_1gaae382e16dd82b3177241819061e4c828" kindref="member">tirexMeasure</ref><sp/>measure,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structtirexMeasureInfo__st" kindref="compound">tirexMeasureInfo</ref>**<sp/>info);<sp/></highlight><highlight class="comment">//<sp/>end<sp/>of<sp/>measureinfo</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="407"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="408"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="409"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="410"><highlight class="normal"></highlight></codeline>
-<codeline lineno="411"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="395" refid="structtirexDataProvider__st" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtirexDataProvider__st" kindref="compound">tirexDataProvider_st</ref><sp/>{</highlight></codeline>
+<codeline lineno="396" refid="structtirexDataProvider__st_1ad5fcb307543c8153bcec0b919d30631d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/><ref refid="structtirexDataProvider__st_1ad5fcb307543c8153bcec0b919d30631d" kindref="member">name</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="397" refid="structtirexDataProvider__st_1a2da13dd98596ec5797cad26b9205a1f9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/><ref refid="structtirexDataProvider__st_1a2da13dd98596ec5797cad26b9205a1f9" kindref="member">description</ref>;<sp/></highlight></codeline>
+<codeline lineno="401" refid="structtirexDataProvider__st_1a313948d3b1932a39c3647ad361888ba2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/><ref refid="structtirexDataProvider__st_1a313948d3b1932a39c3647ad361888ba2" kindref="member">version</ref>;</highlight></codeline>
+<codeline lineno="402" refid="group__dataprovider_1ga366996afc76428b9a88616cb72d2e0b4" refkind="member"><highlight class="normal">}<sp/><ref refid="group__dataprovider_1ga366996afc76428b9a88616cb72d2e0b4" kindref="member">tirexDataProvider</ref>;</highlight></codeline>
+<codeline lineno="403"><highlight class="normal"></highlight></codeline>
+<codeline lineno="421" refid="group__dataprovider_1ga16039e345ab27ed2b9c53437fc7484d7" refkind="member"><highlight class="normal">TIREX_TRACKER_EXPORT<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="group__dataprovider_1ga16039e345ab27ed2b9c53437fc7484d7" kindref="member">tirexDataProviderGetAll</ref>(<ref refid="structtirexDataProvider__st" kindref="compound">tirexDataProvider</ref>*<sp/>providers,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>bufsize);<sp/></highlight><highlight class="comment">//<sp/>end<sp/>of<sp/>dataprovider</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="423"><highlight class="normal"></highlight></codeline>
+<codeline lineno="433" refid="structtirexMeasureInfo__st" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtirexMeasureInfo__st" kindref="compound">tirexMeasureInfo_st</ref><sp/>{</highlight></codeline>
+<codeline lineno="434" refid="structtirexMeasureInfo__st_1a41508b2dd868b181719197dc0376b4bd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/><ref refid="structtirexMeasureInfo__st_1a41508b2dd868b181719197dc0376b4bd" kindref="member">description</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="435" refid="structtirexMeasureInfo__st_1af4719ea336f7dd54baadd8ae036e1a43" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__tirexresult_1gabcc42c927741bed4d7ac87ced6951bb8" kindref="member">tirexResultType</ref><sp/><ref refid="structtirexMeasureInfo__st_1af4719ea336f7dd54baadd8ae036e1a43" kindref="member">datatype</ref>;<sp/></highlight></codeline>
+<codeline lineno="436" refid="structtirexMeasureInfo__st_1abffe03c1747db01cde92b3ed0ee943ab" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/><ref refid="structtirexMeasureInfo__st_1abffe03c1747db01cde92b3ed0ee943ab" kindref="member">example</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="437" refid="group__measureinfo_1ga32c662d7c60e3c7982fb86aeb08f909f" refkind="member"><highlight class="normal">}<sp/><ref refid="group__measureinfo_1ga32c662d7c60e3c7982fb86aeb08f909f" kindref="member">tirexMeasureInfo</ref>;</highlight></codeline>
+<codeline lineno="438"><highlight class="normal"></highlight></codeline>
+<codeline lineno="446" refid="group__measureinfo_1ga202a43df8fe9307e310af035ade9898d" refkind="member"><highlight class="normal">TIREX_TRACKER_EXPORT<sp/><ref refid="group__error_1gad614149e5fc1433cb2b8252452cbbd5a" kindref="member">tirexError</ref><sp/><ref refid="group__measureinfo_1ga202a43df8fe9307e310af035ade9898d" kindref="member">tirexMeasureInfoGet</ref>(<ref refid="group__measure_1gaae382e16dd82b3177241819061e4c828" kindref="member">tirexMeasure</ref><sp/>measure,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structtirexMeasureInfo__st" kindref="compound">tirexMeasureInfo</ref>**<sp/>info);<sp/></highlight><highlight class="comment">//<sp/>end<sp/>of<sp/>measureinfo</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="448"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="449"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="450"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="451"><highlight class="normal"></highlight></codeline>
+<codeline lineno="452"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
     </programlisting>
     <location file="c/include/tirex_tracker.h"/>
   </compounddef>

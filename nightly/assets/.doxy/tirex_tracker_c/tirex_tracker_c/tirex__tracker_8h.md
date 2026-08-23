@@ -37,6 +37,7 @@ _Contains tirex tracker's external C API._
 | struct | [**tirexMeasureConf\_st**](structtirexMeasureConf__st.md) <br> |
 | struct | [**tirexMeasureInfo\_st**](structtirexMeasureInfo__st.md) <br> |
 | struct | [**tirexResultEntry\_st**](structtirexResultEntry__st.md) <br>_Holds a result entry, i.e., a key-value pair of a name (string) and a value (tirexResult)._  |
+| struct | [**tirexTrackingConf\_st**](structtirexTrackingConf__st.md) <br>_Configures a tracking session: which measures to collect, which process (and optionally its descendants) to measure, and how often to poll._  |
 
 
 ## Public Types
@@ -60,6 +61,7 @@ _Contains tirex tracker's external C API._
 | typedef struct [**tirexResultEntry\_st**](structtirexResultEntry__st.md) | [**tirexResultEntry**](#typedef-tirexresultentry)  <br>_Holds a result entry, i.e., a key-value pair of a name (string) and a value (tirexResult)._  |
 | typedef enum [**tirexResultType\_enum**](tirex__tracker_8h.md#enum-tirexresulttype_enum) | [**tirexResultType**](#typedef-tirexresulttype)  <br> |
 | enum  | [**tirexResultType\_enum**](#enum-tirexresulttype_enum)  <br> |
+| typedef struct [**tirexTrackingConf\_st**](structtirexTrackingConf__st.md) | [**tirexTrackingConf**](#typedef-tirextrackingconf)  <br>_Configures a tracking session: which measures to collect, which process (and optionally its descendants) to measure, and how often to poll._  |
 
 
 
@@ -90,7 +92,7 @@ _Contains tirex tracker's external C API._
 | Type | Name |
 | ---: | :--- |
 |  TIREX\_TRACKER\_EXPORT size\_t | [**tirexDataProviderGetAll**](#function-tirexdataprovidergetall) ([**tirexDataProvider**](tirex__tracker_8h.md#typedef-tirexdataprovider) \* providers, size\_t bufsize) <br>_Populates the given buffer with all available providers (or at most_ `bufsize` _if_`buf` _is not large enugh) and returns the total number of available providers._ |
-|  TIREX\_TRACKER\_EXPORT [**tirexError**](tirex__tracker_8h.md#typedef-tirexerror) | [**tirexFetchInfo**](#function-tirexfetchinfo) (const [**tirexMeasureConf**](tirex__tracker_8h.md#typedef-tirexmeasureconf) \* measures, [**tirexResult**](tirex__tracker_8h.md#typedef-tirexresult) \*\* result) <br>_Fetches the system information from the measures requested in_ `measures` _._ |
+|  TIREX\_TRACKER\_EXPORT [**tirexError**](tirex__tracker_8h.md#typedef-tirexerror) | [**tirexFetchInfo**](#function-tirexfetchinfo) ([**tirexTrackingConf**](tirex__tracker_8h.md#typedef-tirextrackingconf) conf, [**tirexResult**](tirex__tracker_8h.md#typedef-tirexresult) \*\* result) <br>_Fetches the system information from the measures requested in_ `conf` _, about the process identified by_`conf.pid` _(TIREX\_PID\_SELF, the default, for the calling process)._ |
 |  TIREX\_TRACKER\_EXPORT [**tirexError**](tirex__tracker_8h.md#typedef-tirexerror) | [**tirexMeasureInfoGet**](#function-tirexmeasureinfoget) ([**tirexMeasure**](tirex__tracker_8h.md#typedef-tirexmeasure) measure, const [**tirexMeasureInfo**](tirex__tracker_8h.md#typedef-tirexmeasureinfo) \*\* info) <br> |
 |  TIREX\_TRACKER\_EXPORT [**tirexError**](tirex__tracker_8h.md#typedef-tirexerror) | [**tirexResultEntryGetByIndex**](#function-tirexresultentrygetbyindex) (const [**tirexResult**](tirex__tracker_8h.md#typedef-tirexresult) \* result, size\_t index, [**tirexResultEntry**](tirex__tracker_8h.md#typedef-tirexresultentry) \* entry) <br> |
 |  TIREX\_TRACKER\_EXPORT [**tirexError**](tirex__tracker_8h.md#typedef-tirexerror) | [**tirexResultEntryNum**](#function-tirexresultentrynum) (const [**tirexResult**](tirex__tracker_8h.md#typedef-tirexresult) \* result, size\_t \* num) <br>_Returns the number of entries contained in the result set._  |
@@ -98,7 +100,7 @@ _Contains tirex tracker's external C API._
 |  TIREX\_TRACKER\_EXPORT void | [**tirexSetAbortCallback**](#function-tirexsetabortcallback) ([**tirexAbortCallback**](tirex__tracker_8h.md#typedef-tirexabortcallback) callback) <br>_Set a callback that should be used in case the program needs to abort._  |
 |  TIREX\_TRACKER\_EXPORT void | [**tirexSetAbortLevel**](#function-tirexsetabortlevel) ([**tirexLogLevel**](tirex__tracker_8h.md#typedef-tirexloglevel) level) <br> |
 |  TIREX\_TRACKER\_EXPORT void | [**tirexSetLogCallback**](#function-tirexsetlogcallback) ([**tirexLogCallback**](tirex__tracker_8h.md#typedef-tirexlogcallback) callback) <br>_Set a callback that should be used for all future logs._  |
-|  TIREX\_TRACKER\_EXPORT [**tirexError**](tirex__tracker_8h.md#typedef-tirexerror) | [**tirexStartTracking**](#function-tirexstarttracking) (const [**tirexMeasureConf**](tirex__tracker_8h.md#typedef-tirexmeasureconf) \* measures, size\_t pollIntervalMs, [**tirexMeasureHandle**](tirex__tracker_8h.md#typedef-tirexmeasurehandle) \*\* handle) <br>_Initializes the providers set in the configuration and starts measuring._  |
+|  TIREX\_TRACKER\_EXPORT [**tirexError**](tirex__tracker_8h.md#typedef-tirexerror) | [**tirexStartTracking**](#function-tirexstarttracking) ([**tirexTrackingConf**](tirex__tracker_8h.md#typedef-tirextrackingconf) conf, [**tirexMeasureHandle**](tirex__tracker_8h.md#typedef-tirexmeasurehandle) \*\* handle) <br>_Initializes the providers set in the configuration and starts measuring._  |
 |  TIREX\_TRACKER\_EXPORT [**tirexError**](tirex__tracker_8h.md#typedef-tirexerror) | [**tirexStopTracking**](#function-tirexstoptracking) ([**tirexMeasureHandle**](tirex__tracker_8h.md#typedef-tirexmeasurehandle) \* handle, [**tirexResult**](tirex__tracker_8h.md#typedef-tirexresult) \*\* result) <br>_Stops the measurement and deinitializes the data providers._  |
 
 
@@ -135,6 +137,7 @@ _Contains tirex tracker's external C API._
 | define  | [**TIREX\_AGG\_MEAN**](tirex__tracker_8h.md#define-tirex_agg_mean)  `(1 &lt;&lt; 4)`<br> |
 | define  | [**TIREX\_AGG\_MIN**](tirex__tracker_8h.md#define-tirex_agg_min)  `(1 &lt;&lt; 3)`<br> |
 | define  | [**TIREX\_AGG\_NO**](tirex__tracker_8h.md#define-tirex_agg_no)  `(1 &lt;&lt; 1)`<br> |
+| define  | [**TIREX\_PID\_SELF**](tirex__tracker_8h.md#define-tirex_pid_self)  `((int64\_t)0)`<br>_Sentinel_ [_**tirexTrackingConf::pid**_](structtirexTrackingConf__st.md#variable-pid) _value meaning "track the calling process." This is the default: a zero-initialized tirexTrackingConf tracks the caller._ |
 | define  | [**static\_assert**](tirex__tracker_8h.md#define-static_assert) (cond, msg) <br> |
 
 ## Public Types Documentation
@@ -490,6 +493,24 @@ Note: Currently unused
         
 
 <hr>
+
+
+
+### typedef tirexTrackingConf 
+
+_Configures a tracking session: which measures to collect, which process (and optionally its descendants) to measure, and how often to poll._ 
+```C++
+typedef struct tirexTrackingConf_st tirexTrackingConf;
+```
+
+
+
+For a minimal config, use`tirexTrackingConf{.measures = ..., .pollIntervalMs = 100}` to track the current process without its children. 
+
+
+        
+
+<hr>
 ## Public Static Attributes Documentation
 
 
@@ -564,14 +585,17 @@ The number of available data providers.
 
 ### function tirexFetchInfo 
 
-_Fetches the system information from the measures requested in_ `measures` _._
+_Fetches the system information from the measures requested in_ `conf` _, about the process identified by_`conf.pid` _(TIREX\_PID\_SELF, the default, for the calling process)._
 ```C++
 TIREX_TRACKER_EXPORT tirexError tirexFetchInfo (
-    const tirexMeasureConf * measures,
+    tirexTrackingConf conf,
     tirexResult ** result
 ) 
 ```
 
+
+
+`conf.pollIntervalMs` is ignored, since this is a one-shot fetch rather than an ongoing tracking session. Some measures depend on which process is targeted (e.g., TIREX\_INVOCATION and the git- and devcontainer-related measures are resolved relative to `conf.pid` 's working directory).
 
 
 
@@ -579,7 +603,7 @@ TIREX_TRACKER_EXPORT tirexError tirexFetchInfo (
 **Parameters:**
 
 
-* `measures` 
+* `conf` 
 * `result` 
 
 
@@ -813,8 +837,7 @@ Per default, nothing is logged and passing NULL for `callback` disables logging.
 _Initializes the providers set in the configuration and starts measuring._ 
 ```C++
 TIREX_TRACKER_EXPORT tirexError tirexStartTracking (
-    const tirexMeasureConf * measures,
-    size_t pollIntervalMs,
+    tirexTrackingConf conf,
     tirexMeasureHandle ** handle
 ) 
 ```
@@ -826,8 +849,7 @@ TIREX_TRACKER_EXPORT tirexError tirexStartTracking (
 **Parameters:**
 
 
-* `measures` 
-* `pollIntervalMs` 
+* `conf` configures the tracking behavior (which measures, which process, ...). 
 * `handle` a handle to the running measurement. 
 
 
@@ -954,6 +976,24 @@ For each aggregation intervall, store the minimum value.
 
 
 Perform no aggregation. 
+
+
+        
+
+<hr>
+
+
+
+### define TIREX\_PID\_SELF 
+
+_Sentinel_ [_**tirexTrackingConf::pid**_](structtirexTrackingConf__st.md#variable-pid) _value meaning "track the calling process." This is the default: a zero-initialized tirexTrackingConf tracks the caller._
+```C++
+#define TIREX_PID_SELF `((int64_t)0)`
+```
+
+
+
+Safe as a sentinel since 0 is never a real process ID (reserved for kernel/scheduler bookkeeping on POSIX, and for the System Idle Process on Windows). 
 
 
         

@@ -1111,6 +1111,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#tirextrackingconf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tirexTrackingConf
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#tirexmeasure-enum" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1322,6 +1333,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#tirextrackingconf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tirexTrackingConf
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#tirexmeasure-enum" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1426,8 +1448,8 @@
 </thead>
 <tbody>
 <tr>
-<td><code>tirexStartTracking(conf, pollIntervalMs, handle)</code></td>
-<td>Start tracking the measures specified in <code>conf</code>.</td>
+<td><code>tirexStartTracking(conf, handle)</code></td>
+<td>Start a tracking session as configured by <code>conf</code>.</td>
 </tr>
 <tr>
 <td><code>tirexStopTracking(handle, result)</code></td>
@@ -1435,7 +1457,7 @@
 </tr>
 <tr>
 <td><code>tirexFetchInfo(conf, result)</code></td>
-<td>Query static hardware info without continuous tracking.</td>
+<td>Query static hardware/process info without continuous tracking.</td>
 </tr>
 <tr>
 <td><code>tirexResultEntryGetByIndex(result, i, entry)</code></td>
@@ -1478,43 +1500,99 @@
 <div class="language-c highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">tirexMeasureConf</span><span class="w"> </span><span class="n">conf</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="p">{</span><span class="n">TIREX_TIME_ELAPSED_WALL_CLOCK_MS</span><span class="p">,</span><span class="w"> </span><span class="n">TIREX_AGG_NO</span><span class="p">},</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="p">{</span><span class="n">TIREX_CPU_USED_PROCESS_PERCENT</span><span class="p">,</span><span class="w">   </span><span class="n">TIREX_AGG_MAX</span><span class="p">},</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="n">tirexNullMeasureConf</span><span class="w">   </span><span class="c1">// sentinel — required</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="n">tirexNullConf</span><span class="w">   </span><span class="c1">// sentinel — required</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">};</span>
 </span></code></pre></div>
+<h3 id="tirextrackingconf"><code>tirexTrackingConf</code><a class="headerlink" href="#tirextrackingconf" title="Permanent link">&para;</a></h3>
+<p>Configures a tracking session (<code>tirexStartTracking</code>) or one-shot info fetch (<code>tirexFetchInfo</code>): which measures to
+collect, which process (and optionally its descendants) to target, and how often to poll:</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">tirexTrackingConf_st</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tirexMeasureConf</span><span class="o">*</span><span class="w"> </span><span class="n">measures</span><span class="p">;</span><span class="w">  </span><span class="c1">// tirexNullConf-terminated array of measures</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">pid</span><span class="p">;</span><span class="w">                       </span><span class="c1">// TIREX_PID_SELF (default) or an explicit target PID</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">trackSubprocesses</span><span class="p">;</span><span class="w">            </span><span class="c1">// if true, also track pid's descendants</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">pollIntervalMs</span><span class="p">;</span><span class="w">             </span><span class="c1">// polling interval; ignored by tirexFetchInfo</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">}</span><span class="w"> </span><span class="n">tirexTrackingConf</span><span class="p">;</span>
+</span></code></pre></div>
+<p>A zero-initialized <code>tirexTrackingConf</code> tracks the calling process alone,<code>TIREX_PID_SELF</code>, is defined as <code>0</code>, which is
+never a real process ID (reserved for kernel/scheduler bookkeeping on POSIX and the System Idle Process on Windows), so
+this is safe by construction:</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">tirexTrackingConf</span><span class="w"> </span><span class="n">conf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{.</span><span class="n">measures</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">measures</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">pollIntervalMs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="p">};</span>
+</span></code></pre></div>
+<p>To target a different, already-known process (e.g. a spawned subprocess), set <code>pid</code> explicitly. Setting
+<code>trackSubprocesses = true</code> additionally discovers and aggregates that process's own descendants at each poll, for both
+<code>TIREX_CPU_USED_PROCESS_PERCENT</code> and <code>TIREX_RAM_USED_PROCESS_KB</code>:</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">tirexTrackingConf</span><span class="w"> </span><span class="n">conf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="p">.</span><span class="n">measures</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">measures</span><span class="p">,</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="p">.</span><span class="n">pid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">child_pid</span><span class="p">,</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="p">.</span><span class="n">trackSubprocesses</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="p">.</span><span class="n">pollIntervalMs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="p">};</span>
+</span></code></pre></div>
+<p>CPU time is additive across a process tree on every platform, so tree-mode CPU is exact. RAM is not simply additive;
+summing raw resident memory would double-count pages shared between processes (shared libraries, <code>fork()</code>-inherited
+copy-on-write pages) — so each platform instead reports its own best-available approximation:</p>
+<table>
+<thead>
+<tr>
+<th>Platform</th>
+<th>Technique</th>
+<th>Known imprecision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Linux</td>
+<td>Sum of each process's PSS (<code>/proc/&lt;pid&gt;/smaps_rollup</code>)</td>
+<td>May slightly undercount pages also shared with processes <em>outside</em> the tracked tree</td>
+</tr>
+<tr>
+<td>macOS</td>
+<td>Sum of each process's <code>ri_phys_footprint</code> (<code>proc_pid_rusage</code>)</td>
+<td>Not a fair-share scheme — can overcount memory the tree's own members share with each other</td>
+</tr>
+<tr>
+<td>Windows</td>
+<td>Sum of each process's <code>PrivateUsage</code> (<code>PROCESS_MEMORY_COUNTERS_EX</code>)</td>
+<td>Excludes all shared memory, so it undercounts memory shared <em>within</em> the tree; tracks committed virtual memory rather than resident physical memory</td>
+</tr>
+</tbody>
+</table>
+<p>Some measures depend on which process is targeted — <code>TIREX_INVOCATION</code> and the git- and devcontainer-related measures
+are resolved relative to <code>conf.pid</code>'s working directory, for both <code>tirexFetchInfo</code> and <code>tirexStartTracking</code>.</p>
 <h3 id="tirexmeasure-enum"><code>tirexMeasure</code> enum<a class="headerlink" href="#tirexmeasure-enum" title="Permanent link">&para;</a></h3>
 <p>All ~51 measure constants are prefixed with <code>TIREX_</code>. See <a href="../../guides/measures/">Tracked Measures</a> for descriptions and examples.</p>
 <h3 id="tirexaggregation-flags"><code>tirexAggregation</code> flags<a class="headerlink" href="#tirexaggregation-flags" title="Permanent link">&para;</a></h3>
-<div class="language-c highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">TIREX_AGG_NO</span><span class="w">    </span><span class="c1">// no aggregation (returns full time series)</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">TIREX_AGG_MAX</span><span class="w">   </span><span class="c1">// maximum value</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">TIREX_AGG_MIN</span><span class="w">   </span><span class="c1">// minimum value</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">TIREX_AGG_MEAN</span><span class="w">  </span><span class="c1">// arithmetic mean</span>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">TIREX_AGG_NO</span><span class="w">    </span><span class="c1">// no aggregation (returns full time series)</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">TIREX_AGG_MAX</span><span class="w">   </span><span class="c1">// maximum value</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">TIREX_AGG_MIN</span><span class="w">   </span><span class="c1">// minimum value</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">TIREX_AGG_MEAN</span><span class="w">  </span><span class="c1">// arithmetic mean</span>
 </span></code></pre></div>
 <p>Flags can be OR-combined: <code>TIREX_AGG_MAX | TIREX_AGG_MEAN</code>.</p>
 <h3 id="tirexresulttype-enum"><code>tirexResultType</code> enum<a class="headerlink" href="#tirexresulttype-enum" title="Permanent link">&para;</a></h3>
 <p>Indicates how to interpret a <code>tirexResultEntry.value</code> string:</p>
-<div class="language-c highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">TIREX_STRING</span><span class="w">    </span><span class="c1">// plain UTF-8 string</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">TIREX_INTEGER</span><span class="w">   </span><span class="c1">// parse as integer</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">TIREX_FLOATING</span><span class="w">  </span><span class="c1">// parse as floating-point number</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">TIREX_BOOLEAN</span><span class="w">   </span><span class="c1">// &quot;0&quot; or &quot;1&quot;</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">TIREX_STRING_LIST</span><span class="w">   </span><span class="c1">// JSON array of strings</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">TIREX_INTEGER_LIST</span><span class="w">  </span><span class="c1">// JSON array of integers</span>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">TIREX_STRING</span><span class="w">    </span><span class="c1">// plain UTF-8 string</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">TIREX_INTEGER</span><span class="w">   </span><span class="c1">// parse as integer</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">TIREX_FLOATING</span><span class="w">  </span><span class="c1">// parse as floating-point number</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">TIREX_BOOLEAN</span><span class="w">   </span><span class="c1">// "0" or "1"</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">TIREX_STRING_LIST</span><span class="w">   </span><span class="c1">// JSON array of strings</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="n">TIREX_INTEGER_LIST</span><span class="w">  </span><span class="c1">// JSON array of integers</span>
 </span></code></pre></div>
 <h3 id="tirexloglevel-enum"><code>tirexLogLevel</code> enum<a class="headerlink" href="#tirexloglevel-enum" title="Permanent link">&para;</a></h3>
-<div class="language-c highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">TIREX_LOG_TRACE</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">TIREX_LOG_DEBUG</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">TIREX_LOG_INFO</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">TIREX_LOG_WARN</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">TIREX_LOG_ERROR</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">TIREX_LOG_CRITICAL</span>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">TIREX_LOG_TRACE</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">TIREX_LOG_DEBUG</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">TIREX_LOG_INFO</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">TIREX_LOG_WARN</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">TIREX_LOG_ERROR</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="n">TIREX_LOG_CRITICAL</span>
 </span></code></pre></div>
 <hr />
 <h2 id="ir-extension">IR extension<a class="headerlink" href="#ir-extension" title="Permanent link">&para;</a></h2>
 <p>When the library is compiled with <code>TIREX_TRACKER_EXTENSION_IR ON</code>, the additional header <code>irtracker.h</code> provides:</p>
-<div class="language-c highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexResultExportIrMetadata</span><span class="p">(</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tirexResult</span><span class="o">*</span><span class="w"> </span><span class="n">info</span><span class="p">,</span><span class="w">    </span><span class="c1">// from tirexFetchInfo()</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tirexResult</span><span class="o">*</span><span class="w"> </span><span class="n">result</span><span class="p">,</span><span class="w">  </span><span class="c1">// from tirexStopTracking()</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w">        </span><span class="n">filepath</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">);</span>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexResultExportIrMetadata</span><span class="p">(</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tirexResult</span><span class="o">*</span><span class="w"> </span><span class="n">info</span><span class="p">,</span><span class="w">    </span><span class="c1">// from tirexFetchInfo()</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tirexResult</span><span class="o">*</span><span class="w"> </span><span class="n">result</span><span class="p">,</span><span class="w">  </span><span class="c1">// from tirexStopTracking()</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w">        </span><span class="n">filepath</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="p">);</span>
 </span></code></pre></div>
 <p>See the <a href="../../guides/ir-metadata/">IR Metadata guide</a> for the output format.</p>
 <hr />

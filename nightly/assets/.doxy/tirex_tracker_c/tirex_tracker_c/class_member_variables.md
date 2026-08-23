@@ -19,9 +19,20 @@
 * **example** ([**tirexMeasureInfo\_st**](structtirexMeasureInfo__st.md))
 
 
+## m
+
+* **measures** ([**tirexTrackingConf\_st**](structtirexTrackingConf__st.md))
+
+
 ## n
 
 * **name** ([**tirexDataProvider\_st**](structtirexDataProvider__st.md))
+
+
+## p
+
+* **pid** ([**tirexTrackingConf\_st**](structtirexTrackingConf__st.md))
+* **pollIntervalMs** ([**tirexTrackingConf\_st**](structtirexTrackingConf__st.md))
 
 
 ## s
@@ -32,6 +43,7 @@
 ## t
 
 * **type** ([**tirexResultEntry\_st**](structtirexResultEntry__st.md))
+* **trackSubprocesses** ([**tirexTrackingConf\_st**](structtirexTrackingConf__st.md))
 
 
 ## v

@@ -1212,6 +1212,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#typedef-tirextrackingconf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        typedef tirexTrackingConf
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1228,6 +1239,17 @@
   
     <nav class="md-nav" aria-label="Public Functions Documentation">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#function-tirexfetchinfo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function tirexFetchInfo
+      
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#function-tirexstarttracking" class="md-nav__link">
@@ -1312,6 +1334,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#define-tirex_pid_self" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define TIREX_PID_SELF
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1364,6 +1397,10 @@
 <td style="text-align: right;">enum</td>
 <td style="text-align: left;"><a href="#enum-tirexmeasure_enum"><strong>tirexMeasure_enum</strong></a>  <br><em>Identifiers for all available measurements.</em></td>
 </tr>
+<tr>
+<td style="text-align: right;">typedef struct <a href="../structtirexTrackingConf__st/"><strong>tirexTrackingConf_st</strong></a></td>
+<td style="text-align: left;"><a href="#typedef-tirextrackingconf"><strong>tirexTrackingConf</strong></a>  <br><em>Configures a tracking session: which measures to collect, which process (and optionally its descendants) to measure, and how often to poll.</em></td>
+</tr>
 </tbody>
 </table>
 <h2 id="public-functions">Public Functions<a class="headerlink" href="#public-functions" title="Permanent link">&para;</a></h2>
@@ -1377,7 +1414,11 @@
 <tbody>
 <tr>
 <td style="text-align: right;">TIREX_TRACKER_EXPORT <a href="../tirex__tracker_8h/#typedef-tirexerror"><strong>tirexError</strong></a></td>
-<td style="text-align: left;"><a href="#function-tirexstarttracking"><strong>tirexStartTracking</strong></a> (const <a href="../tirex__tracker_8h/#typedef-tirexmeasureconf"><strong>tirexMeasureConf</strong></a> * measures, size_t pollIntervalMs, <a href="../tirex__tracker_8h/#typedef-tirexmeasurehandle"><strong>tirexMeasureHandle</strong></a> ** handle) <br><em>Initializes the providers set in the configuration and starts measuring.</em></td>
+<td style="text-align: left;"><a href="#function-tirexfetchinfo"><strong>tirexFetchInfo</strong></a> (<a href="../tirex__tracker_8h/#typedef-tirextrackingconf"><strong>tirexTrackingConf</strong></a> conf, <a href="../tirex__tracker_8h/#typedef-tirexresult"><strong>tirexResult</strong></a> ** result) <br><em>Fetches the system information from the measures requested in</em> <code>conf</code> <em>, about the process identified by</em><code>conf.pid</code> <em>(TIREX_PID_SELF, the default, for the calling process).</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">TIREX_TRACKER_EXPORT <a href="../tirex__tracker_8h/#typedef-tirexerror"><strong>tirexError</strong></a></td>
+<td style="text-align: left;"><a href="#function-tirexstarttracking"><strong>tirexStartTracking</strong></a> (<a href="../tirex__tracker_8h/#typedef-tirextrackingconf"><strong>tirexTrackingConf</strong></a> conf, <a href="../tirex__tracker_8h/#typedef-tirexmeasurehandle"><strong>tirexMeasureHandle</strong></a> ** handle) <br><em>Initializes the providers set in the configuration and starts measuring.</em></td>
 </tr>
 <tr>
 <td style="text-align: right;">TIREX_TRACKER_EXPORT <a href="../tirex__tracker_8h/#typedef-tirexerror"><strong>tirexError</strong></a></td>
@@ -1409,6 +1450,10 @@
 <tr>
 <td style="text-align: right;">define</td>
 <td style="text-align: left;"><a href="../tirex__tracker_8h/#define-tirex_agg_no"><strong>TIREX_AGG_NO</strong></a>  <code>(1 &amp;lt;&amp;lt; 1)</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="../tirex__tracker_8h/#define-tirex_pid_self"><strong>TIREX_PID_SELF</strong></a>  <code>((int64\_t)0)</code><br><em>Sentinel</em> <a href="../structtirexTrackingConf__st/#variable-pid"><em><strong>tirexTrackingConf::pid</strong></em></a> <em>value meaning "track the calling process." This is the default: a zero-initialized tirexTrackingConf tracks the caller.</em></td>
 </tr>
 </tbody>
 </table>
@@ -1492,19 +1537,41 @@
 </span></code></pre></div></p>
 <p>Different types (EnvInfo, Time Series, Measure) </p>
 <hr>
+
+<h3 id="typedef-tirextrackingconf">typedef tirexTrackingConf<a class="headerlink" href="#typedef-tirextrackingconf" title="Permanent link">&para;</a></h3>
+<p><em>Configures a tracking session: which measures to collect, which process (and optionally its descendants) to measure, and how often to poll.</em> 
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">tirexTrackingConf_st</span><span class="w"> </span><span class="n">tirexTrackingConf</span><span class="p">;</span>
+</span></code></pre></div></p>
+<p>For a minimal config, use<code>tirexTrackingConf{.measures = ..., .pollIntervalMs = 100}</code> to track the current process without its children. </p>
+<hr>
 <h2 id="public-functions-documentation">Public Functions Documentation<a class="headerlink" href="#public-functions-documentation" title="Permanent link">&para;</a></h2>
+<h3 id="function-tirexfetchinfo">function tirexFetchInfo<a class="headerlink" href="#function-tirexfetchinfo" title="Permanent link">&para;</a></h3>
+<p><em>Fetches the system information from the measures requested in</em> <code>conf</code> <em>, about the process identified by</em><code>conf.pid</code> <em>(TIREX_PID_SELF, the default, for the calling process).</em>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexFetchInfo</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="n">tirexTrackingConf</span><span class="w"> </span><span class="n">conf</span><span class="p">,</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="n">tirexResult</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">result</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="p">)</span><span class="w"> </span>
+</span></code></pre></div></p>
+<p><code>conf.pollIntervalMs</code> is ignored, since this is a one-shot fetch rather than an ongoing tracking session. Some measures depend on which process is targeted (e.g., TIREX_INVOCATION and the git- and devcontainer-related measures are resolved relative to <code>conf.pid</code> 's working directory).</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>conf</code> </li>
+<li><code>result</code> </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>TIREX_SUCCESS on success or an error code. </p>
+<hr>
+
 <h3 id="function-tirexstarttracking">function tirexStartTracking<a class="headerlink" href="#function-tirexstarttracking" title="Permanent link">&para;</a></h3>
 <p><em>Initializes the providers set in the configuration and starts measuring.</em> 
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexStartTracking</span><span class="w"> </span><span class="p">(</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tirexMeasureConf</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">measures</span><span class="p">,</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">pollIntervalMs</span><span class="p">,</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="n">tirexMeasureHandle</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">handle</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">)</span><span class="w"> </span>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexStartTracking</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="n">tirexTrackingConf</span><span class="w"> </span><span class="n">conf</span><span class="p">,</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="n">tirexMeasureHandle</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">handle</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="p">)</span><span class="w"> </span>
 </span></code></pre></div></p>
 <p><strong>Parameters:</strong></p>
 <ul>
-<li><code>measures</code> </li>
-<li><code>pollIntervalMs</code> </li>
+<li><code>conf</code> configures the tracking behavior (which measures, which process, ...). </li>
 <li><code>handle</code> a handle to the running measurement. </li>
 </ul>
 <p><strong>Returns:</strong></p>
@@ -1514,10 +1581,10 @@
 
 <h3 id="function-tirexstoptracking">function tirexStopTracking<a class="headerlink" href="#function-tirexstoptracking" title="Permanent link">&para;</a></h3>
 <p><em>Stops the measurement and deinitializes the data providers.</em> 
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexStopTracking</span><span class="w"> </span><span class="p">(</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="n">tirexMeasureHandle</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">handle</span><span class="p">,</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="n">tirexResult</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">result</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="p">)</span><span class="w"> </span>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">TIREX_TRACKER_EXPORT</span><span class="w"> </span><span class="n">tirexError</span><span class="w"> </span><span class="n">tirexStopTracking</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="n">tirexMeasureHandle</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">handle</span><span class="p">,</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="n">tirexResult</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">result</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="p">)</span><span class="w"> </span>
 </span></code></pre></div></p>
 <p>This function <strong>must</strong> be called <strong>exactly once</strong> for each measurement job.</p>
 <p><strong>Parameters:</strong></p>
@@ -1531,27 +1598,34 @@
 <hr>
 <h2 id="macro-definition-documentation">Macro Definition Documentation<a class="headerlink" href="#macro-definition-documentation" title="Permanent link">&para;</a></h2>
 <h3 id="define-tirex_agg_max">define TIREX_AGG_MAX<a class="headerlink" href="#define-tirex_agg_max" title="Permanent link">&para;</a></h3>
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="cp">#define TIREX_AGG_MAX `(1 &lt;&lt; 2)`</span>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="cp">#define TIREX_AGG_MAX `(1 &lt;&lt; 2)`</span>
 </span></code></pre></div>
 <p>For each aggregation intervall, store the maximum value. </p>
 <hr>
 
 <h3 id="define-tirex_agg_mean">define TIREX_AGG_MEAN<a class="headerlink" href="#define-tirex_agg_mean" title="Permanent link">&para;</a></h3>
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="cp">#define TIREX_AGG_MEAN `(1 &lt;&lt; 4)`</span>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="cp">#define TIREX_AGG_MEAN `(1 &lt;&lt; 4)`</span>
 </span></code></pre></div>
 <p>For each aggregation intervall, store the average value. </p>
 <hr>
 
 <h3 id="define-tirex_agg_min">define TIREX_AGG_MIN<a class="headerlink" href="#define-tirex_agg_min" title="Permanent link">&para;</a></h3>
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="cp">#define TIREX_AGG_MIN `(1 &lt;&lt; 3)`</span>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="cp">#define TIREX_AGG_MIN `(1 &lt;&lt; 3)`</span>
 </span></code></pre></div>
 <p>For each aggregation intervall, store the minimum value. </p>
 <hr>
 
 <h3 id="define-tirex_agg_no">define TIREX_AGG_NO<a class="headerlink" href="#define-tirex_agg_no" title="Permanent link">&para;</a></h3>
-<div class="language-C++ highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="cp">#define TIREX_AGG_NO `(1 &lt;&lt; 1)`</span>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="cp">#define TIREX_AGG_NO `(1 &lt;&lt; 1)`</span>
 </span></code></pre></div>
 <p>Perform no aggregation. </p>
+<hr>
+
+<h3 id="define-tirex_pid_self">define TIREX_PID_SELF<a class="headerlink" href="#define-tirex_pid_self" title="Permanent link">&para;</a></h3>
+<p><em>Sentinel</em> <a href="../structtirexTrackingConf__st/#variable-pid"><em><strong>tirexTrackingConf::pid</strong></em></a> <em>value meaning "track the calling process." This is the default: a zero-initialized tirexTrackingConf tracks the caller.</em>
+<div class="language-C++ highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="cp">#define TIREX_PID_SELF `((int64_t)0)`</span>
+</span></code></pre></div></p>
+<p>Safe as a sentinel since 0 is never a real process ID (reserved for kernel/scheduler bookkeeping on POSIX, and for the System Idle Process on Windows). </p>
 <hr>
 
 <hr />

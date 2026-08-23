@@ -161,10 +161,18 @@ typedef struct tirexMeasureConf_st {
 
 static const tirexMeasureConf tirexNullConf = {.source = TIREX_MEASURE_INVALID};
 
-TIREX_TRACKER_EXPORT tirexError tirexFetchInfo(const tirexMeasureConf* measures, tirexResult** result);
+#define TIREX_PID_SELF ((int64_t)0)
 
-TIREX_TRACKER_EXPORT tirexError
-tirexStartTracking(const tirexMeasureConf* measures, size_t pollIntervalMs, tirexMeasureHandle** handle);
+typedef struct tirexTrackingConf_st {
+    const tirexMeasureConf* measures;
+    int64_t pid;
+    bool trackSubprocesses;
+    size_t pollIntervalMs;
+} tirexTrackingConf;
+
+TIREX_TRACKER_EXPORT tirexError tirexFetchInfo(tirexTrackingConf conf, tirexResult** result);
+
+TIREX_TRACKER_EXPORT tirexError tirexStartTracking(tirexTrackingConf conf, tirexMeasureHandle** handle);
 
 TIREX_TRACKER_EXPORT tirexError tirexStopTracking(tirexMeasureHandle* handle, tirexResult** result); // end of measure
 

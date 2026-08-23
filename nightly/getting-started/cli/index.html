@@ -1397,25 +1397,25 @@
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>./tirex-tracker<span class="w"> </span>--help
 </span></code></pre></div>
 <h2 id="basic-usage">Basic usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h2>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>tirex-tracker<span class="w"> </span><span class="s2">&quot;&lt;command&gt;&quot;</span>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>tirex-tracker<span class="w"> </span><span class="s2">"&lt;command&gt;"</span>
 </span></code></pre></div>
 <p>Replace <code>&lt;command&gt;</code> with the shell command whose execution you want to measure. TIREx Tracker starts tracking immediately before the command runs and stops as soon as the command exits.</p>
 <h3 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h3>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>tirex-tracker<span class="w"> </span><span class="s2">&quot;python train.py --epochs 10&quot;</span>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>tirex-tracker<span class="w"> </span><span class="s2">"python train.py --epochs 10"</span>
 </span></code></pre></div>
 <p>This records CPU usage, RAM usage, wall-clock time, GPU metrics (if available), energy consumption, and Git repository state for the duration of <code>python train.py --epochs 10</code>.</p>
 <h2 id="output-format">Output format<a class="headerlink" href="#output-format" title="Permanent link">&para;</a></h2>
 <p>By default, TIREx Tracker prints a YAML summary to standard output after the command completes. To export in the <a href="../../guides/ir-metadata/"><code>ir_metadata</code></a> format instead, use the <code>--output</code> flag:</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>tirex-tracker<span class="w"> </span>--fromat<span class="w"> </span>irmetadata<span class="w"> </span>-o<span class="w"> </span>ir_metadata.yml<span class="w"> </span><span class="s2">&quot;python train.py&quot;</span>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>tirex-tracker<span class="w"> </span>--fromat<span class="w"> </span>irmetadata<span class="w"> </span>-o<span class="w"> </span>ir_metadata.yml<span class="w"> </span><span class="s2">"python train.py"</span>
 </span></code></pre></div>
 <h2 id="selecting-measures">Selecting measures<a class="headerlink" href="#selecting-measures" title="Permanent link">&para;</a></h2>
 <p>By default, all available measures are collected. To restrict tracking to specific groups, use the <code>--measures</code> flag:</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>tirex-tracker<span class="w"> </span>--source<span class="w"> </span>system<span class="w"> </span>--source<span class="w"> </span>energy<span class="w"> </span><span class="s2">&quot;python train.py&quot;</span>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>tirex-tracker<span class="w"> </span>--source<span class="w"> </span>system<span class="w"> </span>--source<span class="w"> </span>energy<span class="w"> </span><span class="s2">"python train.py"</span>
 </span></code></pre></div>
 <p>Available groups: <code>system</code>, <code>git</code>, <code>energy</code>, <code>gpu</code>, <code>devcontainer</code>.</p>
 <h2 id="poll-interval">Poll interval<a class="headerlink" href="#poll-interval" title="Permanent link">&para;</a></h2>
 <p>Time-series measures (CPU usage, RAM usage, GPU utilization) are sampled at a configurable interval. The default is 100 ms. Increase it to reduce overhead, decrease it for finer-grained data:</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>tirex-tracker<span class="w"> </span>--poll-interval<span class="w"> </span><span class="m">500</span><span class="w"> </span><span class="s2">&quot;python train.py&quot;</span>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>tirex-tracker<span class="w"> </span>--poll-interval<span class="w"> </span><span class="m">500</span><span class="w"> </span><span class="s2">"python train.py"</span>
 </span></code></pre></div>
 <h2 id="full-option-reference">Full option reference<a class="headerlink" href="#full-option-reference" title="Permanent link">&para;</a></h2>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>tirex-tracker --help

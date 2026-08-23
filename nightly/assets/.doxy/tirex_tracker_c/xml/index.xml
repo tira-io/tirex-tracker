@@ -19,11 +19,20 @@
     <member refid="structtirexResultEntry__st_1a9a554e5535dd19fdc79a7c2e1f2622a8" kind="variable"><name>value</name></member>
     <member refid="structtirexResultEntry__st_1a1a3deb2c3e86b363b4c42aef91894d28" kind="variable"><name>type</name></member>
   </compound>
+  <compound refid="structtirexTrackingConf__st" kind="struct"><name>tirexTrackingConf_st</name>
+    <member refid="structtirexTrackingConf__st_1ad5c5731ce31d8241b2626c31c5435ef4" kind="variable"><name>measures</name></member>
+    <member refid="structtirexTrackingConf__st_1a73fb21fe0bb20e864405d715407db6c0" kind="variable"><name>pid</name></member>
+    <member refid="structtirexTrackingConf__st_1ae77305274f2e97336f8bbc629604748b" kind="variable"><name>trackSubprocesses</name></member>
+    <member refid="structtirexTrackingConf__st_1a2d178e2d40077188847ace9698e99470" kind="variable"><name>pollIntervalMs</name></member>
+  </compound>
   <compound refid="irtracker_8h" kind="file"><name>irtracker.h</name>
     <member refid="group__irtracking_1ga6773ca7a4d65e4fd20a0ba025499a6d4" kind="function"><name>tirexResultExportIrMetadata</name></member>
   </compound>
   <compound refid="tirex__tracker_8h" kind="file"><name>tirex_tracker.h</name>
-    <member refid="group__measure_1gaf9e3894f9e4e241c1ffdbd32e7c869eb" kind="function"><name>tirexStartTracking</name></member>
+    <member refid="group__measure_1ga0f7e2c4e84fea3abb9f7b0ec4d16ff3c" kind="define"><name>TIREX_PID_SELF</name></member>
+    <member refid="group__measure_1ga4ca5177f79c467d9e4b9f9f99f4577f3" kind="typedef"><name>tirexTrackingConf</name></member>
+    <member refid="group__measure_1ga76de6fdd3c47d54d7d0ec623a7d64b3f" kind="function"><name>tirexFetchInfo</name></member>
+    <member refid="group__measure_1gaeb53f912a218f3b00e437f7e5c83224e" kind="function"><name>tirexStartTracking</name></member>
     <member refid="group__measure_1gad1a71133482156761c8ec7071aadcf10" kind="function"><name>tirexStopTracking</name></member>
     <member refid="group__measure_1ga96d9be2464ea67e8c6dff3c5a433491a" kind="define"><name>TIREX_AGG_NO</name></member>
     <member refid="group__measure_1gab6ee86c0c2f5871f13036e29779efb17" kind="define"><name>TIREX_AGG_MAX</name></member>
@@ -127,7 +136,6 @@
     <member refid="group__tirexresult_1gade4e38799aa67ca927515f4438314ad2" kind="function"><name>tirexResultEntryGetByIndex</name></member>
     <member refid="group__tirexresult_1ga9c2c6c7723c651929254f2db7e9ad761" kind="function"><name>tirexResultEntryNum</name></member>
     <member refid="group__tirexresult_1gaa6a62a4724ebca020580640f6ee010da" kind="function"><name>tirexResultFree</name></member>
-    <member refid="tirex__tracker_8h_1a1607ce4d18d35afc1e9f2c5d02ebee47" kind="function"><name>tirexFetchInfo</name></member>
     <member refid="group__dataprovider_1ga16039e345ab27ed2b9c53437fc7484d7" kind="function"><name>tirexDataProviderGetAll</name></member>
     <member refid="group__measureinfo_1ga202a43df8fe9307e310af035ade9898d" kind="function"><name>tirexMeasureInfoGet</name></member>
   </compound>
@@ -153,7 +161,10 @@
     <member refid="group__error_1ga2fa6107b92a081ce58bbc2db1917d8de" kind="function"><name>tirexSetAbortCallback</name></member>
   </compound>
   <compound refid="group__measure" kind="group"><name>measure</name>
-    <member refid="group__measure_1gaf9e3894f9e4e241c1ffdbd32e7c869eb" kind="function"><name>tirexStartTracking</name></member>
+    <member refid="group__measure_1ga4ca5177f79c467d9e4b9f9f99f4577f3" kind="typedef"><name>tirexTrackingConf</name></member>
+    <member refid="group__measure_1ga0f7e2c4e84fea3abb9f7b0ec4d16ff3c" kind="define"><name>TIREX_PID_SELF</name></member>
+    <member refid="group__measure_1ga76de6fdd3c47d54d7d0ec623a7d64b3f" kind="function"><name>tirexFetchInfo</name></member>
+    <member refid="group__measure_1gaeb53f912a218f3b00e437f7e5c83224e" kind="function"><name>tirexStartTracking</name></member>
     <member refid="group__measure_1gad1a71133482156761c8ec7071aadcf10" kind="function"><name>tirexStopTracking</name></member>
     <member refid="group__measure_1gaa07f0d4dae58e407981edba7350896eb" kind="enum"><name>tirexMeasure_enum</name></member>
     <member refid="group__measure_1ggaa07f0d4dae58e407981edba7350896ebaa41d235de637187ef76c8b0bc9b0c5fc" kind="enumvalue"><name>TIREX_OS_NAME</name></member>

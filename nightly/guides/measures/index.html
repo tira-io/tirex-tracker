@@ -702,6 +702,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#the-tracked-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The tracked process
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#operating-system" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1279,6 +1290,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#the-tracked-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The tracked process
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#operating-system" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1406,6 +1428,55 @@
 <li><strong>Dynamic</strong> — sampled periodically during tracking and reduced to a time series with aggregation (CPU usage, RAM usage, GPU utilization).</li>
 <li><strong>Accumulated</strong> — measured as a total over the tracking period (energy in joules).</li>
 </ul>
+<hr />
+<h2 id="the-tracked-process">The tracked process<a class="headerlink" href="#the-tracked-process" title="Permanent link">&para;</a></h2>
+<p>Several measures below are scoped to "the tracked process" (e.g. <code>TIREX_CPU_USED_PROCESS_PERCENT</code>,
+<code>TIREX_RAM_USED_PROCESS_KB</code>, <code>TIREX_INVOCATION</code>, and the Git measures, which are resolved relative to that process's
+working directory). By default this is <strong>the calling process itself</strong>, i.e., the process that called
+<code>tirexStartTracking</code>/<code>tirexFetchInfo</code> (or the Python/JVM wrapper equivalent).</p>
+<p>Two independent options change this:</p>
+<ul>
+<li><strong>Target a different process.</strong> Pass an explicit process ID (e.g. the PID of a subprocess you just spawned) instead of
+  the default self-sentinel (<code>TIREX_PID_SELF</code> in C, <code>pid=None</code> in Python, <code>pid=null</code> in Kotlin/Java). This is the way to
+  track a driver process's worker, e.g. <code>subprocess.Popen</code>/<code>ProcessBuilder</code> output that does the actual experiment work.</li>
+<li><strong>Follow that process's descendants.</strong> Enable <code>trackSubprocesses</code> (on by default in Python and JVM; opt-in in C) to
+  also discover and aggregate whatever the targeted process itself spawns, rather than measuring it alone.</li>
+</ul>
+<p>These combine: tracking <code>{pid=&lt;worker&gt;, trackSubprocesses=true}</code> covers a worker that itself fans out further (e.g. a
+multiprocessing pool), aggregating CPU and RAM across the whole tree.</p>
+<p><strong>CPU</strong> time is additive across a process tree on every platform. A tree-mode CPU measurement is exact, with no caveats.</p>
+<p><strong>RAM</strong> cannot simply be summed across processes: doing so would double-count physical pages shared between them (shared
+libraries, <code>fork()</code>-inherited copy-on-write pages). Each platform therefore reports its own best-available approximation
+when <code>trackSubprocesses</code> is enabled:</p>
+<table>
+<thead>
+<tr>
+<th>Platform</th>
+<th>Technique</th>
+<th>Known imprecision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Linux</td>
+<td>Sum of each process's PSS (<code>/proc/&lt;pid&gt;/smaps_rollup</code>)</td>
+<td>May slightly undercount pages also shared with processes <em>outside</em> the tracked tree</td>
+</tr>
+<tr>
+<td>macOS</td>
+<td>Sum of each process's <code>ri_phys_footprint</code> (<code>proc_pid_rusage</code>)</td>
+<td>Not a fair-share scheme — can overcount memory the tree's own members share with each other</td>
+</tr>
+<tr>
+<td>Windows</td>
+<td>Sum of each process's <code>PrivateUsage</code> (<code>PROCESS_MEMORY_COUNTERS_EX</code>)</td>
+<td>Excludes all shared memory, so it undercounts memory shared <em>within</em> the tree; tracks committed virtual memory rather than resident physical memory</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Short-lived children:</strong> the process tree is rediscovered at each poll tick. A child that starts and exits entirely
+within one poll interval may be missed or under-sampled — this is an inherent limitation of external (non-parent)
+process monitoring on Linux/macOS, not a bug. Lowering the poll interval reduces (but does not eliminate) this risk.</p>
 <hr />
 <h2 id="operating-system">Operating System<a class="headerlink" href="#operating-system" title="Permanent link">&para;</a></h2>
 <table>

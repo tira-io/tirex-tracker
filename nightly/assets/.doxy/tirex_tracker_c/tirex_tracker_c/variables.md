@@ -23,6 +23,7 @@
 * **tirexResultEntry** ([**tirex\_tracker.h**](tirex__tracker_8h.md))
 * **tirexResultType** ([**tirex\_tracker.h**](tirex__tracker_8h.md))
 * **tirexResultType\_enum** ([**tirex\_tracker.h**](tirex__tracker_8h.md))
+* **tirexTrackingConf** ([**tirex\_tracker.h**](tirex__tracker_8h.md))
 
 
 
