@@ -612,7 +612,7 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v6
       - name: 🧰 Install Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
       - name: 📥 Download Linux x86_64 library
@@ -682,7 +682,7 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v6
       - name: 🧰 Install Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
           cache: pip
@@ -743,7 +743,7 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v6
       - name: 🧰 Install Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
           cache: pip
@@ -805,7 +805,7 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v6
       - name: 🧰 Install Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
           cache: pip
@@ -874,7 +874,7 @@ jobs:
       - name: 📥 Check-out
         uses: actions/checkout@v6
       - name: 🧰 Install Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
           cache: pip
@@ -957,7 +957,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: 🧰 Install Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
@@ -986,7 +986,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: 🧰 Install Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
