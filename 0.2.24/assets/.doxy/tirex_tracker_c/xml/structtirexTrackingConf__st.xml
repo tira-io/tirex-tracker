@@ -1,0 +1,92 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtirexTrackingConf__st" kind="struct" language="C++" prot="public">
+    <compoundname>tirexTrackingConf_st</compoundname>
+    <includes refid="tirex__tracker_8h" local="no">tirex_tracker.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structtirexTrackingConf__st_1ad5c5731ce31d8241b2626c31c5435ef4" prot="public" static="no" mutable="no">
+        <type>const <ref refid="tirex__tracker_8h_1a9ff3497be407208454f9c88149abc98f" kindref="member">tirexMeasureConf</ref> *</type>
+        <definition>const tirexMeasureConf* tirexTrackingConf_st::measures</definition>
+        <argsstring></argsstring>
+        <name>measures</name>
+        <briefdescription>
+<para>tirexNullConf-terminated array of measures to track. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="322" column="24" bodyfile="c/include/tirex_tracker.h" bodystart="322" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtirexTrackingConf__st_1a73fb21fe0bb20e864405d715407db6c0" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t tirexTrackingConf_st::pid</definition>
+        <argsstring></argsstring>
+        <name>pid</name>
+        <briefdescription>
+<para>TIREX_PID_SELF (default) to track the calling process, or an explicit target process ID. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="324" column="9" bodyfile="c/include/tirex_tracker.h" bodystart="324" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtirexTrackingConf__st_1ae77305274f2e97336f8bbc629604748b" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tirexTrackingConf_st::trackSubprocesses</definition>
+        <argsstring></argsstring>
+        <name>trackSubprocesses</name>
+        <briefdescription>
+<para>If true, also discover and aggregate the descendants of <computeroutput>pid</computeroutput> over the tracking session, instead of measuring <computeroutput>pid</computeroutput> alone. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Applies to both TIREX_CPU_USED_PROCESS_PERCENT and TIREX_RAM_USED_PROCESS_KB, summed across <computeroutput>pid</computeroutput> and every descendant process discovered at each poll. CPU time is simply additive (never shared between processes), so that figure is exact. RAM cannot simply be summed (that would double-count pages shared between processes, e.g. shared libraries or fork()-inherited copy-on-write pages), so each platform instead uses its own best-available deduplicated approximation: PSS on Linux (divides each shared page&apos;s cost by its global mapper count; may slightly undercount pages also shared with processes outside the tracked tree), ri_phys_footprint on macOS (Apple&apos;s own per-process accounting, but not a fair-share scheme; can overcount memory the tree&apos;s own members share with each other), and PrivateUsage on Windows (excludes all shared memory entirely, so it cannot double-count but does undercount by any memory shared within the tree; also tracks committed virtual memory rather than strictly resident physical memory, unlike the single-process figure). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="339" column="6" bodyfile="c/include/tirex_tracker.h" bodystart="339" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtirexTrackingConf__st_1a2d178e2d40077188847ace9698e99470" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t tirexTrackingConf_st::pollIntervalMs</definition>
+        <argsstring></argsstring>
+        <name>pollIntervalMs</name>
+        <briefdescription>
+<para>The interval, in milliseconds, at which to poll for updated stats. Ignored by tirexFetchInfo, which does not poll. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="c/include/tirex_tracker.h" line="342" column="8" bodyfile="c/include/tirex_tracker.h" bodystart="342" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Configures a tracking session: which measures to collect, which process (and optionally its descendants) to measure, and how often to poll. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>For a minimal config, use<computeroutput>tirexTrackingConf{.measures = ..., .pollIntervalMs = 100}</computeroutput> to track the current process without its children. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>tirexMeasureConf_st</label>
+        <link refid="structtirexMeasureConf__st"/>
+      </node>
+      <node id="1">
+        <label>tirexTrackingConf_st</label>
+        <link refid="structtirexTrackingConf__st"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>measures</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="c/include/tirex_tracker.h" line="320" column="1" bodyfile="c/include/tirex_tracker.h" bodystart="320" bodyend="343"/>
+    <listofallmembers>
+      <member refid="structtirexTrackingConf__st_1ad5c5731ce31d8241b2626c31c5435ef4" prot="public" virt="non-virtual"><scope>tirexTrackingConf_st</scope><name>measures</name></member>
+      <member refid="structtirexTrackingConf__st_1a73fb21fe0bb20e864405d715407db6c0" prot="public" virt="non-virtual"><scope>tirexTrackingConf_st</scope><name>pid</name></member>
+      <member refid="structtirexTrackingConf__st_1a2d178e2d40077188847ace9698e99470" prot="public" virt="non-virtual"><scope>tirexTrackingConf_st</scope><name>pollIntervalMs</name></member>
+      <member refid="structtirexTrackingConf__st_1ae77305274f2e97336f8bbc629604748b" prot="public" virt="non-virtual"><scope>tirexTrackingConf_st</scope><name>trackSubprocesses</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>
