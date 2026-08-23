@@ -225,8 +225,10 @@ namespace tirex {
 			if (right == segments.begin())
 				return;
 			Iter left = std::prev(right);
-			pairCosts.emplace(
-					ts::details::mergeCost(*left, *right), left->id, right->id, left->version, right->version
+			// Not pairCosts.emplace(...): PairCost is a plain aggregate, and parenthesized aggregate init (P0960)
+			// isn't supported by libc++'s construct_at on all supported compilers (e.g. Apple Clang 15).
+			pairCosts.push(
+					PairCost{ts::details::mergeCost(*left, *right), left->id, right->id, left->version, right->version}
 			);
 		}
 

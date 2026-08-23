@@ -19,6 +19,7 @@
 
 #include <libproc.h>
 #include <mach/mach.h>
+#include <mach/mach_time.h>
 #include <sys/resource.h>
 #include <unistd.h>
 
@@ -127,8 +128,14 @@ std::tuple<size_t, size_t> SystemStats::getSysAndUserTime() const {
 }
 
 size_t SystemStats::tickToMs(size_t tick) {
-	/** "Tick" may be the wrong word here but proc_pidinfo returns time in nanoseconds which we convert to ms here. **/
-	return tick / 1000'000u;
+	/* pti_total_user/pti_total_system are Mach absolute time units. They must be scaled by the platform's timebase
+	 * before converting to ms.*/
+	static const mach_timebase_info_data_t timebase = [] {
+		mach_timebase_info_data_t info;
+		mach_timebase_info(&info);
+		return info;
+	}();
+	return tick * timebase.numer / timebase.denom / 1000'000u;
 }
 
 static unsigned getRAMUsageKB(pid_t pid) {

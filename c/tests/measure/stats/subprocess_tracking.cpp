@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#if __linux__
+#if defined(__linux__) || defined(__APPLE__)
 #include <nlohmann/json.hpp>
 
 #include <unistd.h>
@@ -143,6 +143,7 @@ TEST_CASE("trackSubprocesses aggregates a child's CPU usage; disabled mode does 
 	}
 }
 
+#if defined(__linux__)
 TEST_CASE(
 		"trackSubprocesses' RAM aggregation does not double-count memory shared across the tree", "[TrackingTarget]"
 ) {
@@ -197,5 +198,43 @@ TEST_CASE(
 	CHECK(maxRamKB > 60.0 * 1024);
 	CHECK(maxRamKB < 200.0 * 1024);
 }
+#elif defined(__APPLE__)
+// macOS has no PSS (fair-share) accounting like Linux's smaps_rollup -- proc_pid_rusage's ri_phys_footprint is
+// summed per-process as-is (see readProcessPhysFootprint's doc comment in systemstats_macos.cpp), so a dedup
+// bound like the Linux test's isn't meaningful here. This instead just confirms a child's private memory is
+// actually picked up by the tree aggregation, i.e. that discoverProcessTree()+ri_phys_footprint summation works.
+TEST_CASE("trackSubprocesses' RAM aggregation includes a child's private memory usage", "[TrackingTarget]") {
+	constexpr size_t privateSize = size_t{50} * 1024 * 1024; // 50 MB, private to the child.
+
+	pid_t child = fork();
+	REQUIRE(child >= 0);
+	if (child == 0) {
+		void* priv = mmap(nullptr, privateSize, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		if (priv == MAP_FAILED)
+			_exit(1);
+		std::memset(priv, 0xCD, privateSize); // Fault in all pages so they count towards resident/phys footprint.
+		std::this_thread::sleep_for(std::chrono::milliseconds(600));
+		_exit(0);
+	}
+	ChildGuard guard{child};
+
+	tirexMeasureConf measures[] = {{TIREX_RAM_USED_PROCESS_KB, TIREX_AGG_MAX}, tirexNullConf};
+	tirexTrackingConf conf{.measures = measures, .trackSubprocesses = true, .pollIntervalMs = 50};
+	tirexMeasureHandle* handle;
+	REQUIRE(tirexStartTracking(conf, &handle) == tirexError::TIREX_SUCCESS);
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(300)); // Let the child settle and get sampled.
+
+	tirexResult* result;
+	REQUIRE(tirexStopTracking(handle, &result) == tirexError::TIREX_SUCCESS);
+	auto maxRamKB = extractMax(result, TIREX_RAM_USED_PROCESS_KB);
+	tirexResultFree(result);
+
+	// The tracked total includes this test process's own baseline usage plus the child's ~50 MB; a bug that failed
+	// to walk into the child at all (e.g. discoverProcessTree only returning the root) would report well under it.
+	INFO("max RAM reported (KB): " << maxRamKB);
+	CHECK(maxRamKB > 40.0 * 1024);
+}
+#endif
 
 #endif

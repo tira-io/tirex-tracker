@@ -307,13 +307,11 @@ static GitStatusStats getStatusStats(git_repository* repo) {
 				++stats.numNew;
 			/** Any other kind of change to an already-tracked file (not just content modification) also counts as an
 			 * uncommitted change: deletions, renames, type changes, and merge conflicts. */
-			else if (
-					entry->status & (git_status_t::GIT_STATUS_INDEX_MODIFIED | git_status_t::GIT_STATUS_WT_MODIFIED |
-									 git_status_t::GIT_STATUS_INDEX_DELETED | git_status_t::GIT_STATUS_WT_DELETED |
-									 git_status_t::GIT_STATUS_INDEX_RENAMED | git_status_t::GIT_STATUS_WT_RENAMED |
-									 git_status_t::GIT_STATUS_INDEX_TYPECHANGE |
-									 git_status_t::GIT_STATUS_WT_TYPECHANGE | git_status_t::GIT_STATUS_CONFLICTED)
-			)
+			else if (entry->status & (git_status_t::GIT_STATUS_INDEX_MODIFIED | git_status_t::GIT_STATUS_WT_MODIFIED |
+									  git_status_t::GIT_STATUS_INDEX_DELETED | git_status_t::GIT_STATUS_WT_DELETED |
+									  git_status_t::GIT_STATUS_INDEX_RENAMED | git_status_t::GIT_STATUS_WT_RENAMED |
+									  git_status_t::GIT_STATUS_INDEX_TYPECHANGE |
+									  git_status_t::GIT_STATUS_WT_TYPECHANGE | git_status_t::GIT_STATUS_CONFLICTED))
 				++stats.numModified;
 		}
 		git_status_list_free(list);

@@ -5,7 +5,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_range_equals.hpp>
 
-#if __linux__
+#if defined(__linux__) || defined(__APPLE__)
 #include <unistd.h>
 
 #include <algorithm>
@@ -118,8 +118,9 @@ TEST_CASE(
 	pid_t child = fork();
 	REQUIRE(child >= 0);
 	if (child == 0) {
-		// Every thread here gets its own top-level /proc/<tid> entry on Linux; discoverProcessTree must not mistake
-		// any of them for a separate child process (see osutils.hpp's Tgid-filtering contract).
+		// On Linux, every thread here gets its own top-level /proc/<tid> entry; discoverProcessTree must not mistake
+		// any of them for a separate child process (see osutils.hpp's Tgid-filtering contract). On macOS,
+		// proc_listchildpids only ever reports child processes, but this still guards against a regression there.
 		std::vector<std::thread> threads;
 		for (int i = 0; i < 3; ++i)
 			threads.emplace_back([] { std::this_thread::sleep_for(std::chrono::milliseconds(500)); });
