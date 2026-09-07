@@ -31,7 +31,7 @@ dependencies {
     implementation("net.java.dev.jna:jna-platform:5.19.1")
     api("net.java.dev.jna:jna:5.19.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
-    implementation("org.yaml:snakeyaml:2.6")
+    implementation("org.yaml:snakeyaml:2.7")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
